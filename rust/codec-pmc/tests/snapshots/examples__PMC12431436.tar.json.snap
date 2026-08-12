@@ -4200,10 +4200,22 @@ expression: article
                   "type": "Paragraph",
                   "content": [
                     {
-                      "type": "Text",
-                      "value": {
-                        "string": "The number of symbols [+ and –]: the number of samples examined. + : detected, –: not detected. dpi: days post-infection. MOI: multiplicity of infection."
-                      }
+                      "type": "Note",
+                      "id": "t003fn001",
+                      "noteType": "Footnote",
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "The number of symbols [+ and –]: the number of samples examined. + : detected, –: not detected. dpi: days post-infection. MOI: multiplicity of infection."
+                              }
+                            }
+                          ]
+                        }
+                      ]
                     }
                   ]
                 }
@@ -5304,10 +5316,22 @@ expression: article
                   "type": "Paragraph",
                   "content": [
                     {
-                      "type": "Text",
-                      "value": {
-                        "string": "The number of symbols [+, (+), and –]: the number of samples examined. + : detected in all three repeated reactions per one sample, (+): detected only once or twice in three repeated reactions per one sample, –: not detected in three repeated reactions per one sample. MOI: multiplicity of infection."
-                      }
+                      "type": "Note",
+                      "id": "t002fn001",
+                      "noteType": "Footnote",
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "The number of symbols [+, (+), and –]: the number of samples examined. + : detected in all three repeated reactions per one sample, (+): detected only once or twice in three repeated reactions per one sample, –: not detected in three repeated reactions per one sample. MOI: multiplicity of infection."
+                              }
+                            }
+                          ]
+                        }
+                      ]
                     }
                   ]
                 }
@@ -5925,10 +5949,22 @@ expression: article
                   "type": "Paragraph",
                   "content": [
                     {
-                      "type": "Text",
-                      "value": {
-                        "string": "* Infection rate was shown as per 1,000 mosquitoes."
-                      }
+                      "type": "Note",
+                      "id": "t004fn001",
+                      "noteType": "Footnote",
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "* Infection rate was shown as per 1,000 mosquitoes."
+                              }
+                            }
+                          ]
+                        }
+                      ]
                     }
                   ]
                 },
@@ -5936,10 +5972,22 @@ expression: article
                   "type": "Paragraph",
                   "content": [
                     {
-                      "type": "Text",
-                      "value": {
-                        "string": "CI: Confidence Interval."
-                      }
+                      "type": "Note",
+                      "id": "t004fn002",
+                      "noteType": "Footnote",
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "CI: Confidence Interval."
+                              }
+                            }
+                          ]
+                        }
+                      ]
                     }
                   ]
                 }

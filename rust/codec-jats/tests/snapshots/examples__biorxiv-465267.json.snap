@@ -18559,6 +18559,47 @@ expression: article
       ]
     },
     {
+      "type": "Paragraph",
+      "content": [
+        {
+          "type": "Note",
+          "id": "fn-1",
+          "noteType": "Footnote",
+          "content": [
+            {
+              "type": "Paragraph",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "\n            "
+                  }
+                },
+                {
+                  "type": "Link",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "https://github.com/COSIN3-UOC"
+                      }
+                    }
+                  ],
+                  "target": "https://github.com/COSIN3-UOC"
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "\n          "
+                  }
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
       "type": "Section",
       "sectionType": "CodeAvailability",
       "content": [
@@ -18629,6 +18670,52 @@ expression: article
               "value": {
                 "string": "M.J.P., A.S.-R. and J.B-H. acknowledge the support of the Spanish MICINN project PGC2018-096999-A-I00. M.J.P. acknowledges as well the support of a Postdoctoral research grant from the Universitat Oberta de Catalunya (UOC)."
               }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "Paragraph",
+      "content": [
+        {
+          "type": "Note",
+          "id": "fn1",
+          "noteType": "Footnote",
+          "content": [
+            {
+              "type": "Paragraph",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "In the case of bipartite networks, this definition is valid provided one compares nodes belonging to the same class."
+                  }
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "Paragraph",
+      "content": [
+        {
+          "type": "Note",
+          "id": "fn2",
+          "noteType": "Footnote",
+          "content": [
+            {
+              "type": "Paragraph",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "2 × 2 submatrices containing 1’s in the main diagonal and 0’s outside, or vice versa"
+                  }
+                }
+              ]
             }
           ]
         }

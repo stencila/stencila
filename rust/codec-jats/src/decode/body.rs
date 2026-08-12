@@ -1,4 +1,4 @@
-use std::str::FromStr;
+use std::{iter::once, str::FromStr};
 
 use itertools::Itertools;
 use roxmltree::Node;
@@ -40,6 +40,7 @@ fn is_block_element(tag: &str) -> bool {
             | "disp-quote"
             | "fig"
             | "fig-group"
+            | "fn-group"
             | "hr"
             | "list"
             | "p"
@@ -48,6 +49,16 @@ fn is_block_element(tag: &str) -> bool {
             | "supplementary-material"
             | "table-wrap"
     )
+}
+
+/// Whether a JATS element within a `<p>` should end the paragraph and be
+/// decoded as a block in its own right
+///
+/// Excludes `<code>`, which JATS allows as a block within a paragraph but which
+/// Stencila also emits for inline code, so treating it as a block would break
+/// the round trip of inline code.
+fn splits_paragraph(tag: &str) -> bool {
+    is_block_element(tag) && !matches!(tag, "code" | "p")
 }
 
 /// Decode block content nodes
@@ -76,6 +87,10 @@ pub(super) fn decode_blocks<'a, 'input: 'a, I: Iterator<Item = Node<'a, 'input>>
             }
             "fn" => {
                 blocks.append(&mut decode_fn(&child_path, &child, losses, depth));
+                continue;
+            }
+            "fn-group" => {
+                blocks.append(&mut decode_fn_group(&child_path, &child, losses, depth));
                 continue;
             }
             "graphic" => {
@@ -156,9 +171,13 @@ fn decode_hr(path: &str, node: &Node, losses: &mut Losses) -> Block {
 
 /// Decode a <p> element to a vector of blocks
 ///
-/// In addition to [`Paragraph`] nodes, this function may return [`Figure`],
-/// [`Table`], [`MathBlock`] or [`Supplement`] nodes, which in JATS can be
-/// within a <p> element.
+/// JATS allows many block elements (lists, boxed text, quotes, figures, tables,
+/// formulas and supplementary material amongst them) to appear inside a `<p>`.
+/// Any such child ends the paragraph being accumulated, is decoded as a block in
+/// its own right, and a new paragraph is started for the inline content that
+/// follows it. Note that `<fn>` is deliberately not treated as a block child
+/// here: within a paragraph it is a footnote anchored at that point and is
+/// decoded as an inline [`Note`].
 fn decode_p(path: &str, node: &Node, losses: &mut Losses) -> Vec<Block> {
     record_attrs_lost(path, node, [], losses);
 
@@ -182,23 +201,13 @@ fn decode_p(path: &str, node: &Node, losses: &mut Losses) -> Vec<Block> {
     let mut children = Vec::new();
     for child in node.children() {
         let child_tag = child.tag_name().name();
-        if matches!(
-            child_tag,
-            "fig" | "table-wrap" | "disp-formula" | "supplementary-material"
-        ) {
+        if child.is_element() && splits_paragraph(child_tag) {
             if let Some(para) = para(path, children, losses) {
                 blocks.push(para);
             }
             children = Vec::new();
 
-            let block = match child_tag {
-                "table-wrap" => decode_table_wrap(path, &child, losses, 0),
-                "fig" => decode_fig(path, &child, losses, 0),
-                "disp-formula" => decode_disp_formula(path, &child, losses, 0),
-                "supplementary-material" => decode_supplementary_material(path, &child, losses, 0),
-                _ => unreachable!(),
-            };
-            blocks.push(block);
+            blocks.append(&mut decode_blocks(path, once(child), losses, 0));
         } else {
             children.push(child);
         }
@@ -490,12 +499,107 @@ fn decode_fig(path: &str, node: &Node, losses: &mut Losses, depth: u8) -> Block 
     })
 }
 
-/// Decode a `<fn>` element to a vector of Stencila [`Block`]s
+/// Decode a `<fn>` element in a block context
+///
+/// A footnote is a [`Note`], which in the Stencila Schema is an inline, so the
+/// note is wrapped in a paragraph. Encoding that paragraph emits `<p><fn>…</fn></p>`
+/// which decodes back to the same node, keeping the note addressable by its id
+/// and keeping its type and content intact.
 fn decode_fn(path: &str, node: &Node, losses: &mut Losses, depth: u8) -> Vec<Block> {
-    // TODO: attach the decoded blocks to a Stencila `Note`
-    record_attrs_lost(path, node, [], losses);
+    let id = node.attribute("id").map(String::from);
+    let note_type = note_type(node);
 
-    decode_blocks(path, node.children(), losses, depth)
+    record_attrs_lost(path, node, ["id", "fn-type", "custom-type"], losses);
+
+    let content = decode_fn_content(path, node, losses, depth);
+    if content.is_empty() {
+        return Vec::new();
+    }
+
+    vec![p([Inline::Note(Note {
+        id,
+        note_type,
+        content,
+        ..Default::default()
+    })])]
+}
+
+/// Decode the content of a `<fn>` element, ignoring its `<label>`
+///
+/// A footnote label is a marker (e.g. `1`, `*`) that is regenerated on display,
+/// and there is no property for it on [`Note`], so it is recorded as lost.
+fn decode_fn_content(path: &str, node: &Node, losses: &mut Losses, depth: u8) -> Vec<Block> {
+    let mut children = Vec::new();
+    for child in node.children() {
+        if child.tag_name().name() == "label" {
+            losses.add(extend_path(path, "label"));
+        } else {
+            children.push(child);
+        }
+    }
+
+    decode_blocks(path, children.into_iter(), losses, depth)
+}
+
+/// Determine the [`NoteType`] of a `<fn>` element from its `fn-type` and `custom-type`
+fn note_type(node: &Node) -> NoteType {
+    let fn_type = node.attribute("fn-type").unwrap_or_default();
+    let custom_type = node.attribute("custom-type").unwrap_or_default();
+
+    if fn_type == "custom" {
+        match custom_type.to_lowercase().as_str() {
+            "endnote" => NoteType::Endnote,
+            "sidenote" => NoteType::Sidenote,
+            _ => NoteType::Footnote,
+        }
+    } else {
+        NoteType::Footnote
+    }
+}
+
+/// Decode a `<fn-group>` element to a vector of Stencila [`Block`]s
+///
+/// Some footnote groups are section-like: competing interests and author
+/// contribution statements are prose that happens to be tagged as footnotes.
+/// Those become a typed [`Section`] holding the statements directly. Any other
+/// group is a transparent wrapper around its footnotes, which are preserved as
+/// [`Note`] nodes.
+fn decode_fn_group(path: &str, node: &Node, losses: &mut Losses, depth: u8) -> Vec<Block> {
+    let section_type = node
+        .attribute("content-type")
+        .and_then(|value| SectionType::from_text(value).ok())
+        .or_else(|| {
+            node.children()
+                .find(|child| child.tag_name().name() == "title")
+                .and_then(|node| node.text())
+                .and_then(|value| SectionType::from_text(value).ok())
+        });
+
+    record_attrs_lost(path, node, ["content-type"], losses);
+
+    let Some(section_type) = section_type else {
+        return decode_blocks(path, node.children(), losses, depth);
+    };
+
+    // Take the content of each footnote directly: within a section-like group
+    // the notes are the statements of the section, not annotations on it
+    let mut content = Vec::new();
+    for child in node.children() {
+        let tag = child.tag_name().name();
+        if tag == "fn" {
+            let child_path = extend_path(path, tag);
+            record_attrs_lost(&child_path, &child, [], losses);
+            content.append(&mut decode_fn_content(&child_path, &child, losses, depth));
+        } else {
+            content.append(&mut decode_blocks(path, once(child), losses, depth));
+        }
+    }
+
+    vec![Block::Section(Section {
+        section_type: Some(section_type),
+        content,
+        ..Default::default()
+    })]
 }
 
 /// Decode a `<graphic>` element to an [`ImageObject`]
@@ -1157,31 +1261,15 @@ fn decode_link(path: &str, node: &Node, losses: &mut Losses) -> Inline {
 
 /// Decode a `<fn>` to a [`Inline::Footnote`]
 fn decode_footnote(path: &str, node: &Node, losses: &mut Losses) -> Inline {
-    let fn_type = node
-        .attribute("fn-type")
-        .map(String::from)
-        .unwrap_or_default();
+    let id = node.attribute("id").map(String::from);
+    let note_type = note_type(node);
 
-    let custom_type = node
-        .attribute("custom-type")
-        .map(String::from)
-        .unwrap_or_default();
+    record_attrs_lost(path, node, ["id", "fn-type", "custom-type"], losses);
 
-    let note_type = if fn_type == "custom" {
-        match custom_type.to_lowercase().as_str() {
-            "endnote" => NoteType::Endnote,
-            "sidenote" => NoteType::Sidenote,
-            _ => NoteType::Footnote,
-        }
-    } else {
-        NoteType::Footnote
-    };
-
-    record_attrs_lost(path, node, ["fn-type", "custom-type"], losses);
-
-    let content = decode_blocks(path, node.children(), losses, 0);
+    let content = decode_fn_content(path, node, losses, 0);
 
     Inline::Note(Note {
+        id,
         note_type,
         content,
         ..Default::default()

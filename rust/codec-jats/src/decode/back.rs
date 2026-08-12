@@ -36,6 +36,10 @@ pub(super) fn decode_back(path: &str, node: &Node, article: &mut Article, losses
             }
             "notes" => decode_notes(&child_path, &child, article, losses),
             "ref-list" => decode_ref_list(&child_path, &child, article, losses),
+            "fn-group" => {
+                let mut blocks = decode_blocks(path, std::iter::once(child), losses, 1);
+                article.content.append(&mut blocks);
+            }
             "sec" => {
                 let mut blocks = decode_sec(&child_path, &child, losses, 1);
                 article.content.append(&mut blocks);

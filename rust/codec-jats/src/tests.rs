@@ -1,9 +1,12 @@
 use pretty_assertions::assert_eq;
+use stencila_codec::eyre::bail;
 use stencila_codec::stencila_schema::{
-    Article, Author, Block, CreativeWorkType, CreativeWorkVariantOrString, Date, DateTime,
-    IntegerOrString, Node, Organization, Person, PropertyValueOrString, Reference, SectionType,
+    Article, Author, Block, CreativeWorkType, CreativeWorkVariant, CreativeWorkVariantOrString,
+    Date, DateTime, Inline, IntegerOrString, Node, NoteType, Organization, Person,
+    PropertyValueOrString, Reference, SectionType,
     shortcuts::{art, aud, h1, img, p, sec, sti, t, vid},
 };
+use stencila_codec_text_trait::to_text;
 
 use super::*;
 
@@ -626,6 +629,209 @@ async fn encoding_reports_unsupported_reference_properties() -> Result<()> {
             "missing {expected} in {labels:?}"
         );
     }
+
+    Ok(())
+}
+
+/// Blocks nested in a `<p>` should split it rather than being dropped
+///
+/// JATS allows lists, boxed text and quotes inside a paragraph. Previously only
+/// figures, tables, formulas and supplementary material were recognized, so
+/// everything else, including a 2,339 character list in one of the examples,
+/// was silently discarded.
+#[tokio::test]
+async fn blocks_nested_in_paragraphs_are_preserved() -> Result<()> {
+    let source = r#"
+        <article>
+          <body>
+            <p>Before<list list-type="order"><list-item><p>Item</p></list-item></list>After</p>
+          </body>
+        </article>"#;
+
+    let (node, ..) = JatsCodec.from_str(source, None).await?;
+    let Node::Article(article) = &node else {
+        bail!("expected an article")
+    };
+
+    assert_eq!(article.content.len(), 3);
+    assert!(matches!(article.content[0], Block::Paragraph(..)));
+    assert!(matches!(article.content[1], Block::List(..)));
+    assert!(matches!(article.content[2], Block::Paragraph(..)));
+
+    let (jats, ..) = JatsCodec
+        .to_string(
+            &node,
+            Some(EncodeOptions {
+                compact: Some(true),
+                ..Default::default()
+            }),
+        )
+        .await?;
+    assert!(jats.contains("<list"), "list not encoded in {jats}");
+    assert!(jats.contains("Item"), "list content not encoded in {jats}");
+
+    Ok(())
+}
+
+/// Grouped footnotes should survive as notes or, when section like, as a section
+#[tokio::test]
+async fn grouped_footnotes_are_preserved() -> Result<()> {
+    let source = r#"
+        <article>
+          <back>
+            <fn-group>
+              <fn id="fn1" fn-type="custom" custom-type="endnote">
+                <label>1</label>
+                <p>An endnote</p>
+              </fn>
+            </fn-group>
+            <fn-group content-type="competing-interest">
+              <fn id="conf1" fn-type="COI-statement"><p>No competing interests</p></fn>
+            </fn-group>
+          </back>
+        </article>"#;
+
+    let (node, ..) = JatsCodec.from_str(source, None).await?;
+    let Node::Article(article) = &node else {
+        bail!("expected an article")
+    };
+
+    let Some(Block::Paragraph(paragraph)) = article.content.first() else {
+        bail!("expected the ungrouped notes to be a paragraph")
+    };
+    let Some(Inline::Note(note)) = paragraph.content.first() else {
+        bail!("expected a note")
+    };
+    assert_eq!(note.id.as_deref(), Some("fn1"));
+    assert_eq!(note.note_type, NoteType::Endnote);
+    assert_eq!(to_text(&note.content).trim(), "An endnote");
+
+    let Some(Block::Section(section)) = article.content.get(1) else {
+        bail!("expected the competing interests to be a section")
+    };
+    assert_eq!(section.section_type, Some(SectionType::CompetingInterests));
+    assert_eq!(to_text(&section.content).trim(), "No competing interests");
+
+    let (jats, ..) = JatsCodec
+        .to_string(
+            &node,
+            Some(EncodeOptions {
+                compact: Some(true),
+                ..Default::default()
+            }),
+        )
+        .await?;
+    assert!(jats.contains(r#"<fn fn-type="custom" id="fn1""#), "{jats}");
+    assert!(jats.contains("An endnote"), "{jats}");
+    assert!(jats.contains("No competing interests"), "{jats}");
+
+    Ok(())
+}
+
+/// Additional abstracts should be kept with their type rather than discarded
+#[tokio::test]
+async fn additional_abstracts_are_preserved() -> Result<()> {
+    let source = r#"
+        <article>
+          <front>
+            <article-meta>
+              <abstract><p>The abstract</p></abstract>
+              <abstract id="abs2" abstract-type="graphical"><p>The graphical abstract</p></abstract>
+            </article-meta>
+          </front>
+        </article>"#;
+
+    let (node, ..) = JatsCodec.from_str(source, None).await?;
+    let Node::Article(article) = &node else {
+        bail!("expected an article")
+    };
+
+    assert_eq!(to_text(&article.r#abstract).trim(), "The abstract");
+
+    let Some(CreativeWorkVariant::Article(part)) = article.options.parts.iter().flatten().next()
+    else {
+        bail!("expected the additional abstract to be a part")
+    };
+    assert_eq!(part.id.as_deref(), Some("abs2"));
+    assert_eq!(
+        part.options.genre.as_deref(),
+        Some(["graphical".to_string()].as_slice())
+    );
+    assert_eq!(to_text(&part.r#abstract).trim(), "The graphical abstract");
+
+    let (jats, ..) = JatsCodec
+        .to_string(
+            &node,
+            Some(EncodeOptions {
+                compact: Some(true),
+                ..Default::default()
+            }),
+        )
+        .await?;
+    assert!(
+        jats.contains(r#"<abstract id="abs2" abstract-type="graphical">"#),
+        "{jats}"
+    );
+    assert!(jats.contains("The graphical abstract"), "{jats}");
+
+    Ok(())
+}
+
+/// Sub-articles, such as eLife reviews and assessments, should round-trip
+#[tokio::test]
+async fn sub_articles_are_preserved() -> Result<()> {
+    let source = r#"
+        <article>
+          <body><p>The article</p></body>
+          <sub-article article-type="referee-report" id="sa1">
+            <front-stub>
+              <article-id pub-id-type="doi">10.7554/eLife.1.sa1</article-id>
+              <title-group><article-title>Reviewer #1</article-title></title-group>
+            </front-stub>
+            <body><p>The review</p></body>
+          </sub-article>
+        </article>"#;
+
+    let (node, ..) = JatsCodec.from_str(source, None).await?;
+    let Node::Article(article) = &node else {
+        bail!("expected an article")
+    };
+
+    let Some(CreativeWorkVariant::Article(part)) = article.options.parts.iter().flatten().next()
+    else {
+        bail!("expected the sub-article to be a part")
+    };
+    assert_eq!(part.id.as_deref(), Some("sa1"));
+    assert_eq!(
+        part.options.genre.as_deref(),
+        Some(["referee-report".to_string()].as_slice())
+    );
+    assert_eq!(part.doi.as_deref(), Some("10.7554/eLife.1.sa1"));
+    assert_eq!(to_text(&part.title).trim(), "Reviewer #1");
+    assert_eq!(to_text(&part.content).trim(), "The review");
+
+    let (jats, ..) = JatsCodec
+        .to_string(
+            &node,
+            Some(EncodeOptions {
+                compact: Some(true),
+                ..Default::default()
+            }),
+        )
+        .await?;
+    assert!(
+        jats.contains(r#"<sub-article id="sa1" article-type="referee-report">"#),
+        "{jats}"
+    );
+    assert!(jats.contains("<front-stub>"), "{jats}");
+    assert!(jats.contains("The review"), "{jats}");
+
+    // The nested work must survive another cycle
+    let (node, ..) = JatsCodec.from_str(&jats, None).await?;
+    let Node::Article(article) = &node else {
+        bail!("expected an article")
+    };
+    assert_eq!(article.options.parts.iter().flatten().count(), 1);
 
     Ok(())
 }

@@ -42,9 +42,9 @@ expression: info.losses
 //article/body/sec/sec/fig/p/xref/@rel-id: 1
 //article/body/sec/sec/fig/title/@id: 12
 //article/body/sec/sec/p/@id: 47
-//article/body/sec/sec/p/graphic/@id: 11
-//article/body/sec/sec/p/graphic/@orientation: 11
-//article/body/sec/sec/p/graphic/@position: 11
+//article/body/sec/sec/p/disp-formula/graphic/@id: 11
+//article/body/sec/sec/p/disp-formula/graphic/@orientation: 11
+//article/body/sec/sec/p/disp-formula/graphic/@position: 11
 //article/body/sec/sec/p/italic/@toggle: 68
 //article/body/sec/sec/p/sup/italic/@toggle: 3
 //article/body/sec/sec/p/sup/xref/@id: 51
@@ -53,10 +53,10 @@ expression: info.losses
 //article/body/sec/sec/p/xref/@rel-id: 109
 //article/body/sec/sec/sec/@id: 26
 //article/body/sec/sec/sec/p/@id: 16
-//article/body/sec/sec/sec/p/@rev-id: 1
-//article/body/sec/sec/sec/p/graphic/@id: 4
-//article/body/sec/sec/sec/p/graphic/@orientation: 4
-//article/body/sec/sec/sec/p/graphic/@position: 4
+//article/body/sec/sec/sec/p/disp-formula/@rev-id: 1
+//article/body/sec/sec/sec/p/disp-formula/graphic/@id: 4
+//article/body/sec/sec/sec/p/disp-formula/graphic/@orientation: 4
+//article/body/sec/sec/sec/p/disp-formula/graphic/@position: 4
 //article/body/sec/sec/sec/p/italic/@toggle: 2
 //article/body/sec/sec/sec/p/sup/xref/@id: 5
 //article/body/sec/sec/sec/p/sup/xref/@rel-id: 5
@@ -65,7 +65,6 @@ expression: info.losses
 //article/body/sec/supplementary-material/@orientation: 1
 //article/body/sec/supplementary-material/@position: 1
 //article/body/sec/title/@id: 5
-//article/front/article-meta/abstract/@id: 1
 //article/front/article-meta/abstract/p/@id: 1
 //article/front/article-meta/abstract/title/@id: 1
 //article/front/article-meta/article-categories/subj-group/@journal: 1

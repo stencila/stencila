@@ -3,9 +3,11 @@ source: rust/codec-jats/tests/examples.rs
 expression: info.losses
 ---
 Article.about: 1
+Article.authors: 3
 Article.editors: 1
 Article.funders: 1
 Article.identifiers: 1
+Article.keywords: 1
 Article.version: 1
 Reference.isPartOf.volumeNumber: 68
 Supplement.work_type: 70

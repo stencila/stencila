@@ -267,7 +267,7 @@ expression: jats
             </tbody>
           </table>
           <table-wrap-foot>
-            <p>The number of symbols [+ and –]: the number of samples examined. + : detected, –: not detected. dpi: days post-infection. MOI: multiplicity of infection.</p>
+            <p><fn fn-type="custom" id="t003fn001" custom-type="Footnote"><p>The number of symbols [+ and –]: the number of samples examined. + : detected, –: not detected. dpi: days post-infection. MOI: multiplicity of infection.</p></fn></p>
           </table-wrap-foot>
         </table-wrap>
       </sec>
@@ -354,7 +354,7 @@ expression: jats
             </tbody>
           </table>
           <table-wrap-foot>
-            <p>The number of symbols [+, (+), and –]: the number of samples examined. + : detected in all three repeated reactions per one sample, (+): detected only once or twice in three repeated reactions per one sample, –: not detected in three repeated reactions per one sample. MOI: multiplicity of infection.</p>
+            <p><fn fn-type="custom" id="t002fn001" custom-type="Footnote"><p>The number of symbols [+, (+), and –]: the number of samples examined. + : detected in all three repeated reactions per one sample, (+): detected only once or twice in three repeated reactions per one sample, –: not detected in three repeated reactions per one sample. MOI: multiplicity of infection.</p></fn></p>
           </table-wrap-foot>
         </table-wrap>
         <table-wrap id="pone.0332245.t004">
@@ -414,8 +414,8 @@ expression: jats
             </tbody>
           </table>
           <table-wrap-foot>
-            <p>* Infection rate was shown as per 1,000 mosquitoes.</p>
-            <p>CI: Confidence Interval.</p>
+            <p><fn fn-type="custom" id="t004fn001" custom-type="Footnote"><p>* Infection rate was shown as per 1,000 mosquitoes.</p></fn></p>
+            <p><fn fn-type="custom" id="t004fn002" custom-type="Footnote"><p>CI: Confidence Interval.</p></fn></p>
           </table-wrap-foot>
         </table-wrap>
         <fig id="pone.0332245.g001">

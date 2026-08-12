@@ -17620,6 +17620,44 @@ expression: article
       ]
     },
     {
+      "type": "Paragraph",
+      "content": [
+        {
+          "type": "Note",
+          "noteType": "Footnote",
+          "content": [
+            {
+              "type": "Paragraph",
+              "content": [
+                {
+                  "type": "Strong",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "Publisher’s note"
+                      }
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "Paragraph",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "Springer Nature remains neutral with regard to jurisdictional claims in published maps and institutional affiliations."
+                  }
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
       "type": "Section",
       "sectionType": "Acknowledgements",
       "content": [

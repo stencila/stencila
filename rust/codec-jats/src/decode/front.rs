@@ -6,10 +6,11 @@ use stencila_codec_text_trait::to_text;
 use stencila_codec::{
     Losses,
     stencila_schema::{
-        Article, Author, Block, CreativeWorkVariant, DateTime, Heading, IntegerOrString,
-        Organization, OrganizationOptions, Periodical, Person, PersonOptions, PersonOrOrganization,
-        PostalAddressOrString, Primitive, PropertyValue, PropertyValueOrString, PublicationIssue,
-        PublicationVolume, Section, SectionType, StringOrNumber, ThingVariant,
+        Article, ArticleOptions, Author, Block, CreativeWorkVariant, DateTime, Heading,
+        IntegerOrString, Organization, OrganizationOptions, Periodical, Person, PersonOptions,
+        PersonOrOrganization, PostalAddressOrString, Primitive, PropertyValue,
+        PropertyValueOrString, PublicationIssue, PublicationVolume, Section, SectionType,
+        StringOrNumber, ThingVariant,
     },
 };
 
@@ -108,8 +109,14 @@ fn decode_publisher(path: &str, node: &Node, article: &mut Article, losses: &mut
     }));
 }
 
-/// Decode an `<article-meta>` tag to properties on an [`Article`]
-fn decode_article_meta(path: &str, node: &Node, article: &mut Article, losses: &mut Losses) {
+/// Decode an `<article-meta>` (or a sub-article's `<front-stub>`) tag to
+/// properties on an [`Article`]
+pub(super) fn decode_article_meta(
+    path: &str,
+    node: &Node,
+    article: &mut Article,
+    losses: &mut Losses,
+) {
     let correspondence_emails = correspondence_emails(node);
 
     for child in node.children() {
@@ -164,18 +171,18 @@ fn correspondence_emails(node: &Node) -> BTreeMap<String, Vec<String>> {
 }
 
 /// Decode an `<abstract>` element
+///
+/// Articles may have more than one abstract, typically an untyped one plus a
+/// graphical, plain language or translated abstract. The untyped abstract is the
+/// article's `abstract`; the others are kept in `parts` as nested works that
+/// carry only an `abstract`, along with their `abstract-type` as a genre.
 fn decode_abstract(path: &str, node: &Node, article: &mut Article, losses: &mut Losses) {
-    // Some articles have multiple <abstract> elements (e.g. an additional one with abstract-type="graphical")
-    // We just take the first one.
-    if article.r#abstract.is_some() {
-        record_node_lost(path, node, losses);
-        return;
-    }
+    let abstract_type = node.attribute("abstract-type").map(String::from);
 
-    record_attrs_lost(path, node, [], losses);
+    record_attrs_lost(path, node, ["abstract-type", "id"], losses);
 
     // Use depth = 1 so that headings within abstract are at least level 2
-    let content = decode_blocks(path, node.children(), losses, 1)
+    let content: Vec<Block> = decode_blocks(path, node.children(), losses, 1)
         .into_iter()
         .filter(|block| match block {
             Block::Heading(Heading { content, .. }) => {
@@ -185,7 +192,25 @@ fn decode_abstract(path: &str, node: &Node, article: &mut Article, losses: &mut 
         })
         .collect();
 
-    article.r#abstract = Some(content);
+    if abstract_type.is_none() && article.r#abstract.is_none() {
+        article.r#abstract = Some(content);
+        return;
+    }
+
+    let part = CreativeWorkVariant::Article(Article {
+        id: node.attribute("id").map(String::from),
+        r#abstract: Some(content),
+        options: Box::new(ArticleOptions {
+            genre: abstract_type.map(|abstract_type| vec![abstract_type]),
+            ..Default::default()
+        }),
+        ..Default::default()
+    });
+
+    match &mut article.options.parts {
+        Some(parts) => parts.push(part),
+        None => article.options.parts = Some(vec![part]),
+    }
 }
 
 /// Decode an `<article-categories>` element
@@ -805,12 +830,13 @@ fn decode_kwd(path: &str, node: &Node, losses: &mut Losses) -> String {
     keyword
 }
 
-/// Decode a `<notes>` element to a [`Block::Section`] that will be appended to
-/// th content of the article
+/// Decode a `<notes>` element to blocks that will be appended to the content of
+/// the article
 ///
 /// Some JATS has `<notes>` elements that are merely wrappers around other
-/// <notes> and have no `notes-type` or `<title>` child. For these, we
-/// recursively check for nested notes.
+/// `<notes>`, or around footnote groups, and have no `notes-type` or `<title>`
+/// child. Such a wrapper is transparent: its supported descendants are decoded
+/// in place rather than the whole wrapper being discarded.
 pub fn decode_notes(path: &str, node: &Node, article: &mut Article, losses: &mut Losses) {
     let section_type = node
         .attribute("notes-type")
@@ -830,7 +856,10 @@ pub fn decode_notes(path: &str, node: &Node, article: &mut Article, losses: &mut
             let child_path = extend_path(path, tag);
             match tag {
                 "notes" => decode_notes(&child_path, &child, article, losses),
-                _ => record_node_lost(path, &child, losses),
+                _ => {
+                    let mut blocks = decode_blocks(path, std::iter::once(child), losses, 1);
+                    article.content.append(&mut blocks);
+                }
             };
         }
     } else {

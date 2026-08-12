@@ -3,7 +3,8 @@ source: rust/codec-jats/tests/examples.rs
 expression: info.losses
 ---
 //article/back/ack/@id: 1
-//article/back/fn-group: 1
+//article/back/fn-group/fn/label: 2
+//article/back/fn-group/fn/p/italic/@toggle: 3
 //article/back/ref-list/@id: 1
 //article/back/ref-list/ref/mixed-citation/@id: 65
 //article/back/ref-list/ref/mixed-citation/article-title/italic/@toggle: 27
@@ -38,9 +39,8 @@ expression: info.losses
 //article/body/sec/sec/fig/p/italic/@toggle: 33
 //article/body/sec/sec/p/ext-link/@ext-link-type: 3
 //article/body/sec/sec/p/italic/@toggle: 313
-//article/body/sec/sec/p/list: 1
 //article/body/sec/sec/p/list/@id: 1
-//article/body/sec/sec/p/list/@list-type: 1
+//article/body/sec/sec/p/list/list-item/p/italic/@toggle: 2
 //article/body/sec/sec/p/xref: 2
 //article/body/sec/sec/table-wrap/@content-type: 1
 //article/body/sec/sec/table-wrap/@orientation: 1
@@ -52,7 +52,11 @@ expression: info.losses
 //article/body/sec/supplementary-material/@orientation: 10
 //article/body/sec/supplementary-material/@position: 10
 //article/body/sec/supplementary-material/p/italic/@toggle: 12
-//article/front/article-meta/abstract/abstract: 1
+//article/front/article-meta/abstract/p/boxed-text/@orientation: 1
+//article/front/article-meta/abstract/p/boxed-text/@position: 1
+//article/front/article-meta/abstract/p/boxed-text/graphic/@id: 1
+//article/front/article-meta/abstract/p/boxed-text/graphic/@orientation: 1
+//article/front/article-meta/abstract/p/boxed-text/graphic/@position: 1
 //article/front/article-meta/abstract/p/italic/@toggle: 14
 //article/front/article-meta/aff: 1
 //article/front/article-meta/article-version/@article-version-type: 1
@@ -72,5 +76,8 @@ expression: info.losses
 //article/front/journal-meta/custom-meta-group: 1
 //article/front/journal-meta/issn: 2
 //article/front/journal-meta/journal-id: 5
-//article/front/notes/p: 1
+//article/front/notes/p/@content-type: 1
+//article/front/notes/p/mixed-citation: 1
+//article/front/notes/p/mixed-citation/@id: 1
+//article/front/notes/p/mixed-citation/@publication-type: 1
 //article/processing-meta: 1

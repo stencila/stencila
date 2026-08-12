@@ -605,11 +605,167 @@ fn encode_affiliation(organization: &Organization, id: &str, context: &mut JatsE
     context.exit_elem();
 }
 
+/// Emit a `<contrib-group>` for the authors of an article, followed by the
+/// `<aff>` elements that its contributors reference
+fn encode_contrib_group(authors: &[Author], context: &mut JatsEncodeContext) {
+    let organizations = article_affiliations(authors);
+    let affiliations = organizations
+        .iter()
+        .enumerate()
+        .map(|(index, organization)| (affiliation_key(organization), format!("aff{}", index + 1)))
+        .collect::<BTreeMap<_, _>>();
+    context.enter_elem("contrib-group");
+    for author in authors {
+        encode_article_author(author, &affiliations, context);
+    }
+    for organization in organizations {
+        if let Some(id) = affiliations.get(&affiliation_key(organization)) {
+            encode_affiliation(organization, id, context);
+        }
+    }
+    context.exit_elem_omit_empty();
+}
+
+/// How a nested work in `Article.parts` is represented in JATS
+enum ArticlePart<'a> {
+    /// An additional `<abstract>`, e.g. a graphical or plain language abstract
+    Abstract(&'a Article),
+    /// A `<sub-article>`, e.g. a review or an editor's assessment
+    SubArticle(&'a Article),
+}
+
+/// Classify the nested works of an article
+///
+/// A part that carries only an `abstract` came from an additional `<abstract>`
+/// element; any other nested article came from a `<sub-article>`. Parts that are
+/// neither are reported as lost.
+fn article_parts<'a>(
+    article: &'a Article,
+    context: &mut JatsEncodeContext,
+) -> Vec<ArticlePart<'a>> {
+    let mut parts = Vec::new();
+    for part in article.options.parts.iter().flatten() {
+        match part {
+            CreativeWorkVariant::Article(article) => {
+                if article.r#abstract.is_some()
+                    && article.content.is_empty()
+                    && article.title.is_none()
+                {
+                    parts.push(ArticlePart::Abstract(article));
+                } else {
+                    parts.push(ArticlePart::SubArticle(article));
+                }
+            }
+            _ => {
+                context.add_loss("Article.parts");
+            }
+        }
+    }
+    parts
+}
+
+/// Emit an additional `<abstract>` element for a nested work
+fn encode_extra_abstract(article: &Article, context: &mut JatsEncodeContext) {
+    let Some(content) = article
+        .r#abstract
+        .as_ref()
+        .filter(|content| !content.is_empty())
+    else {
+        return;
+    };
+
+    context.enter_elem("abstract");
+    if let Some(id) = &article.id {
+        context.push_attr("id", id);
+    }
+    if let Some(abstract_type) = article.options.genre.iter().flatten().next() {
+        context.push_attr("abstract-type", abstract_type);
+    }
+    content.to_jats(context);
+    context.exit_elem_omit_empty();
+}
+
+/// Emit a `<sub-article>` element for a nested work
+///
+/// The nested work's own metadata goes in a `<front-stub>`, which is the
+/// article metadata of a sub-article.
+fn encode_sub_article(article: &Article, context: &mut JatsEncodeContext) {
+    context.enter_elem("sub-article");
+    if let Some(id) = &article.id {
+        context.push_attr("id", id);
+    }
+    if let Some(article_type) = article.options.genre.iter().flatten().next() {
+        context.push_attr("article-type", article_type);
+    }
+
+    context.enter_elem("front-stub");
+    if let Some(doi) = article
+        .doi
+        .as_deref()
+        .map(normalize_doi)
+        .filter(|doi| !doi.is_empty())
+    {
+        context
+            .enter_elem("article-id")
+            .push_attr("pub-id-type", "doi")
+            .push_text(doi)
+            .exit_elem();
+    }
+    if let Some(title) = article.title.as_ref().filter(|title| !title.is_empty()) {
+        context
+            .enter_elem("title-group")
+            .enter_elem("article-title");
+        title.to_jats(context);
+        context.exit_elem_omit_empty().exit_elem_omit_empty();
+    }
+    if let Some(authors) = article
+        .authors
+        .as_ref()
+        .filter(|authors| !authors.is_empty())
+    {
+        encode_contrib_group(authors, context);
+    }
+    if let Some(content) = article
+        .r#abstract
+        .as_ref()
+        .filter(|content| !content.is_empty())
+    {
+        context.enter_elem("abstract");
+        content.to_jats(context);
+        context.exit_elem_omit_empty();
+    }
+    context.exit_elem_omit_empty();
+
+    context.enter_elem("body");
+    article.content.to_jats(context);
+    context.exit_elem_omit_empty();
+
+    context.exit_elem();
+
+    // Core properties that a top level article emits but a sub-article does not
+    for (populated, label) in [
+        (article.date_published.is_some(), "Article.datePublished"),
+        (article.options.keywords.is_some(), "Article.keywords"),
+        (article.references.is_some(), "Article.references"),
+    ] {
+        if populated {
+            context.add_loss(label);
+        }
+    }
+}
+
 /// Record a loss for every populated `Article` property that JATS encoding does
 /// not emit
 ///
-/// `journal_encoded` indicates whether anything was emitted from `is_part_of`.
-fn add_article_losses(article: &Article, journal_encoded: bool, context: &mut JatsEncodeContext) {
+/// `journal_encoded` indicates whether anything was emitted from `is_part_of`,
+/// and `genre_encoded` whether the genre was emitted, which it is for a nested
+/// work but not for a top level article.
+fn add_article_losses(
+    article: &Article,
+    journal_encoded: bool,
+    genre_encoded: bool,
+    context: &mut JatsEncodeContext,
+) {
     context
         .merge_losses(lost_options!(
             article,
@@ -635,9 +791,7 @@ fn add_article_losses(article: &Article, journal_encoded: bool, context: &mut Ja
             date_modified,
             funders,
             funded_by,
-            genre,
             licenses,
-            parts,
             bibliography,
             text,
             repository,
@@ -652,6 +806,12 @@ fn add_article_losses(article: &Article, journal_encoded: bool, context: &mut Ja
 
     if article.options.is_part_of.is_some() && !journal_encoded {
         context.add_loss("Article.isPartOf");
+    }
+
+    // Only the first genre is emitted, as the JATS `article-type` or `abstract-type`
+    let genres = article.options.genre.iter().flatten().count();
+    if genres > usize::from(genre_encoded) {
+        context.add_loss("Article.genre");
     }
 }
 
@@ -684,7 +844,9 @@ impl JatsCodec for Article {
         }
         let journal_encoded =
             journal.title.is_some() || journal.volume.is_some() || journal.issue.is_some();
-        add_article_losses(self, journal_encoded, context);
+        add_article_losses(self, journal_encoded, false, context);
+
+        let parts = article_parts(self, context);
 
         if journal.title.is_some() || self.options.publisher.is_some() {
             context.enter_elem("journal-meta");
@@ -721,24 +883,7 @@ impl JatsCodec for Article {
         }
 
         if let Some(authors) = self.authors.as_ref().filter(|authors| !authors.is_empty()) {
-            let organizations = article_affiliations(authors);
-            let affiliations = organizations
-                .iter()
-                .enumerate()
-                .map(|(index, organization)| {
-                    (affiliation_key(organization), format!("aff{}", index + 1))
-                })
-                .collect::<BTreeMap<_, _>>();
-            context.enter_elem("contrib-group");
-            for author in authors {
-                encode_article_author(author, &affiliations, context);
-            }
-            for organization in organizations {
-                if let Some(id) = affiliations.get(&affiliation_key(organization)) {
-                    encode_affiliation(organization, id, context);
-                }
-            }
-            context.exit_elem_omit_empty();
+            encode_contrib_group(authors, context);
         }
 
         if let Some(date) = &self.date_published {
@@ -796,6 +941,12 @@ impl JatsCodec for Article {
             context.enter_elem("abstract");
             abstract_content.to_jats(context);
             context.exit_elem_omit_empty();
+        }
+        for part in &parts {
+            if let ArticlePart::Abstract(article) = part {
+                add_article_losses(article, false, true, context);
+                encode_extra_abstract(article, context);
+            }
         }
         if let Some(keywords) = self.options.keywords.as_ref() {
             context.enter_elem("kwd-group");
@@ -864,6 +1015,14 @@ impl JatsCodec for Article {
             context.exit_elem_omit_empty();
         }
         context.exit_elem_omit_empty();
+
+        for part in &parts {
+            if let ArticlePart::SubArticle(article) = part {
+                add_article_losses(article, false, true, context);
+                encode_sub_article(article, context);
+            }
+        }
+
         context.exit_elem();
     }
 }

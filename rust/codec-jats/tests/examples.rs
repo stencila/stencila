@@ -61,6 +61,24 @@ fn examples() -> Result<()> {
             "compact and pretty encodings have different semantics for {name}"
         );
 
+        // Content structures recovered by the decoder must survive another
+        // decode and encode cycle rather than degrading each time. Only the
+        // structure counts are compared: prose within some of them is still
+        // altered by media, citation and inline fidelity gaps addressed later.
+        let (article, ..) = decode(&jats, None)?;
+        let (jats_again, ..) = encode(
+            &article,
+            Some(EncodeOptions {
+                compact: Some(false),
+                ..Default::default()
+            }),
+        )?;
+        assert_eq!(
+            semantic_summary(&jats_again)?.structures,
+            semantic_summary(&jats)?.structures,
+            "another decode and encode cycle changed the structures of {name}"
+        );
+
         assert_snapshot!(format!("{name}.jats"), jats);
         assert_yaml_snapshot!(format!("{name}.encode.losses"), info.losses);
         categories.insert(format!("{name} encode"), losses_by_category(&info.losses));

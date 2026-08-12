@@ -10247,14 +10247,168 @@ expression: article
                   "value": {
                     "string": "). Each fish chooses a technique of terrestrial locomotion that best suits its constitution—body shape, presence of spines etc. Types of terrestrial locomotion of different fishes form a continuum that can be classified by several parameters.\n"
                   }
-                },
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": "\n"
-                  }
                 }
               ]
+            },
+            {
+              "type": "List",
+              "items": [
+                {
+                  "type": "ListItem",
+                  "content": [
+                    {
+                      "type": "Paragraph",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "Undulation, based on a traveling wave of lateral bends, and oscillation, based on a standing wave of lateral bends, are the types of movement which can be perceived as polar opposites (e.g. Bressman "
+                          }
+                        },
+                        {
+                          "type": "Emphasis",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "et al"
+                              }
+                            }
+                          ]
+                        },
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": ". "
+                          }
+                        },
+                        {
+                          "type": "Citation",
+                          "target": "inz212599-bib-0010",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "2019a"
+                              }
+                            }
+                          ]
+                        },
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "). In the former case, points of support constantly move along the body, and overall this type of locomotion can be classified as crawling. In the latter case, points of support are tied to certain positions on the body, near the nodes of the standing wave, making it possible to call this type of locomotion “walking”, and points of support themselves “appendages”."
+                          }
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "ListItem",
+                  "content": [
+                    {
+                      "type": "Paragraph",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "Based on the involvement of muscles of different organs in the production of mechanical work necessary for progression over land, 3 types can be distinguished: axial‐based, appendage‐based, and a combined axial‐appendage‐based (Pace & Gibb "
+                          }
+                        },
+                        {
+                          "type": "Citation",
+                          "target": "inz212599-bib-0043",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "2014"
+                              }
+                            }
+                          ]
+                        },
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": ")."
+                          }
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "ListItem",
+                  "content": [
+                    {
+                      "type": "Paragraph",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "Classification can be based on the location of propulsors in front of or behind the common center of mass of the body. Propulsors are the structures which transmit the forward‐directed component of the ground reaction force to the body. They are usually equipped with spines or claws. In respect to propulsor position, no ready terminology is available for fishes, so mammalian one suggested by Gambaryan ("
+                          }
+                        },
+                        {
+                          "type": "Citation",
+                          "target": "inz212599-bib-0026",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "1974"
+                              }
+                            }
+                          ]
+                        },
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": ") can be recruited. Hind propulsion can be called metalocomotor, front propulsion prolocomotor, and a combination of the two dilocomotor. Prolocomotor type was not named in Gambaryan's classification because it is not found in mammals. It was hypothesized for tetrapodomorphs under a figurative name “front wheel drive” (Shubin "
+                          }
+                        },
+                        {
+                          "type": "Emphasis",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "et al"
+                              }
+                            }
+                          ]
+                        },
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": ". "
+                          }
+                        },
+                        {
+                          "type": "Citation",
+                          "target": "inz212599-bib-0055",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "2014"
+                              }
+                            }
+                          ]
+                        },
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "). However, the terminology should be applied carefully. Propulsor is not the same as a motor. Propulsor can be a passive structure showing no muscle activity during its propulsive action, or relying upon isometric contraction of its muscles (muscles do not shorten and thus produce force but no work). Herein, “prolocomotor,” “metalocomotor,” and “dilocomotor” will be used as the terms for propulsors, not motors. They will point to anterior or/and posterior position of the body part which transmits the propulsive thrust to the substrate, with no claim on involvement of the propulsive organ in doing mechanical work for forward movement. However, mechanical work of propulsor is not excluded but specified according to the previous paragraph of classification."
+                          }
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ],
+              "order": "Ascending"
             },
             {
               "type": "Paragraph",
@@ -19647,6 +19801,157 @@ expression: article
           ]
         }
       ]
+    },
+    {
+      "type": "Paragraph",
+      "content": [
+        {
+          "type": "Note",
+          "id": "inz212599-note-0001",
+          "noteType": "Footnote",
+          "content": [
+            {
+              "type": "Paragraph",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "Note that Gray was talking about the (left fore, right hind, right fore, left hind etc.) sequence, which he proved to be the only one which ensures uninterrupted static equilibrium for a quadrupedal animal. He termed it “the diagonal sequence” because after every forelimb, the contralateral hind limb goes. Later, Hildebrand renamed it into “the lateral sequence” because he began to count it from the hind limb after which the ipsilateral forelimb goes: (right hind, right fore, left hind, left fore etc.). Vorobyeva and Kuznetsov ("
+                  }
+                },
+                {
+                  "type": "Citation",
+                  "target": "inz212599-bib-0059",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "1992"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": ") suggested for "
+                  }
+                },
+                {
+                  "type": "Emphasis",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "Panderichthys"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": " an opposite symmetrical sequence: (left fore, left hind, right fore, right hind etc.). It is the lateral sequence "
+                  }
+                },
+                {
+                  "type": "Emphasis",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "sensu"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": " Gray, but the diagonal sequence "
+                  }
+                },
+                {
+                  "type": "Emphasis",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "sensu"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": " Hildebrand. Gray proved it to be statically unstable. Therefore, among extant tetrapods, it is only found in some (arboreal) mammals, but never in sprawling tetrapods. However, the static equilibrium is not an actual problem in walking fishes due to the fact that their body is laid down on the ground after every half of a walking cycle."
+                  }
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "Paragraph",
+      "content": [
+        {
+          "type": "Note",
+          "id": "inz212599-note-0002",
+          "noteType": "Footnote",
+          "content": [
+            {
+              "type": "Paragraph",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "The preaxially directed curvature should not be mixed with the elbow flexure in the proper sense (ventrally directed curvature), the development of which in tetrapodomorphs was detailed by Ahlberg ("
+                  }
+                },
+                {
+                  "type": "Citation",
+                  "target": "inz212599-bib-0001",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "2011"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": ", "
+                  }
+                },
+                {
+                  "type": "Citation",
+                  "target": "inz212599-bib-0002",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "2019"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": ")."
+                  }
+                }
+              ]
+            }
+          ]
+        }
+      ]
     }
   ],
   "identifiers": [
@@ -19711,6 +20016,39 @@ expression: article
     },
     "issueNumber": 5
   },
+  "parts": [
+    {
+      "type": "Article",
+      "id": "inz212599-abs-0001",
+      "abstract": [
+        {
+          "type": "Paragraph",
+          "content": [
+            {
+              "type": "Text",
+              "value": {
+                "string": "Modern amphibiotic fishes use various walking techniques but are smaller in length than half a meter, whereas extinct tetrapodomorph fishes of Devonian ranged from 0.5 to 2.5 m. Could they walk out of water, and how did they walk if they could? This study argues that, in recent ichthyofauna, snakehead is most appropriate for modeling walking technique of tetrapodomorph fishes, and provides calculation that their size was at the upper limit for a walking fish.\n"
+              }
+            }
+          ]
+        },
+        {
+          "type": "Admonition",
+          "admonitionType": "Note",
+          "content": [
+            {
+              "type": "ImageObject",
+              "contentUrl": "INZ2-17-849-g007.jpg"
+            }
+          ]
+        }
+      ],
+      "content": [],
+      "genre": [
+        "graphical"
+      ]
+    }
+  ],
   "version": "1",
   "pageStart": 849,
   "pageEnd": 878

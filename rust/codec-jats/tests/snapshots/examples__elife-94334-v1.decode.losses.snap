@@ -16,7 +16,8 @@ expression: info.losses
 //article/back/ref-list/ref/element-citation/year/@iso-8601-date: 68
 //article/back/ref-list/title: 1
 //article/back/sec/@id: 3
-//article/back/sec/fn-group: 2
+//article/back/sec/fn-group/fn/@fn-type: 8
+//article/back/sec/fn-group/fn/@id: 8
 //article/back/sec/p/element-citation: 1
 //article/back/sec/p/element-citation/@id: 1
 //article/back/sec/p/element-citation/@publication-type: 1
@@ -35,7 +36,6 @@ expression: info.losses
 //article/body/sec/sec/fig/graphic/@mime-subtype: 4
 //article/body/sec/sec/fig/graphic/@mimetype: 4
 //article/body/sec/sec/table-wrap/@position: 1
-//article/body/sec/sec/table-wrap/table-wrap-foot/fn/@id: 2
 //article/body/sec/sec/table-wrap/table-wrap-foot/fn/label: 2
 //article/body/sec/sec/table-wrap/table/tbody/tr/td/@char: 61
 //article/body/sec/sec/table-wrap/table/thead/tr/th/xref: 2
@@ -57,4 +57,7 @@ expression: info.losses
 //article/front/article-meta/self-uri: 2
 //article/front/journal-meta/issn: 1
 //article/front/journal-meta/journal-id: 2
-//article/sub-article: 5
+//article/sub-article/body/disp-quote/@content-type: 28
+//article/sub-article/front-stub/contrib-group/anonymous: 3
+//article/sub-article/front-stub/contrib-group/role: 11
+//article/sub-article/front-stub/kwd-group/@kwd-group-type: 2
