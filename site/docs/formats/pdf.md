@@ -29,7 +29,7 @@ stencila convert doc.smd doc.pdf --tool latex
 
 # Implementation
 
-**Reading (decoding):** PDFs are converted to Stencila documents using Mistral OCR (`mistral-ocr-2505`), which extracts text, structure, and images from PDF pages as Markdown. The extracted Markdown is then parsed into Stencila Schema nodes. For small PDFs (8 pages or fewer), metadata extraction and content extraction are done in a single pass. For larger PDFs, metadata is extracted from the first pages separately and combined with content from the full document. Results are cached based on the PDF's content hash to avoid redundant API calls.
+**Reading (decoding):** PDFs are converted to Stencila documents using Mistral OCR, which extracts text, structure, and images from PDF pages as Markdown. The extracted Markdown is then parsed into Stencila Schema nodes. For small PDFs (8 pages or fewer), metadata extraction and content extraction are done in a single pass. For larger PDFs, metadata is extracted from the first pages separately and combined with content from the full document. Results are cached based on the PDF's content hash to avoid redundant API calls.
 
 **Writing (encoding):** By default, documents are encoded to DOM HTML and converted to PDF using a headless browser. When the `--tool latex` option is used, documents are encoded to LaTeX first and compiled to PDF using a LaTeX engine.
 

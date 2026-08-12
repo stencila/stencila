@@ -1645,7 +1645,7 @@ async fn table_image_to_rows(image: &ImageObject) -> Result<Vec<TableRow>> {
         format: Some(Format::Json),
         schema: Some(json_schema(JsonSchemaVariant::TableSimple)),
         model_parameters: Some(ModelParameters {
-            model_ids: Some(vec!["mistral/mistral-ocr-2505".to_string()]),
+            model_ids: Some(vec!["mistral/mistral-ocr-4-0".to_string()]),
             ..Default::default()
         }),
         messages: vec![ModelMessage::system(vec![MessagePart::ImageObject(
@@ -1672,7 +1672,7 @@ async fn math_image_to_tex(image: &ImageObject, is_block: bool) -> Result<Cord> 
         format: Some(Format::Json),
         schema: Some(json_schema(schema)),
         model_parameters: Some(ModelParameters {
-            model_ids: Some(vec!["mistral/mistral-ocr-2505".to_string()]),
+            model_ids: Some(vec!["mistral/mistral-ocr-4-0".to_string()]),
             ..Default::default()
         }),
         messages: vec![ModelMessage::system(vec![MessagePart::ImageObject(

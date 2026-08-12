@@ -101,7 +101,7 @@ impl Codec for PdfCodec {
         let should_generate = !ocr_md_path.exists() || ignore_artifacts;
         let ocr_md = if should_generate {
             let model_parameters = Some(ModelParameters {
-                model_ids: Some(vec!["mistral/mistral-ocr-2505".to_string()]),
+                model_ids: Some(vec!["mistral/mistral-ocr-4-0".to_string()]),
                 ..Default::default()
             });
 

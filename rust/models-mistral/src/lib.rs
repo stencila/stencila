@@ -518,11 +518,12 @@ pub async fn list() -> Result<Vec<Arc<dyn Model>>> {
         .filter(|ModelSpec { id: model }| {
             // Only include models with numeric version (not un-versioned or latest)
             let parts = model.split('-').collect_vec();
-            ((model.starts_with("codestral") && parts.len() == 2) || parts.len() >= 3)
-                && parts
-                    .last()
-                    .map(|&version| version.starts_with('2'))
-                    .unwrap_or(false)
+            model == "mistral-ocr-4-0"
+                || (((model.starts_with("codestral") && parts.len() == 2) || parts.len() >= 3)
+                    && parts
+                        .last()
+                        .map(|&version| version.starts_with('2'))
+                        .unwrap_or(false))
         })
         .sorted_by(|a, b| a.id.cmp(&b.id))
         .map(|ModelSpec { id: model }| {
