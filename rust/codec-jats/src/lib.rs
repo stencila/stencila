@@ -5,9 +5,11 @@ use stencila_codec::{
 
 mod decode;
 mod encode;
+mod losses;
 
 pub use decode::decode;
 pub use encode::encode;
+pub use losses::{LossCategory, classify};
 
 #[cfg(test)]
 mod tests;

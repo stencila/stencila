@@ -2,20 +2,15 @@
 <!DOCTYPE article SYSTEM "https://jats.nlm.nih.gov/archiving/1.4/JATS-archivearticle1-4-mathml3.dtd">
 <article dtd-version="1.4" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:mml="http://www.w3.org/1998/Math/MathML">
   <front>
-    <article-meta>
-    </article-meta>
+    <article-meta></article-meta>
   </front>
   <body>
     <p>A paragraph before first thematic break.</p>
-    <hr>
-    </hr>
+    <hr></hr>
     <p>A paragraph after first thematic break.</p>
-    <hr>
-    </hr>
+    <hr></hr>
     <p>Two consecutive thematic breaks follow this paragraph.</p>
-    <hr>
-    </hr>
-    <hr>
-    </hr>
+    <hr></hr>
+    <hr></hr>
   </body>
 </article>

@@ -2,6 +2,8 @@
 source: rust/codec-meca/tests/examples.rs
 expression: info.losses
 ---
+//article/back/ref-list/ref/mixed-citation/string-name/text(): 76
+//article/back/ref-list/title: 1
 //article/back/sec/@id: 3
 //article/body/sec/@id: 2
 //article/body/sec/fig/@fig-type: 1

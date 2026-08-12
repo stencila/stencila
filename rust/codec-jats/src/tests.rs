@@ -1,7 +1,7 @@
 use pretty_assertions::assert_eq;
 use stencila_codec::stencila_schema::{
-    Article, Author, Block, CreativeWorkType, Date, DateTime, Node, Organization, Person,
-    Reference, SectionType,
+    Article, Author, Block, CreativeWorkType, CreativeWorkVariantOrString, Date, DateTime,
+    IntegerOrString, Node, Organization, Person, PropertyValueOrString, Reference, SectionType,
     shortcuts::{art, aud, h1, img, p, sec, sti, t, vid},
 };
 
@@ -255,7 +255,16 @@ async fn article_front_and_back_matter() -> Result<()> {
             .text()
             .is_some_and(|text| text.contains("Doe (2024)"))
     );
-    assert!(info.losses.is_empty());
+    // A <person-group> in a citation carries only the name, so the reference
+    // author's other details are reported as lost rather than silently dropped
+    assert_eq!(
+        info.losses.iter().collect::<Vec<_>>(),
+        [
+            ("Person.affiliations", 1),
+            ("Person.emails", 1),
+            ("Person.orcid", 1)
+        ]
+    );
 
     Ok(())
 }
@@ -379,6 +388,244 @@ async fn front_and_back_matter_roundtrip() -> Result<()> {
             node.has_tag_name("pub-id") && node.text() == Some("10.1234/reference")
         })
     );
+
+    Ok(())
+}
+
+/// Losses should be labelled by what they are, not only how many there are
+#[test]
+fn loss_labels_are_classified_by_semantic_impact() {
+    use crate::LossCategory;
+
+    for (label, expected) in [
+        ("//article/body/sec/p/list", LossCategory::Content),
+        (
+            "//article/back/ref-list/ref/@id",
+            LossCategory::LinkOrIdentifier,
+        ),
+        (
+            "//article/body/sec/table-wrap/table/tr/td/@style",
+            LossCategory::Presentation,
+        ),
+        (
+            "//article/front/article-meta/funding-group",
+            LossCategory::Metadata,
+        ),
+        ("Article.licenses", LossCategory::Metadata),
+        ("Reference.identifiers", LossCategory::LinkOrIdentifier),
+    ] {
+        assert_eq!(crate::classify(label), expected, "misclassified {label}");
+    }
+}
+
+/// Table cells containing blocks should not report the blocks as lost
+///
+/// Decoding a cell as inlines first and only then falling back to blocks
+/// reported every `<p>` in every cell as lost, even though it was decoded.
+#[tokio::test]
+async fn table_cell_blocks_are_not_reported_as_lost() -> Result<()> {
+    let source = r#"
+        <article>
+          <body>
+            <table-wrap id="tbl1">
+              <table>
+                <thead><tr><th><p>Header</p></th></tr></thead>
+                <tbody>
+                  <tr><td><p>First paragraph</p><p>Second paragraph</p></td></tr>
+                  <tr><td>Plain <italic>inline</italic> text</td></tr>
+                </tbody>
+              </table>
+            </table-wrap>
+          </body>
+        </article>
+    "#;
+
+    let (node, info) = JatsCodec.from_str(source, None).await?;
+
+    let cell_losses = info
+        .losses
+        .iter()
+        .filter(|(label, ..)| label.contains("/td/") || label.contains("/th/"))
+        .collect::<Vec<_>>();
+    assert!(
+        cell_losses.is_empty(),
+        "unexpected cell losses: {cell_losses:?}"
+    );
+
+    let (jats, ..) = JatsCodec
+        .to_string(
+            &node,
+            Some(EncodeOptions {
+                compact: Some(true),
+                ..Default::default()
+            }),
+        )
+        .await?;
+    for expected in [
+        "Header",
+        "First paragraph",
+        "Second paragraph",
+        "Plain ",
+        "inline",
+    ] {
+        assert!(jats.contains(expected), "missing {expected} in {jats}");
+    }
+
+    Ok(())
+}
+
+/// Unsupported citation children and attributes should be reported against the
+/// citation, not the surrounding `<ref>`
+#[tokio::test]
+async fn citation_losses_use_citation_paths() -> Result<()> {
+    let source = r#"
+        <article>
+          <back>
+            <ref-list>
+              <ref id="ref1">
+                <element-citation publication-type="journal" publisher-type="commercial">
+                  <person-group person-group-type="author">
+                    <name><surname>Smith</surname><given-names>Alex</given-names></name>
+                    <etal/>
+                  </person-group>
+                  <article-title>Referenced work</article-title>
+                  <source>A Journal</source>
+                  <year>2024</year>
+                  <publisher-name>A Publisher</publisher-name>
+                  <comment>An editorial comment</comment>
+                  <pub-id pub-id-type="doi">10.1234/reference</pub-id>
+                  <pub-id pub-id-type="pmid">12345678</pub-id>
+                </element-citation>
+              </ref>
+            </ref-list>
+          </back>
+        </article>
+    "#;
+
+    let (.., info) = JatsCodec.from_str(source, None).await?;
+    let labels = info
+        .losses
+        .iter()
+        .map(|(label, ..)| label)
+        .collect::<Vec<_>>();
+
+    let citation = "//article/back/ref-list/ref/element-citation";
+    for expected in [
+        format!("{citation}/@publisher-type"),
+        format!("{citation}/publisher-name"),
+        format!("{citation}/comment"),
+        format!("{citation}/person-group/etal"),
+        format!("{citation}/pub-id[@pub-id-type='pmid']"),
+    ] {
+        assert!(
+            labels.contains(&expected.as_str()),
+            "missing {expected} in {labels:?}"
+        );
+    }
+
+    // Nothing should be attributed to the <ref> itself
+    assert!(
+        !labels.contains(&"//article/back/ref-list/ref"),
+        "citation details reported against the surrounding ref: {labels:?}"
+    );
+
+    Ok(())
+}
+
+/// Populated properties that JATS encoding does not emit should each produce a
+/// loss
+#[tokio::test]
+async fn encoding_reports_unsupported_article_properties() -> Result<()> {
+    let mut article = Article::new(vec![p([t("Body")])]);
+    article.options.identifiers = Some(vec![PropertyValueOrString::String("pmid:12345678".into())]);
+    article.options.licenses = Some(vec![CreativeWorkVariantOrString::String(
+        "https://creativecommons.org/licenses/by/4.0/".into(),
+    )]);
+    article.options.date_modified = Some(DateTime::new("2025-06-07".into()));
+    article.options.editors = Some(vec![Person {
+        family_names: Some(vec!["Roe".into()]),
+        ..Default::default()
+    }]);
+    article.options.genre = Some(vec!["Research Article".into()]);
+    article.options.description = Some("A description".into());
+
+    let (.., info) = JatsCodec
+        .to_string(
+            &Node::Article(article),
+            Some(EncodeOptions {
+                compact: Some(true),
+                ..Default::default()
+            }),
+        )
+        .await?;
+
+    let labels = info
+        .losses
+        .iter()
+        .map(|(label, ..)| label)
+        .collect::<Vec<_>>();
+    for expected in [
+        "Article.identifiers",
+        "Article.licenses",
+        "Article.dateModified",
+        "Article.editors",
+        "Article.genre",
+        "Article.description",
+    ] {
+        assert!(
+            labels.contains(&expected),
+            "missing {expected} in {labels:?}"
+        );
+    }
+
+    Ok(())
+}
+
+/// Reference container metadata that is not emitted should be reported against
+/// the container
+#[tokio::test]
+async fn encoding_reports_unsupported_reference_properties() -> Result<()> {
+    let mut container = Reference::new();
+    container.work_type = Some(CreativeWorkType::Periodical);
+    container.title = Some(vec![t("A Journal")]);
+    container.options.volume_number = Some(IntegerOrString::Integer(12));
+    container.options.issue_number = Some(IntegerOrString::Integer(3));
+
+    let mut reference = Reference::new();
+    reference.title = Some(vec![t("Referenced work")]);
+    reference.date = Some(Date::new("2024".into()));
+    reference.is_part_of = Some(Box::new(container));
+    reference.options.identifiers =
+        Some(vec![PropertyValueOrString::String("pmid:12345678".into())]);
+
+    let mut article = Article::new(Vec::new());
+    article.references = Some(vec![reference]);
+
+    let (.., info) = JatsCodec
+        .to_string(
+            &Node::Article(article),
+            Some(EncodeOptions {
+                compact: Some(true),
+                ..Default::default()
+            }),
+        )
+        .await?;
+
+    let labels = info
+        .losses
+        .iter()
+        .map(|(label, ..)| label)
+        .collect::<Vec<_>>();
+    for expected in [
+        "Reference.identifiers",
+        "Reference.isPartOf.volumeNumber",
+        "Reference.isPartOf.issueNumber",
+    ] {
+        assert!(
+            labels.contains(&expected),
+            "missing {expected} in {labels:?}"
+        );
+    }
 
     Ok(())
 }

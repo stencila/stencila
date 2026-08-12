@@ -2,8 +2,7 @@
 <!DOCTYPE article SYSTEM "https://jats.nlm.nih.gov/archiving/1.4/JATS-archivearticle1-4-mathml3.dtd">
 <article dtd-version="1.4" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:mml="http://www.w3.org/1998/Math/MathML">
   <front>
-    <article-meta>
-    </article-meta>
+    <article-meta></article-meta>
   </front>
   <body>
     <p>Example using Markdown as canonical format to test alternative ways to write instruction blocks (commands)</p>

@@ -2,15 +2,11 @@
 <!DOCTYPE article SYSTEM "https://jats.nlm.nih.gov/archiving/1.4/JATS-archivearticle1-4-mathml3.dtd">
 <article dtd-version="1.4" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:mml="http://www.w3.org/1998/Math/MathML">
   <front>
-    <article-meta>
-    </article-meta>
+    <article-meta></article-meta>
   </front>
   <body>
-    <p>A TeX equation<inline-formula code="2 \pi r^2" language="asciimath">
-      </inline-formula>.</p>
-    <p>An ASCIIMath equation<inline-formula code="2 pi r^2" language="asciimath">
-      </inline-formula>.</p>
-    <p>A MathML equation<inline-formula code="&lt;math&gt;&lt;mrow&gt;&lt;mn&gt;2&lt;/mn&gt;&lt;mi&gt;π&lt;/mi&gt;&lt;msup&gt;&lt;mi&gt;r&lt;/mi&gt;&lt;mn&gt;2&lt;/mn&gt;&lt;/msup&gt;&lt;/mrow&gt;&lt;/math&gt;" language="mathml">
-      </inline-formula>.</p>
+    <p>A TeX equation <inline-formula code="2 \pi r^2" language="asciimath"></inline-formula>.</p>
+    <p>An ASCIIMath equation <inline-formula code="2 pi r^2" language="asciimath"></inline-formula>.</p>
+    <p>A MathML equation <inline-formula code="&lt;math&gt;&lt;mrow&gt;&lt;mn&gt;2&lt;/mn&gt;&lt;mi&gt;π&lt;/mi&gt;&lt;msup&gt;&lt;mi&gt;r&lt;/mi&gt;&lt;mn&gt;2&lt;/mn&gt;&lt;/msup&gt;&lt;/mrow&gt;&lt;/math&gt;" language="mathml"></inline-formula>.</p>
   </body>
 </article>

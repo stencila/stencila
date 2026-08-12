@@ -2,39 +2,16 @@
 <!DOCTYPE article SYSTEM "https://jats.nlm.nih.gov/archiving/1.4/JATS-archivearticle1-4-mathml3.dtd">
 <article dtd-version="1.4" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:mml="http://www.w3.org/1998/Math/MathML">
   <front>
-    <article-meta>
-    </article-meta>
+    <article-meta></article-meta>
   </front>
   <body>
-    <p>A boolean parameter<parameter name="par_bool_1">
-      </parameter>, with a default<parameter name="par_bool_2">
-      </parameter>, with a default and value<parameter name="par_bool_3">
-      </parameter>
-    </p>
-    <p>An integer parameter<parameter name="par_int_1">
-      </parameter>, with a default<parameter name="par_int_2">
-      </parameter>, with a default and value<parameter name="par_int_3">
-      </parameter>, with min, max and mult options<parameter name="par_int_4">
-      </parameter>
-    </p>
-    <p>A number parameter<parameter name="par_num_1">
-      </parameter>
-    </p>
-    <p>A string parameter<parameter name="par_str_1">
-      </parameter>with quotes in properties<parameter name="par_str_2">
-      </parameter>
-    </p>
-    <p>A date parameter<parameter name="par_date">
-      </parameter>
-    </p>
-    <p>A time parameter<parameter name="par_time">
-      </parameter>
-    </p>
-    <p>A date-time parameter<parameter name="par_date_time">
-      </parameter>
-    </p>
-    <p>An enum parameter<parameter name="par_enum">
-      </parameter>
-    </p>
+    <p>A boolean parameter <parameter name="par_bool_1"></parameter>, with a default <parameter name="par_bool_2"></parameter>, with a default and value <parameter name="par_bool_3"></parameter></p>
+    <p>An integer parameter <parameter name="par_int_1"></parameter>, with a default <parameter name="par_int_2"></parameter>, with a default and value <parameter name="par_int_3"></parameter>, with min, max and mult options <parameter name="par_int_4"></parameter></p>
+    <p>A number parameter <parameter name="par_num_1"></parameter></p>
+    <p>A string parameter <parameter name="par_str_1"></parameter> with quotes in properties <parameter name="par_str_2"></parameter></p>
+    <p>A date parameter <parameter name="par_date"></parameter></p>
+    <p>A time parameter <parameter name="par_time"></parameter></p>
+    <p>A date-time parameter <parameter name="par_date_time"></parameter></p>
+    <p>An enum parameter <parameter name="par_enum"></parameter></p>
   </body>
 </article>

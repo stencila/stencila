@@ -5,7 +5,13 @@ expression: info.losses
 //article/back/fn-group: 1
 //article/back/notes/notes: 1
 //article/back/ref-list/@id: 1
-//article/back/ref-list/ref/@id: 43
+//article/back/ref-list/ref/element-citation/@id: 43
+//article/back/ref-list/ref/element-citation/person-group/etal: 18
+"//article/back/ref-list/ref/element-citation/pub-id[@pub-id-type='pmid']": 18
+//article/back/ref-list/ref/mixed-citation: 43
+//article/back/ref-list/ref/mixed-citation/bold: 4
+//article/back/ref-list/ref/mixed-citation/italic: 15
+//article/back/ref-list/title: 1
 //article/body/sec/@id: 5
 //article/body/sec/p/@content-type: 1
 //article/body/sec/p/@id: 4
@@ -13,7 +19,6 @@ expression: info.losses
 //article/body/sec/sec/p/@id: 14
 //article/body/sec/sec/p/ext-link/@ext-link-type: 1
 //article/body/sec/sec/p/graphic/@id: 2
-//article/body/sec/sec/p/table/tbody/tr/td/p: 546
 //article/front/article-meta/abstract/@id: 1
 //article/front/article-meta/abstract/p/@id: 1
 //article/front/article-meta/contrib-group/address: 1

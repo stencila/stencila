@@ -4,6 +4,11 @@ expression: info.losses
 ---
 //article/back/ack/label: 1
 //article/back/glossary: 1
+//article/back/ref-list/label: 1
+//article/back/ref-list/ref/mixed-citation/collab: 1
+//article/back/ref-list/ref/mixed-citation/etal: 58
+//article/back/ref-list/ref/mixed-citation/month: 59
+//article/back/ref-list/title: 1
 //article/back/sec/@id: 3
 //article/back/sec/label: 3
 //article/back/sec/table-wrap/@orientation: 1

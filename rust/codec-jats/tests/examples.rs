@@ -2,10 +2,10 @@ use std::{collections::BTreeMap, fs::read_to_string, path::PathBuf};
 
 use glob::glob;
 
-use stencila_codec::{EncodeOptions, eyre::Result};
+use stencila_codec::{EncodeOptions, Losses, eyre::Result};
 
 use insta::{assert_json_snapshot, assert_snapshot, assert_yaml_snapshot};
-use stencila_codec_jats::{decode, encode};
+use stencila_codec_jats::{classify, decode, encode};
 
 /// Decode each example of a JATS article and create JSON and JATS snapshots
 /// including for losses
@@ -17,6 +17,8 @@ fn examples() -> Result<()> {
         .to_string_lossy()
         .to_string()
         + "/**/*.jats.xml";
+
+    let mut categories: BTreeMap<String, BTreeMap<String, usize>> = BTreeMap::new();
 
     for path in glob(&pattern)?.flatten() {
         let name = path
@@ -31,6 +33,7 @@ fn examples() -> Result<()> {
 
         assert_json_snapshot!(format!("{name}.json"), article);
         assert_yaml_snapshot!(format!("{name}.decode.losses"), info.losses);
+        categories.insert(format!("{name} decode"), losses_by_category(&info.losses));
 
         let (jats, info) = encode(
             &article,
@@ -60,9 +63,24 @@ fn examples() -> Result<()> {
 
         assert_snapshot!(format!("{name}.jats"), jats);
         assert_yaml_snapshot!(format!("{name}.encode.losses"), info.losses);
+        categories.insert(format!("{name} encode"), losses_by_category(&info.losses));
     }
 
+    // A single view of how much of each fixture's loss total is semantic, so
+    // that content and metadata regressions are not hidden by the much larger
+    // number of source-system details
+    assert_yaml_snapshot!("loss-categories", categories);
+
     Ok(())
+}
+
+/// Total the occurrences of losses in each category
+fn losses_by_category(losses: &Losses) -> BTreeMap<String, usize> {
+    let mut totals = BTreeMap::new();
+    for (label, count) in losses.iter() {
+        *totals.entry(classify(label).to_string()).or_default() += count;
+    }
+    totals
 }
 
 /// Text and structural features used to compare JATS independently of formatting.

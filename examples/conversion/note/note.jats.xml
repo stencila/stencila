@@ -2,28 +2,10 @@
 <!DOCTYPE article SYSTEM "https://jats.nlm.nih.gov/archiving/1.4/JATS-archivearticle1-4-mathml3.dtd">
 <article dtd-version="1.4" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:mml="http://www.w3.org/1998/Math/MathML">
   <front>
-    <article-meta>
-    </article-meta>
+    <article-meta></article-meta>
   </front>
   <body>
-    <p>This paragraph has a simple notes:<fn fn-type="custom" custom-type="Footnote">
-        <p>A footnote</p>
-      </fn>, a<fn fn-type="custom" custom-type="Endnote">
-        <p>An endnote</p>
-      </fn>, a<fn fn-type="custom" custom-type="Sidenote">
-        <p>A side note</p>
-      </fn>.</p>
-    <p>This paragraph has a more complex notes:<fn fn-type="custom" custom-type="Footnote">
-        <p>A footnote with...</p>
-        <p>Another paragraph</p>
-      </fn>, a<fn fn-type="custom" custom-type="Endnote">
-        <p>An endnote with...</p>
-        <code>A code block</code>
-      </fn>, a<fn fn-type="custom" custom-type="Sidenote">
-        <p>A sidenote with...</p>
-        <disp-quote>
-          <p>A quote block</p>
-        </disp-quote>
-      </fn>.</p>
+    <p>This paragraph has a simple notes: <fn fn-type="custom" custom-type="Footnote"><p>A footnote</p></fn>, a <fn fn-type="custom" custom-type="Endnote"><p>An endnote</p></fn>, a <fn fn-type="custom" custom-type="Sidenote"><p>A side note</p></fn>.</p>
+    <p>This paragraph has a more complex notes: <fn fn-type="custom" custom-type="Footnote"><p>A footnote with...</p><p>Another paragraph</p></fn>, a <fn fn-type="custom" custom-type="Endnote"><p>An endnote with...</p><code>A code block</code></fn>, a <fn fn-type="custom" custom-type="Sidenote"><p>A sidenote with...</p><disp-quote><p>A quote block</p></disp-quote></fn>.</p>
   </body>
 </article>

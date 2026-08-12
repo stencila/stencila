@@ -2,29 +2,25 @@
 <!DOCTYPE article SYSTEM "https://jats.nlm.nih.gov/archiving/1.4/JATS-archivearticle1-4-mathml3.dtd">
 <article dtd-version="1.4" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:mml="http://www.w3.org/1998/Math/MathML">
   <front>
-    <article-meta>
-    </article-meta>
+    <article-meta></article-meta>
   </front>
   <body>
     <fig>
-      <inline-graphic xlink:href="https://example.org/cat.jpg">
-      </inline-graphic>
+      <inline-graphic xlink:href="https://example.org/cat.jpg"></inline-graphic>
     </fig>
     <fig>
       <label>2</label>
       <caption>
         <p>A dog.</p>
       </caption>
-      <inline-graphic xlink:href="https://example.org/dog.jpg">
-      </inline-graphic>
+      <inline-graphic xlink:href="https://example.org/dog.jpg"></inline-graphic>
     </fig>
     <sec>
       <fig>
         <caption>
           <p>A figure of a mouse inside a section.</p>
         </caption>
-        <inline-graphic xlink:href="https://example.org/mouse.jpg">
-        </inline-graphic>
+        <inline-graphic xlink:href="https://example.org/mouse.jpg"></inline-graphic>
       </fig>
     </sec>
   </body>

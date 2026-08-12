@@ -3,12 +3,19 @@ source: rust/codec-jats/tests/examples.rs
 expression: info.losses
 ---
 //article/back/ref-list/@id: 1
-//article/back/ref-list/ref/@citation-type: 50
-//article/back/ref-list/ref/@id: 100
-//article/back/ref-list/ref/@linkable: 50
-//article/back/ref-list/ref/@name-style: 189
-//article/back/ref-list/ref/@sortable: 189
-//article/back/ref-list/ref/@use-reference-as-is: 50
+//article/back/ref-list/ref/@rev-id: 47
+//article/back/ref-list/ref/citation/@citation-type: 50
+//article/back/ref-list/ref/citation/@id: 100
+//article/back/ref-list/ref/citation/@linkable: 50
+//article/back/ref-list/ref/citation/@use-reference-as-is: 50
+//article/back/ref-list/ref/citation/article-title/@id: 49
+//article/back/ref-list/ref/citation/etal: 1
+//article/back/ref-list/ref/citation/ext-link: 5
+//article/back/ref-list/ref/citation/publisher-name: 1
+//article/back/ref-list/ref/citation/source/@id: 47
+//article/back/ref-list/ref/citation/string-name/@name-style: 189
+//article/back/ref-list/ref/citation/string-name/@sortable: 189
+//article/back/ref-list/title: 1
 //article/body/sec/@id: 9
 //article/body/sec/p/@id: 11
 //article/body/sec/p/xref/@id: 57

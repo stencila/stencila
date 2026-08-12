@@ -5,7 +5,15 @@ expression: info.losses
 //article/back/ack/@id: 1
 //article/back/ref-list/@content-type: 1
 //article/back/ref-list/@id: 1
-//article/back/ref-list/ref/@id: 70
+//article/back/ref-list/ref/mixed-citation/@id: 70
+//article/back/ref-list/ref/mixed-citation/italic: 30
+"//article/back/ref-list/ref/mixed-citation/pub-id[@pub-id-type='pmid']": 40
+//article/back/ref-list/ref/mixed-citation/publisher-loc: 2
+//article/back/ref-list/ref/mixed-citation/publisher-name: 2
+//article/back/ref-list/ref/mixed-citation/source/@lang: 67
+//article/back/ref-list/ref/mixed-citation/string-name/suffix: 1
+//article/back/ref-list/ref/mixed-citation/string-name/text(): 300
+//article/back/ref-list/title: 1
 //article/back/sec/@id: 1
 //article/back/sec/p/email: 1
 //article/back/sec/p/ext-link/@ext-link-type: 2

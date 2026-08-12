@@ -2,16 +2,14 @@
 <!DOCTYPE article SYSTEM "https://jats.nlm.nih.gov/archiving/1.4/JATS-archivearticle1-4-mathml3.dtd">
 <article dtd-version="1.4" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:mml="http://www.w3.org/1998/Math/MathML">
   <front>
-    <article-meta>
-    </article-meta>
+    <article-meta></article-meta>
   </front>
   <body>
     <fig>
       <caption>
         <p>A cat with an annotation overlay.</p>
       </caption>
-      <inline-graphic xlink:href="https://example.org/cat.jpg">
-      </inline-graphic>
+      <inline-graphic xlink:href="https://example.org/cat.jpg"></inline-graphic>
     </fig>
     <fig>
       <caption>
@@ -21,15 +19,13 @@
         <caption>
           <p>Left panel.</p>
         </caption>
-        <inline-graphic xlink:href="https://example.org/panel-a.jpg">
-        </inline-graphic>
+        <inline-graphic xlink:href="https://example.org/panel-a.jpg"></inline-graphic>
       </fig>
       <fig>
         <caption>
           <p>Right panel.</p>
         </caption>
-        <inline-graphic xlink:href="https://example.org/panel-b.jpg">
-        </inline-graphic>
+        <inline-graphic xlink:href="https://example.org/panel-b.jpg"></inline-graphic>
       </fig>
     </fig>
   </body>

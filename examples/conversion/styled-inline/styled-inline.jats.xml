@@ -2,15 +2,11 @@
 <!DOCTYPE article SYSTEM "https://jats.nlm.nih.gov/archiving/1.4/JATS-archivearticle1-4-mathml3.dtd">
 <article dtd-version="1.4" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:mml="http://www.w3.org/1998/Math/MathML">
   <front>
-    <article-meta>
-    </article-meta>
+    <article-meta></article-meta>
   </front>
   <body>
-    <p>A<styled-content style="text-green-600">styled span</styled-content>, and one with language specified:<styled-content style="color:red" style-detail="css">CSS span</styled-content>
-    </p>
-    <p>Containing other spans<styled-content style="text-blue-600">blue<styled-content style="text-red-600">red</styled-content>blue</styled-content>
-    </p>
-    <p>Containing variable interpolations<styled-content style="color: {{var1}}; padding: {{var2}}; margin: $var3">styled</styled-content>
-    </p>
+    <p>A <styled-content style="text-green-600">styled span</styled-content>, and one with language specified: <styled-content style="color:red" style-detail="css">CSS span</styled-content></p>
+    <p>Containing other spans <styled-content style="text-blue-600">blue <styled-content style="text-red-600">red</styled-content> blue</styled-content></p>
+    <p>Containing variable interpolations <styled-content style="color: {{var1}}; padding: {{var2}}; margin: $var3">styled</styled-content></p>
   </body>
 </article>

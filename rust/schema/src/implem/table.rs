@@ -1,4 +1,4 @@
-use stencila_codec_info::lost_options;
+use stencila_codec_info::{lost_options, lost_options_of};
 
 use crate::{HorizontalAlignment, Table, TableRow, TableRowType, prelude::*};
 
@@ -7,6 +7,46 @@ use super::utils::{caption_to_dom, caption_to_markdown, ensure_markdown_blanklin
 impl JatsCodec for Table {
     fn to_jats(&self, context: &mut JatsEncodeContext) {
         context.enter_elem("table-wrap");
+        context
+            .merge_losses(lost_options!(self, doi, authors, provenance))
+            .merge_losses(lost_options_of!(
+                "Table",
+                self.options,
+                alternate_names,
+                description,
+                identifiers,
+                images,
+                name,
+                url,
+                about,
+                contributors,
+                editors,
+                maintainers,
+                comments,
+                date_created,
+                date_received,
+                date_accepted,
+                date_modified,
+                date_published,
+                funders,
+                funded_by,
+                genre,
+                keywords,
+                is_part_of,
+                licenses,
+                parts,
+                publisher,
+                bibliography,
+                references,
+                text,
+                title,
+                repository,
+                path,
+                commit,
+                worktree_status,
+                version
+            ));
+
         if let Some(value) = &self.id {
             context.push_attr("id", value);
         }

@@ -2,8 +2,7 @@
 <!DOCTYPE article SYSTEM "https://jats.nlm.nih.gov/archiving/1.4/JATS-archivearticle1-4-mathml3.dtd">
 <article dtd-version="1.4" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:mml="http://www.w3.org/1998/Math/MathML">
   <front>
-    <article-meta>
-    </article-meta>
+    <article-meta></article-meta>
   </front>
   <body>
     <p>With no language:</p>
@@ -13,19 +12,10 @@
     <p>With language and execution mode:</p>
     <code executable="yes" language="js">// Javascript</code>
     <p>With label:</p>
-    <code executable="yes"># Chunk 1A<label>1A</label>
-    </code>
+    <code executable="yes"># Chunk 1A<label>1A</label></code>
     <p>Code figure with caption:</p>
-    <code executable="yes" language="r" label-type="FigureLabel">plot(y~x)<label>1</label>
-      <caption>
-        <p>Y against X.</p>
-      </caption>
-    </code>
+    <code executable="yes" language="r" label-type="FigureLabel">plot(y~x)<label>1</label><caption><p>Y against X.</p></caption></code>
     <p>Code table with caption:</p>
-    <code executable="yes" language="r" label-type="TableLabel">head(mtcars)<label>1</label>
-      <caption>
-        <p>Some cars.</p>
-      </caption>
-    </code>
+    <code executable="yes" language="r" label-type="TableLabel">head(mtcars)<label>1</label><caption><p>Some cars.</p></caption></code>
   </body>
 </article>

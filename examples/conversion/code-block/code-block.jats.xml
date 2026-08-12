@@ -2,8 +2,7 @@
 <!DOCTYPE article SYSTEM "https://jats.nlm.nih.gov/archiving/1.4/JATS-archivearticle1-4-mathml3.dtd">
 <article dtd-version="1.4" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:mml="http://www.w3.org/1998/Math/MathML">
   <front>
-    <article-meta>
-    </article-meta>
+    <article-meta></article-meta>
   </front>
   <body>
     <p>A code block</p>
@@ -11,9 +10,8 @@
     <p>A code block with no language</p>
     <code>No language</code>
     <p>An empty code block</p>
-    <code>
-    </code>
+    <code></code>
     <p>A code block with only whitespace</p>
-    <code>&#9;&#10;</code>
+    <code> &#9;&#10; </code>
   </body>
 </article>

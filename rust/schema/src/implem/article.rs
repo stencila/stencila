@@ -8,10 +8,14 @@ use crate::{
     replicate,
     shortcuts::{h1, t},
 };
+use stencila_codec_info::{lost_options, lost_options_of};
 use stencila_codec_markdown_trait::{MarkdownEncodeMode, to_markdown_with};
 use stencila_codec_text_trait::to_text;
 
-use super::reference::{encode_person_name, normalize_doi, normalize_orcid, organization_name};
+use super::reference::{
+    add_organization_losses, add_person_losses, encode_person_name, normalize_doi, normalize_orcid,
+    organization_name,
+};
 
 /// Get the person represented by an author, including authors wrapped in a role.
 fn author_person(author: &Author) -> Option<&Person> {
@@ -466,7 +470,10 @@ fn encode_article_author(
         .push_attr("contrib-type", "author");
 
     let (person, role, encoded) = match author {
-        Author::Person(person) => (Some(person), None, encode_person_name(person, context)),
+        Author::Person(person) => {
+            add_person_losses(person, true, context);
+            (Some(person), None, encode_person_name(person, context))
+        }
         Author::Organization(organization) => {
             let encoded = organization_name(organization).is_some_and(|name| {
                 context.enter_elem("collab").push_text(name).exit_elem();
@@ -485,11 +492,14 @@ fn encode_article_author(
             (None, None, encoded)
         }
         Author::AuthorRole(author_role) => match &author_role.author {
-            AuthorRoleAuthor::Person(person) => (
-                Some(person),
-                Some(author_role.role_name.to_string()),
-                encode_person_name(person, context),
-            ),
+            AuthorRoleAuthor::Person(person) => {
+                add_person_losses(person, true, context);
+                (
+                    Some(person),
+                    Some(author_role.role_name.to_string()),
+                    encode_person_name(person, context),
+                )
+            }
             AuthorRoleAuthor::Organization(organization) => {
                 let encoded = organization_name(organization).is_some_and(|name| {
                     context.enter_elem("collab").push_text(name).exit_elem();
@@ -561,6 +571,7 @@ fn encode_article_author(
 
 fn encode_affiliation(organization: &Organization, id: &str, context: &mut JatsEncodeContext) {
     context.enter_elem("aff").push_attr("id", id);
+    add_organization_losses(organization, context);
     let name = organization_name(organization);
     let ror = organization
         .ror
@@ -594,6 +605,56 @@ fn encode_affiliation(organization: &Organization, id: &str, context: &mut JatsE
     context.exit_elem();
 }
 
+/// Record a loss for every populated `Article` property that JATS encoding does
+/// not emit
+///
+/// `journal_encoded` indicates whether anything was emitted from `is_part_of`.
+fn add_article_losses(article: &Article, journal_encoded: bool, context: &mut JatsEncodeContext) {
+    context
+        .merge_losses(lost_options!(
+            article,
+            provenance,
+            execution_mode,
+            frontmatter
+        ))
+        .merge_losses(lost_options_of!(
+            "Article",
+            article.options,
+            alternate_names,
+            description,
+            identifiers,
+            images,
+            name,
+            url,
+            about,
+            contributors,
+            editors,
+            maintainers,
+            comments,
+            date_created,
+            date_modified,
+            funders,
+            funded_by,
+            genre,
+            licenses,
+            parts,
+            bibliography,
+            text,
+            repository,
+            path,
+            commit,
+            worktree_status,
+            version,
+            headings,
+            archive,
+            extra
+        ));
+
+    if article.options.is_part_of.is_some() && !journal_encoded {
+        context.add_loss("Article.isPartOf");
+    }
+}
+
 impl JatsCodec for Article {
     fn to_jats(&self, context: &mut JatsEncodeContext) {
         let reference_ids = self
@@ -621,6 +682,10 @@ impl JatsCodec for Article {
         if let Some(work) = &self.options.is_part_of {
             collect_journal_metadata(work, &mut journal);
         }
+        let journal_encoded =
+            journal.title.is_some() || journal.volume.is_some() || journal.issue.is_some();
+        add_article_losses(self, journal_encoded, context);
+
         if journal.title.is_some() || self.options.publisher.is_some() {
             context.enter_elem("journal-meta");
             if let Some(title) = journal.title {

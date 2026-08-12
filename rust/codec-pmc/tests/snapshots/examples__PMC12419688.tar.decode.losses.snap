@@ -3,6 +3,10 @@ source: rust/codec-pmc/tests/examples.rs
 expression: info.losses
 ---
 //article/back/ref-list/@id: 1
+//article/back/ref-list/ref/mixed-citation/person-group/etal: 2
+//article/back/ref-list/ref/mixed-citation/person-group/text(): 51
+"//article/back/ref-list/ref/mixed-citation/pub-id[@pub-id-type='pmid']": 9
+//article/back/ref-list/title: 1
 //article/back/sec/list/list-item/p/ext-link/@ext-link-type: 3
 //article/back/sec/list/list-item/p/ext-link/@specific-use: 3
 //article/back/sec/list/list-item/p/ext-link/@title: 3

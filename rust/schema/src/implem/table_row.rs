@@ -1,4 +1,4 @@
-use stencila_codec_info::lost_options;
+use stencila_codec_info::{lost_options, lost_options_of};
 
 use crate::{TableCellType, TableRow, TableRowType, prelude::*};
 
@@ -16,7 +16,17 @@ impl JatsCodec for TableRow {
                 "td"
             };
 
-            context.enter_elem(tag);
+            context
+                .enter_elem(tag)
+                .merge_losses(lost_options!(cell, id))
+                .merge_losses(lost_options_of!(
+                    "TableCell",
+                    cell.options,
+                    name,
+                    vertical_alignment,
+                    horizontal_alignment,
+                    horizontal_alignment_character
+                ));
             if let Some(value) = &cell.options.row_span {
                 context.push_attr("rowspan", value);
             }

@@ -1,4 +1,4 @@
-use stencila_codec_info::lost_options;
+use stencila_codec_info::{lost_options, lost_options_of};
 
 use crate::{AudioObject, ImageObject, Inline, MediaObject, VideoObject, prelude::*};
 
@@ -18,6 +18,60 @@ macro_rules! html_attrs {
 
         attrs
     }};
+}
+
+/// Record a loss for every populated media object property that JATS media
+/// encoding does not emit
+///
+/// `content_url`, `media_type` and `caption` are emitted; everything else,
+/// including any type specific properties passed as extra field names, is not.
+macro_rules! jats_media_losses {
+    ($type_name:literal, $object:expr, $context:expr $(, $extra:ident)*) => {
+        $context
+            .merge_losses(lost_options!($object, id, doi, work_type))
+            .merge_losses(lost_options_of!(
+                $type_name,
+                $object.options,
+                alternate_names,
+                description,
+                identifiers,
+                images,
+                name,
+                url,
+                about,
+                authors,
+                provenance,
+                contributors,
+                editors,
+                maintainers,
+                comments,
+                date_created,
+                date_received,
+                date_accepted,
+                date_modified,
+                date_published,
+                funders,
+                funded_by,
+                genre,
+                keywords,
+                is_part_of,
+                licenses,
+                parts,
+                publisher,
+                bibliography,
+                references,
+                text,
+                repository,
+                path,
+                commit,
+                worktree_status,
+                version,
+                bitrate,
+                content_size,
+                embed_url
+                $(, $extra)*
+            ));
+    };
 }
 
 fn encode_jats_media(
@@ -50,7 +104,7 @@ fn encode_jats_media(
                 .exit_elem();
         }
     }
-    context.exit_elem().merge_losses(Losses::todo());
+    context.exit_elem();
 }
 
 macro_rules! to_markdown {
@@ -107,6 +161,7 @@ impl JatsCodec for MediaObject {
         // attributes and to ensure `AudioObject` and `VideoObject` ad differentiated
         // through the `mimetype` attribute
 
+        jats_media_losses!("MediaObject", self, context, title);
         encode_jats_media(
             context,
             "inline-media",
@@ -131,6 +186,8 @@ impl AudioObject {
 
 impl JatsCodec for AudioObject {
     fn to_jats(&self, context: &mut JatsEncodeContext) {
+        jats_media_losses!("AudioObject", self, context, transcript);
+        context.merge_losses(lost_options!(self, title));
         encode_jats_media(
             context,
             "inline-media",
@@ -195,6 +252,8 @@ impl ImageObject {
 
 impl JatsCodec for ImageObject {
     fn to_jats(&self, context: &mut JatsEncodeContext) {
+        jats_media_losses!("ImageObject", self, context, thumbnail);
+        context.merge_losses(lost_options!(self, title));
         encode_jats_media(
             context,
             "inline-graphic",
@@ -295,6 +354,8 @@ impl VideoObject {
 
 impl JatsCodec for VideoObject {
     fn to_jats(&self, context: &mut JatsEncodeContext) {
+        jats_media_losses!("VideoObject", self, context, thumbnail, transcript);
+        context.merge_losses(lost_options!(self, title));
         encode_jats_media(
             context,
             "inline-media",

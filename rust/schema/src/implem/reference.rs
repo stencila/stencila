@@ -1,3 +1,5 @@
+use stencila_codec_info::{lost_options, lost_options_of};
+
 use crate::{
     Article, Author, AuthorRoleAuthor, CreativeWork, CreativeWorkType, CreativeWorkVariant, Date,
     Organization, Person, PersonOrOrganization, Reference, ReferenceOptions, prelude::*, replicate,
@@ -27,6 +29,59 @@ pub(super) fn organization_name(organization: &Organization) -> Option<&str> {
         .or(organization.options.legal_name.as_deref())
         .map(str::trim)
         .filter(|name| !name.is_empty())
+}
+
+/// Record a loss for every populated `Person` property that JATS contributor
+/// encoding does not emit
+///
+/// `contrib` indicates a `<contrib>` context, where ORCID, emails and
+/// affiliations are emitted; in a `<person-group>` only the name is.
+pub(super) fn add_person_losses(person: &Person, contrib: bool, context: &mut JatsEncodeContext) {
+    context.merge_losses(lost_options_of!(
+        "Person",
+        person.options,
+        alternate_names,
+        description,
+        identifiers,
+        images,
+        url,
+        funders,
+        honorific_prefix,
+        honorific_suffix,
+        job_title,
+        member_of,
+        telephone_numbers,
+        address
+    ));
+
+    if !contrib {
+        context.merge_losses(lost_options!(person, orcid, affiliations));
+        context.merge_losses(lost_options_of!("Person", person.options, emails));
+    }
+}
+
+/// Record a loss for every populated `Organization` property that `<aff>`
+/// encoding does not emit
+pub(super) fn add_organization_losses(
+    organization: &Organization,
+    context: &mut JatsEncodeContext,
+) {
+    context.merge_losses(lost_options_of!(
+        "Organization",
+        organization.options,
+        alternate_names,
+        description,
+        identifiers,
+        images,
+        url,
+        brands,
+        contact_points,
+        departments,
+        funders,
+        logo,
+        members,
+        parent_organization
+    ));
 }
 
 pub(super) fn encode_person_name(person: &Person, context: &mut JatsEncodeContext) -> bool {
@@ -73,7 +128,10 @@ pub(super) fn encode_person_name(person: &Person, context: &mut JatsEncodeContex
 
 fn encode_reference_author(author: &Author, context: &mut JatsEncodeContext) -> bool {
     match author {
-        Author::Person(person) => encode_person_name(person, context),
+        Author::Person(person) => {
+            add_person_losses(person, false, context);
+            encode_person_name(person, context)
+        }
         Author::Organization(organization) => {
             if let Some(name) = organization_name(organization) {
                 context.enter_elem("collab").push_text(name).exit_elem();
@@ -92,7 +150,10 @@ fn encode_reference_author(author: &Author, context: &mut JatsEncodeContext) -> 
             }
         }
         Author::AuthorRole(role) => match &role.author {
-            AuthorRoleAuthor::Person(person) => encode_person_name(person, context),
+            AuthorRoleAuthor::Person(person) => {
+                add_person_losses(person, false, context);
+                encode_person_name(person, context)
+            }
             AuthorRoleAuthor::Organization(organization) => {
                 if let Some(name) = organization_name(organization) {
                     context.enter_elem("collab").push_text(name).exit_elem();
@@ -165,6 +226,18 @@ impl Reference {
     pub(super) fn to_jats_with_id(&self, id: &str, context: &mut JatsEncodeContext) {
         context.enter_elem("ref").push_attr("id", id);
 
+        // Identifiers other than the DOI have no JATS `<pub-id>` mapping yet,
+        // and `version` has no element in a citation
+        context.merge_losses(lost_options_of!(
+            "Reference",
+            self.options,
+            identifiers,
+            version
+        ));
+        if self.work_type.is_some() && publication_type(self.work_type).is_none() {
+            context.add_loss("Reference.workType");
+        }
+
         let text = self
             .options
             .text
@@ -214,6 +287,7 @@ impl Reference {
                     .push_attr("person-group-type", "editor");
                 let mut encoded = false;
                 for editor in editors {
+                    add_person_losses(editor, false, context);
                     encoded |= encode_person_name(editor, context);
                 }
                 if encoded {
@@ -237,13 +311,36 @@ impl Reference {
                 context.exit_elem();
             }
 
-            if let Some(container) = &self.is_part_of
-                && let Some(title) = &container.title
-                && !title.is_empty()
-            {
-                context.enter_elem("source");
-                title.to_jats(context);
-                context.exit_elem();
+            if let Some(container) = &self.is_part_of {
+                let title = container.title.as_ref().filter(|title| !title.is_empty());
+                if let Some(title) = title {
+                    context.enter_elem("source");
+                    title.to_jats(context);
+                    context.exit_elem();
+                }
+
+                // Only the container title is emitted. Report the rest against
+                // the container so it is not confused with the same property on
+                // the reference itself.
+                for (name, populated) in [
+                    ("title", title.is_none()),
+                    ("doi", container.doi.is_some()),
+                    ("url", container.url.is_some()),
+                    ("authors", container.authors.is_some()),
+                    ("date", container.date.is_some()),
+                    ("editors", container.options.editors.is_some()),
+                    ("publisher", container.options.publisher.is_some()),
+                    ("volumeNumber", container.options.volume_number.is_some()),
+                    ("issueNumber", container.options.issue_number.is_some()),
+                    ("pageStart", container.options.page_start.is_some()),
+                    ("pageEnd", container.options.page_end.is_some()),
+                    ("pagination", container.options.pagination.is_some()),
+                    ("identifiers", container.options.identifiers.is_some()),
+                ] {
+                    if populated {
+                        context.add_loss(format!("Reference.isPartOf.{name}"));
+                    }
+                }
             }
 
             if let Some(year) = self.date.as_ref().and_then(Date::year) {

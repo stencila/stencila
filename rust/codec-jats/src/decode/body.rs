@@ -26,6 +26,30 @@ use super::utilities::{extend_path, record_attrs_lost, record_node_lost};
 
 const XLINK: &str = "http://www.w3.org/1999/xlink";
 
+/// Whether a JATS element is decoded by [`decode_blocks`] into block content
+///
+/// Deliberately excludes elements such as `<fn>` and `<title>` which are
+/// decoded as inline content in an inline context. Used to choose between
+/// inline and block decoding without a trial decode.
+fn is_block_element(tag: &str) -> bool {
+    matches!(
+        tag,
+        "boxed-text"
+            | "code"
+            | "disp-formula"
+            | "disp-quote"
+            | "fig"
+            | "fig-group"
+            | "hr"
+            | "list"
+            | "p"
+            | "sec"
+            | "statement"
+            | "supplementary-material"
+            | "table-wrap"
+    )
+}
+
 /// Decode block content nodes
 ///
 /// Iterates over all child elements and either decodes them, or adds them to
@@ -841,20 +865,30 @@ fn decode_table_cell(path: &str, node: &Node, losses: &mut Losses, depth: u8) ->
         losses,
     );
 
-    // First try to decode as inlines (usual case) filtering out whitespace only inlines
-    let inlines: Vec<Inline> = decode_inlines(path, node.children(), losses)
-        .into_iter()
-        .filter_map(|inline| (!to_text(&inline).trim().is_empty()).then_some(inline))
-        .collect();
+    // Decide between block and inline decoding up front. Trial decoding as
+    // inlines first would report every block child (usually a <p>) as lost even
+    // though the block fallback goes on to decode it.
+    let has_block_children = node
+        .children()
+        .any(|child| child.is_element() && is_block_element(child.tag_name().name()));
 
-    let content = if inlines.is_empty() {
-        // Fallback to decoding as blocks, again filtering out whitespace only
+    let content = if has_block_children {
         decode_blocks(path, node.children(), losses, depth)
             .into_iter()
             .filter_map(|block| (!to_text(&block).trim().is_empty()).then_some(block))
             .collect()
     } else {
-        vec![p(inlines)]
+        // Filter out whitespace only inlines
+        let inlines: Vec<Inline> = decode_inlines(path, node.children(), losses)
+            .into_iter()
+            .filter_map(|inline| (!to_text(&inline).trim().is_empty()).then_some(inline))
+            .collect();
+
+        if inlines.is_empty() {
+            Vec::new()
+        } else {
+            vec![p(inlines)]
+        }
     };
 
     TableCell {

@@ -99,13 +99,18 @@ fn decode_ref_list(path: &str, ref_list: &Node, article: &mut Article, losses: &
     let mut references = Vec::new();
     for ref_elem in ref_list.children() {
         if ref_elem.tag_name().name() != "ref" {
+            record_node_lost(path, &ref_elem, losses);
             continue;
         }
+
+        let ref_path = &extend_path(path, "ref");
+        record_attrs_lost(ref_path, &ref_elem, ["id"], losses);
+
         let Some(id) = ref_elem.attribute("id") else {
+            // Without an ID the reference cannot be the target of a citation
+            losses.add(format!("{ref_path}/@id"));
             continue;
         };
-
-        let child_path = &extend_path(path, "ref");
 
         // The <ref> may has <citation>, <element-citation> and/or
         // <mixed-citation> elements within it, or those elements may be nested
@@ -125,8 +130,25 @@ fn decode_ref_list(path: &str, ref_list: &Node, article: &mut Article, losses: &
                     .find(|elem| elem.tag_name().name() == "mixed-citation")
             })
         {
-            let reference = decode_citation(child_path, id, &element_citation, losses);
+            // Report the citation against its own path, rather than that of the
+            // surrounding <ref>, and report any sibling citations not used
+            let citation_tag = element_citation.tag_name().name();
+            for other in ref_elem.descendants().filter(|elem| {
+                elem.is_element()
+                    && *elem != element_citation
+                    && matches!(
+                        elem.tag_name().name(),
+                        "element-citation" | "citation" | "mixed-citation"
+                    )
+            }) {
+                record_node_lost(ref_path, &other, losses);
+            }
+
+            let citation_path = &extend_path(ref_path, citation_tag);
+            let reference = decode_citation(citation_path, id, &element_citation, losses);
             references.push(reference);
+        } else {
+            losses.add(ref_path.clone());
         }
     }
 
@@ -159,41 +181,61 @@ fn decode_citation(path: &str, id: &str, node: &Node, losses: &mut Losses) -> Re
     let mut page_end = None;
 
     for child in node.children() {
+        if !child.is_element() {
+            // Text between elements of a mixed citation is punctuation and
+            // labelling that is regenerated when encoding
+            continue;
+        }
+
         let child_tag = child.tag_name().name();
+        let child_path = &extend_path(path, child_tag);
         if matches!(child_tag, "name" | "string-name") {
-            let person = decode_person(path, &child, losses);
+            let person = decode_person(child_path, &child, losses);
             authors.push(Author::Person(person));
         } else if child_tag == "person-group" {
+            record_attrs_lost(child_path, &child, ["person-group-type"], losses);
+
             let is_authors = matches!(child.attribute("person-group-type"), Some("author") | None);
             for grandchild in child.children() {
                 if matches!(grandchild.tag_name().name(), "name" | "string-name") {
-                    let person = decode_person(path, &grandchild, losses);
+                    let grandchild_path = &extend_path(child_path, grandchild.tag_name().name());
+                    let person = decode_person(grandchild_path, &grandchild, losses);
                     if is_authors {
                         authors.push(Author::Person(person))
                     } else {
                         editors.push(person)
                     }
+                } else {
+                    record_node_lost(child_path, &grandchild, losses);
                 }
             }
-        } else if child_tag == "year" {
-            date = child.text().map(|year| Date::new(year.to_string()));
-        } else if child_tag.to_string().contains("title") {
-            title = Some(decode_inlines(path, child.children(), losses))
-        } else if child_tag == "source" {
-            source = child.text().map(String::from);
-        } else if child_tag == "volume" {
-            volume_number = child.text().map(Into::into);
-        } else if child_tag == "issue" {
-            issue_number = child.text().map(Into::into);
-        } else if child_tag == "fpage" {
-            page_start = child.text().map(Into::into);
-        } else if child_tag == "lpage" {
-            page_end = child.text().map(Into::into);
-        } else if child_tag == "pub-id" {
-            let id_type = child.attribute("pub-id-type");
-            if id_type == Some("doi") {
-                doi = child.text().map(String::from);
+        } else if matches!(
+            child_tag,
+            "year" | "source" | "volume" | "issue" | "fpage" | "lpage"
+        ) || child_tag.contains("title")
+        {
+            record_attrs_lost(child_path, &child, [], losses);
+
+            match child_tag {
+                "year" => date = child.text().map(|year| Date::new(year.to_string())),
+                "source" => source = child.text().map(String::from),
+                "volume" => volume_number = child.text().map(Into::into),
+                "issue" => issue_number = child.text().map(Into::into),
+                "fpage" => page_start = child.text().map(Into::into),
+                "lpage" => page_end = child.text().map(Into::into),
+                _ => title = Some(decode_inlines(child_path, child.children(), losses)),
             }
+        } else if child_tag == "pub-id" {
+            record_attrs_lost(child_path, &child, ["pub-id-type"], losses);
+
+            match child.attribute("pub-id-type") {
+                Some("doi") => doi = child.text().map(String::from),
+                // Non-DOI identifiers have no dedicated property on `Reference`
+                Some(id_type) => losses.add(format!("{child_path}[@pub-id-type='{id_type}']")),
+                None => losses.add(child_path.clone()),
+            }
+        } else {
+            record_node_lost(path, &child, losses);
         }
     }
 
@@ -270,16 +312,18 @@ fn decode_person(path: &str, node: &Node, losses: &mut Losses) -> Person {
     let mut family_names = Vec::new();
     let mut given_names = Vec::new();
 
-    for node in node.children() {
-        let tag = node.tag_name().name();
+    for child in node.children() {
+        let tag = child.tag_name().name();
         if tag == "surname" {
-            if let Some(value) = node.text() {
+            if let Some(value) = child.text() {
                 family_names.push(value.to_string());
             }
-        } else if tag == "given-names"
-            && let Some(value) = node.text()
-        {
-            given_names.append(&mut split_given_names(value));
+        } else if tag == "given-names" {
+            if let Some(value) = child.text() {
+                given_names.append(&mut split_given_names(value));
+            }
+        } else {
+            record_node_lost(path, &child, losses);
         }
     }
 

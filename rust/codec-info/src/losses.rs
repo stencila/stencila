@@ -128,6 +128,15 @@ impl Losses {
         self.add(format!("{type_name}.{prop_name}"));
     }
 
+    /// Add a loss of a property, naming the type explicitly
+    ///
+    /// Use when the property lives on an `...Options` struct but should be
+    /// reported against the type that owns it (e.g. `Article.identifiers`
+    /// rather than `ArticleOptions.identifiers`).
+    pub fn add_named_prop(&mut self, type_name: &str, prop_name: &str) {
+        self.add(format!("{type_name}.{}", prop_name.to_camel_case()));
+    }
+
     /// Merge another set of losses into this one
     pub fn merge(&mut self, losses: Losses) {
         for (label, count) in losses.inner {
@@ -141,6 +150,16 @@ impl Losses {
     /// Is this set of losses empty
     pub fn is_empty(&self) -> bool {
         self.inner.is_empty()
+    }
+
+    /// Iterate over the label and count of each loss
+    ///
+    /// Allows tests and audit tooling to inspect and classify individual losses
+    /// rather than only their total.
+    pub fn iter(&self) -> impl Iterator<Item = (&str, usize)> {
+        self.inner
+            .iter()
+            .map(|(label, count)| (label.as_str(), *count))
     }
 
     /// Respond to losses according to the `LossesResponse` variant
@@ -209,6 +228,24 @@ macro_rules! lost_options {
         $(
             if $object.$field.is_some() {
                 losses.add_prop(&$object, stringify!($field));
+            }
+        )*
+        losses
+    }};
+}
+
+/// Create a set of losses for optional properties, reported against a named type
+///
+/// Like [`lost_options!`] but with the owning type named explicitly, so that
+/// properties held on an `...Options` struct are reported against the type they
+/// belong to.
+#[macro_export]
+macro_rules! lost_options_of {
+    ($type_name:literal, $object:expr, $($field:ident),*) => {{
+        let mut losses = Losses::none();
+        $(
+            if $object.$field.is_some() {
+                losses.add_named_prop($type_name, stringify!($field));
             }
         )*
         losses

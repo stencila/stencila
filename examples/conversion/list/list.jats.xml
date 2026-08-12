@@ -2,8 +2,7 @@
 <!DOCTYPE article SYSTEM "https://jats.nlm.nih.gov/archiving/1.4/JATS-archivearticle1-4-mathml3.dtd">
 <article dtd-version="1.4" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:mml="http://www.w3.org/1998/Math/MathML">
   <front>
-    <article-meta>
-    </article-meta>
+    <article-meta></article-meta>
   </front>
   <body>
     <p>Simple lists</p>
@@ -87,16 +86,13 @@
     <p>A paragraph to keep the previous and following lists separate (otherwise they get merged).</p>
     <list list-type="Unordered">
       <list-item>
-        <p>an item with an image<inline-graphic xlink:href="image.png">
-          </inline-graphic>, see!</p>
+        <p>an item with an image <inline-graphic xlink:href="image.png"></inline-graphic>, see!</p>
       </list-item>
       <list-item>
-        <p>an item with<italic>emphasis</italic>
-        </p>
+        <p>an item with <italic>emphasis</italic></p>
       </list-item>
       <list-item>
-        <p>an item with HTML<underline>underlined</underline>
-        </p>
+        <p>an item with HTML <underline>underlined</underline></p>
       </list-item>
     </list>
     <p>A list with multiple paragraphs in each item</p>
