@@ -24,90 +24,72 @@ expression: jats
             <given-names>J</given-names>
           </name>
           <email>jmcamaro@gmail.com</email>
-          <xref ref-type="aff" rid="aff1">
-          </xref>
-          <xref ref-type="aff" rid="aff2">
-          </xref>
-          <xref ref-type="aff" rid="aff3">
-          </xref>
+          <xref ref-type="aff" rid="aff1"></xref>
+          <xref ref-type="aff" rid="aff2"></xref>
+          <xref ref-type="aff" rid="aff3"></xref>
         </contrib>
         <contrib contrib-type="author">
           <name>
             <surname>Lucas</surname>
             <given-names>R</given-names>
           </name>
-          <xref ref-type="aff" rid="aff1">
-          </xref>
-          <xref ref-type="aff" rid="aff2">
-          </xref>
-          <xref ref-type="aff" rid="aff4">
-          </xref>
+          <xref ref-type="aff" rid="aff1"></xref>
+          <xref ref-type="aff" rid="aff2"></xref>
+          <xref ref-type="aff" rid="aff4"></xref>
         </contrib>
         <contrib contrib-type="author">
           <name>
             <surname>Perelman</surname>
             <given-names>J</given-names>
           </name>
-          <xref ref-type="aff" rid="aff5">
-          </xref>
-          <xref ref-type="aff" rid="aff6">
-          </xref>
+          <xref ref-type="aff" rid="aff5"></xref>
+          <xref ref-type="aff" rid="aff6"></xref>
         </contrib>
         <contrib contrib-type="author">
           <name>
             <surname>Fraga</surname>
             <given-names>S</given-names>
           </name>
-          <xref ref-type="aff" rid="aff1">
-          </xref>
-          <xref ref-type="aff" rid="aff2">
-          </xref>
+          <xref ref-type="aff" rid="aff1"></xref>
+          <xref ref-type="aff" rid="aff2"></xref>
         </contrib>
         <contrib contrib-type="author">
           <name>
             <surname>Maia</surname>
             <given-names>S</given-names>
           </name>
-          <xref ref-type="aff" rid="aff1">
-          </xref>
-          <xref ref-type="aff" rid="aff2">
-          </xref>
+          <xref ref-type="aff" rid="aff1"></xref>
+          <xref ref-type="aff" rid="aff2"></xref>
         </contrib>
         <contrib contrib-type="author">
           <name>
             <surname>Pereira</surname>
             <given-names>M</given-names>
           </name>
-          <xref ref-type="aff" rid="aff7">
-          </xref>
+          <xref ref-type="aff" rid="aff7"></xref>
         </contrib>
         <contrib contrib-type="author">
           <name>
             <surname>Mamelund</surname>
             <given-names>S E</given-names>
           </name>
-          <xref ref-type="aff" rid="aff8">
-          </xref>
+          <xref ref-type="aff" rid="aff8"></xref>
         </contrib>
         <contrib contrib-type="author">
           <name>
             <surname>Matias</surname>
             <given-names>M</given-names>
           </name>
-          <xref ref-type="aff" rid="aff9">
-          </xref>
+          <xref ref-type="aff" rid="aff9"></xref>
         </contrib>
         <contrib contrib-type="author">
           <name>
             <surname>Leão</surname>
             <given-names>T</given-names>
           </name>
-          <xref ref-type="aff" rid="aff1">
-          </xref>
-          <xref ref-type="aff" rid="aff2">
-          </xref>
-          <xref ref-type="aff" rid="aff10">
-          </xref>
+          <xref ref-type="aff" rid="aff1"></xref>
+          <xref ref-type="aff" rid="aff2"></xref>
+          <xref ref-type="aff" rid="aff10"></xref>
         </contrib>
         <aff id="aff1">
           <institution-wrap>
