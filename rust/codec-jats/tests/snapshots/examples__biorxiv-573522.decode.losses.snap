@@ -18,11 +18,9 @@ expression: info.losses
 //article/back/ref-list/ref/citation/string-name/@name-style: 189
 //article/back/ref-list/ref/citation/string-name/@sortable: 189
 //article/back/ref-list/title: 1
-//article/body/sec/@id: 9
 //article/body/sec/p/@id: 11
 //article/body/sec/p/xref/@id: 57
 //article/body/sec/p/xref/@rel-id: 57
-//article/body/sec/sec/@id: 12
 //article/body/sec/sec/fig/@fig-type: 3
 //article/body/sec/sec/fig/@orientation: 3
 //article/body/sec/sec/fig/@position: 3
@@ -35,9 +33,8 @@ expression: info.losses
 //article/body/sec/sec/fig/title/@id: 3
 //article/body/sec/sec/p/@id: 6
 //article/body/sec/sec/p/italic/@toggle: 1
-//article/body/sec/sec/p/xref/@id: 15
+//article/body/sec/sec/p/xref/@id: 5
 //article/body/sec/sec/p/xref/@rel-id: 15
-//article/body/sec/sec/sec/@id: 10
 //article/body/sec/sec/sec/fig/@fig-type: 4
 //article/body/sec/sec/sec/fig/@orientation: 4
 //article/body/sec/sec/sec/fig/@position: 4
@@ -49,7 +46,7 @@ expression: info.losses
 //article/body/sec/sec/sec/fig/p/@id: 4
 //article/body/sec/sec/sec/fig/title/@id: 4
 //article/body/sec/sec/sec/p/@id: 16
-//article/body/sec/sec/sec/p/xref/@id: 44
+//article/body/sec/sec/sec/p/xref/@id: 2
 //article/body/sec/sec/sec/p/xref/@rel-id: 44
 //article/body/sec/sec/sec/title/@id: 5
 //article/body/sec/sec/table-wrap/@orientation: 2
@@ -59,12 +56,12 @@ expression: info.losses
 //article/body/sec/sec/table-wrap/graphic/@id: 3
 //article/body/sec/sec/table-wrap/graphic/@orientation: 3
 //article/body/sec/sec/table-wrap/graphic/@position: 3
+//article/body/sec/sec/table-wrap/object-id: 6
 //article/body/sec/sec/title/@id: 6
 //article/body/sec/supplementary-material/@orientation: 1
 //article/body/sec/supplementary-material/@position: 1
 //article/body/sec/title/@id: 5
 //article/front/article-meta/abstract/p/@id: 1
-//article/front/article-meta/abstract/sec/@id: 1
 //article/front/article-meta/abstract/sec/p/@id: 1
 //article/front/article-meta/abstract/sec/title/@id: 1
 //article/front/article-meta/abstract/title/@id: 1

@@ -3054,6 +3054,7 @@ expression: article
   "content": [
     {
       "type": "Section",
+      "id": "sec001",
       "sectionType": "Introduction",
       "content": [
         {
@@ -3722,6 +3723,7 @@ expression: article
     },
     {
       "type": "Section",
+      "id": "sec002",
       "sectionType": "Materials",
       "content": [
         {
@@ -3738,6 +3740,7 @@ expression: article
         },
         {
           "type": "Section",
+          "id": "sec003",
           "sectionType": "Ethics",
           "content": [
             {
@@ -3771,7 +3774,8 @@ expression: article
                       }
                     }
                   ],
-                  "target": "http://www.biolasco.com.tw"
+                  "target": "http://www.biolasco.com.tw",
+                  "jatsExtLinkType": "uri"
                 },
                 {
                   "type": "Text",
@@ -3785,6 +3789,7 @@ expression: article
         },
         {
           "type": "Section",
+          "id": "sec004",
           "content": [
             {
               "type": "Heading",
@@ -3817,7 +3822,8 @@ expression: article
                       }
                     }
                   ],
-                  "target": "LC111438"
+                  "target": "LC111438",
+                  "jatsExtLinkType": "pmc:entrez-nucleotide"
                 },
                 {
                   "type": "Text",
@@ -3835,7 +3841,8 @@ expression: article
                       }
                     }
                   ],
-                  "target": "AB178040.1"
+                  "target": "AB178040.1",
+                  "jatsExtLinkType": "pmc:entrez-nucleotide"
                 },
                 {
                   "type": "Text",
@@ -3853,7 +3860,8 @@ expression: article
                       }
                     }
                   ],
-                  "target": "DQ863638.1"
+                  "target": "DQ863638.1",
+                  "jatsExtLinkType": "pmc:entrez-nucleotide"
                 },
                 {
                   "type": "Text",
@@ -3871,7 +3879,8 @@ expression: article
                       }
                     }
                   ],
-                  "target": "KU513442.1"
+                  "target": "KU513442.1",
+                  "jatsExtLinkType": "pmc:entrez-nucleotide"
                 },
                 {
                   "type": "Text",
@@ -3902,6 +3911,7 @@ expression: article
         },
         {
           "type": "Section",
+          "id": "sec005",
           "content": [
             {
               "type": "Heading",
@@ -3951,7 +3961,8 @@ expression: article
                       }
                     }
                   ],
-                  "target": "AY726550.1"
+                  "target": "AY726550.1",
+                  "jatsExtLinkType": "pmc:entrez-nucleotide"
                 },
                 {
                   "type": "Text",
@@ -3969,7 +3980,8 @@ expression: article
                       }
                     }
                   ],
-                  "target": "M29095.1"
+                  "target": "M29095.1",
+                  "jatsExtLinkType": "pmc:entrez-nucleotide"
                 },
                 {
                   "type": "Text",
@@ -3987,7 +3999,8 @@ expression: article
                       }
                     }
                   ],
-                  "target": "DQ675531.1"
+                  "target": "DQ675531.1",
+                  "jatsExtLinkType": "pmc:entrez-nucleotide"
                 },
                 {
                   "type": "Text",
@@ -4005,7 +4018,8 @@ expression: article
                       }
                     }
                   ],
-                  "target": "AY947539.1"
+                  "target": "AY947539.1",
+                  "jatsExtLinkType": "pmc:entrez-nucleotide"
                 },
                 {
                   "type": "Text",
@@ -4036,6 +4050,7 @@ expression: article
         },
         {
           "type": "Section",
+          "id": "sec006",
           "content": [
             {
               "type": "Heading",
@@ -4068,7 +4083,8 @@ expression: article
                       }
                     }
                   ],
-                  "target": "#pone.0332245.t003"
+                  "target": "#pone.0332245.t003",
+                  "jatsRefType": "table"
                 },
                 {
                   "type": "Text",
@@ -4081,6 +4097,7 @@ expression: article
             {
               "type": "Table",
               "id": "pone.0332245.t003",
+              "doi": "10.1371/journal.pone.0332245.t003",
               "label": "3",
               "labelAutomatically": false,
               "caption": [
@@ -4603,6 +4620,7 @@ expression: article
         },
         {
           "type": "Section",
+          "id": "sec007",
           "content": [
             {
               "type": "Heading",
@@ -4652,7 +4670,8 @@ expression: article
                       }
                     }
                   ],
-                  "target": "#pone.0332245.g003"
+                  "target": "#pone.0332245.g003",
+                  "jatsRefType": "fig"
                 },
                 {
                   "type": "Text",
@@ -4687,7 +4706,8 @@ expression: article
                       }
                     }
                   ],
-                  "target": "#pone.0332245.t002"
+                  "target": "#pone.0332245.t002",
+                  "jatsRefType": "table"
                 },
                 {
                   "type": "Text",
@@ -4705,7 +4725,8 @@ expression: article
                       }
                     }
                   ],
-                  "target": "#pone.0332245.t003"
+                  "target": "#pone.0332245.t003",
+                  "jatsRefType": "table"
                 },
                 {
                   "type": "Text",
@@ -4723,7 +4744,8 @@ expression: article
                       }
                     }
                   ],
-                  "target": "#pone.0332245.g003"
+                  "target": "#pone.0332245.g003",
+                  "jatsRefType": "fig"
                 },
                 {
                   "type": "Text",
@@ -4741,7 +4763,8 @@ expression: article
                       }
                     }
                   ],
-                  "target": "#pone.0332245.g004"
+                  "target": "#pone.0332245.g004",
+                  "jatsRefType": "fig"
                 },
                 {
                   "type": "Text",
@@ -4759,7 +4782,8 @@ expression: article
                       }
                     }
                   ],
-                  "target": "#pone.0332245.t004"
+                  "target": "#pone.0332245.t004",
+                  "jatsRefType": "table"
                 },
                 {
                   "type": "Text",
@@ -4772,6 +4796,7 @@ expression: article
             {
               "type": "Table",
               "id": "pone.0332245.t002",
+              "doi": "10.1371/journal.pone.0332245.t002",
               "label": "2",
               "labelAutomatically": false,
               "caption": [
@@ -5718,6 +5743,7 @@ expression: article
             {
               "type": "Table",
               "id": "pone.0332245.t004",
+              "doi": "10.1371/journal.pone.0332245.t004",
               "label": "4",
               "labelAutomatically": false,
               "caption": [
@@ -6374,6 +6400,7 @@ expression: article
             {
               "type": "Figure",
               "id": "pone.0332245.g001",
+              "doi": "10.1371/journal.pone.0332245.g001",
               "label": "1",
               "labelAutomatically": false,
               "caption": [
@@ -6407,7 +6434,8 @@ expression: article
                           }
                         }
                       ],
-                      "target": "LC111438"
+                      "target": "LC111438",
+                      "jatsExtLinkType": "pmc:entrez-nucleotide"
                     },
                     {
                       "type": "Text",
@@ -6428,6 +6456,7 @@ expression: article
             {
               "type": "Figure",
               "id": "pone.0332245.g002",
+              "doi": "10.1371/journal.pone.0332245.g002",
               "label": "2",
               "labelAutomatically": false,
               "caption": [
@@ -6583,6 +6612,7 @@ expression: article
             {
               "type": "Figure",
               "id": "pone.0332245.g003",
+              "doi": "10.1371/journal.pone.0332245.g003",
               "label": "3",
               "labelAutomatically": false,
               "caption": [
@@ -6619,6 +6649,7 @@ expression: article
             {
               "type": "Figure",
               "id": "pone.0332245.g004",
+              "doi": "10.1371/journal.pone.0332245.g004",
               "label": "4",
               "labelAutomatically": false,
               "caption": [
@@ -6656,6 +6687,7 @@ expression: article
         },
         {
           "type": "Section",
+          "id": "sec008",
           "content": [
             {
               "type": "Heading",
@@ -6688,7 +6720,8 @@ expression: article
                       }
                     }
                   ],
-                  "target": "AJ968413.1"
+                  "target": "AJ968413.1",
+                  "jatsExtLinkType": "pmc:entrez-nucleotide"
                 },
                 {
                   "type": "Text",
@@ -6706,7 +6739,8 @@ expression: article
                       }
                     }
                   ],
-                  "target": "AY776328.1"
+                  "target": "AY776328.1",
+                  "jatsExtLinkType": "pmc:entrez-nucleotide"
                 },
                 {
                   "type": "Text",
@@ -6724,7 +6758,8 @@ expression: article
                       }
                     }
                   ],
-                  "target": "DQ645540.1"
+                  "target": "DQ645540.1",
+                  "jatsExtLinkType": "pmc:entrez-nucleotide"
                 },
                 {
                   "type": "Text",
@@ -6742,7 +6777,8 @@ expression: article
                       }
                     }
                   ],
-                  "target": "DQ645541.1"
+                  "target": "DQ645541.1",
+                  "jatsExtLinkType": "pmc:entrez-nucleotide"
                 },
                 {
                   "type": "Text",
@@ -6760,7 +6796,8 @@ expression: article
                       }
                     }
                   ],
-                  "target": "DQ645542.1"
+                  "target": "DQ645542.1",
+                  "jatsExtLinkType": "pmc:entrez-nucleotide"
                 },
                 {
                   "type": "Text",
@@ -6778,7 +6815,8 @@ expression: article
                       }
                     }
                   ],
-                  "target": "DQ645543.1"
+                  "target": "DQ645543.1",
+                  "jatsExtLinkType": "pmc:entrez-nucleotide"
                 },
                 {
                   "type": "Text",
@@ -6796,7 +6834,8 @@ expression: article
                       }
                     }
                   ],
-                  "target": "DQ645544.1"
+                  "target": "DQ645544.1",
+                  "jatsExtLinkType": "pmc:entrez-nucleotide"
                 },
                 {
                   "type": "Text",
@@ -6814,7 +6853,8 @@ expression: article
                       }
                     }
                   ],
-                  "target": "DQ645545.1"
+                  "target": "DQ645545.1",
+                  "jatsExtLinkType": "pmc:entrez-nucleotide"
                 },
                 {
                   "type": "Text",
@@ -6832,7 +6872,8 @@ expression: article
                       }
                     }
                   ],
-                  "target": "DQ645546.1"
+                  "target": "DQ645546.1",
+                  "jatsExtLinkType": "pmc:entrez-nucleotide"
                 },
                 {
                   "type": "Text",
@@ -6850,7 +6891,8 @@ expression: article
                       }
                     }
                   ],
-                  "target": "DQ645547.1"
+                  "target": "DQ645547.1",
+                  "jatsExtLinkType": "pmc:entrez-nucleotide"
                 },
                 {
                   "type": "Text",
@@ -6868,7 +6910,8 @@ expression: article
                       }
                     }
                   ],
-                  "target": "DQ645548.1"
+                  "target": "DQ645548.1",
+                  "jatsExtLinkType": "pmc:entrez-nucleotide"
                 },
                 {
                   "type": "Text",
@@ -6886,7 +6929,8 @@ expression: article
                       }
                     }
                   ],
-                  "target": "DQ645549.1"
+                  "target": "DQ645549.1",
+                  "jatsExtLinkType": "pmc:entrez-nucleotide"
                 },
                 {
                   "type": "Text",
@@ -6904,7 +6948,8 @@ expression: article
                       }
                     }
                   ],
-                  "target": "DQ645550.1"
+                  "target": "DQ645550.1",
+                  "jatsExtLinkType": "pmc:entrez-nucleotide"
                 },
                 {
                   "type": "Text",
@@ -6922,7 +6967,8 @@ expression: article
                       }
                     }
                   ],
-                  "target": "DQ645551.1"
+                  "target": "DQ645551.1",
+                  "jatsExtLinkType": "pmc:entrez-nucleotide"
                 },
                 {
                   "type": "Text",
@@ -6940,7 +6986,8 @@ expression: article
                       }
                     }
                   ],
-                  "target": "DQ645552.1"
+                  "target": "DQ645552.1",
+                  "jatsExtLinkType": "pmc:entrez-nucleotide"
                 },
                 {
                   "type": "Text",
@@ -6958,7 +7005,8 @@ expression: article
                       }
                     }
                   ],
-                  "target": "DQ645553.1"
+                  "target": "DQ645553.1",
+                  "jatsExtLinkType": "pmc:entrez-nucleotide"
                 },
                 {
                   "type": "Text",
@@ -6976,7 +7024,8 @@ expression: article
                       }
                     }
                   ],
-                  "target": "DQ645554.1"
+                  "target": "DQ645554.1",
+                  "jatsExtLinkType": "pmc:entrez-nucleotide"
                 },
                 {
                   "type": "Text",
@@ -6994,7 +7043,8 @@ expression: article
                       }
                     }
                   ],
-                  "target": "DQ645555.1"
+                  "target": "DQ645555.1",
+                  "jatsExtLinkType": "pmc:entrez-nucleotide"
                 },
                 {
                   "type": "Text",
@@ -7012,7 +7062,8 @@ expression: article
                       }
                     }
                   ],
-                  "target": "DQ645556.1"
+                  "target": "DQ645556.1",
+                  "jatsExtLinkType": "pmc:entrez-nucleotide"
                 },
                 {
                   "type": "Text",
@@ -7030,7 +7081,8 @@ expression: article
                       }
                     }
                   ],
-                  "target": "KU365901.1"
+                  "target": "KU365901.1",
+                  "jatsExtLinkType": "pmc:entrez-nucleotide"
                 },
                 {
                   "type": "Text",
@@ -7048,7 +7100,8 @@ expression: article
                       }
                     }
                   ],
-                  "target": "KU365902.1"
+                  "target": "KU365902.1",
+                  "jatsExtLinkType": "pmc:entrez-nucleotide"
                 },
                 {
                   "type": "Text",
@@ -7066,7 +7119,8 @@ expression: article
                       }
                     }
                   ],
-                  "target": "KU365903.1"
+                  "target": "KU365903.1",
+                  "jatsExtLinkType": "pmc:entrez-nucleotide"
                 },
                 {
                   "type": "Text",
@@ -7084,7 +7138,8 @@ expression: article
                       }
                     }
                   ],
-                  "target": "KJ734727.1"
+                  "target": "KJ734727.1",
+                  "jatsExtLinkType": "pmc:entrez-nucleotide"
                 },
                 {
                   "type": "Text",
@@ -7102,7 +7157,8 @@ expression: article
                       }
                     }
                   ],
-                  "target": "HQ891023.1"
+                  "target": "HQ891023.1",
+                  "jatsExtLinkType": "pmc:entrez-nucleotide"
                 },
                 {
                   "type": "Text",
@@ -7120,7 +7176,8 @@ expression: article
                       }
                     }
                   ],
-                  "target": "HQ891024.1"
+                  "target": "HQ891024.1",
+                  "jatsExtLinkType": "pmc:entrez-nucleotide"
                 },
                 {
                   "type": "Text",
@@ -7138,7 +7195,8 @@ expression: article
                       }
                     }
                   ],
-                  "target": "GU131843.1"
+                  "target": "GU131843.1",
+                  "jatsExtLinkType": "pmc:entrez-nucleotide"
                 },
                 {
                   "type": "Text",
@@ -7156,7 +7214,8 @@ expression: article
                       }
                     }
                   ],
-                  "target": "KY627763.1"
+                  "target": "KY627763.1",
+                  "jatsExtLinkType": "pmc:entrez-nucleotide"
                 },
                 {
                   "type": "Text",
@@ -7174,7 +7233,8 @@ expression: article
                       }
                     }
                   ],
-                  "target": "KY627762.1"
+                  "target": "KY627762.1",
+                  "jatsExtLinkType": "pmc:entrez-nucleotide"
                 },
                 {
                   "type": "Text",
@@ -7192,7 +7252,8 @@ expression: article
                       }
                     }
                   ],
-                  "target": "EU056810.1"
+                  "target": "EU056810.1",
+                  "jatsExtLinkType": "pmc:entrez-nucleotide"
                 },
                 {
                   "type": "Text",
@@ -7210,7 +7271,8 @@ expression: article
                       }
                     }
                   ],
-                  "target": "EF105389.1"
+                  "target": "EF105389.1",
+                  "jatsExtLinkType": "pmc:entrez-nucleotide"
                 },
                 {
                   "type": "Text",
@@ -7228,7 +7290,8 @@ expression: article
                       }
                     }
                   ],
-                  "target": "EF105390.1"
+                  "target": "EF105390.1",
+                  "jatsExtLinkType": "pmc:entrez-nucleotide"
                 },
                 {
                   "type": "Text",
@@ -7246,7 +7309,8 @@ expression: article
                       }
                     }
                   ],
-                  "target": "EF105382.1"
+                  "target": "EF105382.1",
+                  "jatsExtLinkType": "pmc:entrez-nucleotide"
                 },
                 {
                   "type": "Text",
@@ -7264,7 +7328,8 @@ expression: article
                       }
                     }
                   ],
-                  "target": "EF105386.1"
+                  "target": "EF105386.1",
+                  "jatsExtLinkType": "pmc:entrez-nucleotide"
                 },
                 {
                   "type": "Text",
@@ -7282,7 +7347,8 @@ expression: article
                       }
                     }
                   ],
-                  "target": "EF105385.1"
+                  "target": "EF105385.1",
+                  "jatsExtLinkType": "pmc:entrez-nucleotide"
                 },
                 {
                   "type": "Text",
@@ -7300,7 +7366,8 @@ expression: article
                       }
                     }
                   ],
-                  "target": "EF457904.1"
+                  "target": "EF457904.1",
+                  "jatsExtLinkType": "pmc:entrez-nucleotide"
                 },
                 {
                   "type": "Text",
@@ -7318,7 +7385,8 @@ expression: article
                       }
                     }
                   ],
-                  "target": "EF105384.1"
+                  "target": "EF105384.1",
+                  "jatsExtLinkType": "pmc:entrez-nucleotide"
                 },
                 {
                   "type": "Text",
@@ -7336,7 +7404,8 @@ expression: article
                       }
                     }
                   ],
-                  "target": "EF105387.1"
+                  "target": "EF105387.1",
+                  "jatsExtLinkType": "pmc:entrez-nucleotide"
                 },
                 {
                   "type": "Text",
@@ -7354,7 +7423,8 @@ expression: article
                       }
                     }
                   ],
-                  "target": "EU003591.1"
+                  "target": "EU003591.1",
+                  "jatsExtLinkType": "pmc:entrez-nucleotide"
                 },
                 {
                   "type": "Text",
@@ -7372,7 +7442,8 @@ expression: article
                       }
                     }
                   ],
-                  "target": "EF105388.1"
+                  "target": "EF105388.1",
+                  "jatsExtLinkType": "pmc:entrez-nucleotide"
                 },
                 {
                   "type": "Text",
@@ -7390,7 +7461,8 @@ expression: article
                       }
                     }
                   ],
-                  "target": "EF105378.1"
+                  "target": "EF105378.1",
+                  "jatsExtLinkType": "pmc:entrez-nucleotide"
                 },
                 {
                   "type": "Text",
@@ -7408,7 +7480,8 @@ expression: article
                       }
                     }
                   ],
-                  "target": "LC111438.1"
+                  "target": "LC111438.1",
+                  "jatsExtLinkType": "pmc:entrez-nucleotide"
                 },
                 {
                   "type": "Text",
@@ -7426,7 +7499,8 @@ expression: article
                       }
                     }
                   ],
-                  "target": "#pone.0332245.g001"
+                  "target": "#pone.0332245.g001",
+                  "jatsRefType": "fig"
                 },
                 {
                   "type": "Text",
@@ -7444,7 +7518,8 @@ expression: article
                       }
                     }
                   ],
-                  "target": "#pone.0332245.t001"
+                  "target": "#pone.0332245.t001",
+                  "jatsRefType": "table"
                 },
                 {
                   "type": "Text",
@@ -7457,6 +7532,7 @@ expression: article
             {
               "type": "Table",
               "id": "pone.0332245.t001",
+              "doi": "10.1371/journal.pone.0332245.t001",
               "label": "1",
               "labelAutomatically": false,
               "caption": [
@@ -7741,6 +7817,7 @@ expression: article
         },
         {
           "type": "Section",
+          "id": "sec009",
           "content": [
             {
               "type": "Heading",
@@ -7773,7 +7850,8 @@ expression: article
                       }
                     }
                   ],
-                  "target": "#pone.0332245.t001"
+                  "target": "#pone.0332245.t001",
+                  "jatsRefType": "table"
                 },
                 {
                   "type": "Text",
@@ -7821,6 +7899,7 @@ expression: article
         },
         {
           "type": "Section",
+          "id": "sec010",
           "content": [
             {
               "type": "Heading",
@@ -7867,6 +7946,7 @@ expression: article
         },
         {
           "type": "Section",
+          "id": "sec011",
           "content": [
             {
               "type": "Heading",
@@ -7917,7 +7997,8 @@ expression: article
                       }
                     }
                   ],
-                  "target": "https://www.openstreetmap.org/copyright"
+                  "target": "https://www.openstreetmap.org/copyright",
+                  "jatsExtLinkType": "uri"
                 },
                 {
                   "type": "Text",
@@ -7931,6 +8012,7 @@ expression: article
         },
         {
           "type": "Section",
+          "id": "sec012",
           "sectionType": "StatisticalAnalysis",
           "content": [
             {
@@ -7980,6 +8062,7 @@ expression: article
     },
     {
       "type": "Section",
+      "id": "sec013",
       "sectionType": "Results",
       "content": [
         {
@@ -7996,6 +8079,7 @@ expression: article
         },
         {
           "type": "Section",
+          "id": "sec014",
           "content": [
             {
               "type": "Heading",
@@ -8028,7 +8112,8 @@ expression: article
                       }
                     }
                   ],
-                  "target": "#pone.0332245.g001"
+                  "target": "#pone.0332245.g001",
+                  "jatsRefType": "fig"
                 },
                 {
                   "type": "Text",
@@ -8046,7 +8131,8 @@ expression: article
                       }
                     }
                   ],
-                  "target": "#pone.0332245.t001"
+                  "target": "#pone.0332245.t001",
+                  "jatsRefType": "table"
                 },
                 {
                   "type": "Text",
@@ -8228,7 +8314,8 @@ expression: article
                       }
                     }
                   ],
-                  "target": "#pone.0332245.g002"
+                  "target": "#pone.0332245.g002",
+                  "jatsRefType": "fig"
                 },
                 {
                   "type": "Text",
@@ -8246,7 +8333,8 @@ expression: article
                       }
                     }
                   ],
-                  "target": "#pone.0332245.g002"
+                  "target": "#pone.0332245.g002",
+                  "jatsRefType": "fig"
                 },
                 {
                   "type": "Text",
@@ -8281,7 +8369,8 @@ expression: article
                       }
                     }
                   ],
-                  "target": "#pone.0332245.g002"
+                  "target": "#pone.0332245.g002",
+                  "jatsRefType": "fig"
                 },
                 {
                   "type": "Text",
@@ -8310,7 +8399,8 @@ expression: article
                       }
                     }
                   ],
-                  "target": "#pone.0332245.g002"
+                  "target": "#pone.0332245.g002",
+                  "jatsRefType": "fig"
                 },
                 {
                   "type": "Text",
@@ -8324,6 +8414,7 @@ expression: article
         },
         {
           "type": "Section",
+          "id": "sec015",
           "content": [
             {
               "type": "Heading",
@@ -8373,7 +8464,8 @@ expression: article
                       }
                     }
                   ],
-                  "target": "#pone.0332245.g003"
+                  "target": "#pone.0332245.g003",
+                  "jatsRefType": "fig"
                 },
                 {
                   "type": "Text",
@@ -8391,7 +8483,8 @@ expression: article
                       }
                     }
                   ],
-                  "target": "#pone.0332245.g003"
+                  "target": "#pone.0332245.g003",
+                  "jatsRefType": "fig"
                 },
                 {
                   "type": "Text",
@@ -8444,7 +8537,8 @@ expression: article
                       }
                     }
                   ],
-                  "target": "#pone.0332245.g002"
+                  "target": "#pone.0332245.g002",
+                  "jatsRefType": "fig"
                 },
                 {
                   "type": "Text",
@@ -8490,7 +8584,8 @@ expression: article
                       }
                     }
                   ],
-                  "target": "#pone.0332245.g003"
+                  "target": "#pone.0332245.g003",
+                  "jatsRefType": "fig"
                 },
                 {
                   "type": "Text",
@@ -8508,7 +8603,8 @@ expression: article
                       }
                     }
                   ],
-                  "target": "#pone.0332245.g003"
+                  "target": "#pone.0332245.g003",
+                  "jatsRefType": "fig"
                 },
                 {
                   "type": "Text",
@@ -8543,7 +8639,8 @@ expression: article
                       }
                     }
                   ],
-                  "target": "#pone.0332245.g002"
+                  "target": "#pone.0332245.g002",
+                  "jatsRefType": "fig"
                 },
                 {
                   "type": "Text",
@@ -8561,7 +8658,8 @@ expression: article
                       }
                     }
                   ],
-                  "target": "#pone.0332245.g003"
+                  "target": "#pone.0332245.g003",
+                  "jatsRefType": "fig"
                 },
                 {
                   "type": "Text",
@@ -8575,6 +8673,7 @@ expression: article
         },
         {
           "type": "Section",
+          "id": "sec016",
           "content": [
             {
               "type": "Heading",
@@ -8692,7 +8791,8 @@ expression: article
                       }
                     }
                   ],
-                  "target": "#pone.0332245.t002"
+                  "target": "#pone.0332245.t002",
+                  "jatsRefType": "table"
                 },
                 {
                   "type": "Text",
@@ -8744,7 +8844,8 @@ expression: article
                       }
                     }
                   ],
-                  "target": "#pone.0332245.t002"
+                  "target": "#pone.0332245.t002",
+                  "jatsRefType": "table"
                 },
                 {
                   "type": "Text",
@@ -8807,7 +8908,8 @@ expression: article
                       }
                     }
                   ],
-                  "target": "#pone.0332245.g003"
+                  "target": "#pone.0332245.g003",
+                  "jatsRefType": "fig"
                 },
                 {
                   "type": "Text",
@@ -8859,7 +8961,8 @@ expression: article
                       }
                     }
                   ],
-                  "target": "#pone.0332245.t003"
+                  "target": "#pone.0332245.t003",
+                  "jatsRefType": "table"
                 },
                 {
                   "type": "Text",
@@ -8877,7 +8980,8 @@ expression: article
                       }
                     }
                   ],
-                  "target": "#pone.0332245.s001"
+                  "target": "#pone.0332245.s001",
+                  "jatsRefType": "supplementary-material"
                 },
                 {
                   "type": "Text",
@@ -8891,6 +8995,7 @@ expression: article
         },
         {
           "type": "Section",
+          "id": "sec017",
           "content": [
             {
               "type": "Heading",
@@ -8993,7 +9098,8 @@ expression: article
                       }
                     }
                   ],
-                  "target": "#pone.0332245.g004"
+                  "target": "#pone.0332245.g004",
+                  "jatsRefType": "fig"
                 },
                 {
                   "type": "Text",
@@ -9022,7 +9128,8 @@ expression: article
                       }
                     }
                   ],
-                  "target": "#pone.0332245.g004"
+                  "target": "#pone.0332245.g004",
+                  "jatsRefType": "fig"
                 },
                 {
                   "type": "Text",
@@ -9040,7 +9147,8 @@ expression: article
                       }
                     }
                   ],
-                  "target": "#pone.0332245.t004"
+                  "target": "#pone.0332245.t004",
+                  "jatsRefType": "table"
                 },
                 {
                   "type": "Text",
@@ -9056,6 +9164,7 @@ expression: article
     },
     {
       "type": "Section",
+      "id": "sec018",
       "sectionType": "Conclusions",
       "content": [
         {
@@ -9135,7 +9244,8 @@ expression: article
                   }
                 }
               ],
-              "target": "#pone.0332245.t002"
+              "target": "#pone.0332245.t002",
+              "jatsRefType": "table"
             },
             {
               "type": "Text",
@@ -9153,7 +9263,8 @@ expression: article
                   }
                 }
               ],
-              "target": "#pone.0332245.t003"
+              "target": "#pone.0332245.t003",
+              "jatsRefType": "table"
             },
             {
               "type": "Text",
@@ -9462,6 +9573,7 @@ expression: article
     },
     {
       "type": "Section",
+      "id": "sec019",
       "sectionType": "Conclusions",
       "content": [
         {
@@ -9491,6 +9603,7 @@ expression: article
     },
     {
       "type": "Section",
+      "id": "sec020",
       "sectionType": "SupplementaryMaterials",
       "content": [
         {
@@ -9638,7 +9751,8 @@ expression: article
                   }
                 }
               ],
-              "target": "#sec020"
+              "target": "#sec020",
+              "jatsRefType": "sec"
             },
             {
               "type": "Text",
@@ -9656,7 +9770,8 @@ expression: article
                   }
                 }
               ],
-              "target": "#pone.0332245.g004"
+              "target": "#pone.0332245.g004",
+              "jatsRefType": "fig"
             },
             {
               "type": "Text",
@@ -9674,7 +9789,8 @@ expression: article
                   }
                 }
               ],
-              "target": "#sec020"
+              "target": "#sec020",
+              "jatsRefType": "sec"
             },
             {
               "type": "Text",

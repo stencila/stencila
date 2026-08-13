@@ -2,21 +2,11 @@
 source: rust/codec-pmc/tests/examples.rs
 expression: info.losses
 ---
-//article/back/ref-list/ref/mixed-citation/collab: 1
-//article/back/ref-list/ref/mixed-citation/comment: 28
 //article/back/ref-list/ref/mixed-citation/etal: 17
-//article/back/ref-list/ref/mixed-citation/ext-link: 6
-"//article/back/ref-list/ref/mixed-citation/pub-id[@pub-id-type='pmid']": 26
-//article/back/ref-list/ref/mixed-citation/publisher-loc: 1
-//article/back/ref-list/ref/mixed-citation/publisher-name: 1
 //article/back/ref-list/title: 1
-//article/body/sec/@id: 6
 //article/body/sec/p/italic/@toggle: 9
-//article/body/sec/sec/@id: 14
 //article/body/sec/sec/fig/@position: 4
 //article/body/sec/sec/fig/graphic/@position: 4
-//article/body/sec/sec/fig/object-id: 4
-//article/body/sec/sec/p/ext-link/@ext-link-type: 2
 //article/body/sec/sec/p/italic/@toggle: 8
 //article/body/sec/sec/table-wrap/@position: 4
 //article/body/sec/sec/table-wrap/table/tbody/tr/td/break: 3
@@ -24,16 +14,11 @@ expression: info.losses
 //article/body/sec/supplementary-material/@position: 3
 //article/front/article-meta/abstract/p/italic/@toggle: 3
 //article/front/article-meta/aff: 7
-//article/front/article-meta/article-categories/subj-group/subj-group: 19
 //article/front/article-meta/author-notes: 1
 //article/front/article-meta/contrib-group/role: 32
-//article/front/article-meta/counts: 1
-//article/front/article-meta/custom-meta-group: 1
-//article/front/article-meta/elocation-id: 1
-//article/front/article-meta/permissions: 1
-//article/front/article-meta/pub-date/@pub-type: 2
-//article/front/article-meta/self-uri: 1
+//article/front/article-meta/counts/fig-count: 1
+//article/front/article-meta/counts/page-count: 1
+//article/front/article-meta/counts/table-count: 1
+"//article/front/article-meta/custom-meta-group/custom-meta[meta-name='Data Availability']": 1
 //article/front/article-meta/title-group/italic/@toggle: 1
-//article/front/journal-meta/issn: 1
-//article/front/journal-meta/journal-id: 3
 //article/processing-meta: 1

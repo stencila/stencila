@@ -64,7 +64,13 @@ impl JatsCodec for Citation {
             context.push_text("(");
         }
 
-        let target = context.resolve_reference_id(&self.target).to_string();
+        // A citation can point at more than one reference, so each target is
+        // resolved separately to the id that its reference is emitted with
+        let target = self
+            .target
+            .split_whitespace()
+            .map(|target| context.resolve_reference_id(target).to_string())
+            .join(" ");
         context
             .enter_elem("xref")
             .push_attr("ref-type", "bibr")

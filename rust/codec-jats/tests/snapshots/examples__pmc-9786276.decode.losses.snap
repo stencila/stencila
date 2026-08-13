@@ -2,7 +2,6 @@
 source: rust/codec-jats/tests/examples.rs
 expression: info.losses
 ---
-//article/back/ack/@id: 1
 //article/back/fn-group/fn/label: 2
 //article/back/fn-group/fn/p/italic/@toggle: 3
 //article/back/ref-list/@id: 1
@@ -15,7 +14,6 @@ expression: info.losses
 //article/back/ref-list/ref/mixed-citation/string-name/@name-style: 132
 //article/back/ref-list/ref/mixed-citation/string-name/suffix: 3
 //article/back/ref-list/title: 1
-//article/body/sec/@id: 4
 //article/body/sec/fig/@fig-type: 2
 //article/body/sec/fig/@orientation: 2
 //article/body/sec/fig/@position: 2
@@ -24,7 +22,6 @@ expression: info.losses
 //article/body/sec/fig/graphic/@position: 2
 //article/body/sec/fig/p/italic/@toggle: 7
 //article/body/sec/p/italic/@toggle: 79
-//article/body/sec/sec/@id: 10
 //article/body/sec/sec/fig/@fig-type: 7
 //article/body/sec/sec/fig/@orientation: 7
 //article/body/sec/sec/fig/@position: 7
@@ -32,11 +29,8 @@ expression: info.losses
 //article/body/sec/sec/fig/graphic/@orientation: 7
 //article/body/sec/sec/fig/graphic/@position: 7
 //article/body/sec/sec/fig/p/italic/@toggle: 33
-//article/body/sec/sec/p/ext-link/@ext-link-type: 3
 //article/body/sec/sec/p/italic/@toggle: 313
-//article/body/sec/sec/p/list/@id: 1
 //article/body/sec/sec/p/list/list-item/p/italic/@toggle: 2
-//article/body/sec/sec/p/xref: 2
 //article/body/sec/sec/table-wrap/@content-type: 1
 //article/body/sec/sec/table-wrap/@orientation: 1
 //article/body/sec/sec/table-wrap/@position: 1

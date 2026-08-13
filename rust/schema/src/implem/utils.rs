@@ -1,10 +1,52 @@
 use stencila_codec_dom_trait::{DomCodec, DomEncodeContext};
 use stencila_codec_info::NodeProperty;
+use stencila_codec_jats_trait::{JatsCodec, JatsEncodeContext};
 use stencila_codec_markdown_trait::{MarkdownCodec, MarkdownEncodeContext};
 use stencila_node_id::NodeId;
 use stencila_node_type::NodeType;
 
 use crate::{Author, Block, DateTime};
+
+/// How to encode a present but empty JATS caption.
+pub(super) enum EmptyJatsCaption {
+    Keep,
+    Omit,
+}
+
+/// Encode the common leading children of JATS figures and table wrappers.
+pub(super) fn encode_jats_figure_table_header(
+    id: Option<&str>,
+    doi: Option<&str>,
+    label: Option<&str>,
+    caption: Option<&[Block]>,
+    empty_caption: EmptyJatsCaption,
+    context: &mut JatsEncodeContext,
+) {
+    if let Some(id) = id {
+        context.push_attr("id", id);
+    }
+
+    if let Some(doi) = doi {
+        context
+            .enter_elem("object-id")
+            .push_attr("pub-id-type", "doi")
+            .push_text(doi)
+            .exit_elem();
+    }
+
+    if let Some(label) = label {
+        context.enter_elem("label").push_text(label).exit_elem();
+    }
+
+    if let Some(caption) = caption {
+        context.enter_elem("caption");
+        caption.iter().for_each(|block| block.to_jats(context));
+        match empty_caption {
+            EmptyJatsCaption::Keep => context.exit_elem(),
+            EmptyJatsCaption::Omit => context.exit_elem_omit_empty(),
+        };
+    }
+}
 
 /// Create curly-braced Markdown attrs for author and date metadata
 pub(crate) fn author_date_to_markdown(

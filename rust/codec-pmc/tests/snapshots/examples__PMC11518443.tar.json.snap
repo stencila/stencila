@@ -8,6 +8,7 @@ expression: article
   "abstract": [
     {
       "type": "Section",
+      "id": "s1875",
       "sectionType": "Background",
       "content": [
         {
@@ -37,6 +38,7 @@ expression: article
     },
     {
       "type": "Section",
+      "id": "s1876",
       "sectionType": "Methods",
       "content": [
         {
@@ -66,6 +68,7 @@ expression: article
     },
     {
       "type": "Section",
+      "id": "s1877",
       "sectionType": "Results",
       "content": [
         {
@@ -95,6 +98,7 @@ expression: article
     },
     {
       "type": "Section",
+      "id": "s1878",
       "sectionType": "Conclusions",
       "content": [
         {
@@ -341,13 +345,31 @@ expression: article
       "type": "PropertyValue",
       "propertyId": "publisher-id",
       "value": "ckae144.662"
+    },
+    {
+      "type": "PropertyValue",
+      "propertyId": "elocation-id",
+      "value": "ckae144.662"
     }
   ],
   "about": [
     {
       "type": "PropertyValue",
       "propertyId": "heading",
-      "value": "Parallel Programme"
+      "value": [
+        "Parallel Programme",
+        "10.N. Scientific session: Gender and parenthood: short and long-term income, career, and health inequities"
+      ]
+    },
+    {
+      "type": "PropertyValue",
+      "propertyId": "category-taxonomy-collection",
+      "value": "AcademicSubjects/MED00860"
+    },
+    {
+      "type": "PropertyValue",
+      "propertyId": "category-taxonomy-collection",
+      "value": "AcademicSubjects/SOC01210"
     },
     {
       "type": "PropertyValue",
@@ -361,14 +383,78 @@ expression: article
       "type": "PublicationVolume",
       "isPartOf": {
         "type": "Periodical",
-        "name": "The European Journal of Public Health"
+        "name": "The European Journal of Public Health",
+        "identifiers": [
+          {
+            "type": "PropertyValue",
+            "propertyId": "nlm-ta",
+            "value": "Eur J Public Health"
+          },
+          {
+            "type": "PropertyValue",
+            "propertyId": "iso-abbrev",
+            "value": "Eur J Public Health"
+          },
+          {
+            "type": "PropertyValue",
+            "propertyId": "publisher-id",
+            "value": "eurpub"
+          },
+          {
+            "type": "PropertyValue",
+            "propertyId": "issn-ppub",
+            "value": "1101-1262"
+          },
+          {
+            "type": "PropertyValue",
+            "propertyId": "issn-epub",
+            "value": "1464-360X"
+          }
+        ],
+        "issns": [
+          "1101-1262",
+          "1464-360X"
+        ]
       },
       "volumeNumber": 34
     },
-    "issueNumber": "Suppl 3"
+    "issueNumber": "Suppl 3",
+    "title": [
+      {
+        "type": "Text",
+        "value": {
+          "string": "17th European Public Health Conference 2024 Sailing the Waves of European Public Health: Exploring a Sea of Innovation Lisbon, Portugal 12–15 November 2024"
+        }
+      }
+    ]
   },
+  "licenses": [
+    "https://creativecommons.org/licenses/by-nc/4.0/"
+  ],
   "publisher": {
     "type": "Organization",
     "name": "Oxford University Press"
-  }
+  },
+  "publicationDates": [
+    {
+      "type": "collection",
+      "date": "2024-11"
+    },
+    {
+      "type": "epub",
+      "date": "2024-10-28"
+    },
+    {
+      "type": "pmc-release",
+      "date": "2024-10-28"
+    }
+  ],
+  "resources": [
+    {
+      "url": "ckae144.662.pdf"
+    }
+  ],
+  "copyrightStatement": "© The Author(s) 2024. Published by Oxford University Press on behalf of the European Public Health Association.",
+  "copyrightYear": "2024",
+  "licenseText": "This is an Open Access article distributed under the terms of the Creative Commons Attribution-NonCommercial License (https://creativecommons.org/licenses/by-nc/4.0/), which permits non-commercial re-use, distribution, and reproduction in any medium, provided the original work is properly cited. For commercial re-use, please contact journals.permissions@oup.com"
 }

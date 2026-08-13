@@ -32,6 +32,16 @@ export class Link extends Entity {
   rel?: string;
 
   /**
+   * The value of the `ref-type` attribute when the link originated as a JATS cross-reference.
+   */
+  jatsRefType?: string;
+
+  /**
+   * The value of the `ext-link-type` attribute when the link originated as a JATS external link.
+   */
+  jatsExtLinkType?: string;
+
+  /**
    * Only show the label of the internal target (e.g. "2"), rather than both the label type and label (e.g. "Figure 2").
    */
   labelOnly?: boolean;

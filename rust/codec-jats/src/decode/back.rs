@@ -52,11 +52,14 @@ pub(super) fn decode_back(path: &str, node: &Node, article: &mut Article, losses
 
 /// Decode an `<ack>` (acknowledgements section)
 fn decode_ack(path: &str, node: &Node, losses: &mut Losses) -> Block {
-    record_attrs_lost(path, node, [], losses);
+    let id = node.attribute("id").map(String::from);
+
+    record_attrs_lost(path, node, ["id"], losses);
 
     let content = decode_blocks(path, node.children(), losses, 1);
 
     Block::Section(Section {
+        id,
         section_type: Some(SectionType::Acknowledgements),
         content,
         ..Default::default()
@@ -86,11 +89,14 @@ fn decode_app_group(path: &str, node: &Node, losses: &mut Losses) -> Vec<Block> 
 
 /// Decode an `<app>` (appendix) or a `<sec>` in  an `<app-group>`
 fn decode_app(path: &str, node: &Node, losses: &mut Losses) -> Block {
-    record_attrs_lost(path, node, [], losses);
+    let id = node.attribute("id").map(String::from);
+
+    record_attrs_lost(path, node, ["id"], losses);
 
     let content = decode_blocks(path, node.children(), losses, 1);
 
     Block::Section(Section {
+        id,
         section_type: Some(SectionType::Appendix),
         content,
         ..Default::default()

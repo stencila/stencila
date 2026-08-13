@@ -13,7 +13,7 @@ pub use strum::EnumString;
 pub use stencila_codec_dom_trait::{DomCodec, DomEncodeContext};
 pub use stencila_codec_html_trait::{HtmlCodec, HtmlEncodeContext};
 pub use stencila_codec_info::Losses;
-pub use stencila_codec_jats_trait::{JatsCodec, JatsEncodeContext};
+pub use stencila_codec_jats_trait::{JatsCodec, JatsEncodeContext, JatsRefType, has_uri_scheme};
 pub use stencila_codec_latex_trait::{LatexCodec, LatexEncodeContext};
 pub use stencila_codec_markdown_trait::{MarkdownCodec, MarkdownEncodeContext, MarkdownEncodeMode};
 pub use stencila_codec_text_trait::TextCodec;

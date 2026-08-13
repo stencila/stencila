@@ -1,4 +1,4 @@
-use stencila_codec_info::lost_options;
+use stencila_codec_info::{lost_options, lost_options_of};
 use stencila_format::Format;
 use stencila_layout_lang::{Columns, Layout, Placement, parse as parse_layout};
 use stencila_node_type::NodeType;
@@ -10,7 +10,10 @@ use crate::{
     transforms::blocks_to_inlines,
 };
 
-use super::utils::{caption_to_dom, caption_to_markdown, ensure_markdown_blankline};
+use super::utils::{
+    EmptyJatsCaption, caption_to_dom, caption_to_markdown, encode_jats_figure_table_header,
+    ensure_markdown_blankline,
+};
 
 /// A subfigure caption with its alphabetic label
 struct SubfigureCaption {
@@ -285,6 +288,76 @@ fn padding_to_css(padding: &str) -> Option<String> {
     };
 
     Some(format!("padding:{css}"))
+}
+
+impl JatsCodec for Figure {
+    fn to_jats(&self, context: &mut JatsEncodeContext) {
+        context.enter_elem("fig");
+        encode_jats_figure_table_header(
+            self.id.as_deref(),
+            self.doi.as_deref(),
+            self.label.as_deref(),
+            self.caption.as_deref(),
+            EmptyJatsCaption::Omit,
+            context,
+        );
+
+        self.content.to_jats(context);
+
+        context
+            .exit_elem()
+            .merge_losses(lost_options!(
+                self,
+                work_type,
+                authors,
+                provenance,
+                id_automatically
+            ))
+            .merge_losses(lost_options_of!(
+                "Figure",
+                self.options,
+                alternate_names,
+                description,
+                identifiers,
+                images,
+                name,
+                url,
+                about,
+                r#abstract,
+                contributors,
+                editors,
+                maintainers,
+                comments,
+                date_created,
+                date_received,
+                date_accepted,
+                date_modified,
+                date_published,
+                funders,
+                funded_by,
+                genre,
+                keywords,
+                is_part_of,
+                licenses,
+                parts,
+                publisher,
+                bibliography,
+                references,
+                text,
+                title,
+                repository,
+                path,
+                commit,
+                worktree_status,
+                version,
+                layout,
+                padding,
+                overlay,
+                overlay_compiled,
+                compilation_digest,
+                compilation_messages
+            ));
+    }
 }
 
 impl DomCodec for Figure {

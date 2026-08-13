@@ -2,13 +2,16 @@ use stencila_codec_info::{lost_options, lost_options_of};
 
 use crate::{HorizontalAlignment, Table, TableRow, TableRowType, prelude::*};
 
-use super::utils::{caption_to_dom, caption_to_markdown, ensure_markdown_blankline};
+use super::utils::{
+    EmptyJatsCaption, caption_to_dom, caption_to_markdown, encode_jats_figure_table_header,
+    ensure_markdown_blankline,
+};
 
 impl JatsCodec for Table {
     fn to_jats(&self, context: &mut JatsEncodeContext) {
         context.enter_elem("table-wrap");
         context
-            .merge_losses(lost_options!(self, doi, authors, provenance))
+            .merge_losses(lost_options!(self, authors, provenance))
             .merge_losses(lost_options_of!(
                 "Table",
                 self.options,
@@ -47,21 +50,14 @@ impl JatsCodec for Table {
                 version
             ));
 
-        if let Some(value) = &self.id {
-            context.push_attr("id", value);
-        }
-
-        if let Some(label) = &self.label {
-            context.enter_elem("label");
-            label.to_jats(context);
-            context.exit_elem();
-        }
-
-        if let Some(caption) = &self.caption {
-            context.enter_elem("caption");
-            caption.to_jats(context);
-            context.exit_elem();
-        }
+        encode_jats_figure_table_header(
+            self.id.as_deref(),
+            self.doi.as_deref(),
+            self.label.as_deref(),
+            self.caption.as_deref(),
+            EmptyJatsCaption::Keep,
+            context,
+        );
 
         context.enter_elem("table");
         for (row_type, name) in [

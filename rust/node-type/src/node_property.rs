@@ -177,6 +177,8 @@ pub enum NodeProperty {
     ItemsNullable,
     ItemsValidator,
     Iterations,
+    JatsExtLinkType,
+    JatsRefType,
     JobTitle,
     Keys,
     Keywords,

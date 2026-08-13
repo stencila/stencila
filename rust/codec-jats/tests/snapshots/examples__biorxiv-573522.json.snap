@@ -19,6 +19,7 @@ expression: article
     },
     {
       "type": "Section",
+      "id": "sec-1",
       "sectionType": "NonTechnicalSummary",
       "content": [
         {
@@ -3592,6 +3593,7 @@ expression: article
   "content": [
     {
       "type": "Section",
+      "id": "s1",
       "sectionType": "Introduction",
       "content": [
         {
@@ -4259,6 +4261,7 @@ expression: article
     },
     {
       "type": "Section",
+      "id": "s2",
       "sectionType": "Methods",
       "content": [
         {
@@ -4286,6 +4289,7 @@ expression: article
         },
         {
           "type": "Section",
+          "id": "s2a",
           "content": [
             {
               "type": "Heading",
@@ -4385,6 +4389,7 @@ expression: article
         },
         {
           "type": "Section",
+          "id": "s2b",
           "content": [
             {
               "type": "Heading",
@@ -4409,6 +4414,7 @@ expression: article
                 },
                 {
                   "type": "Link",
+                  "id": "xref-table-wrap-1-1",
                   "content": [
                     {
                       "type": "Text",
@@ -4417,7 +4423,8 @@ expression: article
                       }
                     }
                   ],
-                  "target": "#tbl1"
+                  "target": "#tbl1",
+                  "jatsRefType": "table"
                 },
                 {
                   "type": "Text",
@@ -4464,6 +4471,7 @@ expression: article
                 },
                 {
                   "type": "Link",
+                  "id": "xref-table-wrap-2-1",
                   "content": [
                     {
                       "type": "Text",
@@ -4472,7 +4480,8 @@ expression: article
                       }
                     }
                   ],
-                  "target": "#tbl2"
+                  "target": "#tbl2",
+                  "jatsRefType": "table"
                 },
                 {
                   "type": "Text",
@@ -4516,6 +4525,7 @@ expression: article
         },
         {
           "type": "Section",
+          "id": "s2c",
           "content": [
             {
               "type": "Heading",
@@ -4531,6 +4541,7 @@ expression: article
             },
             {
               "type": "Section",
+              "id": "s2c1",
               "content": [
                 {
                   "type": "Heading",
@@ -4746,6 +4757,7 @@ expression: article
             },
             {
               "type": "Section",
+              "id": "s2c2",
               "content": [
                 {
                   "type": "Heading",
@@ -4787,6 +4799,7 @@ expression: article
         },
         {
           "type": "Section",
+          "id": "s2d",
           "content": [
             {
               "type": "Heading",
@@ -4835,6 +4848,7 @@ expression: article
     },
     {
       "type": "Section",
+      "id": "s3",
       "sectionType": "Results",
       "content": [
         {
@@ -4851,6 +4865,7 @@ expression: article
         },
         {
           "type": "Section",
+          "id": "s3a",
           "content": [
             {
               "type": "Heading",
@@ -4875,6 +4890,7 @@ expression: article
                 },
                 {
                   "type": "Link",
+                  "id": "xref-fig-1-1",
                   "content": [
                     {
                       "type": "Text",
@@ -4883,7 +4899,8 @@ expression: article
                       }
                     }
                   ],
-                  "target": "#fig1"
+                  "target": "#fig1",
+                  "jatsRefType": "fig"
                 },
                 {
                   "type": "Text",
@@ -4893,6 +4910,7 @@ expression: article
                 },
                 {
                   "type": "Link",
+                  "id": "xref-fig-1-2",
                   "content": [
                     {
                       "type": "Text",
@@ -4901,7 +4919,8 @@ expression: article
                       }
                     }
                   ],
-                  "target": "#fig1"
+                  "target": "#fig1",
+                  "jatsRefType": "fig"
                 },
                 {
                   "type": "Text",
@@ -4911,6 +4930,7 @@ expression: article
                 },
                 {
                   "type": "Link",
+                  "id": "xref-fig-1-3",
                   "content": [
                     {
                       "type": "Text",
@@ -4919,7 +4939,8 @@ expression: article
                       }
                     }
                   ],
-                  "target": "#fig1"
+                  "target": "#fig1",
+                  "jatsRefType": "fig"
                 },
                 {
                   "type": "Text",
@@ -4929,6 +4950,7 @@ expression: article
                 },
                 {
                   "type": "Link",
+                  "id": "xref-fig-1-4",
                   "content": [
                     {
                       "type": "Text",
@@ -4937,7 +4959,8 @@ expression: article
                       }
                     }
                   ],
-                  "target": "#fig1"
+                  "target": "#fig1",
+                  "jatsRefType": "fig"
                 },
                 {
                   "type": "Text",
@@ -4947,6 +4970,7 @@ expression: article
                 },
                 {
                   "type": "Link",
+                  "id": "xref-fig-1-5",
                   "content": [
                     {
                       "type": "Text",
@@ -4955,7 +4979,8 @@ expression: article
                       }
                     }
                   ],
-                  "target": "#fig1"
+                  "target": "#fig1",
+                  "jatsRefType": "fig"
                 },
                 {
                   "type": "Text",
@@ -4982,6 +5007,7 @@ expression: article
                 },
                 {
                   "type": "Link",
+                  "id": "xref-fig-2-1",
                   "content": [
                     {
                       "type": "Text",
@@ -4990,7 +5016,8 @@ expression: article
                       }
                     }
                   ],
-                  "target": "#fig3"
+                  "target": "#fig3",
+                  "jatsRefType": "fig"
                 },
                 {
                   "type": "Text",
@@ -5051,6 +5078,7 @@ expression: article
                 },
                 {
                   "type": "Link",
+                  "id": "xref-fig-1-6",
                   "content": [
                     {
                       "type": "Text",
@@ -5059,7 +5087,8 @@ expression: article
                       }
                     }
                   ],
-                  "target": "#fig1"
+                  "target": "#fig1",
+                  "jatsRefType": "fig"
                 },
                 {
                   "type": "Text",
@@ -5406,6 +5435,7 @@ expression: article
         },
         {
           "type": "Section",
+          "id": "s3b",
           "content": [
             {
               "type": "Heading",
@@ -5430,6 +5460,7 @@ expression: article
                 },
                 {
                   "type": "Link",
+                  "id": "xref-fig-3-1",
                   "content": [
                     {
                       "type": "Text",
@@ -5438,7 +5469,8 @@ expression: article
                       }
                     }
                   ],
-                  "target": "#fig2"
+                  "target": "#fig2",
+                  "jatsRefType": "fig"
                 },
                 {
                   "type": "Text",
@@ -5650,6 +5682,7 @@ expression: article
             },
             {
               "type": "Section",
+              "id": "s3b1",
               "content": [
                 {
                   "type": "Heading",
@@ -5685,6 +5718,7 @@ expression: article
                     },
                     {
                       "type": "Link",
+                      "id": "xref-fig-3-2",
                       "content": [
                         {
                           "type": "Text",
@@ -5693,7 +5727,8 @@ expression: article
                           }
                         }
                       ],
-                      "target": "#fig2"
+                      "target": "#fig2",
+                      "jatsRefType": "fig"
                     },
                     {
                       "type": "Text",
@@ -5703,6 +5738,7 @@ expression: article
                     },
                     {
                       "type": "Link",
+                      "id": "xref-fig-3-3",
                       "content": [
                         {
                           "type": "Text",
@@ -5711,7 +5747,8 @@ expression: article
                           }
                         }
                       ],
-                      "target": "#fig2"
+                      "target": "#fig2",
+                      "jatsRefType": "fig"
                     },
                     {
                       "type": "Text",
@@ -5739,6 +5776,7 @@ expression: article
                     },
                     {
                       "type": "Link",
+                      "id": "xref-fig-3-4",
                       "content": [
                         {
                           "type": "Text",
@@ -5747,7 +5785,8 @@ expression: article
                           }
                         }
                       ],
-                      "target": "#fig2"
+                      "target": "#fig2",
+                      "jatsRefType": "fig"
                     },
                     {
                       "type": "Text",
@@ -5757,6 +5796,7 @@ expression: article
                     },
                     {
                       "type": "Link",
+                      "id": "xref-fig-3-5",
                       "content": [
                         {
                           "type": "Text",
@@ -5765,7 +5805,8 @@ expression: article
                           }
                         }
                       ],
-                      "target": "#fig2"
+                      "target": "#fig2",
+                      "jatsRefType": "fig"
                     },
                     {
                       "type": "Text",
@@ -5775,6 +5816,7 @@ expression: article
                     },
                     {
                       "type": "Link",
+                      "id": "xref-fig-3-6",
                       "content": [
                         {
                           "type": "Text",
@@ -5783,7 +5825,8 @@ expression: article
                           }
                         }
                       ],
-                      "target": "#fig2"
+                      "target": "#fig2",
+                      "jatsRefType": "fig"
                     },
                     {
                       "type": "Text",
@@ -5793,6 +5836,7 @@ expression: article
                     },
                     {
                       "type": "Link",
+                      "id": "xref-fig-3-7",
                       "content": [
                         {
                           "type": "Text",
@@ -5801,7 +5845,8 @@ expression: article
                           }
                         }
                       ],
-                      "target": "#fig2"
+                      "target": "#fig2",
+                      "jatsRefType": "fig"
                     },
                     {
                       "type": "Text",
@@ -5811,6 +5856,7 @@ expression: article
                     },
                     {
                       "type": "Link",
+                      "id": "xref-fig-3-8",
                       "content": [
                         {
                           "type": "Text",
@@ -5819,7 +5865,8 @@ expression: article
                           }
                         }
                       ],
-                      "target": "#fig2"
+                      "target": "#fig2",
+                      "jatsRefType": "fig"
                     },
                     {
                       "type": "Text",
@@ -5829,6 +5876,7 @@ expression: article
                     },
                     {
                       "type": "Link",
+                      "id": "xref-fig-3-9",
                       "content": [
                         {
                           "type": "Text",
@@ -5837,7 +5885,8 @@ expression: article
                           }
                         }
                       ],
-                      "target": "#fig2"
+                      "target": "#fig2",
+                      "jatsRefType": "fig"
                     },
                     {
                       "type": "Text",
@@ -5862,6 +5911,7 @@ expression: article
             },
             {
               "type": "Section",
+              "id": "s3b2",
               "content": [
                 {
                   "type": "Heading",
@@ -5886,6 +5936,7 @@ expression: article
                     },
                     {
                       "type": "Link",
+                      "id": "xref-fig-2-2",
                       "content": [
                         {
                           "type": "Text",
@@ -5894,7 +5945,8 @@ expression: article
                           }
                         }
                       ],
-                      "target": "#fig3"
+                      "target": "#fig3",
+                      "jatsRefType": "fig"
                     },
                     {
                       "type": "Text",
@@ -5904,6 +5956,7 @@ expression: article
                     },
                     {
                       "type": "Link",
+                      "id": "xref-fig-2-3",
                       "content": [
                         {
                           "type": "Text",
@@ -5912,7 +5965,8 @@ expression: article
                           }
                         }
                       ],
-                      "target": "#fig3"
+                      "target": "#fig3",
+                      "jatsRefType": "fig"
                     },
                     {
                       "type": "Text",
@@ -5944,6 +5998,7 @@ expression: article
                     },
                     {
                       "type": "Link",
+                      "id": "xref-fig-2-4",
                       "content": [
                         {
                           "type": "Text",
@@ -5952,7 +6007,8 @@ expression: article
                           }
                         }
                       ],
-                      "target": "#fig3"
+                      "target": "#fig3",
+                      "jatsRefType": "fig"
                     },
                     {
                       "type": "Text",
@@ -5962,6 +6018,7 @@ expression: article
                     },
                     {
                       "type": "Link",
+                      "id": "xref-fig-2-5",
                       "content": [
                         {
                           "type": "Text",
@@ -5970,7 +6027,8 @@ expression: article
                           }
                         }
                       ],
-                      "target": "#fig3"
+                      "target": "#fig3",
+                      "jatsRefType": "fig"
                     },
                     {
                       "type": "Text",
@@ -5980,6 +6038,7 @@ expression: article
                     },
                     {
                       "type": "Link",
+                      "id": "xref-fig-2-6",
                       "content": [
                         {
                           "type": "Text",
@@ -5988,7 +6047,8 @@ expression: article
                           }
                         }
                       ],
-                      "target": "#fig3"
+                      "target": "#fig3",
+                      "jatsRefType": "fig"
                     },
                     {
                       "type": "Text",
@@ -5998,6 +6058,7 @@ expression: article
                     },
                     {
                       "type": "Link",
+                      "id": "xref-fig-2-7",
                       "content": [
                         {
                           "type": "Text",
@@ -6006,7 +6067,8 @@ expression: article
                           }
                         }
                       ],
-                      "target": "#fig3"
+                      "target": "#fig3",
+                      "jatsRefType": "fig"
                     },
                     {
                       "type": "Text",
@@ -6016,6 +6078,7 @@ expression: article
                     },
                     {
                       "type": "Link",
+                      "id": "xref-fig-2-8",
                       "content": [
                         {
                           "type": "Text",
@@ -6024,7 +6087,8 @@ expression: article
                           }
                         }
                       ],
-                      "target": "#fig3"
+                      "target": "#fig3",
+                      "jatsRefType": "fig"
                     },
                     {
                       "type": "Text",
@@ -6034,6 +6098,7 @@ expression: article
                     },
                     {
                       "type": "Link",
+                      "id": "xref-fig-2-9",
                       "content": [
                         {
                           "type": "Text",
@@ -6042,7 +6107,8 @@ expression: article
                           }
                         }
                       ],
-                      "target": "#fig3"
+                      "target": "#fig3",
+                      "jatsRefType": "fig"
                     },
                     {
                       "type": "Text",
@@ -6052,6 +6118,7 @@ expression: article
                     },
                     {
                       "type": "Link",
+                      "id": "xref-fig-2-10",
                       "content": [
                         {
                           "type": "Text",
@@ -6060,7 +6127,8 @@ expression: article
                           }
                         }
                       ],
-                      "target": "#fig3"
+                      "target": "#fig3",
+                      "jatsRefType": "fig"
                     },
                     {
                       "type": "Text",
@@ -6074,6 +6142,7 @@ expression: article
             },
             {
               "type": "Section",
+              "id": "s3b3",
               "content": [
                 {
                   "type": "Heading",
@@ -6127,6 +6196,7 @@ expression: article
                     },
                     {
                       "type": "Link",
+                      "id": "xref-fig-4-1",
                       "content": [
                         {
                           "type": "Text",
@@ -6135,7 +6205,8 @@ expression: article
                           }
                         }
                       ],
-                      "target": "#fig4"
+                      "target": "#fig4",
+                      "jatsRefType": "fig"
                     },
                     {
                       "type": "Text",
@@ -6145,6 +6216,7 @@ expression: article
                     },
                     {
                       "type": "Link",
+                      "id": "xref-fig-4-2",
                       "content": [
                         {
                           "type": "Text",
@@ -6153,7 +6225,8 @@ expression: article
                           }
                         }
                       ],
-                      "target": "#fig4"
+                      "target": "#fig4",
+                      "jatsRefType": "fig"
                     },
                     {
                       "type": "Text",
@@ -6163,6 +6236,7 @@ expression: article
                     },
                     {
                       "type": "Link",
+                      "id": "xref-fig-4-3",
                       "content": [
                         {
                           "type": "Text",
@@ -6171,7 +6245,8 @@ expression: article
                           }
                         }
                       ],
-                      "target": "#fig4"
+                      "target": "#fig4",
+                      "jatsRefType": "fig"
                     },
                     {
                       "type": "Text",
@@ -6181,6 +6256,7 @@ expression: article
                     },
                     {
                       "type": "Link",
+                      "id": "xref-fig-4-4",
                       "content": [
                         {
                           "type": "Text",
@@ -6189,7 +6265,8 @@ expression: article
                           }
                         }
                       ],
-                      "target": "#fig4"
+                      "target": "#fig4",
+                      "jatsRefType": "fig"
                     },
                     {
                       "type": "Text",
@@ -6199,6 +6276,7 @@ expression: article
                     },
                     {
                       "type": "Link",
+                      "id": "xref-fig-4-5",
                       "content": [
                         {
                           "type": "Text",
@@ -6207,7 +6285,8 @@ expression: article
                           }
                         }
                       ],
-                      "target": "#fig4"
+                      "target": "#fig4",
+                      "jatsRefType": "fig"
                     },
                     {
                       "type": "Text",
@@ -6217,6 +6296,7 @@ expression: article
                     },
                     {
                       "type": "Link",
+                      "id": "xref-fig-4-6",
                       "content": [
                         {
                           "type": "Text",
@@ -6225,7 +6305,8 @@ expression: article
                           }
                         }
                       ],
-                      "target": "#fig4"
+                      "target": "#fig4",
+                      "jatsRefType": "fig"
                     },
                     {
                       "type": "Text",
@@ -6235,6 +6316,7 @@ expression: article
                     },
                     {
                       "type": "Link",
+                      "id": "xref-fig-4-7",
                       "content": [
                         {
                           "type": "Text",
@@ -6243,7 +6325,8 @@ expression: article
                           }
                         }
                       ],
-                      "target": "#fig4"
+                      "target": "#fig4",
+                      "jatsRefType": "fig"
                     },
                     {
                       "type": "Text",
@@ -6253,6 +6336,7 @@ expression: article
                     },
                     {
                       "type": "Link",
+                      "id": "xref-fig-4-8",
                       "content": [
                         {
                           "type": "Text",
@@ -6261,7 +6345,8 @@ expression: article
                           }
                         }
                       ],
-                      "target": "#fig4"
+                      "target": "#fig4",
+                      "jatsRefType": "fig"
                     },
                     {
                       "type": "Text",
@@ -6499,6 +6584,7 @@ expression: article
                     },
                     {
                       "type": "Link",
+                      "id": "xref-fig-5-1",
                       "content": [
                         {
                           "type": "Text",
@@ -6507,7 +6593,8 @@ expression: article
                           }
                         }
                       ],
-                      "target": "#fig5"
+                      "target": "#fig5",
+                      "jatsRefType": "fig"
                     },
                     {
                       "type": "Text",
@@ -6517,6 +6604,7 @@ expression: article
                     },
                     {
                       "type": "Link",
+                      "id": "xref-fig-5-2",
                       "content": [
                         {
                           "type": "Text",
@@ -6525,7 +6613,8 @@ expression: article
                           }
                         }
                       ],
-                      "target": "#fig5"
+                      "target": "#fig5",
+                      "jatsRefType": "fig"
                     },
                     {
                       "type": "Text",
@@ -6535,6 +6624,7 @@ expression: article
                     },
                     {
                       "type": "Link",
+                      "id": "xref-fig-5-3",
                       "content": [
                         {
                           "type": "Text",
@@ -6543,7 +6633,8 @@ expression: article
                           }
                         }
                       ],
-                      "target": "#fig5"
+                      "target": "#fig5",
+                      "jatsRefType": "fig"
                     },
                     {
                       "type": "Text",
@@ -6553,6 +6644,7 @@ expression: article
                     },
                     {
                       "type": "Link",
+                      "id": "xref-fig-5-4",
                       "content": [
                         {
                           "type": "Text",
@@ -6561,7 +6653,8 @@ expression: article
                           }
                         }
                       ],
-                      "target": "#fig5"
+                      "target": "#fig5",
+                      "jatsRefType": "fig"
                     },
                     {
                       "type": "Text",
@@ -6571,6 +6664,7 @@ expression: article
                     },
                     {
                       "type": "Link",
+                      "id": "xref-fig-5-5",
                       "content": [
                         {
                           "type": "Text",
@@ -6579,7 +6673,8 @@ expression: article
                           }
                         }
                       ],
-                      "target": "#fig5"
+                      "target": "#fig5",
+                      "jatsRefType": "fig"
                     },
                     {
                       "type": "Text",
@@ -6589,6 +6684,7 @@ expression: article
                     },
                     {
                       "type": "Link",
+                      "id": "xref-fig-5-6",
                       "content": [
                         {
                           "type": "Text",
@@ -6597,7 +6693,8 @@ expression: article
                           }
                         }
                       ],
-                      "target": "#fig5"
+                      "target": "#fig5",
+                      "jatsRefType": "fig"
                     },
                     {
                       "type": "Text",
@@ -6801,6 +6898,7 @@ expression: article
                     },
                     {
                       "type": "Link",
+                      "id": "xref-fig-6-1",
                       "content": [
                         {
                           "type": "Text",
@@ -6809,7 +6907,8 @@ expression: article
                           }
                         }
                       ],
-                      "target": "#fig6"
+                      "target": "#fig6",
+                      "jatsRefType": "fig"
                     },
                     {
                       "type": "Text",
@@ -6819,6 +6918,7 @@ expression: article
                     },
                     {
                       "type": "Link",
+                      "id": "xref-fig-6-2",
                       "content": [
                         {
                           "type": "Text",
@@ -6827,7 +6927,8 @@ expression: article
                           }
                         }
                       ],
-                      "target": "#fig6"
+                      "target": "#fig6",
+                      "jatsRefType": "fig"
                     },
                     {
                       "type": "Text",
@@ -6837,6 +6938,7 @@ expression: article
                     },
                     {
                       "type": "Link",
+                      "id": "xref-fig-6-3",
                       "content": [
                         {
                           "type": "Text",
@@ -6845,7 +6947,8 @@ expression: article
                           }
                         }
                       ],
-                      "target": "#fig6"
+                      "target": "#fig6",
+                      "jatsRefType": "fig"
                     },
                     {
                       "type": "Text",
@@ -6855,6 +6958,7 @@ expression: article
                     },
                     {
                       "type": "Link",
+                      "id": "xref-fig-6-4",
                       "content": [
                         {
                           "type": "Text",
@@ -6863,7 +6967,8 @@ expression: article
                           }
                         }
                       ],
-                      "target": "#fig6"
+                      "target": "#fig6",
+                      "jatsRefType": "fig"
                     },
                     {
                       "type": "Text",
@@ -6873,6 +6978,7 @@ expression: article
                     },
                     {
                       "type": "Link",
+                      "id": "xref-fig-6-5",
                       "content": [
                         {
                           "type": "Text",
@@ -6881,7 +6987,8 @@ expression: article
                           }
                         }
                       ],
-                      "target": "#fig6"
+                      "target": "#fig6",
+                      "jatsRefType": "fig"
                     },
                     {
                       "type": "Text",
@@ -7096,6 +7203,7 @@ expression: article
                     },
                     {
                       "type": "Link",
+                      "id": "xref-fig-7-1",
                       "content": [
                         {
                           "type": "Text",
@@ -7104,7 +7212,8 @@ expression: article
                           }
                         }
                       ],
-                      "target": "#fig7"
+                      "target": "#fig7",
+                      "jatsRefType": "fig"
                     },
                     {
                       "type": "Text",
@@ -7114,6 +7223,7 @@ expression: article
                     },
                     {
                       "type": "Link",
+                      "id": "xref-fig-7-2",
                       "content": [
                         {
                           "type": "Text",
@@ -7122,7 +7232,8 @@ expression: article
                           }
                         }
                       ],
-                      "target": "#fig7"
+                      "target": "#fig7",
+                      "jatsRefType": "fig"
                     },
                     {
                       "type": "Text",
@@ -7132,6 +7243,7 @@ expression: article
                     },
                     {
                       "type": "Link",
+                      "id": "xref-fig-7-3",
                       "content": [
                         {
                           "type": "Text",
@@ -7140,7 +7252,8 @@ expression: article
                           }
                         }
                       ],
-                      "target": "#fig7"
+                      "target": "#fig7",
+                      "jatsRefType": "fig"
                     },
                     {
                       "type": "Text",
@@ -7150,6 +7263,7 @@ expression: article
                     },
                     {
                       "type": "Link",
+                      "id": "xref-fig-7-4",
                       "content": [
                         {
                           "type": "Text",
@@ -7158,7 +7272,8 @@ expression: article
                           }
                         }
                       ],
-                      "target": "#fig7"
+                      "target": "#fig7",
+                      "jatsRefType": "fig"
                     },
                     {
                       "type": "Text",
@@ -7168,6 +7283,7 @@ expression: article
                     },
                     {
                       "type": "Link",
+                      "id": "xref-fig-7-5",
                       "content": [
                         {
                           "type": "Text",
@@ -7176,7 +7292,8 @@ expression: article
                           }
                         }
                       ],
-                      "target": "#fig7"
+                      "target": "#fig7",
+                      "jatsRefType": "fig"
                     },
                     {
                       "type": "Text",
@@ -7186,6 +7303,7 @@ expression: article
                     },
                     {
                       "type": "Link",
+                      "id": "xref-fig-7-6",
                       "content": [
                         {
                           "type": "Text",
@@ -7194,7 +7312,8 @@ expression: article
                           }
                         }
                       ],
-                      "target": "#fig7"
+                      "target": "#fig7",
+                      "jatsRefType": "fig"
                     },
                     {
                       "type": "Text",
@@ -7406,6 +7525,7 @@ expression: article
     },
     {
       "type": "Section",
+      "id": "s4",
       "sectionType": "Discussion",
       "content": [
         {
@@ -7928,6 +8048,7 @@ expression: article
     },
     {
       "type": "Section",
+      "id": "sec-17",
       "sectionType": "SupplementaryMaterials",
       "content": [
         {

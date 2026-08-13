@@ -30,14 +30,13 @@ use super::worktree_status::WorktreeStatus;
 /// A figure.
 #[skip_serializing_none]
 #[serde_as]
-#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, ProbeNode, StripNode, WalkNode, WriteNode, ReadNode, PatchNode, HtmlCodec, JatsCodec, LatexCodec, TextCodec)]
+#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, ProbeNode, StripNode, WalkNode, WriteNode, ReadNode, PatchNode, HtmlCodec, LatexCodec, TextCodec)]
 #[serde(rename_all = "camelCase")]
 #[cfg_attr(feature = "proptest", derive(Arbitrary))]
 #[derive(derive_more::Display)]
 #[display("Figure")]
 #[patch(authors_on = "self")]
 #[html(elem = "figure")]
-#[jats(elem = "fig")]
 pub struct Figure {
     /// The type of this item.
     #[cfg_attr(feature = "proptest", proptest(value = "Default::default()"))]
@@ -48,7 +47,6 @@ pub struct Figure {
     #[patch(format = "md", format = "smd", format = "myst", format = "qmd", format = "tiptap")]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
     #[html(attr = "id")]
-    #[jats(attr = "id")]
     pub id: Option<String>,
 
     /// The type of `CreativeWork` (e.g. article, book, software application).
@@ -85,7 +83,6 @@ pub struct Figure {
     #[cfg_attr(feature = "proptest-low", proptest(strategy = r#"option::of(r"[a-zA-Z0-9]+")"#))]
     #[cfg_attr(feature = "proptest-high", proptest(strategy = r#"option::of(r"[a-zA-Z0-9]+")"#))]
     #[cfg_attr(feature = "proptest-max", proptest(strategy = r#"option::of(String::arbitrary())"#))]
-    #[jats(elem = "label")]
     pub label: Option<String>,
 
     /// Whether the label should be automatically updated.
@@ -102,7 +99,6 @@ pub struct Figure {
     #[cfg_attr(feature = "proptest-low", proptest(strategy = r#"option::of(vec_paragraphs(2))"#))]
     #[cfg_attr(feature = "proptest-high", proptest(strategy = r#"option::of(vec_paragraphs(2))"#))]
     #[cfg_attr(feature = "proptest-max", proptest(strategy = r#"option::of(vec_blocks_non_recursive(3))"#))]
-    #[jats(elem = "caption")]
     pub caption: Option<Vec<Block>>,
 
     /// The content of the figure.
@@ -118,7 +114,6 @@ pub struct Figure {
     /// Non-core optional fields
     #[serde(flatten)]
     #[html(flatten)]
-    #[jats(flatten)]
     pub options: Box<FigureOptions>,
 
     /// A unique identifier for a node within a document
@@ -129,7 +124,7 @@ pub struct Figure {
 
 #[skip_serializing_none]
 #[serde_as]
-#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, ProbeNode, StripNode, WalkNode, WriteNode, ReadNode, PatchNode, HtmlCodec, JatsCodec, LatexCodec, TextCodec)]
+#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, ProbeNode, StripNode, WalkNode, WriteNode, ReadNode, PatchNode, HtmlCodec, LatexCodec, TextCodec)]
 #[serde(rename_all = "camelCase")]
 #[cfg_attr(feature = "proptest", derive(Arbitrary))]
 pub struct FigureOptions {

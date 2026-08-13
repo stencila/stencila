@@ -47,6 +47,8 @@ const LINK_OR_IDENTIFIER: &[&str] = &[
     "isbn",
     "issn",
     "issue-id",
+    "jatsExtLinkType",
+    "jatsRefType",
     "journal-id",
     "orcid",
     "pub-id",
@@ -208,6 +210,9 @@ mod tests {
             LossCategory::LinkOrIdentifier
         );
         assert_eq!(classify("Table.provenance"), LossCategory::Metadata);
+        // A cross reference type is classified the same whether it is reported
+        // by the decoder as `@ref-type` or by the encoder as a link property
+        assert_eq!(classify("Link.jatsRefType"), LossCategory::LinkOrIdentifier);
         assert_eq!(classify("Supplement.caption"), LossCategory::Content);
     }
 }

@@ -6137,6 +6137,7 @@ expression: article
   "content": [
     {
       "type": "Section",
+      "id": "ele13210-sec-0001",
       "sectionType": "Introduction",
       "content": [
         {
@@ -8139,6 +8140,7 @@ expression: article
     },
     {
       "type": "Section",
+      "id": "ele13210-sec-0002",
       "sectionType": "Materials",
       "content": [
         {
@@ -8155,6 +8157,7 @@ expression: article
         },
         {
           "type": "Section",
+          "id": "ele13210-sec-0003",
           "content": [
             {
               "type": "Heading",
@@ -9057,7 +9060,8 @@ expression: article
                       }
                     }
                   ],
-                  "target": "#ele13210-sec-0004"
+                  "target": "#ele13210-sec-0004",
+                  "jatsRefType": "sec"
                 },
                 {
                   "type": "Text",
@@ -9452,7 +9456,8 @@ expression: article
                       }
                     }
                   ],
-                  "target": "http://www.soilgrids.org"
+                  "target": "http://www.soilgrids.org",
+                  "jatsExtLinkType": "uri"
                 },
                 {
                   "type": "Text",
@@ -9466,6 +9471,7 @@ expression: article
         },
         {
           "type": "Section",
+          "id": "ele13210-sec-0004",
           "content": [
             {
               "type": "Heading",
@@ -9909,7 +9915,8 @@ expression: article
                       }
                     }
                   ],
-                  "target": "#ele13210-disp-0020"
+                  "target": "#ele13210-disp-0020",
+                  "jatsRefType": "disp-formula"
                 },
                 {
                   "type": "Text",
@@ -9923,6 +9930,7 @@ expression: article
         },
         {
           "type": "Section",
+          "id": "ele13210-sec-0005",
           "content": [
             {
               "type": "Heading",
@@ -10627,7 +10635,8 @@ expression: article
                       }
                     }
                   ],
-                  "target": "#ele13210-disp-0002"
+                  "target": "#ele13210-disp-0002",
+                  "jatsRefType": "disp-formula"
                 },
                 {
                   "type": "Text",
@@ -11083,7 +11092,8 @@ expression: article
                       }
                     }
                   ],
-                  "target": "#ele13210-fig-0001"
+                  "target": "#ele13210-fig-0001",
+                  "jatsRefType": "fig"
                 },
                 {
                   "type": "Text",
@@ -11592,6 +11602,7 @@ expression: article
         },
         {
           "type": "Section",
+          "id": "ele13210-sec-0006",
           "content": [
             {
               "type": "Heading",
@@ -12513,7 +12524,8 @@ expression: article
                       }
                     }
                   ],
-                  "target": "#ele13210-disp-0009"
+                  "target": "#ele13210-disp-0009",
+                  "jatsRefType": "disp-formula"
                 },
                 {
                   "type": "Text",
@@ -12531,7 +12543,8 @@ expression: article
                       }
                     }
                   ],
-                  "target": "#ele13210-disp-0007"
+                  "target": "#ele13210-disp-0007",
+                  "jatsRefType": "disp-formula"
                 },
                 {
                   "type": "Text",
@@ -12769,7 +12782,8 @@ expression: article
                       }
                     }
                   ],
-                  "target": "#ele13210-disp-0010"
+                  "target": "#ele13210-disp-0010",
+                  "jatsRefType": "disp-formula"
                 },
                 {
                   "type": "Text",
@@ -12956,7 +12970,8 @@ expression: article
                       }
                     }
                   ],
-                  "target": "#ele13210-disp-0014"
+                  "target": "#ele13210-disp-0014",
+                  "jatsRefType": "disp-formula"
                 },
                 {
                   "type": "Text",
@@ -13080,7 +13095,8 @@ expression: article
                       }
                     }
                   ],
-                  "target": "#ele13210-disp-0010"
+                  "target": "#ele13210-disp-0010",
+                  "jatsRefType": "disp-formula"
                 },
                 {
                   "type": "Text",
@@ -14201,6 +14217,7 @@ expression: article
         },
         {
           "type": "Section",
+          "id": "ele13210-sec-0007",
           "content": [
             {
               "type": "Heading",
@@ -15539,6 +15556,7 @@ expression: article
         },
         {
           "type": "Section",
+          "id": "ele13210-sec-0008",
           "content": [
             {
               "type": "Heading",
@@ -15737,6 +15755,7 @@ expression: article
     },
     {
       "type": "Section",
+      "id": "ele13210-sec-0009",
       "sectionType": "Results",
       "content": [
         {
@@ -15753,6 +15772,7 @@ expression: article
         },
         {
           "type": "Section",
+          "id": "ele13210-sec-0010",
           "content": [
             {
               "type": "Heading",
@@ -15850,7 +15870,8 @@ expression: article
                       }
                     }
                   ],
-                  "target": "#ele13210-fig-0001"
+                  "target": "#ele13210-fig-0001",
+                  "jatsRefType": "fig"
                 },
                 {
                   "type": "Text",
@@ -15924,7 +15945,8 @@ expression: article
                       }
                     }
                   ],
-                  "target": "#ele13210-fig-0001"
+                  "target": "#ele13210-fig-0001",
+                  "jatsRefType": "fig"
                 },
                 {
                   "type": "Text",
@@ -15938,6 +15960,7 @@ expression: article
         },
         {
           "type": "Section",
+          "id": "ele13210-sec-0011",
           "content": [
             {
               "type": "Heading",
@@ -15983,7 +16006,8 @@ expression: article
                       }
                     }
                   ],
-                  "target": "#ele13210-fig-0002"
+                  "target": "#ele13210-fig-0002",
+                  "jatsRefType": "fig"
                 },
                 {
                   "type": "Text",
@@ -16151,7 +16175,8 @@ expression: article
                       }
                     }
                   ],
-                  "target": "#ele13210-fig-0002"
+                  "target": "#ele13210-fig-0002",
+                  "jatsRefType": "fig"
                 },
                 {
                   "type": "Text",
@@ -16349,6 +16374,7 @@ expression: article
         },
         {
           "type": "Section",
+          "id": "ele13210-sec-0012",
           "content": [
             {
               "type": "Heading",
@@ -16381,7 +16407,8 @@ expression: article
                       }
                     }
                   ],
-                  "target": "#ele13210-fig-0003"
+                  "target": "#ele13210-fig-0003",
+                  "jatsRefType": "fig"
                 },
                 {
                   "type": "Text",
@@ -16450,7 +16477,8 @@ expression: article
                       }
                     }
                   ],
-                  "target": "#ele13210-fig-0002"
+                  "target": "#ele13210-fig-0002",
+                  "jatsRefType": "fig"
                 },
                 {
                   "type": "Text",
@@ -16824,7 +16852,8 @@ expression: article
                           }
                         }
                       ],
-                      "target": "#ele13210-fig-0002"
+                      "target": "#ele13210-fig-0002",
+                      "jatsRefType": "fig"
                     },
                     {
                       "type": "Text",
@@ -16908,7 +16937,8 @@ expression: article
                       }
                     }
                   ],
-                  "target": "#ele13210-fig-0003"
+                  "target": "#ele13210-fig-0003",
+                  "jatsRefType": "fig"
                 },
                 {
                   "type": "Text",
@@ -17007,7 +17037,8 @@ expression: article
                       }
                     }
                   ],
-                  "target": "#ele13210-fig-0003"
+                  "target": "#ele13210-fig-0003",
+                  "jatsRefType": "fig"
                 },
                 {
                   "type": "Text",
@@ -17110,7 +17141,8 @@ expression: article
                       }
                     }
                   ],
-                  "target": "#ele13210-fig-0003"
+                  "target": "#ele13210-fig-0003",
+                  "jatsRefType": "fig"
                 },
                 {
                   "type": "Text",
@@ -17175,6 +17207,7 @@ expression: article
         },
         {
           "type": "Section",
+          "id": "ele13210-sec-0013",
           "content": [
             {
               "type": "Heading",
@@ -17322,7 +17355,8 @@ expression: article
                       }
                     }
                   ],
-                  "target": "#ele13210-fig-0004"
+                  "target": "#ele13210-fig-0004",
+                  "jatsRefType": "fig"
                 },
                 {
                   "type": "Text",
@@ -17843,7 +17877,8 @@ expression: article
                       }
                     }
                   ],
-                  "target": "#ele13210-fig-0004"
+                  "target": "#ele13210-fig-0004",
+                  "jatsRefType": "fig"
                 },
                 {
                   "type": "Text",
@@ -18108,7 +18143,8 @@ expression: article
                           }
                         }
                       ],
-                      "target": "#ele13210-fig-0002"
+                      "target": "#ele13210-fig-0002",
+                      "jatsRefType": "fig"
                     },
                     {
                       "type": "Text",
@@ -18130,6 +18166,7 @@ expression: article
         },
         {
           "type": "Section",
+          "id": "ele13210-sec-0014",
           "content": [
             {
               "type": "Heading",
@@ -18162,7 +18199,8 @@ expression: article
                       }
                     }
                   ],
-                  "target": "#ele13210-fig-0005"
+                  "target": "#ele13210-fig-0005",
+                  "jatsRefType": "fig"
                 },
                 {
                   "type": "Text",
@@ -18670,7 +18708,8 @@ expression: article
                           }
                         }
                       ],
-                      "target": "#ele13210-fig-0002"
+                      "target": "#ele13210-fig-0002",
+                      "jatsRefType": "fig"
                     },
                     {
                       "type": "Text",
@@ -18694,6 +18733,7 @@ expression: article
     },
     {
       "type": "Section",
+      "id": "ele13210-sec-0015",
       "sectionType": "Discussion",
       "content": [
         {
@@ -18740,7 +18780,8 @@ expression: article
                   }
                 }
               ],
-              "target": "#ele13210-fig-0006"
+              "target": "#ele13210-fig-0006",
+              "jatsRefType": "fig"
             },
             {
               "type": "Text",
@@ -18758,7 +18799,8 @@ expression: article
                   }
                 }
               ],
-              "target": "#ele13210-fig-0002"
+              "target": "#ele13210-fig-0002",
+              "jatsRefType": "fig"
             },
             {
               "type": "Text",
@@ -19477,7 +19519,8 @@ expression: article
                   }
                 }
               ],
-              "target": "#ele13210-fig-0001"
+              "target": "#ele13210-fig-0001",
+              "jatsRefType": "fig"
             },
             {
               "type": "Text",
@@ -21002,6 +21045,7 @@ expression: article
     },
     {
       "type": "Section",
+      "id": "ele13210-sec-0017",
       "sectionType": "AuthorContributions",
       "content": [
         {
@@ -21055,6 +21099,7 @@ expression: article
     },
     {
       "type": "Section",
+      "id": "ele13210-sec-0016",
       "sectionType": "Acknowledgements",
       "content": [
         {
@@ -21084,6 +21129,7 @@ expression: article
     },
     {
       "type": "Section",
+      "id": "ele13210-sec-0018",
       "sectionType": "DataAvailability",
       "content": [
         {
@@ -21117,7 +21163,8 @@ expression: article
                   }
                 }
               ],
-              "target": "https://github.com/SmithEcophysLab/optimal_vcmax_R"
+              "target": "https://github.com/SmithEcophysLab/optimal_vcmax_R",
+              "jatsExtLinkType": "uri"
             },
             {
               "type": "Text",
@@ -21135,7 +21182,8 @@ expression: article
                   }
                 }
               ],
-              "target": "https://doi.org/10.5281/zenodo.1482044"
+              "target": "https://doi.org/10.5281/zenodo.1482044",
+              "jatsExtLinkType": "uri"
             },
             {
               "type": "Text",

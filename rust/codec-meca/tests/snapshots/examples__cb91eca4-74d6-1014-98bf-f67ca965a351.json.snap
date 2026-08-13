@@ -2123,6 +2123,7 @@ expression: article
   "content": [
     {
       "type": "Section",
+      "id": "s1",
       "content": [
         {
           "type": "Heading",
@@ -2569,7 +2570,8 @@ expression: article
                   }
                 }
               ],
-              "target": "#fig1"
+              "target": "#fig1",
+              "jatsRefType": "fig"
             },
             {
               "type": "Text",
@@ -2638,7 +2640,8 @@ expression: article
                   }
                 }
               ],
-              "target": "#fig1"
+              "target": "#fig1",
+              "jatsRefType": "fig"
             },
             {
               "type": "Text",
@@ -2760,7 +2763,8 @@ expression: article
                   }
                 }
               ],
-              "target": "#fig1"
+              "target": "#fig1",
+              "jatsRefType": "fig"
             },
             {
               "type": "Text",
@@ -3038,7 +3042,8 @@ expression: article
                   }
                 }
               ],
-              "target": "#fig1"
+              "target": "#fig1",
+              "jatsRefType": "fig"
             },
             {
               "type": "Text",
@@ -3056,7 +3061,8 @@ expression: article
                   }
                 }
               ],
-              "target": "#fig1"
+              "target": "#fig1",
+              "jatsRefType": "fig"
             },
             {
               "type": "Text",
@@ -3203,6 +3209,7 @@ expression: article
     },
     {
       "type": "Section",
+      "id": "s2",
       "sectionType": "Methods",
       "content": [
         {
@@ -3219,6 +3226,7 @@ expression: article
         },
         {
           "type": "Section",
+          "id": "s2a",
           "content": [
             {
               "type": "Heading",
@@ -3356,6 +3364,7 @@ expression: article
         },
         {
           "type": "Section",
+          "id": "s2b",
           "content": [
             {
               "type": "Heading",
@@ -3472,6 +3481,7 @@ expression: article
         },
         {
           "type": "Section",
+          "id": "s2c",
           "content": [
             {
               "type": "Heading",
@@ -3622,6 +3632,7 @@ expression: article
         },
         {
           "type": "Section",
+          "id": "s2d",
           "content": [
             {
               "type": "Heading",
@@ -3652,6 +3663,7 @@ expression: article
     },
     {
       "type": "Section",
+      "id": "s3",
       "content": [
         {
           "type": "Heading",
@@ -3667,6 +3679,7 @@ expression: article
         },
         {
           "type": "Section",
+          "id": "s3a",
           "content": [
             {
               "type": "Heading",
@@ -3772,6 +3785,7 @@ expression: article
         },
         {
           "type": "Section",
+          "id": "s3b",
           "content": [
             {
               "type": "Heading",
@@ -3855,6 +3869,7 @@ expression: article
         },
         {
           "type": "Section",
+          "id": "s3c",
           "content": [
             {
               "type": "Heading",
@@ -3911,6 +3926,7 @@ expression: article
         },
         {
           "type": "Section",
+          "id": "s3d",
           "content": [
             {
               "type": "Heading",
@@ -3961,6 +3977,7 @@ expression: article
         },
         {
           "type": "Section",
+          "id": "s3e",
           "content": [
             {
               "type": "Heading",
@@ -4066,6 +4083,7 @@ expression: article
     },
     {
       "type": "Section",
+      "id": "s4",
       "sectionType": "Funding",
       "content": [
         {
@@ -4095,6 +4113,7 @@ expression: article
     },
     {
       "type": "Section",
+      "id": "s5",
       "sectionType": "AuthorContributions",
       "content": [
         {

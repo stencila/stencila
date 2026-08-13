@@ -225,6 +225,30 @@
       }
     },
     {
+      "@id": "stencila:jatsRefType",
+      "@type": "rdfs:Property",
+      "rdfs:label": "jatsRefType",
+      "rdfs:comment": "The value of the `ref-type` attribute when the link originated as a JATS cross-reference.",
+      "schema:domainIncludes": {
+        "@id": "stencila:Link"
+      },
+      "schema:rangeIncludes": {
+        "@id": "schema:Text"
+      }
+    },
+    {
+      "@id": "stencila:jatsExtLinkType",
+      "@type": "rdfs:Property",
+      "rdfs:label": "jatsExtLinkType",
+      "rdfs:comment": "The value of the `ext-link-type` attribute when the link originated as a JATS external link.",
+      "schema:domainIncludes": {
+        "@id": "stencila:Link"
+      },
+      "schema:rangeIncludes": {
+        "@id": "schema:Text"
+      }
+    },
+    {
       "@id": "stencila:labelOnly",
       "@type": "rdfs:Property",
       "rdfs:label": "labelOnly",

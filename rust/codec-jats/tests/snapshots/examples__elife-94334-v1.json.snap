@@ -6074,6 +6074,7 @@ expression: article
   "content": [
     {
       "type": "Section",
+      "id": "s1",
       "sectionType": "Introduction",
       "content": [
         {
@@ -7054,6 +7055,7 @@ expression: article
     },
     {
       "type": "Section",
+      "id": "s2",
       "sectionType": "Results",
       "content": [
         {
@@ -7070,6 +7072,7 @@ expression: article
         },
         {
           "type": "Section",
+          "id": "s2-1",
           "content": [
             {
               "type": "Heading",
@@ -7374,7 +7377,8 @@ expression: article
                       }
                     }
                   ],
-                  "target": "#fig1"
+                  "target": "#fig1",
+                  "jatsRefType": "fig"
                 },
                 {
                   "type": "Text",
@@ -7695,7 +7699,8 @@ expression: article
                               }
                             }
                           ],
-                          "target": "#fig1"
+                          "target": "#fig1",
+                          "jatsRefType": "fig"
                         },
                         {
                           "type": "Text",
@@ -7735,7 +7740,8 @@ expression: article
                               }
                             }
                           ],
-                          "target": "#fig1"
+                          "target": "#fig1",
+                          "jatsRefType": "fig"
                         },
                         {
                           "type": "Text",
@@ -7775,7 +7781,8 @@ expression: article
                               }
                             }
                           ],
-                          "target": "#fig1"
+                          "target": "#fig1",
+                          "jatsRefType": "fig"
                         },
                         {
                           "type": "Text",
@@ -7815,7 +7822,8 @@ expression: article
                               }
                             }
                           ],
-                          "target": "#fig1"
+                          "target": "#fig1",
+                          "jatsRefType": "fig"
                         },
                         {
                           "type": "Text",
@@ -7872,7 +7880,8 @@ expression: article
                       }
                     }
                   ],
-                  "target": "#fig1"
+                  "target": "#fig1",
+                  "jatsRefType": "fig"
                 },
                 {
                   "type": "Text",
@@ -7890,7 +7899,8 @@ expression: article
                       }
                     }
                   ],
-                  "target": "#fig1"
+                  "target": "#fig1",
+                  "jatsRefType": "fig"
                 },
                 {
                   "type": "Text",
@@ -7908,7 +7918,8 @@ expression: article
                       }
                     }
                   ],
-                  "target": "#fig1"
+                  "target": "#fig1",
+                  "jatsRefType": "fig"
                 },
                 {
                   "type": "Text",
@@ -7943,7 +7954,8 @@ expression: article
                       }
                     }
                   ],
-                  "target": "#fig1"
+                  "target": "#fig1",
+                  "jatsRefType": "fig"
                 },
                 {
                   "type": "Text",
@@ -7978,7 +7990,8 @@ expression: article
                       }
                     }
                   ],
-                  "target": "#fig1"
+                  "target": "#fig1",
+                  "jatsRefType": "fig"
                 },
                 {
                   "type": "Text",
@@ -8031,7 +8044,8 @@ expression: article
                       }
                     }
                   ],
-                  "target": "#fig1"
+                  "target": "#fig1",
+                  "jatsRefType": "fig"
                 },
                 {
                   "type": "Text",
@@ -8045,6 +8059,7 @@ expression: article
         },
         {
           "type": "Section",
+          "id": "s2-2",
           "content": [
             {
               "type": "Heading",
@@ -8245,7 +8260,8 @@ expression: article
                       }
                     }
                   ],
-                  "target": "#fig2s1"
+                  "target": "#fig2s1",
+                  "jatsRefType": "fig"
                 },
                 {
                   "type": "Text",
@@ -8263,7 +8279,8 @@ expression: article
                       }
                     }
                   ],
-                  "target": "#fig2s1"
+                  "target": "#fig2s1",
+                  "jatsRefType": "fig"
                 },
                 {
                   "type": "Text",
@@ -8299,7 +8316,8 @@ expression: article
                       }
                     }
                   ],
-                  "target": "#fig2s2"
+                  "target": "#fig2s2",
+                  "jatsRefType": "fig"
                 },
                 {
                   "type": "Text",
@@ -8317,7 +8335,8 @@ expression: article
                       }
                     }
                   ],
-                  "target": "#fig2s2"
+                  "target": "#fig2s2",
+                  "jatsRefType": "fig"
                 },
                 {
                   "type": "Text",
@@ -8520,7 +8539,8 @@ expression: article
                       }
                     }
                   ],
-                  "target": "#fig2"
+                  "target": "#fig2",
+                  "jatsRefType": "fig"
                 },
                 {
                   "type": "Text",
@@ -8538,7 +8558,8 @@ expression: article
                       }
                     }
                   ],
-                  "target": "#fig2"
+                  "target": "#fig2",
+                  "jatsRefType": "fig"
                 },
                 {
                   "type": "Text",
@@ -8590,7 +8611,8 @@ expression: article
                       }
                     }
                   ],
-                  "target": "#fig2s3"
+                  "target": "#fig2s3",
+                  "jatsRefType": "fig"
                 },
                 {
                   "type": "Text",
@@ -8876,7 +8898,8 @@ expression: article
                               }
                             }
                           ],
-                          "target": "#fig2"
+                          "target": "#fig2",
+                          "jatsRefType": "fig"
                         },
                         {
                           "type": "Text",
@@ -8927,7 +8950,8 @@ expression: article
                               }
                             }
                           ],
-                          "target": "#fig2"
+                          "target": "#fig2",
+                          "jatsRefType": "fig"
                         },
                         {
                           "type": "Text",
@@ -8967,7 +8991,8 @@ expression: article
                               }
                             }
                           ],
-                          "target": "#fig2"
+                          "target": "#fig2",
+                          "jatsRefType": "fig"
                         },
                         {
                           "type": "Text",
@@ -9007,7 +9032,8 @@ expression: article
                               }
                             }
                           ],
-                          "target": "#fig2"
+                          "target": "#fig2",
+                          "jatsRefType": "fig"
                         },
                         {
                           "type": "Text",
@@ -9047,7 +9073,8 @@ expression: article
                               }
                             }
                           ],
-                          "target": "#fig2"
+                          "target": "#fig2",
+                          "jatsRefType": "fig"
                         },
                         {
                           "type": "Text",
@@ -9087,7 +9114,8 @@ expression: article
                               }
                             }
                           ],
-                          "target": "#fig2"
+                          "target": "#fig2",
+                          "jatsRefType": "fig"
                         },
                         {
                           "type": "Text",
@@ -9127,7 +9155,8 @@ expression: article
                               }
                             }
                           ],
-                          "target": "#fig2"
+                          "target": "#fig2",
+                          "jatsRefType": "fig"
                         },
                         {
                           "type": "Text",
@@ -9167,7 +9196,8 @@ expression: article
                               }
                             }
                           ],
-                          "target": "#fig2"
+                          "target": "#fig2",
+                          "jatsRefType": "fig"
                         },
                         {
                           "type": "Text",
@@ -9772,7 +9802,8 @@ expression: article
                               }
                             }
                           ],
-                          "target": "#fig2s2"
+                          "target": "#fig2s2",
+                          "jatsRefType": "fig"
                         },
                         {
                           "type": "Text",
@@ -9812,7 +9843,8 @@ expression: article
                               }
                             }
                           ],
-                          "target": "#fig2s2"
+                          "target": "#fig2s2",
+                          "jatsRefType": "fig"
                         },
                         {
                           "type": "Text",
@@ -9852,7 +9884,8 @@ expression: article
                               }
                             }
                           ],
-                          "target": "#fig2s2"
+                          "target": "#fig2s2",
+                          "jatsRefType": "fig"
                         },
                         {
                           "type": "Text",
@@ -9892,7 +9925,8 @@ expression: article
                               }
                             }
                           ],
-                          "target": "#fig2s2"
+                          "target": "#fig2s2",
+                          "jatsRefType": "fig"
                         },
                         {
                           "type": "Text",
@@ -9932,7 +9966,8 @@ expression: article
                               }
                             }
                           ],
-                          "target": "#fig2s2"
+                          "target": "#fig2s2",
+                          "jatsRefType": "fig"
                         },
                         {
                           "type": "Text",
@@ -9972,7 +10007,8 @@ expression: article
                               }
                             }
                           ],
-                          "target": "#fig2s2"
+                          "target": "#fig2s2",
+                          "jatsRefType": "fig"
                         },
                         {
                           "type": "Text",
@@ -10012,7 +10048,8 @@ expression: article
                               }
                             }
                           ],
-                          "target": "#fig2s2"
+                          "target": "#fig2s2",
+                          "jatsRefType": "fig"
                         },
                         {
                           "type": "Text",
@@ -10052,7 +10089,8 @@ expression: article
                               }
                             }
                           ],
-                          "target": "#fig2s2"
+                          "target": "#fig2s2",
+                          "jatsRefType": "fig"
                         },
                         {
                           "type": "Text",
@@ -10092,7 +10130,8 @@ expression: article
                               }
                             }
                           ],
-                          "target": "#fig2s2"
+                          "target": "#fig2s2",
+                          "jatsRefType": "fig"
                         },
                         {
                           "type": "Text",
@@ -10132,7 +10171,8 @@ expression: article
                               }
                             }
                           ],
-                          "target": "#fig2s2"
+                          "target": "#fig2s2",
+                          "jatsRefType": "fig"
                         },
                         {
                           "type": "Text",
@@ -10378,7 +10418,8 @@ expression: article
                       }
                     }
                   ],
-                  "target": "#fig2"
+                  "target": "#fig2",
+                  "jatsRefType": "fig"
                 },
                 {
                   "type": "Text",
@@ -10396,7 +10437,8 @@ expression: article
                       }
                     }
                   ],
-                  "target": "#fig2s3"
+                  "target": "#fig2s3",
+                  "jatsRefType": "fig"
                 },
                 {
                   "type": "Text",
@@ -10410,6 +10452,7 @@ expression: article
         },
         {
           "type": "Section",
+          "id": "s2-3",
           "content": [
             {
               "type": "Heading",
@@ -10513,7 +10556,8 @@ expression: article
                       }
                     }
                   ],
-                  "target": "#fig3"
+                  "target": "#fig3",
+                  "jatsRefType": "fig"
                 },
                 {
                   "type": "Text",
@@ -10548,7 +10592,8 @@ expression: article
                       }
                     }
                   ],
-                  "target": "#fig3"
+                  "target": "#fig3",
+                  "jatsRefType": "fig"
                 },
                 {
                   "type": "Text",
@@ -10583,7 +10628,8 @@ expression: article
                       }
                     }
                   ],
-                  "target": "#fig2"
+                  "target": "#fig2",
+                  "jatsRefType": "fig"
                 },
                 {
                   "type": "Text",
@@ -10635,7 +10681,8 @@ expression: article
                       }
                     }
                   ],
-                  "target": "#fig3"
+                  "target": "#fig3",
+                  "jatsRefType": "fig"
                 },
                 {
                   "type": "Text",
@@ -10989,7 +11036,8 @@ expression: article
                               }
                             }
                           ],
-                          "target": "#fig3"
+                          "target": "#fig3",
+                          "jatsRefType": "fig"
                         },
                         {
                           "type": "Text",
@@ -11029,7 +11077,8 @@ expression: article
                               }
                             }
                           ],
-                          "target": "#fig3"
+                          "target": "#fig3",
+                          "jatsRefType": "fig"
                         },
                         {
                           "type": "Text",
@@ -11069,7 +11118,8 @@ expression: article
                               }
                             }
                           ],
-                          "target": "#fig3"
+                          "target": "#fig3",
+                          "jatsRefType": "fig"
                         },
                         {
                           "type": "Text",
@@ -11109,7 +11159,8 @@ expression: article
                               }
                             }
                           ],
-                          "target": "#fig3"
+                          "target": "#fig3",
+                          "jatsRefType": "fig"
                         },
                         {
                           "type": "Text",
@@ -11149,7 +11200,8 @@ expression: article
                               }
                             }
                           ],
-                          "target": "#fig3"
+                          "target": "#fig3",
+                          "jatsRefType": "fig"
                         },
                         {
                           "type": "Text",
@@ -11189,7 +11241,8 @@ expression: article
                               }
                             }
                           ],
-                          "target": "#fig3"
+                          "target": "#fig3",
+                          "jatsRefType": "fig"
                         },
                         {
                           "type": "Text",
@@ -11229,7 +11282,8 @@ expression: article
                               }
                             }
                           ],
-                          "target": "#fig3"
+                          "target": "#fig3",
+                          "jatsRefType": "fig"
                         },
                         {
                           "type": "Text",
@@ -11269,7 +11323,8 @@ expression: article
                               }
                             }
                           ],
-                          "target": "#fig3"
+                          "target": "#fig3",
+                          "jatsRefType": "fig"
                         },
                         {
                           "type": "Text",
@@ -11309,7 +11364,8 @@ expression: article
                               }
                             }
                           ],
-                          "target": "#fig3"
+                          "target": "#fig3",
+                          "jatsRefType": "fig"
                         },
                         {
                           "type": "Text",
@@ -11349,7 +11405,8 @@ expression: article
                               }
                             }
                           ],
-                          "target": "#fig3"
+                          "target": "#fig3",
+                          "jatsRefType": "fig"
                         },
                         {
                           "type": "Text",
@@ -11510,7 +11567,8 @@ expression: article
                               }
                             }
                           ],
-                          "target": "#fig3s1"
+                          "target": "#fig3s1",
+                          "jatsRefType": "fig"
                         },
                         {
                           "type": "Text",
@@ -11550,7 +11608,8 @@ expression: article
                               }
                             }
                           ],
-                          "target": "#fig3s1"
+                          "target": "#fig3s1",
+                          "jatsRefType": "fig"
                         },
                         {
                           "type": "Text",
@@ -11624,7 +11683,8 @@ expression: article
                       }
                     }
                   ],
-                  "target": "#fig3"
+                  "target": "#fig3",
+                  "jatsRefType": "fig"
                 },
                 {
                   "type": "Text",
@@ -11642,7 +11702,8 @@ expression: article
                       }
                     }
                   ],
-                  "target": "#fig2"
+                  "target": "#fig2",
+                  "jatsRefType": "fig"
                 },
                 {
                   "type": "Text",
@@ -11794,7 +11855,8 @@ expression: article
                       }
                     }
                   ],
-                  "target": "#fig3s1"
+                  "target": "#fig3s1",
+                  "jatsRefType": "fig"
                 },
                 {
                   "type": "Text",
@@ -11826,6 +11888,7 @@ expression: article
         },
         {
           "type": "Section",
+          "id": "s2-4",
           "content": [
             {
               "type": "Heading",
@@ -11997,7 +12060,8 @@ expression: article
                       }
                     }
                   ],
-                  "target": "#fig4"
+                  "target": "#fig4",
+                  "jatsRefType": "fig"
                 },
                 {
                   "type": "Text",
@@ -12032,7 +12096,8 @@ expression: article
                       }
                     }
                   ],
-                  "target": "#fig4"
+                  "target": "#fig4",
+                  "jatsRefType": "fig"
                 },
                 {
                   "type": "Text",
@@ -12067,7 +12132,8 @@ expression: article
                       }
                     }
                   ],
-                  "target": "#fig4"
+                  "target": "#fig4",
+                  "jatsRefType": "fig"
                 },
                 {
                   "type": "Text",
@@ -12181,7 +12247,8 @@ expression: article
                           }
                         }
                       ],
-                      "target": "#fig1"
+                      "target": "#fig1",
+                      "jatsRefType": "fig"
                     },
                     {
                       "type": "Text",
@@ -12320,7 +12387,8 @@ expression: article
                               }
                             }
                           ],
-                          "target": "#fig4"
+                          "target": "#fig4",
+                          "jatsRefType": "fig"
                         },
                         {
                           "type": "Text",
@@ -12360,7 +12428,8 @@ expression: article
                               }
                             }
                           ],
-                          "target": "#fig4"
+                          "target": "#fig4",
+                          "jatsRefType": "fig"
                         },
                         {
                           "type": "Text",
@@ -12400,7 +12469,8 @@ expression: article
                               }
                             }
                           ],
-                          "target": "#fig4"
+                          "target": "#fig4",
+                          "jatsRefType": "fig"
                         },
                         {
                           "type": "Text",
@@ -12440,7 +12510,8 @@ expression: article
                               }
                             }
                           ],
-                          "target": "#fig4"
+                          "target": "#fig4",
+                          "jatsRefType": "fig"
                         },
                         {
                           "type": "Text",
@@ -12480,7 +12551,8 @@ expression: article
                               }
                             }
                           ],
-                          "target": "#fig4"
+                          "target": "#fig4",
+                          "jatsRefType": "fig"
                         },
                         {
                           "type": "Text",
@@ -12520,7 +12592,8 @@ expression: article
                               }
                             }
                           ],
-                          "target": "#fig4"
+                          "target": "#fig4",
+                          "jatsRefType": "fig"
                         },
                         {
                           "type": "Text",
@@ -12545,6 +12618,7 @@ expression: article
         },
         {
           "type": "Section",
+          "id": "s2-5",
           "content": [
             {
               "type": "Heading",
@@ -12630,7 +12704,8 @@ expression: article
                       }
                     }
                   ],
-                  "target": "#fig5s1"
+                  "target": "#fig5s1",
+                  "jatsRefType": "fig"
                 },
                 {
                   "type": "Text",
@@ -12648,7 +12723,8 @@ expression: article
                       }
                     }
                   ],
-                  "target": "#fig1"
+                  "target": "#fig1",
+                  "jatsRefType": "fig"
                 },
                 {
                   "type": "Text",
@@ -12677,7 +12753,8 @@ expression: article
                       }
                     }
                   ],
-                  "target": "#fig5"
+                  "target": "#fig5",
+                  "jatsRefType": "fig"
                 },
                 {
                   "type": "Text",
@@ -12712,7 +12789,8 @@ expression: article
                       }
                     }
                   ],
-                  "target": "#fig5"
+                  "target": "#fig5",
+                  "jatsRefType": "fig"
                 },
                 {
                   "type": "Text",
@@ -12747,7 +12825,8 @@ expression: article
                       }
                     }
                   ],
-                  "target": "#fig5"
+                  "target": "#fig5",
+                  "jatsRefType": "fig"
                 },
                 {
                   "type": "Text",
@@ -12765,7 +12844,8 @@ expression: article
                       }
                     }
                   ],
-                  "target": "#fig2"
+                  "target": "#fig2",
+                  "jatsRefType": "fig"
                 },
                 {
                   "type": "Text",
@@ -13051,7 +13131,8 @@ expression: article
                               }
                             }
                           ],
-                          "target": "#fig5"
+                          "target": "#fig5",
+                          "jatsRefType": "fig"
                         },
                         {
                           "type": "Text",
@@ -13102,7 +13183,8 @@ expression: article
                               }
                             }
                           ],
-                          "target": "#fig5"
+                          "target": "#fig5",
+                          "jatsRefType": "fig"
                         },
                         {
                           "type": "Text",
@@ -13142,7 +13224,8 @@ expression: article
                               }
                             }
                           ],
-                          "target": "#fig3"
+                          "target": "#fig3",
+                          "jatsRefType": "fig"
                         },
                         {
                           "type": "Text",
@@ -13182,7 +13265,8 @@ expression: article
                               }
                             }
                           ],
-                          "target": "#fig3"
+                          "target": "#fig3",
+                          "jatsRefType": "fig"
                         },
                         {
                           "type": "Text",
@@ -13222,7 +13306,8 @@ expression: article
                               }
                             }
                           ],
-                          "target": "#fig3"
+                          "target": "#fig3",
+                          "jatsRefType": "fig"
                         },
                         {
                           "type": "Text",
@@ -13262,7 +13347,8 @@ expression: article
                               }
                             }
                           ],
-                          "target": "#fig3"
+                          "target": "#fig3",
+                          "jatsRefType": "fig"
                         },
                         {
                           "type": "Text",
@@ -13302,7 +13388,8 @@ expression: article
                               }
                             }
                           ],
-                          "target": "#fig3"
+                          "target": "#fig3",
+                          "jatsRefType": "fig"
                         },
                         {
                           "type": "Text",
@@ -13342,7 +13429,8 @@ expression: article
                               }
                             }
                           ],
-                          "target": "#fig3"
+                          "target": "#fig3",
+                          "jatsRefType": "fig"
                         },
                         {
                           "type": "Text",
@@ -13452,7 +13540,8 @@ expression: article
                               }
                             }
                           ],
-                          "target": "#fig5s1"
+                          "target": "#fig5s1",
+                          "jatsRefType": "fig"
                         },
                         {
                           "type": "Text",
@@ -13492,7 +13581,8 @@ expression: article
                               }
                             }
                           ],
-                          "target": "#fig5s1"
+                          "target": "#fig5s1",
+                          "jatsRefType": "fig"
                         },
                         {
                           "type": "Text",
@@ -13532,7 +13622,8 @@ expression: article
                               }
                             }
                           ],
-                          "target": "#fig5s1"
+                          "target": "#fig5s1",
+                          "jatsRefType": "fig"
                         },
                         {
                           "type": "Text",
@@ -13572,7 +13663,8 @@ expression: article
                               }
                             }
                           ],
-                          "target": "#fig5s1"
+                          "target": "#fig5s1",
+                          "jatsRefType": "fig"
                         },
                         {
                           "type": "Text",
@@ -13698,7 +13790,8 @@ expression: article
                       }
                     }
                   ],
-                  "target": "#fig2s1"
+                  "target": "#fig2s1",
+                  "jatsRefType": "fig"
                 },
                 {
                   "type": "Text",
@@ -13767,7 +13860,8 @@ expression: article
                       }
                     }
                   ],
-                  "target": "#fig2"
+                  "target": "#fig2",
+                  "jatsRefType": "fig"
                 },
                 {
                   "type": "Text",
@@ -13785,7 +13879,8 @@ expression: article
                       }
                     }
                   ],
-                  "target": "#fig5"
+                  "target": "#fig5",
+                  "jatsRefType": "fig"
                 },
                 {
                   "type": "Text",
@@ -13803,7 +13898,8 @@ expression: article
                       }
                     }
                   ],
-                  "target": "#fig5"
+                  "target": "#fig5",
+                  "jatsRefType": "fig"
                 },
                 {
                   "type": "Text",
@@ -13821,7 +13917,8 @@ expression: article
                       }
                     }
                   ],
-                  "target": "#table1"
+                  "target": "#table1",
+                  "jatsRefType": "table"
                 },
                 {
                   "type": "Text",
@@ -13839,7 +13936,8 @@ expression: article
                       }
                     }
                   ],
-                  "target": "#fig5"
+                  "target": "#fig5",
+                  "jatsRefType": "fig"
                 },
                 {
                   "type": "Text",
@@ -13919,10 +14017,17 @@ expression: article
                               }
                             },
                             {
-                              "type": "Text",
-                              "value": {
-                                "string": "*"
-                              }
+                              "type": "Link",
+                              "content": [
+                                {
+                                  "type": "Text",
+                                  "value": {
+                                    "string": "*"
+                                  }
+                                }
+                              ],
+                              "target": "#table1fn1",
+                              "jatsRefType": "table-fn"
                             }
                           ]
                         }
@@ -13976,15 +14081,34 @@ expression: article
                               }
                             },
                             {
-                              "type": "Superscript",
+                              "type": "Link",
                               "content": [
                                 {
                                   "type": "Text",
                                   "value": {
-                                    "string": "†"
+                                    "string": "\n                  "
+                                  }
+                                },
+                                {
+                                  "type": "Superscript",
+                                  "content": [
+                                    {
+                                      "type": "Text",
+                                      "value": {
+                                        "string": "†"
+                                      }
+                                    }
+                                  ]
+                                },
+                                {
+                                  "type": "Text",
+                                  "value": {
+                                    "string": "\n                "
                                   }
                                 }
-                              ]
+                              ],
+                              "target": "#table1fn2",
+                              "jatsRefType": "table-fn"
                             }
                           ]
                         }
@@ -14012,7 +14136,8 @@ expression: article
                                   }
                                 }
                               ],
-                              "target": "#fig2"
+                              "target": "#fig2",
+                              "jatsRefType": "fig"
                             }
                           ]
                         }
@@ -14402,7 +14527,8 @@ expression: article
                                   }
                                 }
                               ],
-                              "target": "#fig3"
+                              "target": "#fig3",
+                              "jatsRefType": "fig"
                             }
                           ]
                         }
@@ -14792,7 +14918,8 @@ expression: article
                                   }
                                 }
                               ],
-                              "target": "#fig2"
+                              "target": "#fig2",
+                              "jatsRefType": "fig"
                             }
                           ]
                         }
@@ -15182,7 +15309,8 @@ expression: article
                                   }
                                 }
                               ],
-                              "target": "#fig3"
+                              "target": "#fig3",
+                              "jatsRefType": "fig"
                             }
                           ]
                         }
@@ -15434,7 +15562,8 @@ expression: article
                                   }
                                 }
                               ],
-                              "target": "#fig2"
+                              "target": "#fig2",
+                              "jatsRefType": "fig"
                             }
                           ]
                         }
@@ -15824,7 +15953,8 @@ expression: article
                                   }
                                 }
                               ],
-                              "target": "#fig3"
+                              "target": "#fig3",
+                              "jatsRefType": "fig"
                             }
                           ]
                         }
@@ -16076,7 +16206,8 @@ expression: article
                                   }
                                 }
                               ],
-                              "target": "#fig5"
+                              "target": "#fig5",
+                              "jatsRefType": "fig"
                             }
                           ]
                         }
@@ -16334,7 +16465,8 @@ expression: article
                                   }
                                 }
                               ],
-                              "target": "#fig5"
+                              "target": "#fig5",
+                              "jatsRefType": "fig"
                             }
                           ]
                         }
@@ -16586,7 +16718,8 @@ expression: article
                                   }
                                 }
                               ],
-                              "target": "#fig6s3"
+                              "target": "#fig6s3",
+                              "jatsRefType": "fig"
                             }
                           ]
                         }
@@ -16973,7 +17106,8 @@ expression: article
                       }
                     }
                   ],
-                  "target": "#fig5"
+                  "target": "#fig5",
+                  "jatsRefType": "fig"
                 },
                 {
                   "type": "Text",
@@ -16991,7 +17125,8 @@ expression: article
                       }
                     }
                   ],
-                  "target": "#table1"
+                  "target": "#table1",
+                  "jatsRefType": "table"
                 },
                 {
                   "type": "Text",
@@ -17009,7 +17144,8 @@ expression: article
                       }
                     }
                   ],
-                  "target": "#fig5"
+                  "target": "#fig5",
+                  "jatsRefType": "fig"
                 },
                 {
                   "type": "Text",
@@ -17023,6 +17159,7 @@ expression: article
         },
         {
           "type": "Section",
+          "id": "s2-6",
           "content": [
             {
               "type": "Heading",
@@ -17159,7 +17296,8 @@ expression: article
                       }
                     }
                   ],
-                  "target": "#fig6s1"
+                  "target": "#fig6s1",
+                  "jatsRefType": "fig"
                 },
                 {
                   "type": "Text",
@@ -17228,7 +17366,8 @@ expression: article
                       }
                     }
                   ],
-                  "target": "#fig6s1"
+                  "target": "#fig6s1",
+                  "jatsRefType": "fig"
                 },
                 {
                   "type": "Text",
@@ -17257,7 +17396,8 @@ expression: article
                       }
                     }
                   ],
-                  "target": "#fig6s2"
+                  "target": "#fig6s2",
+                  "jatsRefType": "fig"
                 },
                 {
                   "type": "Text",
@@ -17303,7 +17443,8 @@ expression: article
                       }
                     }
                   ],
-                  "target": "#fig6"
+                  "target": "#fig6",
+                  "jatsRefType": "fig"
                 },
                 {
                   "type": "Text",
@@ -17321,7 +17462,8 @@ expression: article
                       }
                     }
                   ],
-                  "target": "#fig6"
+                  "target": "#fig6",
+                  "jatsRefType": "fig"
                 },
                 {
                   "type": "Text",
@@ -17339,7 +17481,8 @@ expression: article
                       }
                     }
                   ],
-                  "target": "#fig6"
+                  "target": "#fig6",
+                  "jatsRefType": "fig"
                 },
                 {
                   "type": "Text",
@@ -17591,7 +17734,8 @@ expression: article
                               }
                             }
                           ],
-                          "target": "#fig6"
+                          "target": "#fig6",
+                          "jatsRefType": "fig"
                         },
                         {
                           "type": "Text",
@@ -17631,7 +17775,8 @@ expression: article
                               }
                             }
                           ],
-                          "target": "#fig6"
+                          "target": "#fig6",
+                          "jatsRefType": "fig"
                         },
                         {
                           "type": "Text",
@@ -17671,7 +17816,8 @@ expression: article
                               }
                             }
                           ],
-                          "target": "#fig6"
+                          "target": "#fig6",
+                          "jatsRefType": "fig"
                         },
                         {
                           "type": "Text",
@@ -17711,7 +17857,8 @@ expression: article
                               }
                             }
                           ],
-                          "target": "#fig6"
+                          "target": "#fig6",
+                          "jatsRefType": "fig"
                         },
                         {
                           "type": "Text",
@@ -17993,7 +18140,8 @@ expression: article
                               }
                             }
                           ],
-                          "target": "#fig6s2"
+                          "target": "#fig6s2",
+                          "jatsRefType": "fig"
                         },
                         {
                           "type": "Text",
@@ -18033,7 +18181,8 @@ expression: article
                               }
                             }
                           ],
-                          "target": "#fig6s2"
+                          "target": "#fig6s2",
+                          "jatsRefType": "fig"
                         },
                         {
                           "type": "Text",
@@ -18073,7 +18222,8 @@ expression: article
                               }
                             }
                           ],
-                          "target": "#fig6s2"
+                          "target": "#fig6s2",
+                          "jatsRefType": "fig"
                         },
                         {
                           "type": "Text",
@@ -18113,7 +18263,8 @@ expression: article
                               }
                             }
                           ],
-                          "target": "#fig6s2"
+                          "target": "#fig6s2",
+                          "jatsRefType": "fig"
                         },
                         {
                           "type": "Text",
@@ -18274,7 +18425,8 @@ expression: article
                               }
                             }
                           ],
-                          "target": "#fig6s3"
+                          "target": "#fig6s3",
+                          "jatsRefType": "fig"
                         },
                         {
                           "type": "Text",
@@ -18314,7 +18466,8 @@ expression: article
                               }
                             }
                           ],
-                          "target": "#fig6s3"
+                          "target": "#fig6s3",
+                          "jatsRefType": "fig"
                         },
                         {
                           "type": "Text",
@@ -18388,7 +18541,8 @@ expression: article
                       }
                     }
                   ],
-                  "target": "#fig6s3"
+                  "target": "#fig6s3",
+                  "jatsRefType": "fig"
                 },
                 {
                   "type": "Text",
@@ -18406,7 +18560,8 @@ expression: article
                       }
                     }
                   ],
-                  "target": "#table1"
+                  "target": "#table1",
+                  "jatsRefType": "table"
                 },
                 {
                   "type": "Text",
@@ -18420,6 +18575,7 @@ expression: article
         },
         {
           "type": "Section",
+          "id": "s2-7",
           "content": [
             {
               "type": "Heading",
@@ -18469,7 +18625,8 @@ expression: article
                       }
                     }
                   ],
-                  "target": "#fig7"
+                  "target": "#fig7",
+                  "jatsRefType": "fig"
                 },
                 {
                   "type": "Text",
@@ -18487,7 +18644,8 @@ expression: article
                       }
                     }
                   ],
-                  "target": "#fig7s1"
+                  "target": "#fig7s1",
+                  "jatsRefType": "fig"
                 },
                 {
                   "type": "Text",
@@ -18505,7 +18663,8 @@ expression: article
                       }
                     }
                   ],
-                  "target": "#fig6"
+                  "target": "#fig6",
+                  "jatsRefType": "fig"
                 },
                 {
                   "type": "Text",
@@ -18540,7 +18699,8 @@ expression: article
                       }
                     }
                   ],
-                  "target": "#fig7"
+                  "target": "#fig7",
+                  "jatsRefType": "fig"
                 },
                 {
                   "type": "Text",
@@ -18558,7 +18718,8 @@ expression: article
                       }
                     }
                   ],
-                  "target": "#fig7s1"
+                  "target": "#fig7s1",
+                  "jatsRefType": "fig"
                 },
                 {
                   "type": "Text",
@@ -18576,7 +18737,8 @@ expression: article
                       }
                     }
                   ],
-                  "target": "#fig7"
+                  "target": "#fig7",
+                  "jatsRefType": "fig"
                 },
                 {
                   "type": "Text",
@@ -18594,7 +18756,8 @@ expression: article
                       }
                     }
                   ],
-                  "target": "#fig7s1"
+                  "target": "#fig7s1",
+                  "jatsRefType": "fig"
                 },
                 {
                   "type": "Text",
@@ -18846,7 +19009,8 @@ expression: article
                               }
                             }
                           ],
-                          "target": "#fig7"
+                          "target": "#fig7",
+                          "jatsRefType": "fig"
                         },
                         {
                           "type": "Text",
@@ -18886,7 +19050,8 @@ expression: article
                               }
                             }
                           ],
-                          "target": "#fig7"
+                          "target": "#fig7",
+                          "jatsRefType": "fig"
                         },
                         {
                           "type": "Text",
@@ -18926,7 +19091,8 @@ expression: article
                               }
                             }
                           ],
-                          "target": "#fig7"
+                          "target": "#fig7",
+                          "jatsRefType": "fig"
                         },
                         {
                           "type": "Text",
@@ -18966,7 +19132,8 @@ expression: article
                               }
                             }
                           ],
-                          "target": "#fig7"
+                          "target": "#fig7",
+                          "jatsRefType": "fig"
                         },
                         {
                           "type": "Text",
@@ -19314,7 +19481,8 @@ expression: article
                               }
                             }
                           ],
-                          "target": "#fig7s1"
+                          "target": "#fig7s1",
+                          "jatsRefType": "fig"
                         },
                         {
                           "type": "Text",
@@ -19354,7 +19522,8 @@ expression: article
                               }
                             }
                           ],
-                          "target": "#fig7s1"
+                          "target": "#fig7s1",
+                          "jatsRefType": "fig"
                         },
                         {
                           "type": "Text",
@@ -19394,7 +19563,8 @@ expression: article
                               }
                             }
                           ],
-                          "target": "#fig7s1"
+                          "target": "#fig7s1",
+                          "jatsRefType": "fig"
                         },
                         {
                           "type": "Text",
@@ -19434,7 +19604,8 @@ expression: article
                               }
                             }
                           ],
-                          "target": "#fig7s1"
+                          "target": "#fig7s1",
+                          "jatsRefType": "fig"
                         },
                         {
                           "type": "Text",
@@ -19459,6 +19630,7 @@ expression: article
         },
         {
           "type": "Section",
+          "id": "s2-8",
           "content": [
             {
               "type": "Heading",
@@ -19759,7 +19931,8 @@ expression: article
                       }
                     }
                   ],
-                  "target": "#fig8"
+                  "target": "#fig8",
+                  "jatsRefType": "fig"
                 },
                 {
                   "type": "Text",
@@ -20136,7 +20309,8 @@ expression: article
                       }
                     }
                   ],
-                  "target": "#fig9"
+                  "target": "#fig9",
+                  "jatsRefType": "fig"
                 },
                 {
                   "type": "Text",
@@ -20205,6 +20379,7 @@ expression: article
     },
     {
       "type": "Section",
+      "id": "s3",
       "sectionType": "Discussion",
       "content": [
         {
@@ -20255,7 +20430,8 @@ expression: article
                   }
                 }
               ],
-              "target": "#fig10"
+              "target": "#fig10",
+              "jatsRefType": "fig"
             },
             {
               "type": "Text",
@@ -21127,6 +21303,7 @@ expression: article
     },
     {
       "type": "Section",
+      "id": "s4",
       "sectionType": "Materials",
       "content": [
         {
@@ -21143,6 +21320,7 @@ expression: article
         },
         {
           "type": "Section",
+          "id": "s4-1",
           "content": [
             {
               "type": "Heading",
@@ -21584,7 +21762,8 @@ expression: article
                       }
                     }
                   ],
-                  "target": "#supp1"
+                  "target": "#supp1",
+                  "jatsRefType": "supplementary-material"
                 },
                 {
                   "type": "Text",
@@ -21602,7 +21781,8 @@ expression: article
                       }
                     }
                   ],
-                  "target": "#supp1"
+                  "target": "#supp1",
+                  "jatsRefType": "supplementary-material"
                 },
                 {
                   "type": "Text",
@@ -21616,6 +21796,7 @@ expression: article
         },
         {
           "type": "Section",
+          "id": "s4-2",
           "content": [
             {
               "type": "Heading",
@@ -21689,6 +21870,7 @@ expression: article
         },
         {
           "type": "Section",
+          "id": "s4-3",
           "content": [
             {
               "type": "Heading",
@@ -21735,6 +21917,7 @@ expression: article
         },
         {
           "type": "Section",
+          "id": "s4-4",
           "content": [
             {
               "type": "Heading",
@@ -21781,6 +21964,7 @@ expression: article
         },
         {
           "type": "Section",
+          "id": "s4-5",
           "content": [
             {
               "type": "Heading",
@@ -21826,6 +22010,7 @@ expression: article
         },
         {
           "type": "Section",
+          "id": "s4-6",
           "content": [
             {
               "type": "Heading",
@@ -21907,6 +22092,7 @@ expression: article
         },
         {
           "type": "Section",
+          "id": "s4-7",
           "content": [
             {
               "type": "Heading",
@@ -21956,7 +22142,8 @@ expression: article
                       }
                     }
                   ],
-                  "target": "#table1"
+                  "target": "#table1",
+                  "jatsRefType": "table"
                 },
                 {
                   "type": "Text",
@@ -21972,6 +22159,7 @@ expression: article
     },
     {
       "type": "Section",
+      "id": "s5",
       "content": [
         {
           "type": "Heading",
@@ -22113,6 +22301,7 @@ expression: article
     },
     {
       "type": "Section",
+      "id": "s6",
       "sectionType": "SupplementaryMaterials",
       "content": [
         {
@@ -22170,6 +22359,7 @@ expression: article
     },
     {
       "type": "Section",
+      "id": "s7",
       "sectionType": "DataAvailability",
       "content": [
         {
@@ -22203,7 +22393,8 @@ expression: article
                   }
                 }
               ],
-              "target": "https://doi.org/10.5061/dryad.sj3tx96dv"
+              "target": "https://doi.org/10.5061/dryad.sj3tx96dv",
+              "jatsExtLinkType": "uri"
             },
             {
               "type": "Text",
@@ -22228,6 +22419,7 @@ expression: article
     },
     {
       "type": "Section",
+      "id": "ack",
       "sectionType": "Acknowledgements",
       "content": [
         {
@@ -22257,6 +22449,7 @@ expression: article
     },
     {
       "type": "Section",
+      "id": "appendix-1",
       "sectionType": "Appendix",
       "content": [
         {
@@ -22453,7 +22646,8 @@ expression: article
                               }
                             }
                           ],
-                          "target": "https://identifiers.org/RRID/RRID:AB_2801547"
+                          "target": "https://identifiers.org/RRID/RRID:AB_2801547",
+                          "jatsExtLinkType": "uri"
                         }
                       ]
                     }
@@ -22653,7 +22847,8 @@ expression: article
                               }
                             }
                           ],
-                          "target": "https://identifiers.org/RRID/RRID:AB_30256"
+                          "target": "https://identifiers.org/RRID/RRID:AB_30256",
+                          "jatsExtLinkType": "uri"
                         }
                       ]
                     }
@@ -22762,7 +22957,8 @@ expression: article
                               }
                             }
                           ],
-                          "target": "https://identifiers.org/RRID/RRID:AB_30359"
+                          "target": "https://identifiers.org/RRID/RRID:AB_30359",
+                          "jatsExtLinkType": "uri"
                         }
                       ]
                     }
@@ -23676,7 +23872,8 @@ expression: article
                               }
                             }
                           ],
-                          "target": "#supp1"
+                          "target": "#supp1",
+                          "jatsRefType": "supplementary-material"
                         },
                         {
                           "type": "Text",

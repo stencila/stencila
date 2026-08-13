@@ -3415,6 +3415,7 @@ expression: article
   "content": [
     {
       "type": "Section",
+      "id": "Sec1",
       "sectionType": "Introduction",
       "content": [
         {
@@ -3584,7 +3585,8 @@ expression: article
                   }
                 }
               ],
-              "target": "#MOESM1"
+              "target": "#MOESM1",
+              "jatsRefType": "media"
             },
             {
               "type": "Text",
@@ -3730,7 +3732,8 @@ expression: article
                   }
                 }
               ],
-              "target": "#MOESM1"
+              "target": "#MOESM1",
+              "jatsRefType": "media"
             },
             {
               "type": "Text",
@@ -4446,6 +4449,7 @@ expression: article
     },
     {
       "type": "Section",
+      "id": "Sec2",
       "sectionType": "Results",
       "content": [
         {
@@ -4462,6 +4466,7 @@ expression: article
         },
         {
           "type": "Section",
+          "id": "Sec3",
           "content": [
             {
               "type": "Heading",
@@ -4511,7 +4516,8 @@ expression: article
                       }
                     }
                   ],
-                  "target": "#MOESM1"
+                  "target": "#MOESM1",
+                  "jatsRefType": "media"
                 },
                 {
                   "type": "Text",
@@ -4525,6 +4531,7 @@ expression: article
         },
         {
           "type": "Section",
+          "id": "Sec4",
           "content": [
             {
               "type": "Heading",
@@ -4557,7 +4564,8 @@ expression: article
                       }
                     }
                   ],
-                  "target": "#Fig1"
+                  "target": "#Fig1",
+                  "jatsRefType": "fig"
                 },
                 {
                   "type": "Text",
@@ -4575,7 +4583,8 @@ expression: article
                       }
                     }
                   ],
-                  "target": "#Fig1"
+                  "target": "#Fig1",
+                  "jatsRefType": "fig"
                 },
                 {
                   "type": "Text",
@@ -4610,7 +4619,8 @@ expression: article
                       }
                     }
                   ],
-                  "target": "#Tab1"
+                  "target": "#Tab1",
+                  "jatsRefType": "table"
                 },
                 {
                   "type": "Text",
@@ -4628,7 +4638,8 @@ expression: article
                       }
                     }
                   ],
-                  "target": "#Tab1"
+                  "target": "#Tab1",
+                  "jatsRefType": "table"
                 },
                 {
                   "type": "Text",
@@ -7886,6 +7897,7 @@ expression: article
         },
         {
           "type": "Section",
+          "id": "Sec5",
           "content": [
             {
               "type": "Heading",
@@ -7918,7 +7930,8 @@ expression: article
                       }
                     }
                   ],
-                  "target": "#Fig2"
+                  "target": "#Fig2",
+                  "jatsRefType": "fig"
                 },
                 {
                   "type": "Text",
@@ -8108,7 +8121,8 @@ expression: article
                       }
                     }
                   ],
-                  "target": "#Fig2"
+                  "target": "#Fig2",
+                  "jatsRefType": "fig"
                 },
                 {
                   "type": "Text",
@@ -8126,7 +8140,8 @@ expression: article
                       }
                     }
                   ],
-                  "target": "#Fig1"
+                  "target": "#Fig1",
+                  "jatsRefType": "fig"
                 },
                 {
                   "type": "Text",
@@ -8144,7 +8159,8 @@ expression: article
                       }
                     }
                   ],
-                  "target": "#Fig2"
+                  "target": "#Fig2",
+                  "jatsRefType": "fig"
                 },
                 {
                   "type": "Text",
@@ -8162,7 +8178,8 @@ expression: article
                       }
                     }
                   ],
-                  "target": "#Fig2"
+                  "target": "#Fig2",
+                  "jatsRefType": "fig"
                 },
                 {
                   "type": "Text",
@@ -8180,7 +8197,8 @@ expression: article
                       }
                     }
                   ],
-                  "target": "#Tab2"
+                  "target": "#Tab2",
+                  "jatsRefType": "table"
                 },
                 {
                   "type": "Text",
@@ -8198,7 +8216,8 @@ expression: article
                       }
                     }
                   ],
-                  "target": "#Tab2"
+                  "target": "#Tab2",
+                  "jatsRefType": "table"
                 },
                 {
                   "type": "Text",
@@ -8216,7 +8235,8 @@ expression: article
                       }
                     }
                   ],
-                  "target": "#Tab2"
+                  "target": "#Tab2",
+                  "jatsRefType": "table"
                 },
                 {
                   "type": "Text",
@@ -8234,7 +8254,8 @@ expression: article
                       }
                     }
                   ],
-                  "target": "#Tab2"
+                  "target": "#Tab2",
+                  "jatsRefType": "table"
                 },
                 {
                   "type": "Text",
@@ -16561,6 +16582,7 @@ expression: article
     },
     {
       "type": "Section",
+      "id": "Sec6",
       "sectionType": "Discussion",
       "content": [
         {
@@ -16577,6 +16599,7 @@ expression: article
         },
         {
           "type": "Section",
+          "id": "Sec7",
           "content": [
             {
               "type": "Heading",
@@ -16609,7 +16632,8 @@ expression: article
                       }
                     }
                   ],
-                  "target": "#Tab1"
+                  "target": "#Tab1",
+                  "jatsRefType": "table"
                 },
                 {
                   "type": "Text",
@@ -16627,7 +16651,8 @@ expression: article
                       }
                     }
                   ],
-                  "target": "#Tab2"
+                  "target": "#Tab2",
+                  "jatsRefType": "table"
                 },
                 {
                   "type": "Text",
@@ -16645,7 +16670,8 @@ expression: article
                       }
                     }
                   ],
-                  "target": "#Tab1"
+                  "target": "#Tab1",
+                  "jatsRefType": "table"
                 },
                 {
                   "type": "Text",
@@ -16663,7 +16689,8 @@ expression: article
                       }
                     }
                   ],
-                  "target": "#Tab2"
+                  "target": "#Tab2",
+                  "jatsRefType": "table"
                 },
                 {
                   "type": "Text",
@@ -16681,7 +16708,8 @@ expression: article
                       }
                     }
                   ],
-                  "target": "#Tab2"
+                  "target": "#Tab2",
+                  "jatsRefType": "table"
                 },
                 {
                   "type": "Text",
@@ -16740,7 +16768,8 @@ expression: article
                       }
                     }
                   ],
-                  "target": "#Tab2"
+                  "target": "#Tab2",
+                  "jatsRefType": "table"
                 },
                 {
                   "type": "Text",
@@ -16758,7 +16787,8 @@ expression: article
                       }
                     }
                   ],
-                  "target": "#Tab2"
+                  "target": "#Tab2",
+                  "jatsRefType": "table"
                 },
                 {
                   "type": "Text",
@@ -16776,7 +16806,8 @@ expression: article
                       }
                     }
                   ],
-                  "target": "#Fig1"
+                  "target": "#Fig1",
+                  "jatsRefType": "fig"
                 },
                 {
                   "type": "Text",
@@ -16790,6 +16821,7 @@ expression: article
         },
         {
           "type": "Section",
+          "id": "Sec8",
           "content": [
             {
               "type": "Heading",
@@ -16935,6 +16967,7 @@ expression: article
         },
         {
           "type": "Section",
+          "id": "Sec9",
           "content": [
             {
               "type": "Heading",
@@ -17115,6 +17148,7 @@ expression: article
         },
         {
           "type": "Section",
+          "id": "Sec10",
           "content": [
             {
               "type": "Heading",
@@ -17537,6 +17571,7 @@ expression: article
     },
     {
       "type": "Section",
+      "id": "Sec11",
       "sectionType": "Materials",
       "content": [
         {
@@ -17553,6 +17588,7 @@ expression: article
         },
         {
           "type": "Section",
+          "id": "Sec12",
           "content": [
             {
               "type": "Heading",
@@ -17804,6 +17840,7 @@ expression: article
         },
         {
           "type": "Section",
+          "id": "Sec13",
           "sectionType": "StatisticalAnalysis",
           "content": [
             {
@@ -18129,7 +18166,8 @@ expression: article
                       }
                     }
                   ],
-                  "target": "https://www.r-project.org"
+                  "target": "https://www.r-project.org",
+                  "jatsExtLinkType": "uri"
                 },
                 {
                   "type": "Text",
@@ -18145,6 +18183,7 @@ expression: article
     },
     {
       "type": "Section",
+      "id": "Sec14",
       "sectionType": "SupplementaryMaterials",
       "content": [
         {

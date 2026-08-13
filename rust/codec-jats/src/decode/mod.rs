@@ -62,7 +62,10 @@ pub fn decode(jats: &str, _options: Option<DecodeOptions>) -> Result<(Node, Deco
 /// Used for both so that a sub-article gets the same front matter, body, back
 /// matter and nesting treatment as the article containing it.
 fn decode_article(path: &str, root: &roxmltree::Node, losses: &mut Losses) -> Article {
-    let mut article = Article::default();
+    let mut article = Article {
+        id: root.attribute("id").map(String::from),
+        ..Default::default()
+    };
     let mut content = Vec::new();
     let mut notes = Vec::new();
     let mut parts = Vec::new();

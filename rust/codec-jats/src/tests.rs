@@ -1,10 +1,11 @@
 use pretty_assertions::assert_eq;
+use stencila_codec::Losses;
 use stencila_codec::eyre::bail;
 use stencila_codec::stencila_schema::{
-    Article, Author, Block, CreativeWorkType, CreativeWorkVariant, CreativeWorkVariantOrString,
-    Date, DateTime, Inline, IntegerOrString, Node, NoteType, Organization, Person,
-    PersonOrOrganization, Primitive, PropertyValue, PropertyValueOptions, PropertyValueOrString,
-    Reference, SectionType,
+    Article, Author, Block, CompilationDigest, CreativeWorkType, CreativeWorkVariant,
+    CreativeWorkVariantOrString, Date, DateTime, Figure, FigureOptions, Inline, IntegerOrString,
+    Link, Node, NoteType, Organization, Person, PersonOrOrganization, Primitive, PropertyValue,
+    PropertyValueOptions, PropertyValueOrString, Reference, SectionType,
     shortcuts::{art, aud, h1, img, p, sec, sti, t, vid},
 };
 use stencila_codec_text_trait::to_text;
@@ -1442,6 +1443,547 @@ async fn reference_container_conflicts_are_reported_without_overwriting_containe
     ] {
         assert!(labels.contains(&expected), "missing {expected}: {labels:?}");
     }
+
+    Ok(())
+}
+
+/// Encode compactly, which is what the cross reference tests inspect
+async fn to_compact_jats(node: &Node) -> Result<(String, Losses)> {
+    let (jats, info) = JatsCodec
+        .to_string(
+            node,
+            Some(EncodeOptions {
+                compact: Some(true),
+                ..Default::default()
+            }),
+        )
+        .await?;
+
+    Ok((jats, info.losses))
+}
+
+/// Internal links are encoded as `<xref>` with the `ref-type` of their target
+#[tokio::test]
+async fn internal_links_are_typed_cross_references() -> Result<()> {
+    let source = r#"
+        <article xmlns:xlink="http://www.w3.org/1999/xlink">
+          <body>
+            <sec id="s1">
+              <title>Methods</title>
+              <p>
+                See <xref ref-type="sec" rid="s1">Methods</xref>,
+                <xref ref-type="fig" rid="f1">Figure 1</xref>,
+                <xref ref-type="table" rid="t1">Table 1</xref>,
+                <xref ref-type="disp-formula" rid="e1">Equation 1</xref>,
+                <xref ref-type="supplementary-material" rid="sup1">File S1</xref>,
+                <xref ref-type="other" rid="b1">Box 1</xref> and
+                <ext-link ext-link-type="uri" xlink:href="https://example.org">a site</ext-link>.
+              </p>
+              <fig id="f1"><caption><p>A figure</p></caption></fig>
+              <table-wrap id="t1"><table><tbody><tr><td>Cell</td></tr></tbody></table></table-wrap>
+              <disp-formula id="e1"><math xmlns="http://www.w3.org/1998/Math/MathML"><mi>x</mi></math></disp-formula>
+              <supplementary-material id="sup1"><media xlink:href="s1.csv"/></supplementary-material>
+              <boxed-text id="b1"><p>A box</p></boxed-text>
+            </sec>
+          </body>
+        </article>
+    "#;
+
+    let (node, ..) = JatsCodec.from_str(source, None).await?;
+    let (jats, ..) = to_compact_jats(&node).await?;
+
+    for expected in [
+        r#"<xref ref-type="sec" rid="s1">Methods</xref>"#,
+        r#"<xref ref-type="fig" rid="f1">Figure 1</xref>"#,
+        r#"<xref ref-type="table" rid="t1">Table 1</xref>"#,
+        r#"<xref ref-type="disp-formula" rid="e1">Equation 1</xref>"#,
+        r#"<xref ref-type="supplementary-material" rid="sup1">File S1</xref>"#,
+        r#"<xref ref-type="other" rid="b1">Box 1</xref>"#,
+        r#"<ext-link ext-link-type="uri" xlink:href="https://example.org">a site</ext-link>"#,
+    ] {
+        assert!(jats.contains(expected), "missing {expected}: {jats}");
+    }
+
+    Ok(())
+}
+
+/// A `ref-type` that says more than the kind of its target node is retained
+#[tokio::test]
+async fn refined_cross_reference_types_are_retained() -> Result<()> {
+    let source = r#"
+        <article>
+          <body>
+            <table-wrap id="t1">
+              <table><tbody><tr><td>Cell<xref ref-type="table-fn" rid="tfn1">*</xref></td></tr></tbody></table>
+              <table-wrap-foot><fn id="tfn1"><p>A table footnote</p></fn></table-wrap-foot>
+            </table-wrap>
+          </body>
+        </article>
+    "#;
+
+    let (node, ..) = JatsCodec.from_str(source, None).await?;
+    let (jats, ..) = to_compact_jats(&node).await?;
+
+    assert!(
+        jats.contains(r#"<xref ref-type="table-fn" rid="tfn1">*</xref>"#),
+        "table footnote reference not retained: {jats}"
+    );
+
+    Ok(())
+}
+
+/// Advisory titles on cross references survive the round trip
+#[tokio::test]
+async fn cross_reference_titles_are_preserved() -> Result<()> {
+    let source = r#"
+        <article xmlns:xlink="http://www.w3.org/1999/xlink">
+          <body>
+            <p><xref ref-type="fig" rid="f1" xlink:title="Open figure">Figure 1</xref></p>
+            <fig id="f1"><caption><p>A figure</p></caption></fig>
+          </body>
+        </article>
+    "#;
+
+    let (node, info) = JatsCodec.from_str(source, None).await?;
+    let (jats, ..) = to_compact_jats(&node).await?;
+
+    assert!(
+        jats.contains(r#"<xref ref-type="fig" rid="f1" xlink:title="Open figure">Figure 1</xref>"#),
+        "cross-reference title not retained: {jats}"
+    );
+    let labels = info
+        .losses
+        .iter()
+        .map(|(label, ..)| label)
+        .collect::<Vec<_>>();
+    assert!(
+        !labels.iter().any(|label| label.ends_with("/@title")),
+        "cross-reference title reported as lost: {labels:?}"
+    );
+
+    Ok(())
+}
+
+/// URI link types survive even when the URI is relative
+#[tokio::test]
+async fn relative_uri_link_types_are_preserved() -> Result<()> {
+    let source = r#"
+        <article xmlns:xlink="http://www.w3.org/1999/xlink">
+          <body><p><ext-link ext-link-type="uri" xlink:href="page.html">next page</ext-link></p></body>
+        </article>
+    "#;
+
+    let (node, info) = JatsCodec.from_str(source, None).await?;
+    let (jats, losses) = to_compact_jats(&node).await?;
+
+    assert!(
+        jats.contains(
+            r#"<ext-link ext-link-type="uri" xlink:href="page.html">next page</ext-link>"#
+        ),
+        "relative URI type not retained: {jats}"
+    );
+    assert!(info.losses.is_empty(), "unexpected decode losses");
+    assert!(losses.is_empty(), "unexpected encode losses");
+
+    Ok(())
+}
+
+/// Publisher-specific external link types remain distinct from HTML relationships
+#[tokio::test]
+async fn custom_external_link_types_are_preserved() -> Result<()> {
+    let source = r#"
+        <article xmlns:xlink="http://www.w3.org/1999/xlink">
+          <body><p><ext-link ext-link-type="genbank" xlink:href="ABC123">record</ext-link></p></body>
+        </article>
+    "#;
+
+    let (node, info) = JatsCodec.from_str(source, None).await?;
+    let (jats, losses) = to_compact_jats(&node).await?;
+
+    assert!(
+        jats.contains(r#"<ext-link ext-link-type="genbank" xlink:href="ABC123">record</ext-link>"#),
+        "custom external link type was not retained: {jats}"
+    );
+    assert!(info.losses.is_empty(), "unexpected decode losses");
+    assert!(losses.is_empty(), "unexpected encode losses");
+
+    Ok(())
+}
+
+/// A cross reference to several targets keeps all of them
+#[tokio::test]
+async fn multiple_cross_reference_targets_are_preserved() -> Result<()> {
+    let source = r#"
+        <article>
+          <body>
+            <p>See <xref ref-type="fig" rid="f1 f2">Figures 1 and 2</xref></p>
+            <fig id="f1"><caption><p>First</p></caption></fig>
+            <fig id="f2"><caption><p>Second</p></caption></fig>
+          </body>
+        </article>
+    "#;
+
+    let (node, ..) = JatsCodec.from_str(source, None).await?;
+    let (jats, ..) = to_compact_jats(&node).await?;
+
+    assert!(
+        jats.contains(r#"<xref ref-type="fig" rid="f1 f2">Figures 1 and 2</xref>"#),
+        "multiple targets not preserved: {jats}"
+    );
+
+    Ok(())
+}
+
+/// A cross reference spanning unlike target kinds uses the general JATS type
+#[tokio::test]
+async fn mixed_cross_reference_targets_use_other_type() -> Result<()> {
+    let source = r#"
+        <article>
+          <body>
+            <p>See <xref ref-type="other" rid="f1 t1">these items</xref></p>
+            <fig id="f1"><caption><p>A figure</p></caption></fig>
+            <table-wrap id="t1"><table><tbody><tr><td>Cell</td></tr></tbody></table></table-wrap>
+          </body>
+        </article>
+    "#;
+
+    let (node, ..) = JatsCodec.from_str(source, None).await?;
+    let (jats, losses) = to_compact_jats(&node).await?;
+
+    assert!(
+        jats.contains(r#"<xref ref-type="other" rid="f1 t1">these items</xref>"#),
+        "mixed targets were falsely typed: {jats}"
+    );
+    assert!(losses.is_empty(), "unexpected encode losses");
+
+    Ok(())
+}
+
+/// The root article is an addressable cross-reference target
+#[tokio::test]
+async fn root_article_links_are_preserved() -> Result<()> {
+    let source = r#"
+        <article id="article1">
+          <body><p><xref ref-type="other" rid="article1">this article</xref></p></body>
+        </article>
+    "#;
+
+    let (node, ..) = JatsCodec.from_str(source, None).await?;
+    let (jats, losses) = to_compact_jats(&node).await?;
+
+    assert!(
+        jats.contains(r#"<xref ref-type="other" rid="article1">this article</xref>"#),
+        "root article link was not retained: {jats}"
+    );
+    assert!(losses.is_empty(), "unexpected encode losses");
+
+    Ok(())
+}
+
+/// Scheme cross references are retained as links to figures
+#[tokio::test]
+async fn scheme_cross_references_are_preserved() -> Result<()> {
+    let source = r#"
+        <article>
+          <body>
+            <p><xref ref-type="scheme" rid="f1">Scheme 1</xref></p>
+            <fig id="f1"><caption><p>A scheme</p></caption></fig>
+          </body>
+        </article>
+    "#;
+
+    let (node, info) = JatsCodec.from_str(source, None).await?;
+    let (jats, losses) = to_compact_jats(&node).await?;
+
+    assert!(
+        jats.contains(r#"<xref ref-type="scheme" rid="f1">Scheme 1</xref>"#),
+        "scheme cross-reference was not retained: {jats}"
+    );
+    assert!(info.losses.is_empty(), "unexpected decode losses");
+    assert!(losses.is_empty(), "unexpected encode losses");
+
+    Ok(())
+}
+
+/// Publisher-specific cross-reference types survive when their target resolves
+#[tokio::test]
+async fn custom_cross_reference_types_are_preserved() -> Result<()> {
+    let source = r#"
+        <article>
+          <body>
+            <p><xref ref-type="illustration" rid="f1">Illustration 1</xref></p>
+            <fig id="f1"><caption><p>An illustration</p></caption></fig>
+          </body>
+        </article>
+    "#;
+
+    let (node, info) = JatsCodec.from_str(source, None).await?;
+    let (jats, losses) = to_compact_jats(&node).await?;
+
+    assert!(
+        jats.contains(r#"<xref ref-type="illustration" rid="f1">Illustration 1</xref>"#),
+        "custom cross-reference type was not retained: {jats}"
+    );
+    assert!(info.losses.is_empty(), "unexpected decode losses");
+    assert!(losses.is_empty(), "unexpected encode losses");
+
+    Ok(())
+}
+
+/// A cross reference whose target is not in the document is not emitted
+#[tokio::test]
+async fn unresolved_cross_references_are_reported_not_emitted() -> Result<()> {
+    let source = r#"
+        <article>
+          <body>
+            <p>See <xref ref-type="fig" rid="missing">Figure 9</xref></p>
+          </body>
+        </article>
+    "#;
+
+    let (node, ..) = JatsCodec.from_str(source, None).await?;
+    let (jats, losses) = to_compact_jats(&node).await?;
+
+    assert!(
+        !jats.contains("rid=\"missing\""),
+        "dangling reference emitted: {jats}"
+    );
+    assert!(
+        jats.contains("<p>See Figure 9</p>"),
+        "reference text not retained: {jats}"
+    );
+
+    let labels = losses.iter().map(|(label, ..)| label).collect::<Vec<_>>();
+    assert!(
+        labels.contains(&"Link.target"),
+        "dropped target not reported: {labels:?}"
+    );
+
+    Ok(())
+}
+
+/// Relationships that cannot be represented on an internal cross reference are losses
+#[tokio::test]
+async fn unsupported_internal_link_relationships_are_reported() -> Result<()> {
+    let node = art([
+        p([Inline::Link(Link {
+            content: vec![t("Figure 1")],
+            target: "#f1".to_string(),
+            rel: Some("nofollow".to_string()),
+            ..Default::default()
+        })]),
+        Block::Figure(Figure {
+            id: Some("f1".to_string()),
+            ..Default::default()
+        }),
+    ]);
+
+    let (jats, losses) = to_compact_jats(&node).await?;
+    let labels = losses.iter().map(|(label, ..)| label).collect::<Vec<_>>();
+
+    assert!(
+        jats.contains(r#"<xref ref-type="fig" rid="f1">Figure 1</xref>"#),
+        "internal link not encoded: {jats}"
+    );
+    assert!(
+        labels.contains(&"Link.rel"),
+        "unsupported relationship not reported: {labels:?}"
+    );
+
+    Ok(())
+}
+
+/// Section ids survive so that cross references to them still resolve
+#[tokio::test]
+async fn section_ids_are_preserved() -> Result<()> {
+    let source = r#"
+        <article>
+          <body>
+            <sec id="s1"><p>An untitled wrapper section</p></sec>
+            <sec id="s2" sec-type="methods"><title>Methods</title><p>Method</p></sec>
+          </body>
+          <back>
+            <ack id="ack1"><p>Thanks</p></ack>
+            <app-group><app id="app1"><title>Appendix</title><p>Extra</p></app></app-group>
+          </back>
+        </article>
+    "#;
+
+    let (node, ..) = JatsCodec.from_str(source, None).await?;
+    let (jats, ..) = to_compact_jats(&node).await?;
+
+    for expected in [
+        r#"<sec id="s1">"#,
+        r#"<sec id="s2" sec-type="Methods">"#,
+        r#"<ack id="ack1">"#,
+        r#"<app id="app1">"#,
+    ] {
+        assert!(jats.contains(expected), "missing {expected}: {jats}");
+    }
+
+    Ok(())
+}
+
+/// Cross references to emitted article-part containers remain addressable
+#[tokio::test]
+async fn article_part_links_are_preserved() -> Result<()> {
+    let source = r#"
+        <article>
+          <body>
+            <p>See <xref ref-type="other" rid="sa1">the response</xref></p>
+          </body>
+          <sub-article id="sa1">
+            <front-stub><title-group><article-title>Author response</article-title></title-group></front-stub>
+            <body><p>Response text</p></body>
+          </sub-article>
+        </article>
+    "#;
+
+    let (node, ..) = JatsCodec.from_str(source, None).await?;
+    let (jats, losses) = to_compact_jats(&node).await?;
+
+    assert!(
+        jats.contains(r#"<xref ref-type="other" rid="sa1">the response</xref>"#),
+        "article-part reference not retained: {jats}"
+    );
+    let labels = losses.iter().map(|(label, ..)| label).collect::<Vec<_>>();
+    assert!(
+        !labels.contains(&"Link.target"),
+        "article-part target reported as lost: {labels:?}"
+    );
+
+    Ok(())
+}
+
+/// Cross reference types reflect the element used at the target's position
+#[tokio::test]
+async fn section_cross_reference_types_match_emitted_elements() -> Result<()> {
+    let source = r#"
+        <article>
+          <body>
+            <p>
+              See <xref ref-type="sec" rid="ack1">the acknowledgements</xref> and
+              <xref ref-type="sec" rid="app1">the nested appendix</xref>.
+            </p>
+            <sec id="outer">
+              <title>Outer section</title>
+              <sec id="app1" sec-type="appendix"><title>Nested appendix</title></sec>
+            </sec>
+          </body>
+          <back><ack id="ack1"><p>Thanks</p></ack></back>
+        </article>
+    "#;
+
+    let (node, ..) = JatsCodec.from_str(source, None).await?;
+    let (jats, ..) = to_compact_jats(&node).await?;
+
+    for expected in [
+        r#"<xref ref-type="ack" rid="ack1">the acknowledgements</xref>"#,
+        r#"<xref ref-type="sec" rid="app1">the nested appendix</xref>"#,
+    ] {
+        assert!(jats.contains(expected), "missing {expected}: {jats}");
+    }
+
+    Ok(())
+}
+
+/// Figure and table DOIs survive as `<object-id>` elements
+#[tokio::test]
+async fn object_identifiers_are_preserved() -> Result<()> {
+    let source = r#"
+        <article>
+          <body>
+            <fig id="f1">
+              <object-id pub-id-type="doi">10.1371/journal.pone.0332245.g001</object-id>
+              <caption><p>A figure</p></caption>
+            </fig>
+            <table-wrap id="t1">
+              <object-id pub-id-type="doi">10.1371/journal.pone.0332245.t001</object-id>
+              <table><tbody><tr><td>Cell</td></tr></tbody></table>
+            </table-wrap>
+          </body>
+        </article>
+    "#;
+
+    let (node, ..) = JatsCodec.from_str(source, None).await?;
+    let (jats, ..) = to_compact_jats(&node).await?;
+
+    for expected in [
+        r#"<object-id pub-id-type="doi">10.1371/journal.pone.0332245.g001</object-id>"#,
+        r#"<object-id pub-id-type="doi">10.1371/journal.pone.0332245.t001</object-id>"#,
+    ] {
+        assert!(jats.contains(expected), "missing {expected}: {jats}");
+    }
+
+    Ok(())
+}
+
+/// Additional figure or table DOIs are reported when only one can be retained
+#[tokio::test]
+async fn duplicate_object_dois_are_reported() -> Result<()> {
+    let source = r#"
+        <article>
+          <body>
+            <fig id="f1">
+              <object-id pub-id-type="doi">10.1000/first</object-id>
+              <object-id pub-id-type="doi">10.1000/second</object-id>
+            </fig>
+          </body>
+        </article>
+    "#;
+
+    let (node, info) = JatsCodec.from_str(source, None).await?;
+    let labels = info
+        .losses
+        .iter()
+        .map(|(label, ..)| label)
+        .collect::<Vec<_>>();
+    let (jats, ..) = to_compact_jats(&node).await?;
+
+    assert!(
+        jats.contains("10.1000/first"),
+        "first DOI was not retained: {jats}"
+    );
+    assert!(
+        !jats.contains("10.1000/second"),
+        "second DOI was retained: {jats}"
+    );
+    assert!(
+        labels.iter().any(|label| label.ends_with("/object-id")),
+        "discarded DOI was not reported: {labels:?}"
+    );
+
+    Ok(())
+}
+
+/// Every populated Figure property omitted from JATS is reported as a loss
+#[tokio::test]
+async fn custom_figure_encoder_reports_all_losses() -> Result<()> {
+    let node = art([Block::Figure(Figure {
+        id_automatically: Some(true),
+        label_automatically: Some(true),
+        options: Box::new(FigureOptions {
+            overlay_compiled: Some("<svg/>".to_string()),
+            compilation_digest: Some(CompilationDigest::new(1)),
+            ..Default::default()
+        }),
+        ..Default::default()
+    })]);
+
+    let (_, losses) = to_compact_jats(&node).await?;
+    let labels = losses.iter().map(|(label, ..)| label).collect::<Vec<_>>();
+
+    for expected in [
+        "Figure.idAutomatically",
+        "Figure.overlayCompiled",
+        "Figure.compilationDigest",
+    ] {
+        assert!(labels.contains(&expected), "missing {expected}: {labels:?}");
+    }
+    assert!(
+        !labels.contains(&"Figure.labelAutomatically"),
+        "derived label state should not be a loss: {labels:?}"
+    );
 
     Ok(())
 }

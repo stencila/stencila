@@ -35,7 +35,7 @@
     "elem": "figure"
   },
   "jats": {
-    "elem": "fig"
+    "derive": false
   },
   "markdown": {
     "derive": false

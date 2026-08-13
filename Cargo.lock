@@ -10682,6 +10682,7 @@ version = "0.0.0"
 dependencies = [
  "stencila-codec-info",
  "stencila-codec-jats-derive",
+ "strum 0.28.0",
 ]
 
 [[package]]

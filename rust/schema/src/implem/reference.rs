@@ -369,10 +369,10 @@ impl Reference {
                 context.push_attr("publication-type", publication_type);
             }
 
-            if let Some(authors) = &self.authors {
-                if !encode_person_group("author", authors, context, encode_reference_author) {
-                    context.add_loss("Reference.authors");
-                }
+            if let Some(authors) = &self.authors
+                && !encode_person_group("author", authors, context, encode_reference_author)
+            {
+                context.add_loss("Reference.authors");
             }
 
             let container = self.is_part_of.as_deref();

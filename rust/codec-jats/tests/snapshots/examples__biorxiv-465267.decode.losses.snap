@@ -2,7 +2,6 @@
 source: rust/codec-jats/tests/examples.rs
 expression: info.losses
 ---
-//article/back/ack/@id: 1
 //article/back/ack/p/@id: 1
 //article/back/ack/title/@id: 1
 //article/back/fn-group/@id: 1
@@ -25,24 +24,18 @@ expression: info.losses
 //article/back/ref-list/ref/citation/string-name/@name-style: 226
 //article/back/ref-list/ref/citation/string-name/@sortable: 226
 //article/back/ref-list/title: 1
-//article/back/sec/@id: 4
 //article/back/sec/p/@id: 2
-//article/back/sec/p/ext-link/@ext-link-type: 1
-//article/back/sec/p/ext-link/@id: 1
 //article/back/sec/p/ext-link/@ref: 1
 //article/back/sec/p/ext-link/@ref-type: 1
 //article/back/sec/p/ext-link/@rel: 1
 //article/back/sec/title/@id: 2
-//article/body/sec/@id: 9
 //article/body/sec/@rev-id: 2
 //article/body/sec/label: 4
 //article/body/sec/p/@id: 12
 //article/body/sec/p/italic/@toggle: 24
 //article/body/sec/p/sup/xref/@id: 47
 //article/body/sec/p/sup/xref/@rel-id: 47
-//article/body/sec/p/xref/@id: 13
 //article/body/sec/p/xref/@rel-id: 13
-//article/body/sec/sec/@id: 14
 //article/body/sec/sec/@rev-id: 7
 //article/body/sec/sec/fig/@fig-type: 7
 //article/body/sec/sec/fig/@orientation: 7
@@ -57,7 +50,6 @@ expression: info.losses
 //article/body/sec/sec/fig/p/sub/italic/@toggle: 8
 //article/body/sec/sec/fig/p/sup/xref/@id: 1
 //article/body/sec/sec/fig/p/sup/xref/@rel-id: 1
-//article/body/sec/sec/fig/p/xref/@id: 1
 //article/body/sec/sec/fig/p/xref/@rel-id: 1
 //article/body/sec/sec/fig/title/@id: 4
 //article/body/sec/sec/label: 7
@@ -67,8 +59,6 @@ expression: info.losses
 //article/body/sec/sec/p/disp-formula/graphic/@id: 3
 //article/body/sec/sec/p/disp-formula/graphic/@orientation: 3
 //article/body/sec/sec/p/disp-formula/graphic/@position: 3
-//article/body/sec/sec/p/ext-link/@ext-link-type: 3
-//article/body/sec/sec/p/ext-link/@id: 3
 //article/body/sec/sec/p/ext-link/@ref: 3
 //article/body/sec/sec/p/ext-link/@ref-type: 3
 //article/body/sec/sec/p/ext-link/@rel: 3
@@ -78,9 +68,7 @@ expression: info.losses
 //article/body/sec/sec/p/sub/italic/@toggle: 19
 //article/body/sec/sec/p/sup/xref/@id: 30
 //article/body/sec/sec/p/sup/xref/@rel-id: 30
-//article/body/sec/sec/p/xref/@id: 25
 //article/body/sec/sec/p/xref/@rel-id: 25
-//article/body/sec/sec/sec/@id: 12
 //article/body/sec/sec/sec/fig/@fig-type: 1
 //article/body/sec/sec/sec/fig/@orientation: 1
 //article/body/sec/sec/sec/fig/@position: 1
@@ -102,9 +90,7 @@ expression: info.losses
 //article/body/sec/sec/sec/p/sub/italic/@toggle: 28
 //article/body/sec/sec/sec/p/sup/xref/@id: 73
 //article/body/sec/sec/sec/p/sup/xref/@rel-id: 73
-//article/body/sec/sec/sec/p/xref/@id: 7
 //article/body/sec/sec/sec/p/xref/@rel-id: 7
-//article/body/sec/sec/sec/sec/@id: 6
 //article/body/sec/sec/sec/sec/p/@id: 4
 //article/body/sec/sec/sec/sec/p/bold/italic/@toggle: 4
 //article/body/sec/sec/sec/sec/p/disp-formula/@rev-id: 2
@@ -116,7 +102,6 @@ expression: info.losses
 //article/body/sec/sec/sec/sec/p/sup/italic/@toggle: 2
 //article/body/sec/sec/sec/sec/p/sup/xref/@id: 5
 //article/body/sec/sec/sec/sec/p/sup/xref/@rel-id: 5
-//article/body/sec/sec/sec/sec/p/xref/@id: 2
 //article/body/sec/sec/sec/sec/p/xref/@rel-id: 2
 //article/body/sec/sec/sec/sec/title/@id: 3
 //article/body/sec/sec/sec/title/@id: 6
@@ -127,6 +112,7 @@ expression: info.losses
 //article/body/sec/sec/table-wrap/graphic/@id: 2
 //article/body/sec/sec/table-wrap/graphic/@orientation: 2
 //article/body/sec/sec/table-wrap/graphic/@position: 2
+//article/body/sec/sec/table-wrap/object-id: 6
 //article/body/sec/sec/title/@id: 7
 //article/body/sec/sec/title/italic/@toggle: 1
 //article/body/sec/supplementary-material/@orientation: 1
@@ -158,8 +144,6 @@ expression: info.losses
 //article/front/notes/@id: 1
 //article/front/notes/fn-group/@id: 1
 //article/front/notes/fn-group/fn/p/@id: 1
-//article/front/notes/fn-group/fn/p/ext-link/@ext-link-type: 1
-//article/front/notes/fn-group/fn/p/ext-link/@id: 1
 //article/front/notes/fn-group/fn/p/ext-link/@ref: 1
 //article/front/notes/fn-group/fn/p/ext-link/@ref-type: 1
 //article/front/notes/fn-group/fn/p/ext-link/@rel: 1

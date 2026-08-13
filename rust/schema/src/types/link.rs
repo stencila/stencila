@@ -10,13 +10,12 @@ use super::string::String;
 /// A hyperlink to other pages, sections within the same document, resources, or any URL.
 #[skip_serializing_none]
 #[serde_as]
-#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, ProbeNode, StripNode, WalkNode, WriteNode, ReadNode, PatchNode, HtmlCodec, JatsCodec, TextCodec)]
+#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, ProbeNode, StripNode, WalkNode, WriteNode, ReadNode, PatchNode, HtmlCodec, TextCodec)]
 #[serde(rename_all = "camelCase")]
 #[cfg_attr(feature = "proptest", derive(Arbitrary))]
 #[derive(derive_more::Display)]
 #[display("Link")]
 #[html(elem = "a")]
-#[jats(elem = "ext-link")]
 pub struct Link {
     /// The type of this item.
     #[cfg_attr(feature = "proptest", proptest(value = "Default::default()"))]
@@ -27,7 +26,6 @@ pub struct Link {
     #[patch(format = "md", format = "smd", format = "myst", format = "qmd", format = "tiptap")]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
     #[html(attr = "id")]
-    #[jats(attr = "id")]
     pub id: Option<String>,
 
     /// The textual content of the link.
@@ -44,14 +42,12 @@ pub struct Link {
     #[patch(format = "md", format = "smd", format = "myst", format = "ipynb", format = "qmd", format = "lexical", format = "koenig", format = "tiptap")]
     #[cfg_attr(feature = "proptest", proptest(value = "Default::default()"))]
     #[html(attr = "href")]
-    #[jats(attr = "xlink:href")]
     pub target: String,
 
     /// A title for the link.
     #[patch(format = "md", format = "smd", format = "myst", format = "ipynb", format = "qmd", format = "lexical", format = "koenig", format = "tiptap")]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
     #[html(attr = "title")]
-    #[jats(attr = "xlink:title")]
     pub title: Option<String>,
 
     /// The relation between the target and the current thing.
@@ -59,6 +55,16 @@ pub struct Link {
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
     #[html(attr = "rel")]
     pub rel: Option<String>,
+
+    /// The value of the `ref-type` attribute when the link originated as a JATS cross-reference.
+    #[serde(alias = "jats-ref-type", alias = "jats_ref_type")]
+    #[cfg_attr(feature = "proptest", proptest(value = "None"))]
+    pub jats_ref_type: Option<String>,
+
+    /// The value of the `ext-link-type` attribute when the link originated as a JATS external link.
+    #[serde(alias = "jats-ext-link-type", alias = "jats_ext_link_type")]
+    #[cfg_attr(feature = "proptest", proptest(value = "None"))]
+    pub jats_ext_link_type: Option<String>,
 
     /// Only show the label of the internal target (e.g. "2"), rather than both the label type and label (e.g. "Figure 2").
     #[serde(alias = "label-only", alias = "label_only")]

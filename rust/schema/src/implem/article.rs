@@ -8,6 +8,7 @@ use crate::{
     prelude::*,
     replicate,
     shortcuts::{h1, t},
+    walk::{Visitor, WalkControl},
 };
 use stencila_codec_info::{lost_options, lost_options_of};
 use stencila_codec_markdown_trait::{MarkdownEncodeMode, to_markdown_with};
@@ -1401,6 +1402,110 @@ fn add_article_losses(
     }
 }
 
+/// Collects the id of every node that a JATS `<xref>` is able to address
+///
+/// Encoding a `Link` to `#id` as an `<xref>` requires knowing which element the
+/// id will end up on, because `ref-type` describes the target rather than the
+/// link. The registry is therefore built in a pass over the whole article
+/// before any of it is encoded.
+struct LinkTargets<'context> {
+    context: &'context mut JatsEncodeContext,
+    ancestors: Vec<NodeType>,
+}
+
+impl Visitor for LinkTargets<'_> {
+    fn visit_block(&mut self, block: &Block) -> WalkControl {
+        let (id, ref_type) = match block {
+            Block::Section(section) => {
+                let is_top_level = !self.ancestors.contains(&NodeType::Section);
+                if is_top_level
+                    && matches!(
+                        section.section_type,
+                        Some(SectionType::Acknowledgements | SectionType::Appendix)
+                    )
+                    && section.content.is_empty()
+                {
+                    return WalkControl::Continue;
+                }
+                (
+                    &section.id,
+                    match (is_top_level, section.section_type) {
+                        (true, Some(SectionType::Acknowledgements)) => JatsRefType::Ack,
+                        (true, Some(SectionType::Appendix)) => JatsRefType::App,
+                        _ => JatsRefType::Sec,
+                    },
+                )
+            }
+            Block::Figure(figure) => (&figure.id, JatsRefType::Fig),
+            Block::Table(table) => (&table.id, JatsRefType::Table),
+            Block::MathBlock(math) => (&math.id, JatsRefType::DispFormula),
+            Block::Supplement(supplement) => (&supplement.id, JatsRefType::SupplementaryMaterial),
+            Block::Admonition(admonition) => (&admonition.id, JatsRefType::BoxedText),
+            Block::Claim(claim) => (&claim.id, JatsRefType::Statement),
+            Block::List(list) => (&list.id, JatsRefType::List),
+            _ => return WalkControl::Continue,
+        };
+
+        if let Some(id) = id {
+            self.context.register_link_target(id, ref_type);
+        }
+
+        WalkControl::Continue
+    }
+
+    fn visit_inline(&mut self, inline: &Inline) -> WalkControl {
+        if let Inline::Note(note) = inline
+            && let Some(id) = &note.id
+        {
+            self.context.register_link_target(id, JatsRefType::Fn);
+        }
+
+        WalkControl::Continue
+    }
+
+    fn enter_struct(&mut self, node_type: NodeType, _node_id: NodeId) -> WalkControl {
+        self.ancestors.push(node_type);
+        WalkControl::Continue
+    }
+
+    fn exit_struct(&mut self) {
+        self.ancestors.pop();
+    }
+}
+
+/// Register every addressable node of an article, including those of the works
+/// that are encoded as extra abstracts and sub-articles
+fn register_link_targets(
+    article: &Article,
+    parts: &[ArticlePart],
+    context: &mut JatsEncodeContext,
+) {
+    let mut targets = LinkTargets {
+        context,
+        ancestors: Vec::new(),
+    };
+    if let Some(id) = &article.id {
+        targets.context.register_link_target(id, JatsRefType::Other);
+    }
+    targets.walk(&article.r#abstract);
+    targets.walk(&article.content);
+    for part in parts {
+        let (ArticlePart::Abstract(article) | ArticlePart::SubArticle(article)) = part;
+        let is_emitted = match part {
+            ArticlePart::Abstract(article) => article
+                .r#abstract
+                .as_ref()
+                .is_some_and(|content| !content.is_empty()),
+            ArticlePart::SubArticle(_) => true,
+        };
+        if is_emitted && let Some(id) = &article.id {
+            targets.context.register_link_target(id, JatsRefType::Other);
+        }
+        targets.walk(&article.r#abstract);
+        targets.walk(&article.content);
+    }
+}
+
 impl JatsCodec for Article {
     fn to_jats(&self, context: &mut JatsEncodeContext) {
         let reference_ids = self
@@ -1431,6 +1536,7 @@ impl JatsCodec for Article {
         add_article_losses(self, journal.encoded(), false, true, context);
 
         let parts = article_parts(self, context);
+        register_link_targets(self, &parts, context);
         let extra = article_extra(self, context);
 
         encode_journal_meta(&journal, self.options.publisher.as_ref(), context);
@@ -1628,6 +1734,9 @@ impl JatsCodec for Article {
                 && matches!(section.section_type, Some(SectionType::Acknowledgements))
             {
                 context.enter_elem("ack");
+                if let Some(id) = &section.id {
+                    context.push_attr("id", id);
+                }
                 section.content.to_jats(context);
                 context.exit_elem_omit_empty();
             }

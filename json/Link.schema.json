@@ -16,7 +16,7 @@
     "elem": "a"
   },
   "jats": {
-    "elem": "ext-link"
+    "derive": false
   },
   "latex": {
     "derive": false
@@ -34,6 +34,8 @@
     "id",
     "title",
     "rel",
+    "jatsRefType",
+    "jatsExtLinkType",
     "labelOnly",
     "compilationMessages"
   ],
@@ -128,9 +130,6 @@
       "html": {
         "attr": "href"
       },
-      "jats": {
-        "attr": "xlink:href"
-      },
       "type": "string",
       "format": "uri-reference"
     },
@@ -153,9 +152,6 @@
       "html": {
         "attr": "title"
       },
-      "jats": {
-        "attr": "xlink:title"
-      },
       "type": "string"
     },
     "rel": {
@@ -175,6 +171,24 @@
       "html": {
         "attr": "rel"
       },
+      "type": "string"
+    },
+    "jatsRefType": {
+      "@id": "stencila:jatsRefType",
+      "description": "The value of the `ref-type` attribute when the link originated as a JATS cross-reference.",
+      "aliases": [
+        "jats-ref-type",
+        "jats_ref_type"
+      ],
+      "type": "string"
+    },
+    "jatsExtLinkType": {
+      "@id": "stencila:jatsExtLinkType",
+      "description": "The value of the `ext-link-type` attribute when the link originated as a JATS external link.",
+      "aliases": [
+        "jats-ext-link-type",
+        "jats_ext_link_type"
+      ],
       "type": "string"
     },
     "labelOnly": {

@@ -10,6 +10,7 @@ use stencila_codec::{EncodeOptions, Losses, eyre::Result};
 
 use insta::{assert_json_snapshot, assert_snapshot, assert_yaml_snapshot};
 use stencila_codec_jats::{classify, decode, encode};
+use stencila_codec_jats_trait::JatsRefType;
 
 /// Decode each example of a JATS article and create JSON and JATS snapshots
 /// including for losses
@@ -170,12 +171,37 @@ fn examples() -> Result<()> {
             );
         }
 
-        // Citations can only be resolved by a reader if they point at a
-        // reference that is still in the document
-        let unresolved = unresolved_citation_targets(&jats)?;
+        // Citations and other cross references can only be followed by a reader
+        // if they point at something that is still in the document
+        let unresolved = unresolved_xref_targets(&jats)?;
         assert!(
             unresolved.is_empty(),
-            "unresolved bibliographic citation targets in {name}: {unresolved:?}"
+            "unresolved cross reference targets in {name}: {unresolved:?}"
+        );
+
+        // Internal navigation belongs in `<xref>`, so no emitted `<ext-link>`
+        // should address a fragment of this document
+        let local = local_ext_links(&jats)?;
+        assert!(
+            local.is_empty(),
+            "internal targets encoded as ext-link in {name}: {local:?}"
+        );
+
+        // A cross reference states the kind of thing it points at, so its
+        // `ref-type` has to agree with the element carrying the target id
+        let mistyped = mistyped_xrefs(&jats)?;
+        assert!(
+            mistyped.is_empty(),
+            "cross references with the wrong ref-type in {name}: {mistyped:?}"
+        );
+
+        // Every cross reference that the source could resolve must still be
+        // there; those it could not are dropped rather than left dangling
+        assert_subset(
+            "cross reference targets",
+            &name,
+            &resolvable_xref_targets(&original)?,
+            &resolvable_xref_targets(&jats)?,
         );
 
         assert_snapshot!(format!("{name}.jats"), jats);
@@ -489,22 +515,105 @@ fn references_summary(jats: &str) -> Result<BTreeMap<String, ReferenceSummary>> 
     Ok(summaries)
 }
 
-/// Find the targets of bibliographic citations that no longer resolve.
-fn unresolved_citation_targets(jats: &str) -> Result<BTreeSet<String>> {
-    let document = roxmltree::Document::parse(jats)?;
-
-    let ids = document
+/// Collect the id of every element of a document.
+fn element_ids<'input>(document: &'input roxmltree::Document) -> BTreeSet<&'input str> {
+    document
         .descendants()
         .filter_map(|node| node.attribute("id"))
-        .collect::<BTreeSet<_>>();
+        .collect()
+}
+
+/// Find the targets of cross references, of any kind, that no longer resolve.
+fn unresolved_xref_targets(jats: &str) -> Result<BTreeSet<String>> {
+    let document = roxmltree::Document::parse(jats)?;
+    let ids = element_ids(&document);
 
     Ok(document
         .descendants()
-        .filter(|node| node.has_tag_name("xref") && node.attribute("ref-type") == Some("bibr"))
+        .filter(|node| node.has_tag_name("xref"))
         .filter_map(|node| node.attribute("rid"))
         .flat_map(str::split_whitespace)
         .filter(|target| !ids.contains(target))
         .map(String::from)
+        .collect())
+}
+
+/// Find the targets of cross references that the document is able to resolve.
+///
+/// Cross references within contributor and funding metadata are excluded
+/// because those elements are rebuilt from the people, organizations and grants
+/// they belong to, with ids of the encoder's own making, rather than being
+/// addressed by an id from the source.
+fn resolvable_xref_targets(jats: &str) -> Result<BTreeSet<String>> {
+    let document = roxmltree::Document::parse_with_options(
+        jats,
+        roxmltree::ParsingOptions {
+            allow_dtd: true,
+            ..Default::default()
+        },
+    )?;
+    let ids = element_ids(&document);
+
+    Ok(document
+        .descendants()
+        .filter(|node| node.has_tag_name("xref") && !is_contributor_metadata(node))
+        .filter_map(|node| node.attribute("rid"))
+        .flat_map(str::split_whitespace)
+        .filter(|target| ids.contains(target))
+        .map(String::from)
+        .collect())
+}
+
+/// Whether an element belongs to the contributor or funding metadata of an article.
+fn is_contributor_metadata(node: &roxmltree::Node) -> bool {
+    node.ancestors().any(|ancestor| {
+        matches!(
+            ancestor.tag_name().name(),
+            "aff" | "author-notes" | "contrib" | "contrib-group" | "funding-group"
+        )
+    })
+}
+
+/// Find `<ext-link>` elements that address a fragment of the same document.
+fn local_ext_links(jats: &str) -> Result<BTreeSet<String>> {
+    let document = roxmltree::Document::parse(jats)?;
+
+    Ok(document
+        .descendants()
+        .filter(|node| node.has_tag_name("ext-link"))
+        .filter_map(|node| node.attribute((XLINK, "href")))
+        .filter(|href| href.starts_with('#'))
+        .map(String::from)
+        .collect())
+}
+
+/// Find cross references whose `ref-type` disagrees with the kind of their target.
+fn mistyped_xrefs(jats: &str) -> Result<BTreeSet<(String, String, String)>> {
+    let document = roxmltree::Document::parse(jats)?;
+
+    let targets = document
+        .descendants()
+        .filter_map(|node| node.attribute("id").map(|id| (id, node)))
+        .collect::<BTreeMap<_, _>>();
+
+    Ok(document
+        .descendants()
+        .filter(|node| node.has_tag_name("xref"))
+        .filter_map(|node| {
+            let ref_type = node.attribute("ref-type")?;
+            let expected = JatsRefType::from(ref_type).target_elements();
+            (!expected.is_empty()).then_some((node, ref_type, expected))
+        })
+        .flat_map(|(node, ref_type, expected)| {
+            node.attribute("rid")
+                .into_iter()
+                .flat_map(str::split_whitespace)
+                .filter_map(|target| {
+                    let name = targets.get(target)?.tag_name().name();
+                    (!expected.contains(&name))
+                        .then(|| (ref_type.to_string(), target.to_string(), name.to_string()))
+                })
+        })
         .collect())
 }
 

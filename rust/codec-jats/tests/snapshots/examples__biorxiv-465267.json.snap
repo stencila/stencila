@@ -4930,6 +4930,7 @@ expression: article
   "content": [
     {
       "type": "Section",
+      "id": "s1",
       "sectionType": "Introduction",
       "content": [
         {
@@ -6244,6 +6245,7 @@ expression: article
             },
             {
               "type": "Link",
+              "id": "xref-sec-3-1",
               "content": [
                 {
                   "type": "Text",
@@ -6252,7 +6254,8 @@ expression: article
                   }
                 }
               ],
-              "target": "#s2a"
+              "target": "#s2a",
+              "jatsRefType": "sec"
             },
             {
               "type": "Text",
@@ -6262,6 +6265,7 @@ expression: article
             },
             {
               "type": "Link",
+              "id": "xref-sec-7-1",
               "content": [
                 {
                   "type": "Text",
@@ -6270,7 +6274,8 @@ expression: article
                   }
                 }
               ],
-              "target": "#s2b"
+              "target": "#s2b",
+              "jatsRefType": "sec"
             },
             {
               "type": "Text",
@@ -6280,6 +6285,7 @@ expression: article
             },
             {
               "type": "Link",
+              "id": "xref-sec-8-1",
               "content": [
                 {
                   "type": "Text",
@@ -6288,7 +6294,8 @@ expression: article
                   }
                 }
               ],
-              "target": "#s2c"
+              "target": "#s2c",
+              "jatsRefType": "sec"
             },
             {
               "type": "Text",
@@ -6298,6 +6305,7 @@ expression: article
             },
             {
               "type": "Link",
+              "id": "xref-sec-9-1",
               "content": [
                 {
                   "type": "Text",
@@ -6306,7 +6314,8 @@ expression: article
                   }
                 }
               ],
-              "target": "#s2d"
+              "target": "#s2d",
+              "jatsRefType": "sec"
             },
             {
               "type": "Text",
@@ -6316,6 +6325,7 @@ expression: article
             },
             {
               "type": "Link",
+              "id": "xref-sec-16-1",
               "content": [
                 {
                   "type": "Text",
@@ -6324,7 +6334,8 @@ expression: article
                   }
                 }
               ],
-              "target": "#s3"
+              "target": "#s3",
+              "jatsRefType": "sec"
             },
             {
               "type": "Text",
@@ -6334,6 +6345,7 @@ expression: article
             },
             {
               "type": "Link",
+              "id": "xref-sec-20-1",
               "content": [
                 {
                   "type": "Text",
@@ -6342,7 +6354,8 @@ expression: article
                   }
                 }
               ],
-              "target": "#s4"
+              "target": "#s4",
+              "jatsRefType": "sec"
             },
             {
               "type": "Text",
@@ -6356,6 +6369,7 @@ expression: article
     },
     {
       "type": "Section",
+      "id": "s2",
       "sectionType": "Materials",
       "content": [
         {
@@ -6372,6 +6386,7 @@ expression: article
         },
         {
           "type": "Section",
+          "id": "s2a",
           "content": [
             {
               "type": "Heading",
@@ -6396,6 +6411,7 @@ expression: article
                 },
                 {
                   "type": "Link",
+                  "id": "ext-link-3",
                   "content": [
                     {
                       "type": "Text",
@@ -6404,7 +6420,8 @@ expression: article
                       }
                     }
                   ],
-                  "target": "https://github.com/COSIN3-UOC/N-Q-IBN"
+                  "target": "https://github.com/COSIN3-UOC/N-Q-IBN",
+                  "jatsExtLinkType": "uri"
                 },
                 {
                   "type": "Text",
@@ -6416,6 +6433,7 @@ expression: article
             },
             {
               "type": "Section",
+              "id": "s2a1",
               "content": [
                 {
                   "type": "Heading",
@@ -6790,6 +6808,7 @@ expression: article
                     },
                     {
                       "type": "Link",
+                      "id": "xref-fig-1-1",
                       "content": [
                         {
                           "type": "Text",
@@ -6798,7 +6817,8 @@ expression: article
                           }
                         }
                       ],
-                      "target": "#fig1"
+                      "target": "#fig1",
+                      "jatsRefType": "fig"
                     },
                     {
                       "type": "Text",
@@ -8102,6 +8122,7 @@ expression: article
                     },
                     {
                       "type": "Link",
+                      "id": "xref-disp-formula-2-1",
                       "content": [
                         {
                           "type": "Text",
@@ -8110,7 +8131,8 @@ expression: article
                           }
                         }
                       ],
-                      "target": "#eqn2"
+                      "target": "#eqn2",
+                      "jatsRefType": "disp-formula"
                     },
                     {
                       "type": "Text",
@@ -8182,6 +8204,7 @@ expression: article
                     },
                     {
                       "type": "Link",
+                      "id": "xref-sec-16-2",
                       "content": [
                         {
                           "type": "Text",
@@ -8190,7 +8213,8 @@ expression: article
                           }
                         }
                       ],
-                      "target": "#s3"
+                      "target": "#s3",
+                      "jatsRefType": "sec"
                     },
                     {
                       "type": "Text",
@@ -8238,6 +8262,7 @@ expression: article
             },
             {
               "type": "Section",
+              "id": "s2a2",
               "content": [
                 {
                   "type": "Heading",
@@ -8262,6 +8287,7 @@ expression: article
                     },
                     {
                       "type": "Link",
+                      "id": "xref-fig-1-2",
                       "content": [
                         {
                           "type": "Text",
@@ -8270,7 +8296,8 @@ expression: article
                           }
                         }
                       ],
-                      "target": "#fig1"
+                      "target": "#fig1",
+                      "jatsRefType": "fig"
                     },
                     {
                       "type": "Text",
@@ -8932,6 +8959,7 @@ expression: article
             },
             {
               "type": "Section",
+              "id": "s2a3",
               "content": [
                 {
                   "type": "Heading",
@@ -9316,6 +9344,7 @@ expression: article
                     },
                     {
                       "type": "Link",
+                      "id": "xref-fig-1-3",
                       "content": [
                         {
                           "type": "Text",
@@ -9324,7 +9353,8 @@ expression: article
                           }
                         }
                       ],
-                      "target": "#fig1"
+                      "target": "#fig1",
+                      "jatsRefType": "fig"
                     },
                     {
                       "type": "Text",
@@ -9803,6 +9833,7 @@ expression: article
                     },
                     {
                       "type": "Link",
+                      "id": "xref-disp-formula-4-1",
                       "content": [
                         {
                           "type": "Text",
@@ -9811,7 +9842,8 @@ expression: article
                           }
                         }
                       ],
-                      "target": "#eqn4"
+                      "target": "#eqn4",
+                      "jatsRefType": "disp-formula"
                     },
                     {
                       "type": "Text",
@@ -9838,6 +9870,7 @@ expression: article
                     },
                     {
                       "type": "Link",
+                      "id": "xref-disp-formula-2-2",
                       "content": [
                         {
                           "type": "Text",
@@ -9846,7 +9879,8 @@ expression: article
                           }
                         }
                       ],
-                      "target": "#eqn2"
+                      "target": "#eqn2",
+                      "jatsRefType": "disp-formula"
                     },
                     {
                       "type": "Text",
@@ -9879,6 +9913,7 @@ expression: article
         },
         {
           "type": "Section",
+          "id": "s2b",
           "content": [
             {
               "type": "Heading",
@@ -9973,6 +10008,7 @@ expression: article
                 },
                 {
                   "type": "Link",
+                  "id": "ext-link-4",
                   "content": [
                     {
                       "type": "Text",
@@ -9981,7 +10017,8 @@ expression: article
                       }
                     }
                   ],
-                  "target": "https://github.com/COSIN3-UOC/network-generator"
+                  "target": "https://github.com/COSIN3-UOC/network-generator",
+                  "jatsExtLinkType": "uri"
                 },
                 {
                   "type": "Text",
@@ -10242,6 +10279,7 @@ expression: article
                 },
                 {
                   "type": "Link",
+                  "id": "xref-disp-formula-5-1",
                   "content": [
                     {
                       "type": "Text",
@@ -10250,7 +10288,8 @@ expression: article
                       }
                     }
                   ],
-                  "target": "#eqn5"
+                  "target": "#eqn5",
+                  "jatsRefType": "disp-formula"
                 },
                 {
                   "type": "Text",
@@ -10277,6 +10316,7 @@ expression: article
                 },
                 {
                   "type": "Link",
+                  "id": "xref-disp-formula-5-2",
                   "content": [
                     {
                       "type": "Text",
@@ -10285,7 +10325,8 @@ expression: article
                       }
                     }
                   ],
-                  "target": "#eqn5"
+                  "target": "#eqn5",
+                  "jatsRefType": "disp-formula"
                 },
                 {
                   "type": "Text",
@@ -10447,6 +10488,7 @@ expression: article
               "content": [
                 {
                   "type": "Link",
+                  "id": "xref-fig-2-1",
                   "content": [
                     {
                       "type": "Text",
@@ -10455,7 +10497,8 @@ expression: article
                       }
                     }
                   ],
-                  "target": "#fig2"
+                  "target": "#fig2",
+                  "jatsRefType": "fig"
                 },
                 {
                   "type": "Text",
@@ -11052,6 +11095,7 @@ expression: article
                     },
                     {
                       "type": "Link",
+                      "id": "xref-disp-formula-10-1",
                       "content": [
                         {
                           "type": "Text",
@@ -11060,7 +11104,8 @@ expression: article
                           }
                         }
                       ],
-                      "target": "#eqn10"
+                      "target": "#eqn10",
+                      "jatsRefType": "disp-formula"
                     },
                     {
                       "type": "Text",
@@ -11408,6 +11453,7 @@ expression: article
         },
         {
           "type": "Section",
+          "id": "s2c",
           "content": [
             {
               "type": "Heading",
@@ -11508,6 +11554,7 @@ expression: article
                 },
                 {
                   "type": "Link",
+                  "id": "ext-link-5",
                   "content": [
                     {
                       "type": "Text",
@@ -11516,7 +11563,8 @@ expression: article
                       }
                     }
                   ],
-                  "target": "http://www.ecologia.ib.usp.br/iwdb"
+                  "target": "http://www.ecologia.ib.usp.br/iwdb",
+                  "jatsExtLinkType": "uri"
                 },
                 {
                   "type": "Text",
@@ -11526,6 +11574,7 @@ expression: article
                 },
                 {
                   "type": "Link",
+                  "id": "xref-sec-19-1",
                   "content": [
                     {
                       "type": "Text",
@@ -11534,7 +11583,8 @@ expression: article
                       }
                     }
                   ],
-                  "target": "#s3c"
+                  "target": "#s3c",
+                  "jatsRefType": "sec"
                 },
                 {
                   "type": "Text",
@@ -11548,6 +11598,7 @@ expression: article
         },
         {
           "type": "Section",
+          "id": "s2d",
           "content": [
             {
               "type": "Heading",
@@ -11927,6 +11978,7 @@ expression: article
             },
             {
               "type": "Section",
+              "id": "s2d1",
               "content": [
                 {
                   "type": "Heading",
@@ -12117,6 +12169,7 @@ expression: article
             },
             {
               "type": "Section",
+              "id": "s2d2",
               "content": [
                 {
                   "type": "Heading",
@@ -12652,6 +12705,7 @@ expression: article
             },
             {
               "type": "Section",
+              "id": "s2d3",
               "content": [
                 {
                   "type": "Heading",
@@ -12713,6 +12767,7 @@ expression: article
                 },
                 {
                   "type": "Section",
+                  "id": "s2d3a",
                   "content": [
                     {
                       "type": "Heading",
@@ -12980,6 +13035,7 @@ expression: article
                 },
                 {
                   "type": "Section",
+                  "id": "s2d3b",
                   "content": [
                     {
                       "type": "Heading",
@@ -13789,6 +13845,7 @@ expression: article
                 },
                 {
                   "type": "Section",
+                  "id": "s2d3c",
                   "content": [
                     {
                       "type": "Heading",
@@ -14141,6 +14198,7 @@ expression: article
                         },
                         {
                           "type": "Link",
+                          "id": "xref-disp-formula-8-1",
                           "content": [
                             {
                               "type": "Text",
@@ -14149,7 +14207,8 @@ expression: article
                               }
                             }
                           ],
-                          "target": "#eqn8"
+                          "target": "#eqn8",
+                          "jatsRefType": "disp-formula"
                         },
                         {
                           "type": "Text",
@@ -14159,6 +14218,7 @@ expression: article
                         },
                         {
                           "type": "Link",
+                          "id": "xref-disp-formula-8-2",
                           "content": [
                             {
                               "type": "Text",
@@ -14167,7 +14227,8 @@ expression: article
                               }
                             }
                           ],
-                          "target": "#eqn8"
+                          "target": "#eqn8",
+                          "jatsRefType": "disp-formula"
                         },
                         {
                           "type": "Text",
@@ -14294,6 +14355,7 @@ expression: article
     },
     {
       "type": "Section",
+      "id": "s3",
       "sectionType": "Results",
       "content": [
         {
@@ -14319,6 +14381,7 @@ expression: article
             },
             {
               "type": "Link",
+              "id": "xref-sec-17-1",
               "content": [
                 {
                   "type": "Text",
@@ -14327,7 +14390,8 @@ expression: article
                   }
                 }
               ],
-              "target": "#s3a"
+              "target": "#s3a",
+              "jatsRefType": "sec"
             },
             {
               "type": "Text",
@@ -14337,6 +14401,7 @@ expression: article
             },
             {
               "type": "Link",
+              "id": "xref-sec-18-1",
               "content": [
                 {
                   "type": "Text",
@@ -14345,7 +14410,8 @@ expression: article
                   }
                 }
               ],
-              "target": "#s3b"
+              "target": "#s3b",
+              "jatsRefType": "sec"
             },
             {
               "type": "Text",
@@ -14355,6 +14421,7 @@ expression: article
             },
             {
               "type": "Link",
+              "id": "xref-sec-7-2",
               "content": [
                 {
                   "type": "Text",
@@ -14363,7 +14430,8 @@ expression: article
                   }
                 }
               ],
-              "target": "#s2b"
+              "target": "#s2b",
+              "jatsRefType": "sec"
             },
             {
               "type": "Text",
@@ -14424,6 +14492,7 @@ expression: article
             },
             {
               "type": "Link",
+              "id": "xref-fig-2-2",
               "content": [
                 {
                   "type": "Text",
@@ -14432,7 +14501,8 @@ expression: article
                   }
                 }
               ],
-              "target": "#fig2"
+              "target": "#fig2",
+              "jatsRefType": "fig"
             },
             {
               "type": "Text",
@@ -14544,6 +14614,7 @@ expression: article
             },
             {
               "type": "Link",
+              "id": "xref-fig-2-3",
               "content": [
                 {
                   "type": "Text",
@@ -14552,7 +14623,8 @@ expression: article
                   }
                 }
               ],
-              "target": "#fig2"
+              "target": "#fig2",
+              "jatsRefType": "fig"
             },
             {
               "type": "Text",
@@ -14647,6 +14719,7 @@ expression: article
             },
             {
               "type": "Link",
+              "id": "xref-fig-2-4",
               "content": [
                 {
                   "type": "Text",
@@ -14655,7 +14728,8 @@ expression: article
                   }
                 }
               ],
-              "target": "#fig2"
+              "target": "#fig2",
+              "jatsRefType": "fig"
             },
             {
               "type": "Text",
@@ -14699,6 +14773,7 @@ expression: article
             },
             {
               "type": "Link",
+              "id": "xref-sec-19-2",
               "content": [
                 {
                   "type": "Text",
@@ -14707,7 +14782,8 @@ expression: article
                   }
                 }
               ],
-              "target": "#s3c"
+              "target": "#s3c",
+              "jatsRefType": "sec"
             },
             {
               "type": "Text",
@@ -14719,6 +14795,7 @@ expression: article
         },
         {
           "type": "Section",
+          "id": "s3a",
           "content": [
             {
               "type": "Heading",
@@ -14760,6 +14837,7 @@ expression: article
                 },
                 {
                   "type": "Link",
+                  "id": "xref-sec-7-3",
                   "content": [
                     {
                       "type": "Text",
@@ -14768,7 +14846,8 @@ expression: article
                       }
                     }
                   ],
-                  "target": "#s2b"
+                  "target": "#s2b",
+                  "jatsRefType": "sec"
                 },
                 {
                   "type": "Text",
@@ -14783,6 +14862,7 @@ expression: article
               "content": [
                 {
                   "type": "Link",
+                  "id": "xref-fig-4-1",
                   "content": [
                     {
                       "type": "Text",
@@ -14791,7 +14871,8 @@ expression: article
                       }
                     }
                   ],
-                  "target": "#fig4"
+                  "target": "#fig4",
+                  "jatsRefType": "fig"
                 },
                 {
                   "type": "Text",
@@ -15017,6 +15098,7 @@ expression: article
                 },
                 {
                   "type": "Link",
+                  "id": "xref-fig-5-1",
                   "content": [
                     {
                       "type": "Text",
@@ -15025,7 +15107,8 @@ expression: article
                       }
                     }
                   ],
-                  "target": "#fig5"
+                  "target": "#fig5",
+                  "jatsRefType": "fig"
                 },
                 {
                   "type": "Text",
@@ -15488,6 +15571,7 @@ expression: article
                 },
                 {
                   "type": "Link",
+                  "id": "xref-fig-5-2",
                   "content": [
                     {
                       "type": "Text",
@@ -15496,7 +15580,8 @@ expression: article
                       }
                     }
                   ],
-                  "target": "#fig5"
+                  "target": "#fig5",
+                  "jatsRefType": "fig"
                 },
                 {
                   "type": "Text",
@@ -15641,6 +15726,7 @@ expression: article
         },
         {
           "type": "Section",
+          "id": "s3b",
           "content": [
             {
               "type": "Heading",
@@ -15665,6 +15751,7 @@ expression: article
                 },
                 {
                   "type": "Link",
+                  "id": "xref-table-wrap-1-1",
                   "content": [
                     {
                       "type": "Text",
@@ -15673,7 +15760,8 @@ expression: article
                       }
                     }
                   ],
-                  "target": "#tbl1"
+                  "target": "#tbl1",
+                  "jatsRefType": "table"
                 },
                 {
                   "type": "Text",
@@ -15946,6 +16034,7 @@ expression: article
                 },
                 {
                   "type": "Link",
+                  "id": "xref-disp-formula-2-3",
                   "content": [
                     {
                       "type": "Text",
@@ -15954,7 +16043,8 @@ expression: article
                       }
                     }
                   ],
-                  "target": "#eqn2"
+                  "target": "#eqn2",
+                  "jatsRefType": "disp-formula"
                 },
                 {
                   "type": "Text",
@@ -15964,6 +16054,7 @@ expression: article
                 },
                 {
                   "type": "Link",
+                  "id": "xref-disp-formula-4-2",
                   "content": [
                     {
                       "type": "Text",
@@ -15972,7 +16063,8 @@ expression: article
                       }
                     }
                   ],
-                  "target": "#eqn4"
+                  "target": "#eqn4",
+                  "jatsRefType": "disp-formula"
                 },
                 {
                   "type": "Text",
@@ -16163,6 +16255,7 @@ expression: article
                 },
                 {
                   "type": "Link",
+                  "id": "xref-table-wrap-1-2",
                   "content": [
                     {
                       "type": "Text",
@@ -16171,7 +16264,8 @@ expression: article
                       }
                     }
                   ],
-                  "target": "#tbl1"
+                  "target": "#tbl1",
+                  "jatsRefType": "table"
                 },
                 {
                   "type": "Text",
@@ -16181,6 +16275,7 @@ expression: article
                 },
                 {
                   "type": "Link",
+                  "id": "xref-fig-6-1",
                   "content": [
                     {
                       "type": "Text",
@@ -16189,7 +16284,8 @@ expression: article
                       }
                     }
                   ],
-                  "target": "#fig6"
+                  "target": "#fig6",
+                  "jatsRefType": "fig"
                 },
                 {
                   "type": "Text",
@@ -16505,6 +16601,7 @@ expression: article
                 },
                 {
                   "type": "Link",
+                  "id": "xref-fig-6-2",
                   "content": [
                     {
                       "type": "Text",
@@ -16513,7 +16610,8 @@ expression: article
                       }
                     }
                   ],
-                  "target": "#fig6"
+                  "target": "#fig6",
+                  "jatsRefType": "fig"
                 },
                 {
                   "type": "Text",
@@ -16898,6 +16996,7 @@ expression: article
                 },
                 {
                   "type": "Link",
+                  "id": "xref-table-wrap-1-3",
                   "content": [
                     {
                       "type": "Text",
@@ -16906,7 +17005,8 @@ expression: article
                       }
                     }
                   ],
-                  "target": "#tbl1"
+                  "target": "#tbl1",
+                  "jatsRefType": "table"
                 },
                 {
                   "type": "Text",
@@ -16927,6 +17027,7 @@ expression: article
                 },
                 {
                   "type": "Link",
+                  "id": "xref-table-wrap-1-4",
                   "content": [
                     {
                       "type": "Text",
@@ -16935,7 +17036,8 @@ expression: article
                       }
                     }
                   ],
-                  "target": "#tbl1"
+                  "target": "#tbl1",
+                  "jatsRefType": "table"
                 },
                 {
                   "type": "Text",
@@ -17008,6 +17110,7 @@ expression: article
                 },
                 {
                   "type": "Link",
+                  "id": "xref-table-wrap-2-1",
                   "content": [
                     {
                       "type": "Text",
@@ -17016,7 +17119,8 @@ expression: article
                       }
                     }
                   ],
-                  "target": "#tbl2"
+                  "target": "#tbl2",
+                  "jatsRefType": "table"
                 },
                 {
                   "type": "Text",
@@ -17026,6 +17130,7 @@ expression: article
                 },
                 {
                   "type": "Link",
+                  "id": "xref-fig-7-1",
                   "content": [
                     {
                       "type": "Text",
@@ -17034,7 +17139,8 @@ expression: article
                       }
                     }
                   ],
-                  "target": "#fig7"
+                  "target": "#fig7",
+                  "jatsRefType": "fig"
                 },
                 {
                   "type": "Text",
@@ -17168,6 +17274,7 @@ expression: article
                 },
                 {
                   "type": "Link",
+                  "id": "xref-fig-6-3",
                   "content": [
                     {
                       "type": "Text",
@@ -17176,7 +17283,8 @@ expression: article
                       }
                     }
                   ],
-                  "target": "#fig6"
+                  "target": "#fig6",
+                  "jatsRefType": "fig"
                 },
                 {
                   "type": "Text",
@@ -17186,6 +17294,7 @@ expression: article
                 },
                 {
                   "type": "Link",
+                  "id": "xref-table-wrap-1-5",
                   "content": [
                     {
                       "type": "Text",
@@ -17194,7 +17303,8 @@ expression: article
                       }
                     }
                   ],
-                  "target": "#tbl1"
+                  "target": "#tbl1",
+                  "jatsRefType": "table"
                 },
                 {
                   "type": "Text",
@@ -17204,6 +17314,7 @@ expression: article
                 },
                 {
                   "type": "Link",
+                  "id": "xref-fig-7-2",
                   "content": [
                     {
                       "type": "Text",
@@ -17212,7 +17323,8 @@ expression: article
                       }
                     }
                   ],
-                  "target": "#fig7"
+                  "target": "#fig7",
+                  "jatsRefType": "fig"
                 },
                 {
                   "type": "Text",
@@ -17256,6 +17368,7 @@ expression: article
                 },
                 {
                   "type": "Link",
+                  "id": "xref-table-wrap-1-6",
                   "content": [
                     {
                       "type": "Text",
@@ -17264,7 +17377,8 @@ expression: article
                       }
                     }
                   ],
-                  "target": "#tbl1"
+                  "target": "#tbl1",
+                  "jatsRefType": "table"
                 },
                 {
                   "type": "Text",
@@ -17695,6 +17809,7 @@ expression: article
                 },
                 {
                   "type": "Link",
+                  "id": "xref-table-wrap-1-7",
                   "content": [
                     {
                       "type": "Text",
@@ -17703,7 +17818,8 @@ expression: article
                       }
                     }
                   ],
-                  "target": "#tbl1"
+                  "target": "#tbl1",
+                  "jatsRefType": "table"
                 },
                 {
                   "type": "Text",
@@ -18047,6 +18163,7 @@ expression: article
                 },
                 {
                   "type": "Link",
+                  "id": "xref-table-wrap-1-8",
                   "content": [
                     {
                       "type": "Text",
@@ -18055,7 +18172,8 @@ expression: article
                       }
                     }
                   ],
-                  "target": "#tbl1"
+                  "target": "#tbl1",
+                  "jatsRefType": "table"
                 },
                 {
                   "type": "Text",
@@ -18069,6 +18187,7 @@ expression: article
         },
         {
           "type": "Section",
+          "id": "s3c",
           "content": [
             {
               "type": "Heading",
@@ -18145,6 +18264,7 @@ expression: article
                 },
                 {
                   "type": "Link",
+                  "id": "xref-table-wrap-2-2",
                   "content": [
                     {
                       "type": "Text",
@@ -18153,7 +18273,8 @@ expression: article
                       }
                     }
                   ],
-                  "target": "#tbl2"
+                  "target": "#tbl2",
+                  "jatsRefType": "table"
                 },
                 {
                   "type": "Text",
@@ -18438,6 +18559,7 @@ expression: article
     },
     {
       "type": "Section",
+      "id": "s4",
       "sectionType": "Discussion",
       "content": [
         {
@@ -18535,6 +18657,7 @@ expression: article
     },
     {
       "type": "Section",
+      "id": "sec-21",
       "sectionType": "SupplementaryMaterials",
       "content": [
         {
@@ -18606,6 +18729,7 @@ expression: article
                 },
                 {
                   "type": "Link",
+                  "id": "ext-link-2",
                   "content": [
                     {
                       "type": "Text",
@@ -18614,7 +18738,8 @@ expression: article
                       }
                     }
                   ],
-                  "target": "https://github.com/COSIN3-UOC"
+                  "target": "https://github.com/COSIN3-UOC",
+                  "jatsExtLinkType": "uri"
                 },
                 {
                   "type": "Text",
@@ -18630,6 +18755,7 @@ expression: article
     },
     {
       "type": "Section",
+      "id": "s6",
       "sectionType": "CodeAvailability",
       "content": [
         {
@@ -18655,6 +18781,7 @@ expression: article
             },
             {
               "type": "Link",
+              "id": "ext-link-6",
               "content": [
                 {
                   "type": "Text",
@@ -18663,7 +18790,8 @@ expression: article
                   }
                 }
               ],
-              "target": "https://github.com/COSIN3-UOC"
+              "target": "https://github.com/COSIN3-UOC",
+              "jatsExtLinkType": "uri"
             },
             {
               "type": "Text",
@@ -18677,6 +18805,7 @@ expression: article
     },
     {
       "type": "Section",
+      "id": "ack-1",
       "sectionType": "Acknowledgements",
       "content": [
         {

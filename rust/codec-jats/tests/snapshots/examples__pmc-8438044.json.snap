@@ -7666,6 +7666,7 @@ expression: article
   "content": [
     {
       "type": "Section",
+      "id": "Sec1",
       "sectionType": "Introduction",
       "content": [
         {
@@ -8874,6 +8875,7 @@ expression: article
     },
     {
       "type": "Section",
+      "id": "Sec2",
       "sectionType": "Results",
       "content": [
         {
@@ -8890,6 +8892,7 @@ expression: article
         },
         {
           "type": "Section",
+          "id": "Sec3",
           "content": [
             {
               "type": "Heading",
@@ -8922,7 +8925,8 @@ expression: article
                       }
                     }
                   ],
-                  "target": "#MOESM1"
+                  "target": "#MOESM1",
+                  "jatsRefType": "media"
                 },
                 {
                   "type": "Text",
@@ -8951,7 +8955,8 @@ expression: article
                       }
                     }
                   ],
-                  "target": "#Fig1"
+                  "target": "#Fig1",
+                  "jatsRefType": "fig"
                 },
                 {
                   "type": "Text",
@@ -8969,7 +8974,8 @@ expression: article
                       }
                     }
                   ],
-                  "target": "#MOESM1"
+                  "target": "#MOESM1",
+                  "jatsRefType": "media"
                 },
                 {
                   "type": "Text",
@@ -9429,7 +9435,8 @@ expression: article
                           }
                         }
                       ],
-                      "target": "https://www.esri.com/news/arcuser/0312/national-geographic-basemap.html"
+                      "target": "https://www.esri.com/news/arcuser/0312/national-geographic-basemap.html",
+                      "jatsExtLinkType": "uri"
                     },
                     {
                       "type": "Text",
@@ -9449,6 +9456,7 @@ expression: article
             },
             {
               "type": "Section",
+              "id": "Sec4",
               "content": [
                 {
                   "type": "Heading",
@@ -9481,7 +9489,8 @@ expression: article
                           }
                         }
                       ],
-                      "target": "#MOESM2"
+                      "target": "#MOESM2",
+                      "jatsRefType": "media"
                     },
                     {
                       "type": "Text",
@@ -9499,7 +9508,8 @@ expression: article
                           }
                         }
                       ],
-                      "target": "#Fig2"
+                      "target": "#Fig2",
+                      "jatsRefType": "fig"
                     },
                     {
                       "type": "Text",
@@ -9517,7 +9527,8 @@ expression: article
                           }
                         }
                       ],
-                      "target": "#MOESM3"
+                      "target": "#MOESM3",
+                      "jatsRefType": "media"
                     },
                     {
                       "type": "Text",
@@ -9535,7 +9546,8 @@ expression: article
                           }
                         }
                       ],
-                      "target": "#MOESM4"
+                      "target": "#MOESM4",
+                      "jatsRefType": "media"
                     },
                     {
                       "type": "Text",
@@ -9589,7 +9601,8 @@ expression: article
                           }
                         }
                       ],
-                      "target": "#Tab1"
+                      "target": "#Tab1",
+                      "jatsRefType": "table"
                     },
                     {
                       "type": "Text",
@@ -9607,7 +9620,8 @@ expression: article
                           }
                         }
                       ],
-                      "target": "#Tab1"
+                      "target": "#Tab1",
+                      "jatsRefType": "table"
                     },
                     {
                       "type": "Text",
@@ -16940,6 +16954,7 @@ expression: article
         },
         {
           "type": "Section",
+          "id": "Sec5",
           "content": [
             {
               "type": "Heading",
@@ -16972,7 +16987,8 @@ expression: article
                       }
                     }
                   ],
-                  "target": "#Fig3"
+                  "target": "#Fig3",
+                  "jatsRefType": "fig"
                 },
                 {
                   "type": "Text",
@@ -16990,7 +17006,8 @@ expression: article
                       }
                     }
                   ],
-                  "target": "#Fig3"
+                  "target": "#Fig3",
+                  "jatsRefType": "fig"
                 },
                 {
                   "type": "Text",
@@ -17146,7 +17163,8 @@ expression: article
                       }
                     }
                   ],
-                  "target": "#Fig3"
+                  "target": "#Fig3",
+                  "jatsRefType": "fig"
                 },
                 {
                   "type": "Text",
@@ -17216,7 +17234,8 @@ expression: article
                       }
                     }
                   ],
-                  "target": "#Fig3"
+                  "target": "#Fig3",
+                  "jatsRefType": "fig"
                 },
                 {
                   "type": "Text",
@@ -17245,7 +17264,8 @@ expression: article
                       }
                     }
                   ],
-                  "target": "#Fig3"
+                  "target": "#Fig3",
+                  "jatsRefType": "fig"
                 },
                 {
                   "type": "Text",
@@ -17263,7 +17283,8 @@ expression: article
                       }
                     }
                   ],
-                  "target": "#Fig3"
+                  "target": "#Fig3",
+                  "jatsRefType": "fig"
                 },
                 {
                   "type": "Text",
@@ -17281,7 +17302,8 @@ expression: article
                       }
                     }
                   ],
-                  "target": "#Fig3"
+                  "target": "#Fig3",
+                  "jatsRefType": "fig"
                 },
                 {
                   "type": "Text",
@@ -17295,6 +17317,7 @@ expression: article
         },
         {
           "type": "Section",
+          "id": "Sec6",
           "content": [
             {
               "type": "Heading",
@@ -17310,6 +17333,7 @@ expression: article
             },
             {
               "type": "Section",
+              "id": "Sec7",
               "content": [
                 {
                   "type": "Heading",
@@ -17342,7 +17366,8 @@ expression: article
                           }
                         }
                       ],
-                      "target": "#Fig4"
+                      "target": "#Fig4",
+                      "jatsRefType": "fig"
                     },
                     {
                       "type": "Text",
@@ -17360,7 +17385,8 @@ expression: article
                           }
                         }
                       ],
-                      "target": "#MOESM5"
+                      "target": "#MOESM5",
+                      "jatsRefType": "media"
                     },
                     {
                       "type": "Text",
@@ -17378,7 +17404,8 @@ expression: article
                           }
                         }
                       ],
-                      "target": "#MOESM6"
+                      "target": "#MOESM6",
+                      "jatsRefType": "media"
                     },
                     {
                       "type": "Text",
@@ -17396,7 +17423,8 @@ expression: article
                           }
                         }
                       ],
-                      "target": "#Tab1"
+                      "target": "#Tab1",
+                      "jatsRefType": "table"
                     },
                     {
                       "type": "Text",
@@ -17414,7 +17442,8 @@ expression: article
                           }
                         }
                       ],
-                      "target": "#Fig4"
+                      "target": "#Fig4",
+                      "jatsRefType": "fig"
                     },
                     {
                       "type": "Text",
@@ -17572,6 +17601,7 @@ expression: article
             },
             {
               "type": "Section",
+              "id": "Sec8",
               "content": [
                 {
                   "type": "Heading",
@@ -17604,7 +17634,8 @@ expression: article
                           }
                         }
                       ],
-                      "target": "#Fig4"
+                      "target": "#Fig4",
+                      "jatsRefType": "fig"
                     },
                     {
                       "type": "Text",
@@ -17622,7 +17653,8 @@ expression: article
                           }
                         }
                       ],
-                      "target": "#MOESM7"
+                      "target": "#MOESM7",
+                      "jatsRefType": "media"
                     },
                     {
                       "type": "Text",
@@ -17640,7 +17672,8 @@ expression: article
                           }
                         }
                       ],
-                      "target": "#MOESM8"
+                      "target": "#MOESM8",
+                      "jatsRefType": "media"
                     },
                     {
                       "type": "Text",
@@ -17658,7 +17691,8 @@ expression: article
                           }
                         }
                       ],
-                      "target": "#Tab1"
+                      "target": "#Tab1",
+                      "jatsRefType": "table"
                     },
                     {
                       "type": "Text",
@@ -17676,7 +17710,8 @@ expression: article
                           }
                         }
                       ],
-                      "target": "#Fig4"
+                      "target": "#Fig4",
+                      "jatsRefType": "fig"
                     },
                     {
                       "type": "Text",
@@ -17694,6 +17729,7 @@ expression: article
     },
     {
       "type": "Section",
+      "id": "Sec9",
       "sectionType": "Discussion",
       "content": [
         {
@@ -17710,6 +17746,7 @@ expression: article
         },
         {
           "type": "Section",
+          "id": "Sec10",
           "content": [
             {
               "type": "Heading",
@@ -18132,6 +18169,7 @@ expression: article
         },
         {
           "type": "Section",
+          "id": "Sec11",
           "content": [
             {
               "type": "Heading",
@@ -18287,6 +18325,7 @@ expression: article
             },
             {
               "type": "Section",
+              "id": "Sec12",
               "content": [
                 {
                   "type": "Heading",
@@ -18484,6 +18523,7 @@ expression: article
         },
         {
           "type": "Section",
+          "id": "Sec13",
           "content": [
             {
               "type": "Heading",
@@ -18968,7 +19008,8 @@ expression: article
                       }
                     }
                   ],
-                  "target": "#MOESM3"
+                  "target": "#MOESM3",
+                  "jatsRefType": "media"
                 },
                 {
                   "type": "Text",
@@ -19003,7 +19044,8 @@ expression: article
                       }
                     }
                   ],
-                  "target": "#Fig1"
+                  "target": "#Fig1",
+                  "jatsRefType": "fig"
                 },
                 {
                   "type": "Text",
@@ -19021,7 +19063,8 @@ expression: article
                       }
                     }
                   ],
-                  "target": "#MOESM1"
+                  "target": "#MOESM1",
+                  "jatsRefType": "media"
                 },
                 {
                   "type": "Text",
@@ -19046,6 +19089,7 @@ expression: article
         },
         {
           "type": "Section",
+          "id": "Sec14",
           "content": [
             {
               "type": "Heading",
@@ -19498,7 +19542,8 @@ expression: article
                       }
                     }
                   ],
-                  "target": "#Sec15"
+                  "target": "#Sec15",
+                  "jatsRefType": "sec"
                 },
                 {
                   "type": "Text",
@@ -19525,6 +19570,7 @@ expression: article
     },
     {
       "type": "Section",
+      "id": "Sec15",
       "sectionType": "Methods",
       "content": [
         {
@@ -19541,6 +19587,7 @@ expression: article
         },
         {
           "type": "Section",
+          "id": "Sec16",
           "content": [
             {
               "type": "Heading",
@@ -19586,6 +19633,7 @@ expression: article
         },
         {
           "type": "Section",
+          "id": "Sec17",
           "content": [
             {
               "type": "Heading",
@@ -19618,7 +19666,8 @@ expression: article
                       }
                     }
                   ],
-                  "target": "#Fig1"
+                  "target": "#Fig1",
+                  "jatsRefType": "fig"
                 },
                 {
                   "type": "Text",
@@ -19636,7 +19685,8 @@ expression: article
                       }
                     }
                   ],
-                  "target": "#MOESM1"
+                  "target": "#MOESM1",
+                  "jatsRefType": "media"
                 },
                 {
                   "type": "Text",
@@ -19650,6 +19700,7 @@ expression: article
         },
         {
           "type": "Section",
+          "id": "Sec18",
           "content": [
             {
               "type": "Heading",
@@ -19682,7 +19733,8 @@ expression: article
                       }
                     }
                   ],
-                  "target": "#Fig1"
+                  "target": "#Fig1",
+                  "jatsRefType": "fig"
                 },
                 {
                   "type": "Text",
@@ -19700,7 +19752,8 @@ expression: article
                       }
                     }
                   ],
-                  "target": "#Fig1"
+                  "target": "#Fig1",
+                  "jatsRefType": "fig"
                 },
                 {
                   "type": "Text",
@@ -19753,6 +19806,7 @@ expression: article
         },
         {
           "type": "Section",
+          "id": "Sec19",
           "content": [
             {
               "type": "Heading",
@@ -19922,6 +19976,7 @@ expression: article
         },
         {
           "type": "Section",
+          "id": "Sec20",
           "content": [
             {
               "type": "Heading",
@@ -20130,6 +20185,7 @@ expression: article
         },
         {
           "type": "Section",
+          "id": "Sec21",
           "content": [
             {
               "type": "Heading",
@@ -20709,7 +20765,8 @@ expression: article
                       }
                     }
                   ],
-                  "target": "#MOESM8"
+                  "target": "#MOESM8",
+                  "jatsRefType": "media"
                 },
                 {
                   "type": "Text",
@@ -20762,7 +20819,8 @@ expression: article
                       }
                     }
                   ],
-                  "target": "#MOESM9"
+                  "target": "#MOESM9",
+                  "jatsRefType": "media"
                 },
                 {
                   "type": "Text",
@@ -20776,6 +20834,7 @@ expression: article
         },
         {
           "type": "Section",
+          "id": "Sec22",
           "content": [
             {
               "type": "Heading",
@@ -20839,6 +20898,7 @@ expression: article
         },
         {
           "type": "Section",
+          "id": "Sec23",
           "content": [
             {
               "type": "Heading",
@@ -21134,6 +21194,7 @@ expression: article
         },
         {
           "type": "Section",
+          "id": "Sec24",
           "content": [
             {
               "type": "Heading",
@@ -21451,212 +21512,218 @@ expression: article
           ]
         },
         {
-          "type": "Supplement",
-          "id": "MOESM1",
-          "workType": "Table",
-          "caption": [
+          "type": "Section",
+          "id": "Sec25",
+          "content": [
             {
-              "type": "Paragraph",
-              "content": [
+              "type": "Supplement",
+              "id": "MOESM1",
+              "workType": "Table",
+              "caption": [
                 {
-                  "type": "Text",
-                  "value": {
-                    "string": "Supplementary Table S1."
-                  }
+                  "type": "Paragraph",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "Supplementary Table S1."
+                      }
+                    }
+                  ]
                 }
-              ]
-            }
-          ],
-          "target": "41598_2021_97128_MOESM1_ESM.docx"
-        },
-        {
-          "type": "Supplement",
-          "id": "MOESM2",
-          "workType": "Table",
-          "caption": [
+              ],
+              "target": "41598_2021_97128_MOESM1_ESM.docx"
+            },
             {
-              "type": "Paragraph",
-              "content": [
+              "type": "Supplement",
+              "id": "MOESM2",
+              "workType": "Table",
+              "caption": [
                 {
-                  "type": "Text",
-                  "value": {
-                    "string": "Supplementary Table S2."
-                  }
+                  "type": "Paragraph",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "Supplementary Table S2."
+                      }
+                    }
+                  ]
                 }
-              ]
-            }
-          ],
-          "target": "41598_2021_97128_MOESM2_ESM.docx"
-        },
-        {
-          "type": "Supplement",
-          "id": "MOESM3",
-          "workType": "Table",
-          "caption": [
+              ],
+              "target": "41598_2021_97128_MOESM2_ESM.docx"
+            },
             {
-              "type": "Paragraph",
-              "content": [
+              "type": "Supplement",
+              "id": "MOESM3",
+              "workType": "Table",
+              "caption": [
                 {
-                  "type": "Text",
-                  "value": {
-                    "string": "Supplementary Table S3."
-                  }
+                  "type": "Paragraph",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "Supplementary Table S3."
+                      }
+                    }
+                  ]
                 }
-              ]
-            }
-          ],
-          "target": "41598_2021_97128_MOESM3_ESM.docx"
-        },
-        {
-          "type": "Supplement",
-          "id": "MOESM4",
-          "workType": "Table",
-          "caption": [
+              ],
+              "target": "41598_2021_97128_MOESM3_ESM.docx"
+            },
             {
-              "type": "Paragraph",
-              "content": [
+              "type": "Supplement",
+              "id": "MOESM4",
+              "workType": "Table",
+              "caption": [
                 {
-                  "type": "Text",
-                  "value": {
-                    "string": "Supplementary Table S4."
-                  }
+                  "type": "Paragraph",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "Supplementary Table S4."
+                      }
+                    }
+                  ]
                 }
-              ]
-            }
-          ],
-          "target": "41598_2021_97128_MOESM4_ESM.docx"
-        },
-        {
-          "type": "Supplement",
-          "id": "MOESM5",
-          "workType": "Table",
-          "caption": [
+              ],
+              "target": "41598_2021_97128_MOESM4_ESM.docx"
+            },
             {
-              "type": "Paragraph",
-              "content": [
+              "type": "Supplement",
+              "id": "MOESM5",
+              "workType": "Table",
+              "caption": [
                 {
-                  "type": "Text",
-                  "value": {
-                    "string": "Supplementary Table S5."
-                  }
+                  "type": "Paragraph",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "Supplementary Table S5."
+                      }
+                    }
+                  ]
                 }
-              ]
-            }
-          ],
-          "target": "41598_2021_97128_MOESM5_ESM.docx"
-        },
-        {
-          "type": "Supplement",
-          "id": "MOESM6",
-          "workType": "Table",
-          "caption": [
+              ],
+              "target": "41598_2021_97128_MOESM5_ESM.docx"
+            },
             {
-              "type": "Paragraph",
-              "content": [
+              "type": "Supplement",
+              "id": "MOESM6",
+              "workType": "Table",
+              "caption": [
                 {
-                  "type": "Text",
-                  "value": {
-                    "string": "Supplementary Table S6."
-                  }
+                  "type": "Paragraph",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "Supplementary Table S6."
+                      }
+                    }
+                  ]
                 }
-              ]
-            }
-          ],
-          "target": "41598_2021_97128_MOESM6_ESM.docx"
-        },
-        {
-          "type": "Supplement",
-          "id": "MOESM7",
-          "workType": "Table",
-          "caption": [
+              ],
+              "target": "41598_2021_97128_MOESM6_ESM.docx"
+            },
             {
-              "type": "Paragraph",
-              "content": [
+              "type": "Supplement",
+              "id": "MOESM7",
+              "workType": "Table",
+              "caption": [
                 {
-                  "type": "Text",
-                  "value": {
-                    "string": "Supplementary Table S7."
-                  }
+                  "type": "Paragraph",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "Supplementary Table S7."
+                      }
+                    }
+                  ]
                 }
-              ]
-            }
-          ],
-          "target": "41598_2021_97128_MOESM7_ESM.docx"
-        },
-        {
-          "type": "Supplement",
-          "id": "MOESM8",
-          "workType": "Table",
-          "caption": [
+              ],
+              "target": "41598_2021_97128_MOESM7_ESM.docx"
+            },
             {
-              "type": "Paragraph",
-              "content": [
+              "type": "Supplement",
+              "id": "MOESM8",
+              "workType": "Table",
+              "caption": [
                 {
-                  "type": "Text",
-                  "value": {
-                    "string": "Supplementary Table S8."
-                  }
+                  "type": "Paragraph",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "Supplementary Table S8."
+                      }
+                    }
+                  ]
                 }
-              ]
-            }
-          ],
-          "target": "41598_2021_97128_MOESM8_ESM.docx"
-        },
-        {
-          "type": "Supplement",
-          "id": "MOESM9",
-          "workType": "Table",
-          "caption": [
+              ],
+              "target": "41598_2021_97128_MOESM8_ESM.docx"
+            },
             {
-              "type": "Paragraph",
-              "content": [
+              "type": "Supplement",
+              "id": "MOESM9",
+              "workType": "Table",
+              "caption": [
                 {
-                  "type": "Text",
-                  "value": {
-                    "string": "Supplementary Table S9."
-                  }
+                  "type": "Paragraph",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "Supplementary Table S9."
+                      }
+                    }
+                  ]
                 }
-              ]
-            }
-          ],
-          "target": "41598_2021_97128_MOESM9_ESM.docx"
-        },
-        {
-          "type": "Supplement",
-          "id": "MOESM10",
-          "workType": "Figure",
-          "caption": [
+              ],
+              "target": "41598_2021_97128_MOESM9_ESM.docx"
+            },
             {
-              "type": "Paragraph",
-              "content": [
+              "type": "Supplement",
+              "id": "MOESM10",
+              "workType": "Figure",
+              "caption": [
                 {
-                  "type": "Text",
-                  "value": {
-                    "string": "Supplementary Figure S1."
-                  }
+                  "type": "Paragraph",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "Supplementary Figure S1."
+                      }
+                    }
+                  ]
                 }
-              ]
-            }
-          ],
-          "target": "41598_2021_97128_MOESM10_ESM.jpg"
-        },
-        {
-          "type": "Supplement",
-          "id": "MOESM11",
-          "caption": [
+              ],
+              "target": "41598_2021_97128_MOESM10_ESM.jpg"
+            },
             {
-              "type": "Paragraph",
-              "content": [
+              "type": "Supplement",
+              "id": "MOESM11",
+              "caption": [
                 {
-                  "type": "Text",
-                  "value": {
-                    "string": "Supplementary Information."
-                  }
+                  "type": "Paragraph",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "Supplementary Information."
+                      }
+                    }
+                  ]
                 }
-              ]
+              ],
+              "target": "41598_2021_97128_MOESM11_ESM.docx"
             }
-          ],
-          "target": "41598_2021_97128_MOESM11_ESM.docx"
+          ]
         }
       ]
     },

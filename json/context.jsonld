@@ -392,6 +392,8 @@
     "itemsNullable": "stencila:itemsNullable",
     "itemsValidator": "stencila:itemsValidator",
     "iterations": "stencila:iterations",
+    "jatsExtLinkType": "stencila:jatsExtLinkType",
+    "jatsRefType": "stencila:jatsRefType",
     "jobTitle": "schema:jobTitle",
     "keys": "stencila:keys",
     "keywords": "schema:keywords",

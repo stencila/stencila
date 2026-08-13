@@ -2,7 +2,6 @@
 source: rust/codec-jats/tests/examples.rs
 expression: info.losses
 ---
-//article/back/ack/@id: 1
 //article/back/ack/p/@id: 1
 //article/back/ack/title/@id: 1
 //article/back/ref-list/@id: 1
@@ -18,17 +17,13 @@ expression: info.losses
 //article/back/ref-list/ref/citation/string-name/@sortable: 209
 //article/back/ref-list/ref/citation/string-name/text(): 209
 //article/back/ref-list/title: 1
-//article/back/sec/@id: 2
 //article/back/sec/p/@id: 1
 //article/back/sec/title/@id: 1
-//article/body/sec/@id: 9
 //article/body/sec/p/@id: 10
 //article/body/sec/p/italic/@toggle: 3
 //article/body/sec/p/sup/xref/@id: 87
 //article/body/sec/p/sup/xref/@rel-id: 87
-//article/body/sec/p/xref/@id: 1
 //article/body/sec/p/xref/@rel-id: 1
-//article/body/sec/sec/@id: 48
 //article/body/sec/sec/fig/@fig-type: 12
 //article/body/sec/sec/fig/@orientation: 12
 //article/body/sec/sec/fig/@position: 12
@@ -38,7 +33,6 @@ expression: info.losses
 //article/body/sec/sec/fig/graphic/@position: 12
 //article/body/sec/sec/fig/object-id: 36
 //article/body/sec/sec/fig/p/@id: 12
-//article/body/sec/sec/fig/p/xref/@id: 1
 //article/body/sec/sec/fig/p/xref/@rel-id: 1
 //article/body/sec/sec/fig/title/@id: 12
 //article/body/sec/sec/p/@id: 47
@@ -49,9 +43,7 @@ expression: info.losses
 //article/body/sec/sec/p/sup/italic/@toggle: 3
 //article/body/sec/sec/p/sup/xref/@id: 51
 //article/body/sec/sec/p/sup/xref/@rel-id: 51
-//article/body/sec/sec/p/xref/@id: 109
 //article/body/sec/sec/p/xref/@rel-id: 109
-//article/body/sec/sec/sec/@id: 26
 //article/body/sec/sec/sec/p/@id: 16
 //article/body/sec/sec/sec/p/disp-formula/@rev-id: 1
 //article/body/sec/sec/sec/p/disp-formula/graphic/@id: 4

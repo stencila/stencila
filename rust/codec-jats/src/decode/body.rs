@@ -18,6 +18,7 @@ use stencila_codec::{
         shortcuts::{em, mi, p, qb, qi, stg, stk, sub, sup, t, u},
     },
 };
+use stencila_codec_jats_trait::JatsRefType;
 use stencila_codec_text_trait::to_text;
 
 use crate::encode::serialize_node;
@@ -149,9 +150,10 @@ fn decode_boxed_text(path: &str, node: &Node, losses: &mut Losses, depth: u8) ->
         children.next();
     }
 
-    record_attrs_lost(path, node, ["content-type", "is-folded"], losses);
+    record_attrs_lost(path, node, ["id", "content-type", "is-folded"], losses);
 
     Block::Admonition(Admonition {
+        id: node.attribute("id").map(String::from),
         admonition_type: typ,
         is_folded,
         title,
@@ -227,10 +229,13 @@ fn decode_disp_quote(path: &str, node: &Node, losses: &mut Losses, depth: u8) ->
 
 /// Decode a `<sec>` to a [`Block::Section`]
 ///
-/// Some JATS has `<sec>` elements that are merely wrappers with an `id` but
-/// no `sec-type` or `<title>` child. These are ignored to avoid unnecessary
-/// sections and their content returned instead.
+/// Some JATS has `<sec>` elements that are merely wrappers with no `id`,
+/// `sec-type` or `<title>` child. These are ignored to avoid unnecessary
+/// sections and their content returned instead. A wrapper that has an `id` is
+/// kept because cross references elsewhere in the document may address it.
 pub fn decode_sec(path: &str, node: &Node, losses: &mut Losses, depth: u8) -> Vec<Block> {
+    let id = node.attribute("id").map(String::from);
+
     let section_type = node
         .attribute("sec-type")
         .and_then(|value| SectionType::from_text(value).ok())
@@ -241,11 +246,12 @@ pub fn decode_sec(path: &str, node: &Node, losses: &mut Losses, depth: u8) -> Ve
                 .and_then(|value| SectionType::from_text(value).ok())
         });
 
-    record_attrs_lost(path, node, ["sec-type"], losses);
+    record_attrs_lost(path, node, ["id", "sec-type"], losses);
 
     let content = decode_blocks(path, node.children(), losses, depth);
 
-    if section_type.is_none()
+    if id.is_none()
+        && section_type.is_none()
         && !content
             .iter()
             .any(|block| matches!(block, Block::Heading(..)))
@@ -253,6 +259,7 @@ pub fn decode_sec(path: &str, node: &Node, losses: &mut Losses, depth: u8) -> Ve
         content
     } else {
         vec![Block::Section(Section {
+            id,
             section_type,
             content,
             ..Default::default()
@@ -297,9 +304,10 @@ fn decode_statement(path: &str, node: &Node, losses: &mut Losses, depth: u8) -> 
         depth,
     );
 
-    record_attrs_lost(path, node, ["content-type"], losses);
+    record_attrs_lost(path, node, ["id", "content-type"], losses);
 
     Block::Claim(Claim {
+        id: node.attribute("id").map(String::from),
         claim_type,
         label,
         content,
@@ -454,6 +462,37 @@ fn decode_fig_group(path: &str, node: &Node, losses: &mut Losses, depth: u8) -> 
     decode_blocks(path, node.children(), losses, depth)
 }
 
+/// Decode the DOI of a `<fig>` or `<table-wrap>` from its `<object-id>` children
+///
+/// Publishers such as PLOS give each figure and table its own DOI, which is the
+/// only identifier of the object that is addressable outside the article. Other
+/// kinds of `<object-id>` are source-system slugs which duplicate the element's
+/// `id`, so they are recorded as lost rather than retained.
+fn decode_object_id(path: &str, node: &Node, losses: &mut Losses) -> Option<String> {
+    let mut doi = None;
+    for child in node
+        .children()
+        .filter(|child| child.tag_name().name() == "object-id")
+    {
+        if doi.is_none()
+            && child.attribute("pub-id-type") == Some("doi")
+            && let Some(value) = child.text().map(str::trim).filter(|doi| !doi.is_empty())
+        {
+            record_attrs_lost(
+                &extend_path(path, "object-id"),
+                &child,
+                ["pub-id-type"],
+                losses,
+            );
+            doi = Some(value.to_string());
+        } else {
+            record_node_lost(path, &child, losses);
+        }
+    }
+
+    doi
+}
+
 /// Decode a `<fig>` element to a Stencila [`Block::Figure`]
 ///
 /// see https://jats.nlm.nih.gov/archiving/tag-library/1.2/element/fig.html
@@ -461,6 +500,8 @@ fn decode_fig(path: &str, node: &Node, losses: &mut Losses, depth: u8) -> Block 
     let id = node.attribute("id").map(String::from);
 
     record_attrs_lost(path, node, ["id"], losses);
+
+    let doi = decode_object_id(path, node, losses);
 
     let label = node
         .children()
@@ -481,7 +522,7 @@ fn decode_fig(path: &str, node: &Node, losses: &mut Losses, depth: u8) -> Block 
         path,
         node.children().filter(|child| {
             let tag_name = child.tag_name().name();
-            tag_name != "label" && tag_name != "caption"
+            tag_name != "label" && tag_name != "caption" && tag_name != "object-id"
         }),
         losses,
         depth,
@@ -489,6 +530,7 @@ fn decode_fig(path: &str, node: &Node, losses: &mut Losses, depth: u8) -> Block 
 
     Block::Figure(Figure {
         id,
+        doi,
         content,
         caption,
         label_automatically,
@@ -740,7 +782,7 @@ fn decode_list(path: &str, node: &Node, losses: &mut Losses, depth: u8) -> Block
         _ => ListOrder::Ascending,
     };
 
-    record_attrs_lost(path, node, ["list-type"], losses);
+    record_attrs_lost(path, node, ["id", "list-type"], losses);
 
     let items = node
         .children()
@@ -759,7 +801,10 @@ fn decode_list(path: &str, node: &Node, losses: &mut Losses, depth: u8) -> Block
         })
         .collect();
 
-    Block::List(List::new(items, order))
+    Block::List(List {
+        id: node.attribute("id").map(String::from),
+        ..List::new(items, order)
+    })
 }
 
 /// Decode a `<list-item>` to a Stencila [`ListItem`]
@@ -786,6 +831,8 @@ fn decode_table_wrap(path: &str, node: &Node, losses: &mut Losses, depth: u8) ->
     let id = node.attribute("id").map(String::from);
 
     record_attrs_lost(path, node, ["id"], losses);
+
+    let doi = decode_object_id(path, node, losses);
 
     let label = node
         .children()
@@ -860,6 +907,7 @@ fn decode_table_wrap(path: &str, node: &Node, losses: &mut Losses, depth: u8) ->
 
     Block::Table(Table {
         id,
+        doi,
         label,
         label_automatically,
         caption,
@@ -1039,16 +1087,13 @@ pub fn decode_inlines<'a, 'input: 'a, I: Iterator<Item = Node<'a, 'input>>>(
                 "styled-content" => decode_styled_content(&child_path, &child, losses),
                 "time" => decode_time(&child_path, &child, losses),
                 "timestamp" => decode_timestamp(&child_path, &child, losses),
-                "xref" => match child.attribute("ref-type") {
-                    Some("bibr" | "ref") => decode_xref_citation(&child_path, &child, losses),
-                    Some(
-                        "sec"
-                        | "fig"
-                        | "table"
-                        | "disp-formula"
-                        | "supplementary-material"
-                        | "media",
-                    ) => decode_xref_block(&child_path, &child, losses),
+                "xref" => match child.attribute("ref-type").map(JatsRefType::from) {
+                    Some(JatsRefType::Bibr | JatsRefType::Ref) => {
+                        decode_xref_citation(&child_path, &child, losses)
+                    }
+                    Some(ref_type) if ref_type.is_block_reference() => {
+                        decode_xref_block(&child_path, &child, losses)
+                    }
                     _ => {
                         // Record the xref as lost but decode its content
                         record_node_lost(path, &child, losses);
@@ -1240,18 +1285,25 @@ fn decode_duration(path: &str, node: &Node, losses: &mut Losses) -> Inline {
 }
 
 /// Decode a `<ext-link>` to a [`Inline::Link`]
+///
+/// The JATS-specific `ext-link-type` is retained separately from HTML `rel`
+/// semantics so that both can round-trip independently.
 fn decode_link(path: &str, node: &Node, losses: &mut Losses) -> Inline {
     let target = node
         .attribute((XLINK, "href"))
         .map(String::from)
         .unwrap_or_default();
 
-    record_attrs_lost(path, node, ["href"], losses);
+    record_attrs_lost(path, node, ["id", "href", "title", "ext-link-type"], losses);
 
     let content = decode_inlines(path, node.children(), losses);
+    let jats_ext_link_type = node.attribute("ext-link-type").map(String::from);
 
     Inline::Link(Link {
+        id: node.attribute("id").map(String::from),
+        title: node.attribute((XLINK, "title")).map(String::from),
         target,
+        jats_ext_link_type,
         content,
         ..Default::default()
     })
@@ -1405,18 +1457,32 @@ fn decode_xref_citation(path: &str, node: &Node, losses: &mut Losses) -> Inline 
 }
 
 /// Decode a `<xref>` to a [`Inline::Link`] with a target to an internal block
+///
+/// A `rid` can list more than one target, as it does for a link that stands for
+/// a range of figures, so each of them becomes a fragment of the link target.
+/// The `ref-type` is retained as JATS-specific metadata so that a type which
+/// says more than the kind of the target node, such as `table-fn`, is not lost.
 fn decode_xref_block(path: &str, node: &Node, losses: &mut Losses) -> Inline {
     let target = node
         .attribute("rid")
-        .map(|id| ["#", id].concat())
+        .map(|rid| {
+            rid.split_whitespace()
+                .map(|id| ["#", id].concat())
+                .join(" ")
+        })
         .unwrap_or_default();
 
-    record_attrs_lost(path, node, ["ref-type", "rid"], losses);
+    let jats_ref_type = node.attribute("ref-type").map(String::from);
+
+    record_attrs_lost(path, node, ["id", "ref-type", "rid", "title"], losses);
 
     let content = decode_inlines(path, node.children(), losses);
 
     Inline::Link(Link {
+        id: node.attribute("id").map(String::from),
         target,
+        title: node.attribute((XLINK, "title")).map(String::from),
+        jats_ref_type,
         content,
         ..Default::default()
     })

@@ -7,6 +7,7 @@ use std::{
 
 use stencila_codec_info::Losses;
 pub use stencila_codec_jats_derive::JatsCodec;
+use strum::{AsRefStr, Display, EnumString};
 
 pub mod encode;
 use encode::escape;
@@ -15,6 +16,125 @@ use encode::escape;
 pub trait JatsCodec {
     /// Append the JATS representation of the value to the encoding context.
     fn to_jats(&self, context: &mut JatsEncodeContext);
+}
+
+/// Whether a link target begins with a URI scheme.
+pub fn has_uri_scheme(target: &str) -> bool {
+    let Some((scheme, ..)) = target.split_once(':') else {
+        return false;
+    };
+
+    let mut chars = scheme.chars();
+    chars.next().is_some_and(char::is_alphabetic)
+        && chars.all(|char| char.is_alphanumeric() || matches!(char, '+' | '-' | '.'))
+}
+
+/// The type of a JATS cross-reference target
+///
+/// JATS permits arbitrary `ref-type` values, so known values are represented by
+/// dedicated variants while publisher-specific values remain available through
+/// [`Self::Custom`].
+#[derive(Debug, Clone, PartialEq, Eq, AsRefStr, Display, EnumString)]
+#[strum(serialize_all = "kebab-case")]
+pub enum JatsRefType {
+    Ack,
+    App,
+    Aff,
+    Award,
+    Bibr,
+    BoxedText,
+    Chem,
+    Contrib,
+    Corresp,
+    DispFormula,
+    Fig,
+    Fn,
+    Kwd,
+    List,
+    Media,
+    Other,
+    Plate,
+    Ref,
+    Scheme,
+    Sec,
+    Statement,
+    SupplementaryMaterial,
+    Table,
+    TableFn,
+    #[strum(default)]
+    Custom(String),
+}
+
+impl JatsRefType {
+    /// The value used for the JATS `ref-type` attribute.
+    pub fn as_str(&self) -> &str {
+        match self {
+            Self::Custom(value) => value,
+            value => value.as_ref(),
+        }
+    }
+
+    /// Whether this type is decoded as a link to document content.
+    pub fn is_block_reference(&self) -> bool {
+        matches!(
+            self,
+            Self::Ack
+                | Self::App
+                | Self::BoxedText
+                | Self::DispFormula
+                | Self::Fig
+                | Self::Fn
+                | Self::List
+                | Self::Media
+                | Self::Other
+                | Self::Scheme
+                | Self::Sec
+                | Self::Statement
+                | Self::SupplementaryMaterial
+                | Self::Table
+                | Self::TableFn
+                | Self::Custom(_)
+        )
+    }
+
+    /// Whether a source type remains accurate for a target of `target_type`.
+    pub fn is_compatible_with(&self, target_type: &Self) -> bool {
+        self == target_type
+            || matches!(
+                (self, target_type),
+                (Self::TableFn, Self::Fn)
+                    | (Self::Scheme, Self::Fig)
+                    | (Self::Other | Self::Custom(_), _)
+            )
+    }
+
+    /// JATS element names that this type conventionally addresses.
+    pub fn target_elements(&self) -> &'static [&'static str] {
+        match self {
+            Self::Ack => &["ack"],
+            Self::App => &["app"],
+            Self::Aff => &["aff"],
+            Self::Award => &["award-group"],
+            Self::Bibr | Self::Ref => &["ref"],
+            Self::BoxedText => &["boxed-text"],
+            Self::Chem => &["chem-struct", "chem-struct-wrap"],
+            Self::Contrib => &["contrib"],
+            Self::Corresp => &["corresp"],
+            Self::DispFormula => &["disp-formula"],
+            Self::Fig => &["fig"],
+            Self::Fn | Self::TableFn => &["fn"],
+            Self::Kwd => &["kwd"],
+            Self::List => &["list"],
+            Self::Media => &["media", "inline-media"],
+            Self::Plate => &["plate"],
+            Self::Scheme => &["fig"],
+            Self::Sec => &["sec"],
+            Self::Statement => &["statement"],
+            Self::SupplementaryMaterial => &["supplementary-material"],
+            Self::Table => &["table-wrap"],
+            Self::Other | Self::Custom(_) => &[],
+        }
+    }
 }
 
 /// Encode a value to a JATS fragment.
@@ -43,6 +163,7 @@ pub struct JatsEncodeContext {
     error: Option<JatsEncodeError>,
     reference_ids: HashMap<String, String>,
     used_reference_ids: HashSet<String>,
+    link_targets: HashMap<String, JatsRefType>,
 }
 
 impl JatsEncodeContext {
@@ -178,6 +299,27 @@ impl JatsEncodeContext {
             .get(target)
             .map(String::as_str)
             .unwrap_or(target)
+    }
+
+    /// Register an addressable node so that links to it can be encoded as an
+    /// `<xref>` carrying the `ref-type` of the element it will be encoded as.
+    ///
+    /// The first registration of an id wins because an id can only address one
+    /// element in the emitted document.
+    pub fn register_link_target(&mut self, id: &str, ref_type: JatsRefType) -> &mut Self {
+        let id = id.trim();
+        if !id.is_empty() {
+            self.link_targets.entry(id.to_string()).or_insert(ref_type);
+        }
+        self
+    }
+
+    /// Resolve an internal link target to the `ref-type` of the node it addresses.
+    ///
+    /// Returns `None` when nothing in the document has that id, which means the
+    /// link cannot be encoded as an `<xref>` because its `rid` would dangle.
+    pub fn link_target_ref_type(&self, id: &str) -> Option<&JatsRefType> {
+        self.link_targets.get(id)
     }
 
     /// Complete encoding and return its content and losses.

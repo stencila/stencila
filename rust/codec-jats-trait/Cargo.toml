@@ -8,6 +8,7 @@ repository.workspace = true
 [dependencies]
 stencila-codec-info = { path = "../codec-info" }
 stencila-codec-jats-derive = { path = "../codec-jats-derive" }
+strum = { workspace = true }
 
 [lints]
 workspace = true

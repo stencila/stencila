@@ -19,7 +19,7 @@ dom:
 html:
   elem: a
 jats:
-  elem: ext-link
+  derive: false
 latex:
   derive: false
 markdown:
@@ -31,6 +31,8 @@ required:
 core:
   - title
   - rel
+  - jatsRefType
+  - jatsExtLinkType
   - labelOnly
   - compilationMessages
 properties:
@@ -73,8 +75,6 @@ properties:
       formats: [md, smd, myst, ipynb, qmd, lexical, koenig, tiptap]
     html:
       attr: href
-    jats:
-      attr: xlink:href
   title:
     '@id': schema:headline
     description: A title for the link.
@@ -86,8 +86,6 @@ properties:
       formats: [md, smd, myst, ipynb, qmd, lexical, koenig, tiptap]
     html:
       attr: title
-    jats:
-      attr: xlink:title
   rel:
     '@id': schema:linkRelationship
     description:
@@ -98,6 +96,14 @@ properties:
     type: string
     html:
       attr: rel
+  jatsRefType:
+    '@id': stencila:jatsRefType
+    description: The value of the `ref-type` attribute when the link originated as a JATS cross-reference.
+    type: string
+  jatsExtLinkType:
+    '@id': stencila:jatsExtLinkType
+    description: The value of the `ext-link-type` attribute when the link originated as a JATS external link.
+    type: string
   labelOnly:
     '@id': stencila:labelOnly
     description: Only show the label of the internal target (e.g. "2"), rather than both the label type and label (e.g. "Figure 2"). 

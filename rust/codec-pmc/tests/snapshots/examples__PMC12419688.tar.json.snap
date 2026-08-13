@@ -33,7 +33,7 @@ expression: article
   ],
   "datePublished": {
     "type": "DateTime",
-    "value": "2025-8-09"
+    "value": "2025-08-09"
   },
   "references": [
     {
@@ -207,7 +207,14 @@ expression: article
         "issueNumber": 9
       },
       "pageStart": 1714,
-      "pageEnd": 1722
+      "pageEnd": 1722,
+      "identifiers": [
+        {
+          "type": "PropertyValue",
+          "propertyId": "pmid",
+          "value": "30053262"
+        }
+      ]
     },
     {
       "type": "Reference",
@@ -333,7 +340,14 @@ expression: article
         "issueNumber": 4
       },
       "pageStart": 1762,
-      "pageEnd": 1776
+      "pageEnd": 1776,
+      "identifiers": [
+        {
+          "type": "PropertyValue",
+          "propertyId": "pmid",
+          "value": "26082401"
+        }
+      ]
     },
     {
       "type": "Reference",
@@ -506,7 +520,14 @@ expression: article
         "issueNumber": 10
       },
       "pageStart": 4045,
-      "pageEnd": 4065
+      "pageEnd": 4065,
+      "identifiers": [
+        {
+          "type": "PropertyValue",
+          "propertyId": "pmid",
+          "value": "35863053"
+        }
+      ]
     },
     {
       "type": "Reference",
@@ -622,7 +643,14 @@ expression: article
         "volumeNumber": 37,
         "issueNumber": 7
       },
-      "pageStart": "koaf171"
+      "pageStart": "koaf171",
+      "identifiers": [
+        {
+          "type": "PropertyValue",
+          "propertyId": "pmid",
+          "value": "40591741"
+        }
+      ]
     },
     {
       "type": "Reference",
@@ -730,7 +758,14 @@ expression: article
         "issueNumber": 1
       },
       "pageStart": 104,
-      "pageEnd": 124
+      "pageEnd": 124,
+      "identifiers": [
+        {
+          "type": "PropertyValue",
+          "propertyId": "pmid",
+          "value": "34954444"
+        }
+      ]
     },
     {
       "type": "Reference",
@@ -802,7 +837,14 @@ expression: article
         "issueNumber": 8
       },
       "pageStart": 8071,
-      "pageEnd": 8086
+      "pageEnd": 8086,
+      "identifiers": [
+        {
+          "type": "PropertyValue",
+          "propertyId": "pmid",
+          "value": "35318578"
+        }
+      ]
     },
     {
       "type": "Reference",
@@ -865,7 +907,14 @@ expression: article
         "issueNumber": 12
       },
       "pageStart": "R623",
-      "pageEnd": "R629"
+      "pageEnd": "R629",
+      "identifiers": [
+        {
+          "type": "PropertyValue",
+          "propertyId": "pmid",
+          "value": "35728542"
+        }
+      ]
     },
     {
       "type": "Reference",
@@ -946,7 +995,14 @@ expression: article
         "issueNumber": 1
       },
       "pageStart": 499,
-      "pageEnd": 514
+      "pageEnd": 514,
+      "identifiers": [
+        {
+          "type": "PropertyValue",
+          "propertyId": "pmid",
+          "value": "26586833"
+        }
+      ]
     },
     {
       "type": "Reference",
@@ -1018,7 +1074,14 @@ expression: article
         "issueNumber": 5
       },
       "pageStart": 1504,
-      "pageEnd": 1523
+      "pageEnd": 1523,
+      "identifiers": [
+        {
+          "type": "PropertyValue",
+          "propertyId": "pmid",
+          "value": "38163641"
+        }
+      ]
     }
   ],
   "title": [
@@ -1556,7 +1619,8 @@ expression: article
               }
             }
           ],
-          "target": "#koaf197-F1"
+          "target": "#koaf197-F1",
+          "jatsRefType": "fig"
         },
         {
           "type": "Text",
@@ -1740,6 +1804,7 @@ expression: article
     },
     {
       "type": "Section",
+      "id": "koaf197-s1",
       "content": [
         {
           "type": "Heading",
@@ -1893,7 +1958,9 @@ expression: article
                           }
                         }
                       ],
-                      "target": "http://browser.planteome.org/amigo/search/ontology?q=TO:0000071"
+                      "target": "http://browser.planteome.org/amigo/search/ontology?q=TO:0000071",
+                      "title": "anthocyanin content",
+                      "jatsExtLinkType": "uri"
                     },
                     {
                       "type": "Text",
@@ -1933,7 +2000,9 @@ expression: article
                           }
                         }
                       ],
-                      "target": "http://tools.gramene.org/search?query=AT4G28610"
+                      "target": "http://tools.gramene.org/search?query=AT4G28610",
+                      "title": "PHR1",
+                      "jatsExtLinkType": "uri"
                     },
                     {
                       "type": "Text",
@@ -1967,7 +2036,9 @@ expression: article
                           }
                         }
                       ],
-                      "target": "http://bar.utoronto.ca/thalemine/keywordSearchResults.do?searchTerm=AT4G28610&searchSubmit=GO"
+                      "target": "http://bar.utoronto.ca/thalemine/keywordSearchResults.do?searchTerm=AT4G28610&searchSubmit=GO",
+                      "title": "PHR1",
+                      "jatsExtLinkType": "uri"
                     },
                     {
                       "type": "Text",
@@ -2000,6 +2071,11 @@ expression: article
       "type": "PropertyValue",
       "propertyId": "publisher-id",
       "value": "koaf197"
+    },
+    {
+      "type": "PropertyValue",
+      "propertyId": "elocation-id",
+      "value": "koaf197"
     }
   ],
   "about": [
@@ -2011,16 +2087,36 @@ expression: article
     {
       "type": "PropertyValue",
       "propertyId": "category-taxonomy-collection",
+      "value": "AcademicSubjects/SCI01270"
+    },
+    {
+      "type": "PropertyValue",
+      "propertyId": "category-taxonomy-collection",
+      "value": "AcademicSubjects/SCI01280"
+    },
+    {
+      "type": "PropertyValue",
+      "propertyId": "category-taxonomy-collection",
+      "value": "AcademicSubjects/SCI02286"
+    },
+    {
+      "type": "PropertyValue",
+      "propertyId": "category-taxonomy-collection",
+      "value": "AcademicSubjects/SCI02287"
+    },
+    {
+      "type": "PropertyValue",
+      "propertyId": "category-taxonomy-collection",
       "value": "AcademicSubjects/SCI02288"
     }
   ],
   "dateReceived": {
     "type": "DateTime",
-    "value": "2025-8-06"
+    "value": "2025-08-06"
   },
   "dateAccepted": {
     "type": "DateTime",
-    "value": "2025-8-06"
+    "value": "2025-08-06"
   },
   "isPartOf": {
     "type": "PublicationIssue",
@@ -2028,15 +2124,85 @@ expression: article
       "type": "PublicationVolume",
       "isPartOf": {
         "type": "Periodical",
-        "name": "The Plant Cell"
+        "name": "The Plant Cell",
+        "identifiers": [
+          {
+            "type": "PropertyValue",
+            "propertyId": "nlm-ta",
+            "value": "Plant Cell"
+          },
+          {
+            "type": "PropertyValue",
+            "propertyId": "iso-abbrev",
+            "value": "Plant Cell"
+          },
+          {
+            "type": "PropertyValue",
+            "propertyId": "publisher-id",
+            "value": "plcell"
+          },
+          {
+            "type": "PropertyValue",
+            "propertyId": "issn-ppub",
+            "value": "1040-4651"
+          },
+          {
+            "type": "PropertyValue",
+            "propertyId": "issn-epub",
+            "value": "1532-298X"
+          }
+        ],
+        "issns": [
+          "1040-4651",
+          "1532-298X"
+        ]
       },
       "volumeNumber": 37
     },
     "issueNumber": 9
   },
+  "licenses": [
+    "https://creativecommons.org/licenses/by/4.0/"
+  ],
   "publisher": {
     "type": "Organization",
     "name": "Oxford University Press",
     "address": "US"
-  }
+  },
+  "publicationDates": [
+    {
+      "type": "collection",
+      "date": "2025-09"
+    },
+    {
+      "type": "epub",
+      "date": "2025-08-09"
+    },
+    {
+      "type": "pmc-release",
+      "date": "2025-08-09"
+    }
+  ],
+  "historyDates": [
+    {
+      "type": "received",
+      "date": "2025-08-06"
+    },
+    {
+      "type": "accepted",
+      "date": "2025-08-06"
+    },
+    {
+      "type": "corrected-typeset",
+      "date": "2025-09-09"
+    }
+  ],
+  "resources": [
+    {
+      "url": "koaf197.pdf"
+    }
+  ],
+  "copyrightStatement": "© The Author(s) 2025. Published by Oxford University Press on behalf of American Society of Plant Biologists.",
+  "copyrightYear": "2025",
+  "licenseText": "This is an Open Access article distributed under the terms of the Creative Commons Attribution License (https://creativecommons.org/licenses/by/4.0/), which permits unrestricted reuse, distribution, and reproduction in any medium, provided the original work is properly cited."
 }

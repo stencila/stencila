@@ -195,7 +195,7 @@ expression: article
   ],
   "datePublished": {
     "type": "DateTime",
-    "value": "2025"
+    "value": "2025-08-14"
   },
   "references": [
     {
@@ -365,7 +365,14 @@ expression: article
         "volumeNumber": 23
       },
       "pageStart": 2072,
-      "pageEnd": 2092
+      "pageEnd": 2092,
+      "identifiers": [
+        {
+          "type": "PropertyValue",
+          "propertyId": "pmid",
+          "value": "24629132"
+        }
+      ]
     },
     {
       "type": "Reference",
@@ -426,7 +433,14 @@ expression: article
         "volumeNumber": 108
       },
       "pageStart": 349,
-      "pageEnd": 360
+      "pageEnd": 360,
+      "identifiers": [
+        {
+          "type": "PropertyValue",
+          "propertyId": "pmid",
+          "value": "28498987"
+        }
+      ]
     },
     {
       "type": "Reference",
@@ -526,7 +540,14 @@ expression: article
         "volumeNumber": 6
       },
       "pageStart": 5321,
-      "pageEnd": 5332
+      "pageEnd": 5332,
+      "identifiers": [
+        {
+          "type": "PropertyValue",
+          "propertyId": "pmid",
+          "value": "27551385"
+        }
+      ]
     },
     {
       "type": "Reference",
@@ -976,7 +997,14 @@ expression: article
         ],
         "volumeNumber": 13
       },
-      "pageStart": "e0200828"
+      "pageStart": "e0200828",
+      "identifiers": [
+        {
+          "type": "PropertyValue",
+          "propertyId": "pmid",
+          "value": "30028844"
+        }
+      ]
     },
     {
       "type": "Reference",
@@ -1106,12 +1134,20 @@ expression: article
         "volumeNumber": 11
       },
       "pageStart": 4205,
-      "pageEnd": 4217
+      "pageEnd": 4217,
+      "identifiers": [
+        {
+          "type": "PropertyValue",
+          "propertyId": "pmid",
+          "value": "33976804"
+        }
+      ]
     },
     {
       "type": "Reference",
       "id": "CR22",
       "workType": "Article",
+      "doi": "10.13057/biodiv/d250650",
       "authors": [
         {
           "type": "Person",
@@ -1405,12 +1441,20 @@ expression: article
         "volumeNumber": 270
       },
       "pageStart": 729,
-      "pageEnd": 744
+      "pageEnd": 744,
+      "identifiers": [
+        {
+          "type": "PropertyValue",
+          "propertyId": "pmid",
+          "value": "19123240"
+        }
+      ]
     },
     {
       "type": "Reference",
       "id": "CR27",
       "workType": "Article",
+      "doi": "10.1111/j.1096-3642.2010.00636.x",
       "authors": [
         {
           "type": "Person",
@@ -1523,7 +1567,14 @@ expression: article
         ],
         "volumeNumber": 55
       },
-      "pageStart": "e1"
+      "pageStart": "e1",
+      "identifiers": [
+        {
+          "type": "PropertyValue",
+          "propertyId": "pmid",
+          "value": "31966146"
+        }
+      ]
     },
     {
       "type": "Reference",
@@ -1596,7 +1647,14 @@ expression: article
         "volumeNumber": 10
       },
       "pageStart": 146,
-      "pageEnd": 152
+      "pageEnd": 152,
+      "identifiers": [
+        {
+          "type": "PropertyValue",
+          "propertyId": "pmid",
+          "value": "17257102"
+        }
+      ]
     },
     {
       "type": "Reference",
@@ -1797,7 +1855,14 @@ expression: article
         ],
         "volumeNumber": 3
       },
-      "pageStart": "e1309"
+      "pageStart": "e1309",
+      "identifiers": [
+        {
+          "type": "PropertyValue",
+          "propertyId": "pmid",
+          "value": "26500818"
+        }
+      ]
     },
     {
       "type": "Reference",
@@ -1958,7 +2023,14 @@ expression: article
         ],
         "volumeNumber": 3
       },
-      "pageStart": 160350
+      "pageStart": 160350,
+      "identifiers": [
+        {
+          "type": "PropertyValue",
+          "propertyId": "pmid",
+          "value": "27853549"
+        }
+      ]
     },
     {
       "type": "Reference",
@@ -2078,7 +2150,14 @@ expression: article
         "volumeNumber": 35
       },
       "pageStart": 477,
-      "pageEnd": 483
+      "pageEnd": 483,
+      "identifiers": [
+        {
+          "type": "PropertyValue",
+          "propertyId": "pmid",
+          "value": "32396814"
+        }
+      ]
     },
     {
       "type": "Reference",
@@ -2122,7 +2201,14 @@ expression: article
         "volumeNumber": 91
       },
       "pageStart": 1361,
-      "pageEnd": 1372
+      "pageEnd": 1372,
+      "identifiers": [
+        {
+          "type": "PropertyValue",
+          "propertyId": "pmid",
+          "value": "35593055"
+        }
+      ]
     },
     {
       "type": "Reference",
@@ -2347,7 +2433,14 @@ expression: article
         "volumeNumber": 317
       },
       "pageStart": 519,
-      "pageEnd": 523
+      "pageEnd": 523,
+      "identifiers": [
+        {
+          "type": "PropertyValue",
+          "propertyId": "pmid",
+          "value": "17600185"
+        }
+      ]
     },
     {
       "type": "Reference",
@@ -2410,7 +2503,14 @@ expression: article
         ],
         "volumeNumber": 9
       },
-      "pageStart": 795
+      "pageStart": 795,
+      "identifiers": [
+        {
+          "type": "PropertyValue",
+          "propertyId": "pmid",
+          "value": "31615026"
+        }
+      ]
     },
     {
       "type": "Reference",
@@ -2469,7 +2569,14 @@ expression: article
         ],
         "volumeNumber": 7
       },
-      "pageStart": "eabg0221"
+      "pageStart": "eabg0221",
+      "identifiers": [
+        {
+          "type": "PropertyValue",
+          "propertyId": "pmid",
+          "value": "34162544"
+        }
+      ]
     },
     {
       "type": "Reference",
@@ -2821,7 +2928,14 @@ expression: article
         ],
         "volumeNumber": 9
       },
-      "pageStart": "e94527"
+      "pageStart": "e94527",
+      "identifiers": [
+        {
+          "type": "PropertyValue",
+          "propertyId": "pmid",
+          "value": "24718586"
+        }
+      ]
     },
     {
       "type": "Reference",
@@ -2864,7 +2978,14 @@ expression: article
         ],
         "volumeNumber": 13
       },
-      "pageStart": 3616
+      "pageStart": 3616,
+      "identifiers": [
+        {
+          "type": "PropertyValue",
+          "propertyId": "pmid",
+          "value": "38066967"
+        }
+      ]
     },
     {
       "type": "Reference",
@@ -2923,7 +3044,14 @@ expression: article
         ],
         "volumeNumber": 14
       },
-      "pageStart": 24251
+      "pageStart": 24251,
+      "identifiers": [
+        {
+          "type": "PropertyValue",
+          "propertyId": "pmid",
+          "value": "39414828"
+        }
+      ]
     },
     {
       "type": "Reference",
@@ -3188,6 +3316,7 @@ expression: article
   "content": [
     {
       "type": "Section",
+      "id": "Sec1",
       "sectionType": "Introduction",
       "content": [
         {
@@ -3357,7 +3486,8 @@ expression: article
                   }
                 }
               ],
-              "target": "#MOESM1"
+              "target": "#MOESM1",
+              "jatsRefType": "media"
             },
             {
               "type": "Text",
@@ -3491,7 +3621,8 @@ expression: article
                   }
                 }
               ],
-              "target": "#MOESM1"
+              "target": "#MOESM1",
+              "jatsRefType": "media"
             },
             {
               "type": "Text",
@@ -4171,6 +4302,7 @@ expression: article
     },
     {
       "type": "Section",
+      "id": "Sec2",
       "sectionType": "Results",
       "content": [
         {
@@ -4187,6 +4319,7 @@ expression: article
         },
         {
           "type": "Section",
+          "id": "Sec3",
           "content": [
             {
               "type": "Heading",
@@ -4236,7 +4369,8 @@ expression: article
                       }
                     }
                   ],
-                  "target": "#MOESM1"
+                  "target": "#MOESM1",
+                  "jatsRefType": "media"
                 },
                 {
                   "type": "Text",
@@ -4250,6 +4384,7 @@ expression: article
         },
         {
           "type": "Section",
+          "id": "Sec4",
           "content": [
             {
               "type": "Heading",
@@ -4282,7 +4417,8 @@ expression: article
                       }
                     }
                   ],
-                  "target": "#Fig1"
+                  "target": "#Fig1",
+                  "jatsRefType": "fig"
                 },
                 {
                   "type": "Text",
@@ -4300,7 +4436,8 @@ expression: article
                       }
                     }
                   ],
-                  "target": "#Fig1"
+                  "target": "#Fig1",
+                  "jatsRefType": "fig"
                 },
                 {
                   "type": "Text",
@@ -4335,7 +4472,8 @@ expression: article
                       }
                     }
                   ],
-                  "target": "#Tab1"
+                  "target": "#Tab1",
+                  "jatsRefType": "table"
                 },
                 {
                   "type": "Text",
@@ -4353,7 +4491,8 @@ expression: article
                       }
                     }
                   ],
-                  "target": "#Tab1"
+                  "target": "#Tab1",
+                  "jatsRefType": "table"
                 },
                 {
                   "type": "Text",
@@ -7611,6 +7750,7 @@ expression: article
         },
         {
           "type": "Section",
+          "id": "Sec5",
           "content": [
             {
               "type": "Heading",
@@ -7643,7 +7783,8 @@ expression: article
                       }
                     }
                   ],
-                  "target": "#Fig2"
+                  "target": "#Fig2",
+                  "jatsRefType": "fig"
                 },
                 {
                   "type": "Text",
@@ -7833,7 +7974,8 @@ expression: article
                       }
                     }
                   ],
-                  "target": "#Fig2"
+                  "target": "#Fig2",
+                  "jatsRefType": "fig"
                 },
                 {
                   "type": "Text",
@@ -7851,7 +7993,8 @@ expression: article
                       }
                     }
                   ],
-                  "target": "#Fig1"
+                  "target": "#Fig1",
+                  "jatsRefType": "fig"
                 },
                 {
                   "type": "Text",
@@ -7869,7 +8012,8 @@ expression: article
                       }
                     }
                   ],
-                  "target": "#Fig2"
+                  "target": "#Fig2",
+                  "jatsRefType": "fig"
                 },
                 {
                   "type": "Text",
@@ -7887,7 +8031,8 @@ expression: article
                       }
                     }
                   ],
-                  "target": "#Fig2"
+                  "target": "#Fig2",
+                  "jatsRefType": "fig"
                 },
                 {
                   "type": "Text",
@@ -7905,7 +8050,8 @@ expression: article
                       }
                     }
                   ],
-                  "target": "#Tab2"
+                  "target": "#Tab2",
+                  "jatsRefType": "table"
                 },
                 {
                   "type": "Text",
@@ -7923,7 +8069,8 @@ expression: article
                       }
                     }
                   ],
-                  "target": "#Tab2"
+                  "target": "#Tab2",
+                  "jatsRefType": "table"
                 },
                 {
                   "type": "Text",
@@ -7941,7 +8088,8 @@ expression: article
                       }
                     }
                   ],
-                  "target": "#Tab2"
+                  "target": "#Tab2",
+                  "jatsRefType": "table"
                 },
                 {
                   "type": "Text",
@@ -7959,7 +8107,8 @@ expression: article
                       }
                     }
                   ],
-                  "target": "#Tab2"
+                  "target": "#Tab2",
+                  "jatsRefType": "table"
                 },
                 {
                   "type": "Text",
@@ -16286,6 +16435,7 @@ expression: article
     },
     {
       "type": "Section",
+      "id": "Sec6",
       "sectionType": "Discussion",
       "content": [
         {
@@ -16302,6 +16452,7 @@ expression: article
         },
         {
           "type": "Section",
+          "id": "Sec7",
           "content": [
             {
               "type": "Heading",
@@ -16334,7 +16485,8 @@ expression: article
                       }
                     }
                   ],
-                  "target": "#Tab1"
+                  "target": "#Tab1",
+                  "jatsRefType": "table"
                 },
                 {
                   "type": "Text",
@@ -16352,7 +16504,8 @@ expression: article
                       }
                     }
                   ],
-                  "target": "#Tab2"
+                  "target": "#Tab2",
+                  "jatsRefType": "table"
                 },
                 {
                   "type": "Text",
@@ -16370,7 +16523,8 @@ expression: article
                       }
                     }
                   ],
-                  "target": "#Tab1"
+                  "target": "#Tab1",
+                  "jatsRefType": "table"
                 },
                 {
                   "type": "Text",
@@ -16388,7 +16542,8 @@ expression: article
                       }
                     }
                   ],
-                  "target": "#Tab2"
+                  "target": "#Tab2",
+                  "jatsRefType": "table"
                 },
                 {
                   "type": "Text",
@@ -16406,7 +16561,8 @@ expression: article
                       }
                     }
                   ],
-                  "target": "#Tab2"
+                  "target": "#Tab2",
+                  "jatsRefType": "table"
                 },
                 {
                   "type": "Text",
@@ -16459,7 +16615,8 @@ expression: article
                       }
                     }
                   ],
-                  "target": "#Tab2"
+                  "target": "#Tab2",
+                  "jatsRefType": "table"
                 },
                 {
                   "type": "Text",
@@ -16477,7 +16634,8 @@ expression: article
                       }
                     }
                   ],
-                  "target": "#Tab2"
+                  "target": "#Tab2",
+                  "jatsRefType": "table"
                 },
                 {
                   "type": "Text",
@@ -16495,7 +16653,8 @@ expression: article
                       }
                     }
                   ],
-                  "target": "#Fig1"
+                  "target": "#Fig1",
+                  "jatsRefType": "fig"
                 },
                 {
                   "type": "Text",
@@ -16509,6 +16668,7 @@ expression: article
         },
         {
           "type": "Section",
+          "id": "Sec8",
           "content": [
             {
               "type": "Heading",
@@ -16626,6 +16786,7 @@ expression: article
         },
         {
           "type": "Section",
+          "id": "Sec9",
           "content": [
             {
               "type": "Heading",
@@ -16762,6 +16923,7 @@ expression: article
         },
         {
           "type": "Section",
+          "id": "Sec10",
           "content": [
             {
               "type": "Heading",
@@ -17070,6 +17232,7 @@ expression: article
     },
     {
       "type": "Section",
+      "id": "Sec11",
       "sectionType": "Materials",
       "content": [
         {
@@ -17086,6 +17249,7 @@ expression: article
         },
         {
           "type": "Section",
+          "id": "Sec12",
           "content": [
             {
               "type": "Heading",
@@ -17305,6 +17469,7 @@ expression: article
         },
         {
           "type": "Section",
+          "id": "Sec13",
           "sectionType": "StatisticalAnalysis",
           "content": [
             {
@@ -17558,7 +17723,8 @@ expression: article
                       }
                     }
                   ],
-                  "target": "https://www.r-project.org"
+                  "target": "https://www.r-project.org",
+                  "jatsExtLinkType": "uri"
                 },
                 {
                   "type": "Text",
@@ -17574,6 +17740,7 @@ expression: article
     },
     {
       "type": "Section",
+      "id": "Sec14",
       "sectionType": "SupplementaryMaterials",
       "content": [
         {
@@ -17778,6 +17945,11 @@ expression: article
       "type": "PropertyValue",
       "propertyId": "publisher-id",
       "value": "15365"
+    },
+    {
+      "type": "PropertyValue",
+      "propertyId": "elocation-id",
+      "value": "29845"
     }
   ],
   "about": [
@@ -17789,11 +17961,11 @@ expression: article
   ],
   "dateReceived": {
     "type": "DateTime",
-    "value": "2025-5-15"
+    "value": "2025-05-15"
   },
   "dateAccepted": {
     "type": "DateTime",
-    "value": "2025-8-7"
+    "value": "2025-08-07"
   },
   "keywords": [
     "Competition",
@@ -17810,13 +17982,53 @@ expression: article
     "type": "PublicationVolume",
     "isPartOf": {
       "type": "Periodical",
-      "name": "Scientific Reports"
+      "name": "Scientific Reports",
+      "identifiers": [
+        {
+          "type": "PropertyValue",
+          "propertyId": "nlm-ta",
+          "value": "Sci Rep"
+        },
+        {
+          "type": "PropertyValue",
+          "propertyId": "iso-abbrev",
+          "value": "Sci Rep"
+        },
+        {
+          "type": "PropertyValue",
+          "propertyId": "issn-epub",
+          "value": "2045-2322"
+        }
+      ],
+      "issns": [
+        "2045-2322"
+      ]
     },
     "volumeNumber": 15
   },
+  "licenses": [
+    "https://creativecommons.org/licenses/by-nc-nd/4.0/"
+  ],
   "publisher": {
     "type": "Organization",
     "name": "Nature Publishing Group UK",
     "address": "London"
-  }
+  },
+  "publicationDates": [
+    {
+      "type": "epub",
+      "date": "2025-08-14"
+    },
+    {
+      "type": "pmc-release",
+      "date": "2025-08-14"
+    },
+    {
+      "type": "collection",
+      "date": "2025"
+    }
+  ],
+  "copyrightStatement": "© The Author(s) 2025",
+  "copyrightYear": "2025",
+  "licenseText": "Open Access This article is licensed under a Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License, which permits any non-commercial use, sharing, distribution and reproduction in any medium or format, as long as you give appropriate credit to the original author(s) and the source, provide a link to the Creative Commons licence, and indicate if you modified the licensed material. You do not have permission under this licence to share adapted material derived from this article or parts of it. The images or other third party material in this article are included in the article’s Creative Commons licence, unless indicated otherwise in a credit line to the material. If material is not included in the article’s Creative Commons licence and your intended use is not permitted by statutory regulation or exceeds the permitted use, you will need to obtain permission directly from the copyright holder. To view a copy of this licence, visit http://creativecommons.org/licenses/by-nc-nd/4.0/."
 }
