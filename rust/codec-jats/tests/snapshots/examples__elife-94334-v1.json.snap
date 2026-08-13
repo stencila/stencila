@@ -32198,7 +32198,8 @@ expression: article
       ],
       "givenNames": [
         "Andrés"
-      ]
+      ],
+      "jobTitle": "Reviewing Editor"
     },
     {
       "type": "Person",
@@ -32216,34 +32217,274 @@ expression: article
       "givenNames": [
         "Jonathan",
         "A"
-      ]
+      ],
+      "jobTitle": "Senior Editor"
     }
   ],
   "funders": [
     {
       "type": "Organization",
       "name": "National Institutes of Health",
-      "url": "http://dx.doi.org/10.13039/100000002"
-    },
-    {
-      "type": "Organization",
-      "name": "National Institutes of Health",
-      "url": "http://dx.doi.org/10.13039/100000002"
+      "identifiers": [
+        {
+          "type": "PropertyValue",
+          "propertyId": "FundRef",
+          "value": "http://dx.doi.org/10.13039/100000002"
+        }
+      ]
     },
     {
       "type": "Organization",
       "name": "Howard Hughes Medical Institute",
-      "url": "http://dx.doi.org/10.13039/100000011"
-    },
-    {
-      "type": "Organization",
-      "name": "National Institutes of Health",
-      "url": "http://dx.doi.org/10.13039/100000002"
+      "identifiers": [
+        {
+          "type": "PropertyValue",
+          "propertyId": "FundRef",
+          "value": "http://dx.doi.org/10.13039/100000011"
+        }
+      ]
     },
     {
       "type": "Organization",
       "name": "National Institute of General Medical Sciences",
-      "url": "http://dx.doi.org/10.13039/100000057"
+      "identifiers": [
+        {
+          "type": "PropertyValue",
+          "propertyId": "FundRef",
+          "value": "http://dx.doi.org/10.13039/100000057"
+        }
+      ]
+    }
+  ],
+  "fundedBy": [
+    {
+      "type": "MonetaryGrant",
+      "id": "fund1",
+      "identifiers": [
+        {
+          "type": "PropertyValue",
+          "propertyId": "award-id",
+          "value": "R35 GM127029"
+        }
+      ],
+      "fundedItems": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Zhou"
+          ],
+          "givenNames": [
+            "Felix",
+            "Y"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Waterman"
+          ],
+          "givenNames": [
+            "David",
+            "P"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Ashton"
+          ],
+          "givenNames": [
+            "Marissa"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Eapen"
+          ],
+          "givenNames": [
+            "Vinay",
+            "V"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Haber"
+          ],
+          "givenNames": [
+            "James",
+            "E"
+          ]
+        }
+      ],
+      "funders": [
+        {
+          "type": "Organization",
+          "name": "National Institutes of Health",
+          "identifiers": [
+            {
+              "type": "PropertyValue",
+              "propertyId": "FundRef",
+              "value": "http://dx.doi.org/10.13039/100000002"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "MonetaryGrant",
+      "id": "fund2",
+      "identifiers": [
+        {
+          "type": "PropertyValue",
+          "propertyId": "award-id",
+          "value": "TM32GM007122"
+        }
+      ],
+      "fundedItems": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Zhou"
+          ],
+          "givenNames": [
+            "Felix",
+            "Y"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Waterman"
+          ],
+          "givenNames": [
+            "David",
+            "P"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Caban-Penix"
+          ],
+          "givenNames": [
+            "Suhaily"
+          ]
+        }
+      ],
+      "funders": [
+        {
+          "type": "Organization",
+          "name": "National Institutes of Health",
+          "identifiers": [
+            {
+              "type": "PropertyValue",
+              "propertyId": "FundRef",
+              "value": "http://dx.doi.org/10.13039/100000002"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "MonetaryGrant",
+      "id": "fund3",
+      "fundedItems": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Eapen"
+          ],
+          "givenNames": [
+            "Vinay",
+            "V"
+          ]
+        }
+      ],
+      "funders": [
+        {
+          "type": "Organization",
+          "name": "Howard Hughes Medical Institute",
+          "identifiers": [
+            {
+              "type": "PropertyValue",
+              "propertyId": "FundRef",
+              "value": "http://dx.doi.org/10.13039/100000011"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "MonetaryGrant",
+      "id": "fund4",
+      "identifiers": [
+        {
+          "type": "PropertyValue",
+          "propertyId": "award-id",
+          "value": "F32-GM145156"
+        }
+      ],
+      "fundedItems": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Memisoglu"
+          ],
+          "givenNames": [
+            "Gonen"
+          ]
+        }
+      ],
+      "funders": [
+        {
+          "type": "Organization",
+          "name": "National Institutes of Health",
+          "identifiers": [
+            {
+              "type": "PropertyValue",
+              "propertyId": "FundRef",
+              "value": "http://dx.doi.org/10.13039/100000002"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "MonetaryGrant",
+      "id": "fund5",
+      "identifiers": [
+        {
+          "type": "PropertyValue",
+          "propertyId": "award-id",
+          "value": "5T32GM139798"
+        }
+      ],
+      "fundedItems": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Ashton"
+          ],
+          "givenNames": [
+            "Marissa"
+          ]
+        }
+      ],
+      "funders": [
+        {
+          "type": "Organization",
+          "name": "National Institute of General Medical Sciences",
+          "identifiers": [
+            {
+              "type": "PropertyValue",
+              "propertyId": "FundRef",
+              "value": "http://dx.doi.org/10.13039/100000057"
+            }
+          ]
+        }
+      ]
     }
   ],
   "keywords": [
@@ -32309,7 +32550,8 @@ expression: article
           ],
           "givenNames": [
             "Andrés"
-          ]
+          ],
+          "jobTitle": "Reviewing Editor"
         }
       ],
       "title": [
@@ -32381,7 +32623,8 @@ expression: article
       "doi": "10.7554/eLife.94334.3.sa1",
       "authors": [
         {
-          "type": "Person"
+          "type": "Person",
+          "jobTitle": "Reviewer"
         }
       ],
       "title": [
@@ -32470,7 +32713,8 @@ expression: article
       "doi": "10.7554/eLife.94334.3.sa2",
       "authors": [
         {
-          "type": "Person"
+          "type": "Person",
+          "jobTitle": "Reviewer"
         }
       ],
       "title": [
@@ -32537,7 +32781,8 @@ expression: article
       "doi": "10.7554/eLife.94334.3.sa3",
       "authors": [
         {
-          "type": "Person"
+          "type": "Person",
+          "jobTitle": "Reviewer"
         }
       ],
       "title": [
@@ -32639,7 +32884,8 @@ expression: article
           ],
           "givenNames": [
             "Felix"
-          ]
+          ],
+          "jobTitle": "Author"
         },
         {
           "type": "Person",
@@ -32656,7 +32902,8 @@ expression: article
           "givenNames": [
             "David",
             "P"
-          ]
+          ],
+          "jobTitle": "Author"
         },
         {
           "type": "Person",
@@ -32672,7 +32919,8 @@ expression: article
           ],
           "givenNames": [
             "Marissa"
-          ]
+          ],
+          "jobTitle": "Author"
         },
         {
           "type": "Person",
@@ -32688,7 +32936,8 @@ expression: article
           ],
           "givenNames": [
             "Suhaily"
-          ]
+          ],
+          "jobTitle": "Author"
         },
         {
           "type": "Person",
@@ -32704,7 +32953,8 @@ expression: article
           ],
           "givenNames": [
             "Gonen"
-          ]
+          ],
+          "jobTitle": "Author"
         },
         {
           "type": "Person",
@@ -32721,7 +32971,8 @@ expression: article
           "givenNames": [
             "Vinay",
             "V"
-          ]
+          ],
+          "jobTitle": "Author"
         },
         {
           "type": "Person",
@@ -32738,7 +32989,8 @@ expression: article
           "givenNames": [
             "James",
             "E"
-          ]
+          ],
+          "jobTitle": "Author"
         }
       ],
       "title": [
@@ -33910,5 +34162,19 @@ expression: article
   "copyrightStatement": "© 2024, Zhou, Waterman et al",
   "copyrightYear": "2024",
   "copyrightHolder": "Zhou, Waterman et al",
-  "licenseText": "This article is distributed under the terms of the Creative Commons Attribution License, which permits unrestricted use and redistribution provided that the original author and source are credited."
+  "licenseText": "This article is distributed under the terms of the Creative Commons Attribution License, which permits unrestricted use and redistribution provided that the original author and source are credited.",
+  "authorNotes": [
+    {
+      "id": "equal-contrib1",
+      "type": "con",
+      "label": "†",
+      "text": "These authors contributed equally to this work"
+    },
+    {
+      "id": "pa1",
+      "type": "present-address",
+      "label": "‡",
+      "text": "Flagship Pioneering, Cambridge, United States"
+    }
+  ]
 }

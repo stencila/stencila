@@ -100,6 +100,48 @@ expression: jats
           <addr-line>United States</addr-line>
         </aff>
       </contrib-group>
+      <contrib-group content-type="editor">
+        <contrib contrib-type="editor">
+          <name>
+            <surname>Aguilera</surname>
+            <given-names>Andrés</given-names>
+          </name>
+          <xref ref-type="aff" rid="editor-aff1"></xref>
+          <role>Reviewing Editor</role>
+        </contrib>
+        <contrib contrib-type="editor">
+          <name>
+            <surname>Cooper</surname>
+            <given-names>Jonathan A</given-names>
+          </name>
+          <xref ref-type="aff" rid="editor-aff2"></xref>
+          <role>Senior Editor</role>
+        </contrib>
+        <aff id="editor-aff1">
+          <institution-wrap>
+            <institution>CABIMER, Universidad de Sevilla</institution>
+            <institution-id institution-id-type="ror">https://ror.org/03nb7bx92</institution-id>
+          </institution-wrap>
+          <addr-line>Spain</addr-line>
+        </aff>
+        <aff id="editor-aff2">
+          <institution-wrap>
+            <institution>Fred Hutchinson Cancer Research Center</institution>
+            <institution-id institution-id-type="ror">https://ror.org/007ps6h72</institution-id>
+          </institution-wrap>
+          <addr-line>United States</addr-line>
+        </aff>
+      </contrib-group>
+      <author-notes>
+        <fn id="equal-contrib1" fn-type="con">
+          <label>†</label>
+          <p>These authors contributed equally to this work</p>
+        </fn>
+        <fn id="pa1" fn-type="present-address">
+          <label>‡</label>
+          <p>Flagship Pioneering, Cambridge, United States</p>
+        </fn>
+      </author-notes>
       <pub-date pub-type="publication" iso-8601-date="2024-12-10">
         <year>2024</year>
         <month>12</month>
@@ -168,6 +210,106 @@ expression: jats
         <kwd>HO endonuclease</kwd>
         <kwd>S. cerevisiae</kwd>
       </kwd-group>
+      <funding-group>
+        <award-group id="fund1">
+          <funding-source>
+            <institution-wrap>
+              <institution>National Institutes of Health</institution>
+              <institution-id institution-id-type="FundRef">http://dx.doi.org/10.13039/100000002</institution-id>
+            </institution-wrap>
+          </funding-source>
+          <award-id>R35 GM127029</award-id>
+          <principal-award-recipient>
+            <name>
+              <surname>Zhou</surname>
+              <given-names>Felix Y</given-names>
+            </name>
+            <name>
+              <surname>Waterman</surname>
+              <given-names>David P</given-names>
+            </name>
+            <name>
+              <surname>Ashton</surname>
+              <given-names>Marissa</given-names>
+            </name>
+            <name>
+              <surname>Eapen</surname>
+              <given-names>Vinay V</given-names>
+            </name>
+            <name>
+              <surname>Haber</surname>
+              <given-names>James E</given-names>
+            </name>
+          </principal-award-recipient>
+        </award-group>
+        <award-group id="fund2">
+          <funding-source>
+            <institution-wrap>
+              <institution>National Institutes of Health</institution>
+              <institution-id institution-id-type="FundRef">http://dx.doi.org/10.13039/100000002</institution-id>
+            </institution-wrap>
+          </funding-source>
+          <award-id>TM32GM007122</award-id>
+          <principal-award-recipient>
+            <name>
+              <surname>Zhou</surname>
+              <given-names>Felix Y</given-names>
+            </name>
+            <name>
+              <surname>Waterman</surname>
+              <given-names>David P</given-names>
+            </name>
+            <name>
+              <surname>Caban-Penix</surname>
+              <given-names>Suhaily</given-names>
+            </name>
+          </principal-award-recipient>
+        </award-group>
+        <award-group id="fund3">
+          <funding-source>
+            <institution-wrap>
+              <institution>Howard Hughes Medical Institute</institution>
+              <institution-id institution-id-type="FundRef">http://dx.doi.org/10.13039/100000011</institution-id>
+            </institution-wrap>
+          </funding-source>
+          <principal-award-recipient>
+            <name>
+              <surname>Eapen</surname>
+              <given-names>Vinay V</given-names>
+            </name>
+          </principal-award-recipient>
+        </award-group>
+        <award-group id="fund4">
+          <funding-source>
+            <institution-wrap>
+              <institution>National Institutes of Health</institution>
+              <institution-id institution-id-type="FundRef">http://dx.doi.org/10.13039/100000002</institution-id>
+            </institution-wrap>
+          </funding-source>
+          <award-id>F32-GM145156</award-id>
+          <principal-award-recipient>
+            <name>
+              <surname>Memisoglu</surname>
+              <given-names>Gonen</given-names>
+            </name>
+          </principal-award-recipient>
+        </award-group>
+        <award-group id="fund5">
+          <funding-source>
+            <institution-wrap>
+              <institution>National Institute of General Medical Sciences</institution>
+              <institution-id institution-id-type="FundRef">http://dx.doi.org/10.13039/100000057</institution-id>
+            </institution-wrap>
+          </funding-source>
+          <award-id>5T32GM139798</award-id>
+          <principal-award-recipient>
+            <name>
+              <surname>Ashton</surname>
+              <given-names>Marissa</given-names>
+            </name>
+          </principal-award-recipient>
+        </award-group>
+      </funding-group>
     </article-meta>
   </front>
   <body>
@@ -3995,6 +4137,7 @@ expression: jats
             <given-names>Andrés</given-names>
           </name>
           <xref ref-type="aff" rid="aff1"></xref>
+          <role>Reviewing Editor</role>
         </contrib>
         <aff id="aff1">
           <institution-wrap>
@@ -4067,6 +4210,7 @@ expression: jats
             <given-names>Felix</given-names>
           </name>
           <xref ref-type="aff" rid="aff1"></xref>
+          <role>Author</role>
         </contrib>
         <contrib contrib-type="author">
           <name>
@@ -4074,6 +4218,7 @@ expression: jats
             <given-names>David P</given-names>
           </name>
           <xref ref-type="aff" rid="aff1"></xref>
+          <role>Author</role>
         </contrib>
         <contrib contrib-type="author">
           <name>
@@ -4081,6 +4226,7 @@ expression: jats
             <given-names>Marissa</given-names>
           </name>
           <xref ref-type="aff" rid="aff1"></xref>
+          <role>Author</role>
         </contrib>
         <contrib contrib-type="author">
           <name>
@@ -4088,6 +4234,7 @@ expression: jats
             <given-names>Suhaily</given-names>
           </name>
           <xref ref-type="aff" rid="aff1"></xref>
+          <role>Author</role>
         </contrib>
         <contrib contrib-type="author">
           <name>
@@ -4095,6 +4242,7 @@ expression: jats
             <given-names>Gonen</given-names>
           </name>
           <xref ref-type="aff" rid="aff1"></xref>
+          <role>Author</role>
         </contrib>
         <contrib contrib-type="author">
           <name>
@@ -4102,6 +4250,7 @@ expression: jats
             <given-names>Vinay V</given-names>
           </name>
           <xref ref-type="aff" rid="aff1"></xref>
+          <role>Author</role>
         </contrib>
         <contrib contrib-type="author">
           <name>
@@ -4109,6 +4258,7 @@ expression: jats
             <given-names>James E</given-names>
           </name>
           <xref ref-type="aff" rid="aff1"></xref>
+          <role>Author</role>
         </contrib>
         <aff id="aff1">
           <institution-wrap>

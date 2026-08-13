@@ -2,9 +2,9 @@ use std::collections::BTreeMap;
 
 use crate::{
     Article, Author, AuthorRoleAuthor, Block, CreativeWorkType, CreativeWorkVariant,
-    CreativeWorkVariantOrString, DateTime, Heading, Inline, Organization, Periodical, Person,
-    PersonOrOrganization, PostalAddressOrString, Primitive, PropertyValueOrString,
-    PublicationIssue, RawBlock, Reference, SectionType, Text, ThingVariant,
+    CreativeWorkVariantOrString, DateTime, GrantOrMonetaryGrant, Heading, Inline, Organization,
+    Periodical, Person, PersonOrOrganization, PostalAddressOrString, Primitive,
+    PropertyValueOrString, PublicationIssue, RawBlock, Reference, SectionType, Text, ThingVariant,
     prelude::*,
     replicate,
     shortcuts::{h1, t},
@@ -759,6 +759,15 @@ struct ArticleExtra<'a> {
     copyright_year: Option<&'a str>,
     copyright_holder: Option<&'a str>,
     license_text: Option<&'a str>,
+    author_notes: Vec<AuthorNote<'a>>,
+}
+
+/// A note about the contributors of an article
+struct AuthorNote<'a> {
+    id: Option<&'a str>,
+    note_type: Option<&'a str>,
+    label: Option<&'a str>,
+    text: &'a str,
 }
 
 /// An event in the publication history of an article
@@ -830,6 +839,23 @@ fn article_extra<'a>(article: &'a Article, context: &mut JatsEncodeContext) -> A
                                 object.get("role").and_then(string),
                                 url,
                             ));
+                        }
+                    }
+                }
+            }
+            "authorNotes" => {
+                if let Primitive::Array(values) = value {
+                    for value in values.iter() {
+                        let Primitive::Object(object) = value else {
+                            continue;
+                        };
+                        if let Some(text) = object.get("text").and_then(string) {
+                            extra.author_notes.push(AuthorNote {
+                                id: object.get("id").and_then(string),
+                                note_type: object.get("type").and_then(string),
+                                label: object.get("label").and_then(string),
+                                text,
+                            });
                         }
                     }
                 }
@@ -1039,12 +1065,13 @@ fn encode_publisher(publisher: &PersonOrOrganization, context: &mut JatsEncodeCo
 
 fn encode_article_author(
     author: &Author,
+    contrib_type: &str,
     affiliations: &BTreeMap<String, String>,
     context: &mut JatsEncodeContext,
 ) {
     context
         .enter_elem("contrib")
-        .push_attr("contrib-type", "author");
+        .push_attr("contrib-type", contrib_type);
 
     let (person, role, encoded) = match author {
         Author::Person(person) => {
@@ -1119,6 +1146,17 @@ fn encode_article_author(
                 .push_text(normalize_orcid(orcid))
                 .exit_elem();
         }
+        for identifier in &identifiers(
+            person.options.identifiers.as_deref(),
+            "Person.identifiers",
+            context,
+        ) {
+            context.enter_elem("contrib-id");
+            if let Some(property_id) = identifier.property_id {
+                context.push_attr("contrib-id-type", property_id);
+            }
+            context.push_text(&identifier.value).exit_elem();
+        }
         if let Some(emails) = &person.options.emails {
             for email in emails
                 .iter()
@@ -1140,10 +1178,189 @@ fn encode_article_author(
             }
         }
     }
-    if let Some(role) = role {
+    // The role that a person had, e.g. `Reviewing Editor`, is held as their job
+    // title because the schema has no role of its own for a contributor
+    if let Some(role) = role.or_else(|| {
+        person
+            .and_then(|person| person.options.job_title.as_deref())
+            .map(str::trim)
+            .filter(|role| !role.is_empty())
+            .map(String::from)
+    }) {
         encode_text_element(context, "role", &role);
     }
+    if let Some(address) = person.and_then(|person| person.options.address.as_ref()) {
+        let address = address_parts(address).join(", ");
+        if !address.is_empty() {
+            encode_text_element(context, "address", &address);
+        }
+    }
     context.exit_elem();
+}
+
+/// Emit the `<institution-id>` elements of an organization
+///
+/// A ROR id has its own property and is emitted by the caller; these are the
+/// identifiers of any other kind, such as a Crossref Funder Registry id, each of
+/// which keeps the kind of id that it is.
+fn encode_institution_ids(organization: &Organization, context: &mut JatsEncodeContext) {
+    for identifier in &identifiers(
+        organization.options.identifiers.as_deref(),
+        "Organization.identifiers",
+        context,
+    ) {
+        context.enter_elem("institution-id");
+        if let Some(property_id) = identifier.property_id {
+            context.push_attr("institution-id-type", property_id);
+        }
+        context.push_text(&identifier.value).exit_elem();
+    }
+}
+
+/// Emit an `<author-notes>` element from the notes retained by the decoder
+///
+/// Correspondence addresses are not emitted here because they are emitted as the
+/// `<email>` of the contributor that they belong to.
+fn encode_author_notes(extra: &ArticleExtra, context: &mut JatsEncodeContext) {
+    if extra.author_notes.is_empty() {
+        return;
+    }
+
+    context.enter_elem("author-notes");
+    for note in &extra.author_notes {
+        context.enter_elem("fn");
+        if let Some(id) = note.id {
+            context.push_attr("id", id);
+        }
+        if let Some(note_type) = note.note_type {
+            context.push_attr("fn-type", note_type);
+        }
+        if let Some(label) = note.label {
+            encode_text_element(context, "label", label);
+        }
+        encode_text_element(context, "p", note.text);
+        context.exit_elem();
+    }
+    context.exit_elem_omit_empty();
+}
+
+/// Emit a `<funding-group>` element for the awards and funders of an article
+///
+/// Each grant becomes one `<award-group>`, holding the organizations that
+/// funded it, the award id, and the people that received it. A funder that is
+/// not attached to any grant becomes an `<award-group>` of its own, because
+/// JATS has no other place to state who funded an article.
+fn encode_funding_group(article: &Article, context: &mut JatsEncodeContext) {
+    let grants = article.options.funded_by.iter().flatten().collect_vec();
+    let funders = article.options.funders.iter().flatten().collect_vec();
+    if grants.is_empty() && funders.is_empty() {
+        return;
+    }
+
+    let mut funded = Vec::new();
+    context.enter_elem("funding-group");
+    for grant in &grants {
+        let (id, identifiers_of, sponsors, recipients, description) = match grant {
+            GrantOrMonetaryGrant::Grant(grant) => (
+                grant.id.as_deref(),
+                grant.options.identifiers.as_deref(),
+                grant.options.sponsors.as_deref(),
+                grant.options.funded_items.as_deref(),
+                grant.options.description.as_deref(),
+            ),
+            GrantOrMonetaryGrant::MonetaryGrant(grant) => {
+                if grant.options.amounts.is_some() {
+                    context.add_loss("MonetaryGrant.amounts");
+                }
+                (
+                    grant.id.as_deref(),
+                    grant.options.identifiers.as_deref(),
+                    grant.options.funders.as_deref(),
+                    grant.options.funded_items.as_deref(),
+                    grant.options.description.as_deref(),
+                )
+            }
+        };
+
+        context.enter_elem("award-group");
+        if let Some(id) = id {
+            context.push_attr("id", id);
+        }
+        for sponsor in sponsors.unwrap_or_default() {
+            funded.push(sponsor);
+            encode_funding_source(sponsor, context);
+        }
+        for identifier in &identifiers(identifiers_of, "Grant.identifiers", context) {
+            encode_text_element(context, "award-id", &identifier.value);
+        }
+        // All of the recipients of one award are named together, as JATS writes
+        // them, rather than as an award to each of them
+        let recipients = recipients.unwrap_or_default();
+        if !recipients.is_empty() {
+            context.enter_elem("principal-award-recipient");
+            for recipient in recipients {
+                match recipient {
+                    ThingVariant::Person(person) => {
+                        add_person_losses(person, false, context);
+                        if !encode_person_name(person, context) {
+                            context.add_loss("Grant.fundedItems");
+                        }
+                    }
+                    _ => {
+                        context.add_loss("Grant.fundedItems");
+                    }
+                }
+            }
+            context.exit_elem_omit_empty();
+        }
+        if let Some(description) = description {
+            encode_text_element(context, "award-desc", description);
+        }
+        context.exit_elem_omit_empty();
+    }
+
+    // A funder that no award names, which is how a funder decoded from
+    // somewhere other than a `<funding-group>` arrives here
+    for funder in funders {
+        if funded.contains(&funder) {
+            continue;
+        }
+        context.enter_elem("award-group");
+        encode_funding_source(funder, context);
+        context.exit_elem_omit_empty();
+    }
+
+    context.exit_elem_omit_empty();
+}
+
+/// Emit a `<funding-source>` element for a funder
+fn encode_funding_source(funder: &PersonOrOrganization, context: &mut JatsEncodeContext) {
+    let PersonOrOrganization::Organization(organization) = funder else {
+        context.add_loss("Article.funders");
+        return;
+    };
+
+    add_organization_losses(organization, context);
+    context
+        .enter_elem("funding-source")
+        .enter_elem("institution-wrap");
+    if let Some(name) = organization_name(organization) {
+        encode_text_element(context, "institution", name);
+    }
+    if let Some(ror) = organization
+        .ror
+        .as_deref()
+        .map(str::trim)
+        .filter(|ror| !ror.is_empty())
+    {
+        context
+            .enter_elem("institution-id")
+            .push_attr("institution-id-type", "ror")
+            .push_text(format!("https://ror.org/{ror}"))
+            .exit_elem();
+    }
+    encode_institution_ids(organization, context);
+    context.exit_elem_omit_empty().exit_elem_omit_empty();
 }
 
 fn encode_affiliation(organization: &Organization, id: &str, context: &mut JatsEncodeContext) {
@@ -1155,7 +1372,7 @@ fn encode_affiliation(organization: &Organization, id: &str, context: &mut JatsE
         .as_deref()
         .map(str::trim)
         .filter(|ror| !ror.is_empty());
-    if name.is_some() || ror.is_some() {
+    if name.is_some() || ror.is_some() || organization.options.identifiers.is_some() {
         context.enter_elem("institution-wrap");
         if let Some(name) = name {
             encode_text_element(context, "institution", name);
@@ -1173,6 +1390,7 @@ fn encode_affiliation(organization: &Organization, id: &str, context: &mut JatsE
                 .push_text(ror)
                 .exit_elem();
         }
+        encode_institution_ids(organization, context);
         context.exit_elem();
     }
     if let Some(address) = organization.options.address.as_ref() {
@@ -1182,18 +1400,35 @@ fn encode_affiliation(organization: &Organization, id: &str, context: &mut JatsE
     context.exit_elem();
 }
 
-/// Emit a `<contrib-group>` for the authors of an article, followed by the
-/// `<aff>` elements that its contributors reference
-fn encode_contrib_group(authors: &[Author], context: &mut JatsEncodeContext) {
-    let organizations = article_affiliations(authors);
+/// Emit a `<contrib-group>` for contributors of one kind, followed by the
+/// `<aff>` elements that they reference
+///
+/// `prefix` distinguishes the affiliation ids of one group from those of
+/// another, because each group emits the affiliations that its own contributors
+/// refer to.
+fn encode_contrib_group(
+    contributors: &[Author],
+    contrib_type: &str,
+    prefix: &str,
+    context: &mut JatsEncodeContext,
+) {
+    let organizations = article_affiliations(contributors);
     let affiliations = organizations
         .iter()
         .enumerate()
-        .map(|(index, organization)| (affiliation_key(organization), format!("aff{}", index + 1)))
+        .map(|(index, organization)| {
+            (
+                affiliation_key(organization),
+                format!("{prefix}{}", index + 1),
+            )
+        })
         .collect::<BTreeMap<_, _>>();
     context.enter_elem("contrib-group");
-    for author in authors {
-        encode_article_author(author, &affiliations, context);
+    if contrib_type != "author" {
+        context.push_attr("content-type", contrib_type);
+    }
+    for contributor in contributors {
+        encode_article_author(contributor, contrib_type, &affiliations, context);
     }
     for organization in organizations {
         if let Some(id) = affiliations.get(&affiliation_key(organization)) {
@@ -1300,7 +1535,7 @@ fn encode_sub_article(article: &Article, context: &mut JatsEncodeContext) {
         .as_ref()
         .filter(|authors| !authors.is_empty())
     {
-        encode_contrib_group(authors, context);
+        encode_contrib_group(authors, "author", "aff", context);
     }
     if let Some(content) = article
         .r#abstract
@@ -1362,13 +1597,10 @@ fn add_article_losses(
             name,
             url,
             contributors,
-            editors,
             maintainers,
             comments,
             date_created,
             date_modified,
-            funders,
-            funded_by,
             bibliography,
             text,
             repository,
@@ -1387,7 +1619,10 @@ fn add_article_losses(
             about,
             licenses,
             version,
-            extra
+            extra,
+            editors,
+            funders,
+            funded_by
         ));
     }
 
@@ -1598,8 +1833,22 @@ impl JatsCodec for Article {
         }
 
         if let Some(authors) = self.authors.as_ref().filter(|authors| !authors.is_empty()) {
-            encode_contrib_group(authors, context);
+            encode_contrib_group(authors, "author", "aff", context);
         }
+        if let Some(editors) = self
+            .options
+            .editors
+            .as_ref()
+            .filter(|editors| !editors.is_empty())
+        {
+            let editors = editors
+                .iter()
+                .cloned()
+                .map(Author::Person)
+                .collect::<Vec<Author>>();
+            encode_contrib_group(&editors, "editor", "editor-aff", context);
+        }
+        encode_author_notes(&extra, context);
 
         encode_pub_dates(self, &extra, context);
 
@@ -1712,6 +1961,7 @@ impl JatsCodec for Article {
             }
             context.exit_elem_omit_empty();
         }
+        encode_funding_group(self, context);
         context.exit_elem().exit_elem();
 
         context.enter_elem("body");

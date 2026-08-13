@@ -247,6 +247,7 @@ expression: jats
           <email>kanuka@jikei.ac.jp</email>
           <xref ref-type="aff" rid="aff1"></xref>
           <xref ref-type="aff" rid="aff2"></xref>
+          <role>Conceptualization</role>
         </contrib>
         <contrib contrib-type="author">
           <name>
@@ -254,6 +255,7 @@ expression: jats
             <given-names>Aboubacar</given-names>
           </name>
           <xref ref-type="aff" rid="aff3"></xref>
+          <role>Data curation</role>
         </contrib>
         <contrib contrib-type="author">
           <name>
@@ -261,6 +263,7 @@ expression: jats
             <given-names>Jian-Chiuan</given-names>
           </name>
           <xref ref-type="aff" rid="aff4"></xref>
+          <role>Methodology</role>
         </contrib>
         <contrib contrib-type="author">
           <name>
@@ -269,6 +272,7 @@ expression: jats
           </name>
           <xref ref-type="aff" rid="aff1"></xref>
           <xref ref-type="aff" rid="aff2"></xref>
+          <role>Investigation</role>
         </contrib>
         <contrib contrib-type="author">
           <name>
@@ -278,6 +282,7 @@ expression: jats
           <contrib-id contrib-id-type="orcid">https://orcid.org/0000-0003-2844-9582</contrib-id>
           <xref ref-type="aff" rid="aff2"></xref>
           <xref ref-type="aff" rid="aff5"></xref>
+          <role>Resources</role>
         </contrib>
         <contrib contrib-type="author">
           <name>
@@ -286,6 +291,7 @@ expression: jats
           </name>
           <xref ref-type="aff" rid="aff1"></xref>
           <xref ref-type="aff" rid="aff2"></xref>
+          <role>Resources</role>
         </contrib>
         <contrib contrib-type="author">
           <name>
@@ -295,6 +301,7 @@ expression: jats
           <contrib-id contrib-id-type="orcid">https://orcid.org/0000-0002-5454-6661</contrib-id>
           <xref ref-type="aff" rid="aff1"></xref>
           <xref ref-type="aff" rid="aff2"></xref>
+          <role>Resources</role>
         </contrib>
         <contrib contrib-type="author">
           <name>
@@ -303,6 +310,7 @@ expression: jats
           </name>
           <xref ref-type="aff" rid="aff1"></xref>
           <xref ref-type="aff" rid="aff2"></xref>
+          <role>Resources</role>
         </contrib>
         <contrib contrib-type="author">
           <name>
@@ -311,6 +319,7 @@ expression: jats
           </name>
           <xref ref-type="aff" rid="aff2"></xref>
           <xref ref-type="aff" rid="aff5"></xref>
+          <role>Resources</role>
         </contrib>
         <contrib contrib-type="author">
           <name>
@@ -319,6 +328,7 @@ expression: jats
           </name>
           <xref ref-type="aff" rid="aff1"></xref>
           <xref ref-type="aff" rid="aff2"></xref>
+          <role>Investigation</role>
         </contrib>
         <contrib contrib-type="author">
           <name>
@@ -326,6 +336,7 @@ expression: jats
             <given-names>Masayuki</given-names>
           </name>
           <xref ref-type="aff" rid="aff6"></xref>
+          <role>Resources</role>
         </contrib>
         <contrib contrib-type="author">
           <name>
@@ -333,6 +344,7 @@ expression: jats
             <given-names>Chun-Hong</given-names>
           </name>
           <xref ref-type="aff" rid="aff4"></xref>
+          <role>Resources</role>
         </contrib>
         <contrib contrib-type="author">
           <name>
@@ -340,6 +352,7 @@ expression: jats
             <given-names>Athanase</given-names>
           </name>
           <xref ref-type="aff" rid="aff3"></xref>
+          <role>Data curation</role>
         </contrib>
         <contrib contrib-type="author">
           <name>
@@ -351,6 +364,7 @@ expression: jats
           <email>kanuka@jikei.ac.jp</email>
           <xref ref-type="aff" rid="aff1"></xref>
           <xref ref-type="aff" rid="aff2"></xref>
+          <role>Conceptualization</role>
         </contrib>
         <aff id="aff1">
           <institution-wrap>
@@ -383,6 +397,26 @@ expression: jats
           </institution-wrap>
         </aff>
       </contrib-group>
+      <contrib-group content-type="editor">
+        <contrib contrib-type="editor">
+          <name>
+            <surname>Liu</surname>
+            <given-names>Jisheng</given-names>
+          </name>
+          <xref ref-type="aff" rid="editor-aff1"></xref>
+          <role>Editor</role>
+        </contrib>
+        <aff id="editor-aff1">
+          <institution-wrap>
+            <institution>Guangzhou University, CHINA</institution>
+          </institution-wrap>
+        </aff>
+      </contrib-group>
+      <author-notes>
+        <fn id="coi001" fn-type="COI-statement">
+          <p>Competing Interests: The authors have declared that no competing interests exist.</p>
+        </fn>
+      </author-notes>
       <pub-date pub-type="epub" iso-8601-date="2025-09-12">
         <year>2025</year>
         <month>09</month>
@@ -443,6 +477,81 @@ expression: jats
       <abstract>
         <p>Dengue is one of the neglected tropical diseases (NTDs) transmitted by <italic>Aedes</italic> mosquitoes and continues to spread globally. When mosquitoes are infected with dengue virus (DENV), virus-derived DNA (vDNA) is generated in mosquitoes, which subsequently contributes to their immune response. We traced the generation and presence of dengue virus type 2 (DENV-2) vDNA in experimentally infected cultured mosquito cells and <italic>Aedes</italic> mosquitoes, and notably, in wild mosquitoes collected in Burkina Faso. Detection of vDNA was achieved using a method incorporating loop-mediated isothermal amplification (LAMP), specifically, a LAMP-based vDNA detection method (vDNA-LAMP). The LAMP reaction, using primers targeting a segment of the NS5 region of DENV-2, detected vDNA from crude DNA extracted from experimentally infected cultured cells and <italic>Aedes</italic> mosquitoes. Detection revealed that the amount of DENV-2 vDNA generated in infected cells was relatively low; nevertheless, vDNA-LAMP enabled successful detection. The timing and quantity of vDNA generation in cultured cells were associated with the initial number of viral particles introduced during infection. Furthermore, vDNA-LAMP was applied to detect dengue virus vDNA in wild mosquitoes in dengue-endemic regions. This resulted in the successful detection of DENV-2 vDNA in field-collected mosquitoes, indicating that a proportion of wild mosquitoes in Burkina Faso harbored DENV-2 vDNA. Mapping these vDNA-positive mosquitoes allowed the identification of areas where infected mosquitoes and/or their progeny were likely present. These findings provide insights into the dynamics of DENV-2 vDNA in natural environments and underscore the potential of vDNA-LAMP as a tool for tracing vDNA in wild mosquitoes, which are responsible for transmitting viral infections.</p>
       </abstract>
+      <funding-group>
+        <award-group id="award001">
+          <funding-source>
+            <institution-wrap>
+              <institution>Japan Agency for Medical Research and Development</institution>
+              <institution-id institution-id-type="funder-id">http://dx.doi.org/10.13039/100009619</institution-id>
+            </institution-wrap>
+          </funding-source>
+          <award-id>JP17jm0510002h0003</award-id>
+          <principal-award-recipient>
+            <name>
+              <surname>Kanuka</surname>
+              <given-names>Hirotaka</given-names>
+            </name>
+          </principal-award-recipient>
+        </award-group>
+        <award-group id="award002">
+          <funding-source>
+            <institution-wrap>
+              <institution>Japan Agency for Medical Research and Development</institution>
+              <institution-id institution-id-type="funder-id">http://dx.doi.org/10.13039/100009619</institution-id>
+            </institution-wrap>
+          </funding-source>
+          <award-id>JP22wm0225026h0001</award-id>
+          <principal-award-recipient>
+            <name>
+              <surname>Kanuka</surname>
+              <given-names>Hirotaka</given-names>
+            </name>
+          </principal-award-recipient>
+        </award-group>
+        <award-group id="award003">
+          <funding-source>
+            <institution-wrap>
+              <institution>Jikei University</institution>
+            </institution-wrap>
+          </funding-source>
+          <award-id>Jikei University Research Grant for the Career Development of Female Researchers with Children</award-id>
+          <principal-award-recipient>
+            <name>
+              <surname>Aonuma</surname>
+              <given-names>Hiroka</given-names>
+            </name>
+          </principal-award-recipient>
+        </award-group>
+        <award-group id="award004">
+          <funding-source>
+            <institution-wrap>
+              <institution>Kurozumi Medical Foundation</institution>
+              <institution-id institution-id-type="funder-id">http://dx.doi.org/10.13039/501100008660</institution-id>
+            </institution-wrap>
+          </funding-source>
+          <award-id>NA</award-id>
+          <principal-award-recipient>
+            <name>
+              <surname>Aonuma</surname>
+              <given-names>Hiroka</given-names>
+            </name>
+          </principal-award-recipient>
+        </award-group>
+        <award-group id="award005">
+          <funding-source>
+            <institution-wrap>
+              <institution>Jikei University</institution>
+            </institution-wrap>
+          </funding-source>
+          <award-id>The Jikei University Graduate Research Fund</award-id>
+          <principal-award-recipient>
+            <name>
+              <surname>Kanuka</surname>
+              <given-names>Hirotaka</given-names>
+            </name>
+          </principal-award-recipient>
+        </award-group>
+      </funding-group>
     </article-meta>
   </front>
   <body>

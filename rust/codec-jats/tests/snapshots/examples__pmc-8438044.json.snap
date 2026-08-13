@@ -25,6 +25,18 @@ expression: article
         {
           "type": "Organization",
           "name": "Division of Fishes, Department of Vertebrate Zoology, MRC 159, National Museum of Natural History, Smithsonian Institution",
+          "identifiers": [
+            {
+              "type": "PropertyValue",
+              "propertyId": "GRID",
+              "value": "grid.1214.6"
+            },
+            {
+              "type": "PropertyValue",
+              "propertyId": "ISNI",
+              "value": "0000 0000 8716 3312"
+            }
+          ],
           "address": "PO Box 37012, Washington, DC 20013-7012 USA"
         }
       ],
@@ -34,7 +46,8 @@ expression: article
       "givenNames": [
         "C",
         "David"
-      ]
+      ],
+      "address": "desantanac@si.edu"
     },
     {
       "type": "Person",
@@ -42,6 +55,18 @@ expression: article
         {
           "type": "Organization",
           "name": "Division of Fishes, Department of Vertebrate Zoology, MRC 159, National Museum of Natural History, Smithsonian Institution",
+          "identifiers": [
+            {
+              "type": "PropertyValue",
+              "propertyId": "GRID",
+              "value": "grid.1214.6"
+            },
+            {
+              "type": "PropertyValue",
+              "propertyId": "ISNI",
+              "value": "0000 0000 8716 3312"
+            }
+          ],
           "address": "PO Box 37012, Washington, DC 20013-7012 USA"
         }
       ],
@@ -59,6 +84,18 @@ expression: article
         {
           "type": "Organization",
           "name": "Cornell University Museum of Vertebrates, Department of Ecology and Evolutionary Biology, Cornell University",
+          "identifiers": [
+            {
+              "type": "PropertyValue",
+              "propertyId": "GRID",
+              "value": "grid.5386.8"
+            },
+            {
+              "type": "PropertyValue",
+              "propertyId": "ISNI",
+              "value": "000000041936877X"
+            }
+          ],
           "address": "Ithaca, NY 14850 USA"
         }
       ],
@@ -76,6 +113,18 @@ expression: article
         {
           "type": "Organization",
           "name": "Global Genome Initiative, National Museum of Natural History, Smithsonian Institution",
+          "identifiers": [
+            {
+              "type": "PropertyValue",
+              "propertyId": "GRID",
+              "value": "grid.1214.6"
+            },
+            {
+              "type": "PropertyValue",
+              "propertyId": "ISNI",
+              "value": "0000 0000 8716 3312"
+            }
+          ],
           "address": "PO Box 37012, Washington, DC 20013-7012 USA"
         }
       ],
@@ -93,6 +142,18 @@ expression: article
         {
           "type": "Organization",
           "name": "Programa de Pós‐Graduação em Ciências Biológicas (BADPI), Instituto Nacional de Pesquisas da Amazônia",
+          "identifiers": [
+            {
+              "type": "PropertyValue",
+              "propertyId": "GRID",
+              "value": "grid.419220.c"
+            },
+            {
+              "type": "PropertyValue",
+              "propertyId": "ISNI",
+              "value": "0000 0004 0427 0577"
+            }
+          ],
           "address": "Manaus, Brazil"
         }
       ],
@@ -110,6 +171,18 @@ expression: article
         {
           "type": "Organization",
           "name": "Division of Fishes, Department of Vertebrate Zoology, MRC 159, National Museum of Natural History, Smithsonian Institution",
+          "identifiers": [
+            {
+              "type": "PropertyValue",
+              "propertyId": "GRID",
+              "value": "grid.1214.6"
+            },
+            {
+              "type": "PropertyValue",
+              "propertyId": "ISNI",
+              "value": "0000 0000 8716 3312"
+            }
+          ],
           "address": "PO Box 37012, Washington, DC 20013-7012 USA"
         }
       ],
@@ -127,6 +200,18 @@ expression: article
         {
           "type": "Organization",
           "name": "Coordenação de Biodiversidade, Instituto Nacional de Pesquisas da Amazônia",
+          "identifiers": [
+            {
+              "type": "PropertyValue",
+              "propertyId": "GRID",
+              "value": "grid.419220.c"
+            },
+            {
+              "type": "PropertyValue",
+              "propertyId": "ISNI",
+              "value": "0000 0004 0427 0577"
+            }
+          ],
           "address": "Manaus, Amazonas Brazil"
         }
       ],
@@ -143,6 +228,18 @@ expression: article
         {
           "type": "Organization",
           "name": "Instituto do Mar, Universidade Federal de São Paulo",
+          "identifiers": [
+            {
+              "type": "PropertyValue",
+              "propertyId": "GRID",
+              "value": "grid.411249.b"
+            },
+            {
+              "type": "PropertyValue",
+              "propertyId": "ISNI",
+              "value": "0000 0001 0514 7202"
+            }
+          ],
           "address": "Campus Baixada Santista, Santos, São Paulo Brazil"
         }
       ],
@@ -174,6 +271,18 @@ expression: article
         {
           "type": "Organization",
           "name": "Museu de Zoologia da Universidade de São Paulo (MZUSP)",
+          "identifiers": [
+            {
+              "type": "PropertyValue",
+              "propertyId": "GRID",
+              "value": "grid.11899.38"
+            },
+            {
+              "type": "PropertyValue",
+              "propertyId": "ISNI",
+              "value": "0000 0004 1937 0722"
+            }
+          ],
           "address": "Av. Nazaré, 481, São Paulo, SP 04263-000 Brazil"
         }
       ],
@@ -191,6 +300,18 @@ expression: article
         {
           "type": "Organization",
           "name": "Museu de Zoologia da Universidade de São Paulo (MZUSP)",
+          "identifiers": [
+            {
+              "type": "PropertyValue",
+              "propertyId": "GRID",
+              "value": "grid.11899.38"
+            },
+            {
+              "type": "PropertyValue",
+              "propertyId": "ISNI",
+              "value": "0000 0004 1937 0722"
+            }
+          ],
           "address": "Av. Nazaré, 481, São Paulo, SP 04263-000 Brazil"
         }
       ],
@@ -207,6 +328,13 @@ expression: article
         {
           "type": "Organization",
           "name": "Natural History Museum and Institute",
+          "identifiers": [
+            {
+              "type": "PropertyValue",
+              "propertyId": "GRID",
+              "value": "grid.471892.1"
+            }
+          ],
           "address": "Chuo-ku, Chiba, 260-8682 Japan"
         }
       ],
@@ -223,6 +351,13 @@ expression: article
         {
           "type": "Organization",
           "name": "Natural History Museum and Institute",
+          "identifiers": [
+            {
+              "type": "PropertyValue",
+              "propertyId": "GRID",
+              "value": "grid.471892.1"
+            }
+          ],
           "address": "Chuo-ku, Chiba, 260-8682 Japan"
         }
       ],
@@ -21949,7 +22084,197 @@ expression: article
   "funders": [
     {
       "type": "Organization",
+      "name": "Fundação de Amparo à Pesquisa do Estado de São Paulo",
+      "identifiers": [
+        {
+          "type": "PropertyValue",
+          "propertyId": "FundRef",
+          "value": "http://dx.doi.org/10.13039/501100001807"
+        }
+      ]
+    },
+    {
+      "type": "Organization",
+      "name": "Smithsonian's Global Genome Initiative"
+    },
+    {
+      "type": "Organization",
+      "name": "GGI-Peer-2020-258"
+    },
+    {
+      "type": "Organization",
+      "name": "Conselho Nacional de Desenvolvimento Científico e Tecnológico",
+      "identifiers": [
+        {
+          "type": "PropertyValue",
+          "propertyId": "FundRef",
+          "value": "http://dx.doi.org/10.13039/501100003593"
+        }
+      ]
+    },
+    {
+      "type": "Organization",
       "name": "Environment Research and Technology Development Fund of the Ministry of the Environment, Japan"
+    }
+  ],
+  "fundedBy": [
+    {
+      "type": "MonetaryGrant",
+      "identifiers": [
+        {
+          "type": "PropertyValue",
+          "propertyId": "award-id",
+          "value": "2016/19075-9"
+        },
+        {
+          "type": "PropertyValue",
+          "propertyId": "award-id",
+          "value": "2016/07910-0"
+        }
+      ],
+      "fundedItems": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Torrente-Vilara"
+          ],
+          "givenNames": [
+            "Gislene"
+          ]
+        }
+      ],
+      "funders": [
+        {
+          "type": "Organization",
+          "name": "Fundação de Amparo à Pesquisa do Estado de São Paulo",
+          "identifiers": [
+            {
+              "type": "PropertyValue",
+              "propertyId": "FundRef",
+              "value": "http://dx.doi.org/10.13039/501100001807"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "MonetaryGrant",
+      "identifiers": [
+        {
+          "type": "PropertyValue",
+          "propertyId": "award-id",
+          "value": "GGI-Peer-2017-149"
+        }
+      ],
+      "funders": [
+        {
+          "type": "Organization",
+          "name": "Smithsonian's Global Genome Initiative"
+        }
+      ]
+    },
+    {
+      "type": "MonetaryGrant",
+      "identifiers": [
+        {
+          "type": "PropertyValue",
+          "propertyId": "award-id",
+          "value": "GGI-Peer-2020-258"
+        }
+      ],
+      "fundedItems": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "de Santana"
+          ],
+          "givenNames": [
+            "C",
+            "David"
+          ]
+        }
+      ],
+      "funders": [
+        {
+          "type": "Organization",
+          "name": "GGI-Peer-2020-258"
+        }
+      ]
+    },
+    {
+      "type": "MonetaryGrant",
+      "identifiers": [
+        {
+          "type": "PropertyValue",
+          "propertyId": "award-id",
+          "value": "313183/2014-7"
+        }
+      ],
+      "fundedItems": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Zuanon"
+          ],
+          "givenNames": [
+            "Jansen"
+          ]
+        }
+      ],
+      "funders": [
+        {
+          "type": "Organization",
+          "name": "Conselho Nacional de Desenvolvimento Científico e Tecnológico",
+          "identifiers": [
+            {
+              "type": "PropertyValue",
+              "propertyId": "FundRef",
+              "value": "http://dx.doi.org/10.13039/501100003593"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "MonetaryGrant",
+      "identifiers": [
+        {
+          "type": "PropertyValue",
+          "propertyId": "award-id",
+          "value": "4-1602"
+        },
+        {
+          "type": "PropertyValue",
+          "propertyId": "award-id",
+          "value": "4-1602"
+        }
+      ],
+      "fundedItems": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Sado"
+          ],
+          "givenNames": [
+            "T"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Miya"
+          ],
+          "givenNames": [
+            "M"
+          ]
+        }
+      ],
+      "funders": [
+        {
+          "type": "Organization",
+          "name": "Environment Research and Technology Development Fund of the Ministry of the Environment, Japan"
+        }
+      ]
     }
   ],
   "keywords": [

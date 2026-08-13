@@ -199,7 +199,8 @@ expression: article
       "givenNames": [
         "Nicholas",
         "G"
-      ]
+      ],
+      "address": "nick.smith@ttu.edu"
     },
     {
       "type": "Person",
@@ -21254,32 +21255,142 @@ expression: article
     {
       "type": "Organization",
       "name": "United States Department of Energy ",
-      "url": "10.13039/100000015"
+      "identifiers": [
+        {
+          "type": "PropertyValue",
+          "propertyId": "open-funder-registry",
+          "value": "10.13039/100000015"
+        }
+      ]
     },
     {
       "type": "Organization",
       "name": "The Fonds de recherché du Quebec – Nature et Technologies ",
-      "url": "10.13039/501100003151"
+      "identifiers": [
+        {
+          "type": "PropertyValue",
+          "propertyId": "open-funder-registry",
+          "value": "10.13039/501100003151"
+        }
+      ]
     },
     {
       "type": "Organization",
       "name": "Laboratory Directed Research and Development ",
-      "url": "10.13039/100007000"
+      "identifiers": [
+        {
+          "type": "PropertyValue",
+          "propertyId": "open-funder-registry",
+          "value": "10.13039/100007000"
+        }
+      ]
     },
     {
       "type": "Organization",
       "name": "Natural Sciences and Engineering Research Council of Canada ",
-      "url": "10.13039/501100000038"
+      "identifiers": [
+        {
+          "type": "PropertyValue",
+          "propertyId": "open-funder-registry",
+          "value": "10.13039/501100000038"
+        }
+      ]
     },
     {
       "type": "Organization",
       "name": "NASA ",
-      "url": "10.13039/100000104"
+      "identifiers": [
+        {
+          "type": "PropertyValue",
+          "propertyId": "open-funder-registry",
+          "value": "10.13039/100000104"
+        }
+      ]
     },
     {
       "type": "Organization",
       "name": "USDA ",
-      "url": "10.13039/100000199"
+      "identifiers": [
+        {
+          "type": "PropertyValue",
+          "propertyId": "open-funder-registry",
+          "value": "10.13039/100000199"
+        }
+      ]
+    }
+  ],
+  "fundedBy": [
+    {
+      "type": "MonetaryGrant",
+      "id": "funding-0001",
+      "identifiers": [
+        {
+          "type": "PropertyValue",
+          "propertyId": "award-id",
+          "value": "DE‐SC0012704"
+        }
+      ],
+      "funders": [
+        {
+          "type": "Organization",
+          "name": "United States Department of Energy ",
+          "identifiers": [
+            {
+              "type": "PropertyValue",
+              "propertyId": "open-funder-registry",
+              "value": "10.13039/100000015"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "MonetaryGrant",
+      "id": "funding-0002",
+      "identifiers": [
+        {
+          "type": "PropertyValue",
+          "propertyId": "award-id",
+          "value": "FRQNT‐2017‐NC‐198009"
+        }
+      ],
+      "funders": [
+        {
+          "type": "Organization",
+          "name": "The Fonds de recherché du Quebec – Nature et Technologies ",
+          "identifiers": [
+            {
+              "type": "PropertyValue",
+              "propertyId": "open-funder-registry",
+              "value": "10.13039/501100003151"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "MonetaryGrant",
+      "id": "funding-0004",
+      "identifiers": [
+        {
+          "type": "PropertyValue",
+          "propertyId": "award-id",
+          "value": "NSERC‐Discovery‐2016‐05716"
+        }
+      ],
+      "funders": [
+        {
+          "type": "Organization",
+          "name": "Natural Sciences and Engineering Research Council of Canada ",
+          "identifiers": [
+            {
+              "type": "PropertyValue",
+              "propertyId": "open-funder-registry",
+              "value": "10.13039/501100000038"
+            }
+          ]
+        }
+      ]
     }
   ],
   "keywords": [

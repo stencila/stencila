@@ -92,34 +92,50 @@ expression: jats
           </name>
           <xref ref-type="aff" rid="aff1"></xref>
           <xref ref-type="aff" rid="aff2"></xref>
+          <address>human37564nobby@gmail.com</address>
         </contrib>
         <aff id="aff1">
           <institution-wrap>
             <institution>Institute of Tropical Biodiversity and Sustainable Development, University of Malaysia Terengganu</institution>
+            <institution-id institution-id-type="ROR">https://ror.org/02474f074</institution-id>
+            <institution-id institution-id-type="GRID">grid.412255.5</institution-id>
+            <institution-id institution-id-type="ISNI">0000 0000 9284 9319</institution-id>
           </institution-wrap>
           <addr-line>21030 Kuala Nerus, Terengganu Malaysia</addr-line>
         </aff>
         <aff id="aff2">
           <institution-wrap>
             <institution>The Wildlife Conservation Research Unit, The Recanati-Kaplan Centre, Department of Biology, University of Oxford</institution>
+            <institution-id institution-id-type="ROR">https://ror.org/052gg0110</institution-id>
+            <institution-id institution-id-type="GRID">grid.4991.5</institution-id>
+            <institution-id institution-id-type="ISNI">0000 0004 1936 8948</institution-id>
           </institution-wrap>
           <addr-line>Oxford, UK</addr-line>
         </aff>
         <aff id="aff3">
           <institution-wrap>
             <institution>Department of Natural Sciences, National Museums Scotland</institution>
+            <institution-id institution-id-type="ROR">https://ror.org/00pxfwe85</institution-id>
+            <institution-id institution-id-type="GRID">grid.422302.5</institution-id>
+            <institution-id institution-id-type="ISNI">0000 0001 0943 6159</institution-id>
           </institution-wrap>
           <addr-line>Chambers Street, Edinburgh, EH1 1JF UK</addr-line>
         </aff>
         <aff id="aff4">
           <institution-wrap>
             <institution>School of Geosciences, University of Edinburgh</institution>
+            <institution-id institution-id-type="ROR">https://ror.org/01nrxwf90</institution-id>
+            <institution-id institution-id-type="GRID">grid.4305.2</institution-id>
+            <institution-id institution-id-type="ISNI">0000 0004 1936 7988</institution-id>
           </institution-wrap>
           <addr-line>Drummond Street, Edinburgh, EH8 9XP UK</addr-line>
         </aff>
         <aff id="aff5">
           <institution-wrap>
             <institution>Lee Kong Chian Natural History Museum, National University of Singapore</institution>
+            <institution-id institution-id-type="ROR">https://ror.org/01tgyzw49</institution-id>
+            <institution-id institution-id-type="GRID">grid.4280.e</institution-id>
+            <institution-id institution-id-type="ISNI">0000 0001 2180 6431</institution-id>
           </institution-wrap>
           <addr-line>2 Conservatory Drive, Singapore, 117377 Singapore</addr-line>
         </aff>

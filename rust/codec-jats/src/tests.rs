@@ -110,6 +110,166 @@ async fn contributor_correspondence_email() -> Result<()> {
     Ok(())
 }
 
+/// Contributors, their affiliations and the notes about them should survive a
+/// round trip wherever JATS writes them
+#[tokio::test]
+async fn contributors_and_affiliations_roundtrip() -> Result<()> {
+    let jats = r#"
+        <article>
+          <front>
+            <article-meta>
+              <contrib-group>
+                <contrib contrib-type="author" equal-contrib="yes">
+                  <name><surname>Doe</surname><given-names>Jane</given-names></name>
+                  <contrib-id contrib-id-type="orcid">https://orcid.org/0000-0002-1825-0097</contrib-id>
+                  <xref ref-type="aff" rid="aff1">1</xref>
+                  <xref ref-type="fn" rid="equal1"/>
+                </contrib>
+                <contrib contrib-type="author">
+                  <collab>The Example Consortium</collab>
+                </contrib>
+              </contrib-group>
+              <contrib-group content-type="editor">
+                <contrib contrib-type="editor">
+                  <name><surname>Roe</surname><given-names>Richard</given-names></name>
+                  <role>Reviewing Editor</role>
+                </contrib>
+              </contrib-group>
+              <aff id="aff1">
+                <institution-wrap>
+                  <institution>Example University</institution>
+                  <institution-id institution-id-type="ror">https://ror.org/03yrm5c26</institution-id>
+                  <institution-id institution-id-type="isni">0000000123456789</institution-id>
+                </institution-wrap>
+                <country>New Zealand</country>
+              </aff>
+              <author-notes>
+                <fn fn-type="con" id="equal1"><label>&#8224;</label><p>These authors contributed equally</p></fn>
+              </author-notes>
+            </article-meta>
+          </front>
+        </article>
+    "#;
+
+    let (node, ..) = JatsCodec.from_str(jats, None).await?;
+    let Node::Article(article) = &node else {
+        bail!("expected an article")
+    };
+
+    // A `<collab>` names a group rather than a person
+    let authors = article.authors.as_ref().expect("should have authors");
+    assert!(matches!(authors[1], Author::Organization(..)));
+
+    // An affiliation that stands on its own is still resolved by the
+    // contributor that refers to it
+    let Author::Person(person) = &authors[0] else {
+        bail!("expected a person author")
+    };
+    let affiliation = &person.affiliations.as_ref().expect("affiliated")[0];
+    assert_eq!(affiliation.name.as_deref(), Some("Example University"));
+    assert_eq!(affiliation.ror.as_deref(), Some("03yrm5c26"));
+
+    // The role of an editor is kept as their job title
+    let editors = article
+        .options
+        .editors
+        .as_ref()
+        .expect("should have editors");
+    assert_eq!(
+        editors[0].options.job_title.as_deref(),
+        Some("Reviewing Editor")
+    );
+
+    let (jats, ..) = JatsCodec
+        .to_string(
+            &node,
+            Some(EncodeOptions {
+                compact: Some(true),
+                ..Default::default()
+            }),
+        )
+        .await?;
+
+    for expected in [
+        r#"<collab>The Example Consortium</collab>"#,
+        r#"<contrib contrib-type="editor">"#,
+        r#"<role>Reviewing Editor</role>"#,
+        r#"<institution-id institution-id-type="isni">0000000123456789</institution-id>"#,
+        r#"<fn id="equal1" fn-type="con"><label>†</label><p>These authors contributed equally</p></fn>"#,
+    ] {
+        assert!(jats.contains(expected), "missing {expected} in {jats}");
+    }
+
+    Ok(())
+}
+
+/// Award identifiers, funding sources and recipients should survive a round trip
+#[tokio::test]
+async fn funding_and_awards_roundtrip() -> Result<()> {
+    let jats = r#"
+        <article>
+          <front>
+            <article-meta>
+              <funding-group>
+                <award-group id="fund1">
+                  <funding-source>
+                    <institution-wrap>
+                      <institution-id institution-id-type="FundRef">http://dx.doi.org/10.13039/100000002</institution-id>
+                      <institution>National Institutes of Health</institution>
+                    </institution-wrap>
+                  </funding-source>
+                  <award-id>R35 GM127029</award-id>
+                  <principal-award-recipient>
+                    <name><surname>Doe</surname><given-names>Jane</given-names></name>
+                  </principal-award-recipient>
+                </award-group>
+              </funding-group>
+            </article-meta>
+          </front>
+        </article>
+    "#;
+
+    let (node, ..) = JatsCodec.from_str(jats, None).await?;
+    let Node::Article(article) = &node else {
+        bail!("expected an article")
+    };
+
+    let funders = article
+        .options
+        .funders
+        .as_ref()
+        .expect("should have funders");
+    assert_eq!(funders.len(), 1);
+    let grants = article
+        .options
+        .funded_by
+        .as_ref()
+        .expect("should have grants");
+    assert_eq!(grants.len(), 1);
+
+    let (jats, ..) = JatsCodec
+        .to_string(
+            &node,
+            Some(EncodeOptions {
+                compact: Some(true),
+                ..Default::default()
+            }),
+        )
+        .await?;
+
+    for expected in [
+        r#"<award-group id="fund1">"#,
+        r#"<institution>National Institutes of Health</institution>"#,
+        r#"<institution-id institution-id-type="FundRef">http://dx.doi.org/10.13039/100000002</institution-id>"#,
+        r#"<award-id>R35 GM127029</award-id>"#,
+        r#"<principal-award-recipient><name><surname>Doe</surname><given-names>Jane</given-names></name></principal-award-recipient>"#,
+    ] {
+        assert!(jats.contains(expected), "missing {expected} in {jats}");
+    }
+
+    Ok(())
+}
+
 /// Front and back matter should be emitted in the locations expected by JATS consumers.
 #[tokio::test]
 async fn article_front_and_back_matter() -> Result<()> {
@@ -567,10 +727,6 @@ async fn encoding_reports_unsupported_article_properties() -> Result<()> {
     let mut article = Article::new(vec![p([t("Body")])]);
     article.options.url = Some("https://example.org/article".into());
     article.options.date_modified = Some(DateTime::new("2025-06-07".into()));
-    article.options.editors = Some(vec![Person {
-        family_names: Some(vec!["Roe".into()]),
-        ..Default::default()
-    }]);
     article.options.genre = Some(vec!["Research Article".into()]);
     article.options.description = Some("A description".into());
 
@@ -592,7 +748,6 @@ async fn encoding_reports_unsupported_article_properties() -> Result<()> {
     for expected in [
         "Article.url",
         "Article.dateModified",
-        "Article.editors",
         "Article.genre",
         "Article.description",
     ] {

@@ -2,6 +2,5 @@
 source: rust/codec-jats/tests/examples.rs
 expression: info.losses
 ---
-Article.funders: 1
 Link.jatsRefType: 14
 Supplement.work_type: 10

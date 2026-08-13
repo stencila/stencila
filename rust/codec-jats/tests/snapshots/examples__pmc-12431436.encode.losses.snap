@@ -2,5 +2,4 @@
 source: rust/codec-jats/tests/examples.rs
 expression: info.losses
 ---
-Article.editors: 1
-Article.funders: 1
+{}

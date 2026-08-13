@@ -4,7 +4,7 @@ expression: info.losses
 ---
 //article/front/article-meta/article-categories/subj-group/subj-group/@subj-group-type: 1
 //article/front/article-meta/article-version/@article-version-type: 1
-//article/front/article-meta/author-notes: 1
+//article/front/article-meta/author-notes/corresp: 1
 //article/front/article-meta/counts/page-count: 1
 "//article/front/article-meta/custom-meta-group/custom-meta[meta-name='pmc-license-ref']": 1
 "//article/front/article-meta/custom-meta-group/custom-meta[meta-name='pmc-prop-has-pdf']": 1

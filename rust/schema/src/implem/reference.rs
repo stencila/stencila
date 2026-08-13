@@ -37,34 +37,39 @@ pub(super) fn organization_name(organization: &Organization) -> Option<&str> {
 /// Record a loss for every populated `Person` property that JATS contributor
 /// encoding does not emit
 ///
-/// `contrib` indicates a `<contrib>` context, where ORCID, emails and
-/// affiliations are emitted; in a `<person-group>` only the name is.
+/// `contrib` indicates a `<contrib>` context, where ORCID, emails, identifiers,
+/// role, address and affiliations are emitted; in a `<person-group>` only the
+/// name is.
 pub(super) fn add_person_losses(person: &Person, contrib: bool, context: &mut JatsEncodeContext) {
     context.merge_losses(lost_options_of!(
         "Person",
         person.options,
         alternate_names,
         description,
-        identifiers,
         images,
         url,
         funders,
         honorific_prefix,
         honorific_suffix,
-        job_title,
         member_of,
-        telephone_numbers,
-        address
+        telephone_numbers
     ));
 
     if !contrib {
         context.merge_losses(lost_options!(person, orcid, affiliations));
-        context.merge_losses(lost_options_of!("Person", person.options, emails));
+        context.merge_losses(lost_options_of!(
+            "Person",
+            person.options,
+            emails,
+            identifiers,
+            job_title,
+            address
+        ));
     }
 }
 
-/// Record a loss for every populated `Organization` property that `<aff>`
-/// encoding does not emit
+/// Record a loss for every populated `Organization` property that `<aff>` or
+/// `<funding-source>` encoding does not emit
 pub(super) fn add_organization_losses(
     organization: &Organization,
     context: &mut JatsEncodeContext,
@@ -74,7 +79,6 @@ pub(super) fn add_organization_losses(
         organization.options,
         alternate_names,
         description,
-        identifiers,
         images,
         url,
         brands,

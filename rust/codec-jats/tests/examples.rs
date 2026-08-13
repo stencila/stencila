@@ -132,6 +132,41 @@ fn examples() -> Result<()> {
             "non-portable resources retained for {name}: {unfiltered:?}"
         );
 
+        // Who wrote and who funded an article, and where they worked, is
+        // metadata that a reader relies on as much as the prose
+        let original_contributors = contributors_summary(&original)?;
+        let roundtrip_contributors = contributors_summary(&jats)?;
+        assert_subset(
+            "contributors",
+            &name,
+            &original_contributors.people,
+            &roundtrip_contributors.people,
+        );
+        assert_subset(
+            "contributor roles",
+            &name,
+            &original_contributors.roles,
+            &roundtrip_contributors.roles,
+        );
+        assert_subset(
+            "affiliations",
+            &name,
+            &original_contributors.affiliations,
+            &roundtrip_contributors.affiliations,
+        );
+        assert_subset(
+            "funders",
+            &name,
+            &original_contributors.funders,
+            &roundtrip_contributors.funders,
+        );
+        assert_subset(
+            "awards",
+            &name,
+            &original_contributors.awards,
+            &roundtrip_contributors.awards,
+        );
+
         // Every bibliographic field that the schema can represent must survive
         // the round trip, field by field and reference by reference
         let original_references = references_summary(&original)?;
@@ -406,6 +441,154 @@ fn metadata_summary(jats: &str) -> Result<MetadataSummary> {
             }
             _ => {}
         }
+    }
+
+    Ok(summary)
+}
+
+/// The people, organizations and awards named in the metadata of an article.
+#[derive(Debug, Default)]
+struct ContributorsSummary {
+    /// `(kind, name, ORCID)` triples for each contributor, where the kind is
+    /// either `author` or `editor`
+    people: BTreeSet<(String, String, String)>,
+    /// The `<role>` of each contributor, with their name
+    roles: BTreeSet<(String, String)>,
+    /// The institution named by each `<aff>` that a contributor refers to
+    affiliations: BTreeSet<String>,
+    /// The institutions named as a `<funding-source>`
+    funders: BTreeSet<String>,
+    /// The `<award-id>` of each award
+    awards: BTreeSet<String>,
+}
+
+/// Extract the contributor and funding metadata of an article.
+///
+/// Affiliations are compared by the institution they name rather than by id
+/// because the encoder assigns ids of its own; only affiliations that a
+/// contributor refers to are compared, because one that nothing refers to is a
+/// reported loss rather than something the schema holds.
+fn contributors_summary(jats: &str) -> Result<ContributorsSummary> {
+    let document = roxmltree::Document::parse_with_options(
+        jats,
+        roxmltree::ParsingOptions {
+            allow_dtd: true,
+            ..Default::default()
+        },
+    )?;
+
+    let text = |node: &roxmltree::Node| {
+        let text = node
+            .descendants()
+            .filter(roxmltree::Node::is_text)
+            .filter_map(|node| node.text())
+            .collect::<String>();
+        normalize_prose(&text)
+    };
+
+    // Given names are decoded into separate names, which drops the full stop
+    // that a source writes after an initial, so names are compared without one
+    let person_name = |node: &roxmltree::Node| text(node).replace('.', "");
+
+    // An organization written as several elements, as JATS allows a department
+    // and its institution to be, is decoded into one name, and the punctuation
+    // that separated them is normalized away
+    let institutions = |node: &roxmltree::Node| {
+        let name = node
+            .descendants()
+            .filter(|node| {
+                node.has_tag_name("institution")
+                    || (node.has_tag_name("named-content")
+                        && node.attribute("content-type") == Some("organisation-division"))
+            })
+            .map(|node| text(&node).trim_matches([',', '.', ' ']).to_string())
+            .filter(|name| !name.is_empty())
+            .collect::<Vec<_>>()
+            .join(", ");
+        (!name.is_empty()).then_some(name)
+    };
+
+    let mut summary = ContributorsSummary::default();
+
+    let mut referenced = BTreeSet::new();
+    for node in document.descendants().filter(|node| node.is_element()) {
+        match node.tag_name().name() {
+            "contrib" => {
+                // A kind such as `senior_editor` is normalized to `editor`,
+                // with the finer distinction kept as a `<role>`
+                let contrib_type = node.attribute("contrib-type").unwrap_or("author");
+                let contrib_type = if contrib_type.contains("editor") {
+                    "editor"
+                } else if contrib_type.contains("author") {
+                    "author"
+                } else {
+                    continue;
+                }
+                .to_string();
+                let name = node
+                    .children()
+                    .find(|child| {
+                        child.has_tag_name("name")
+                            || child.has_tag_name("string-name")
+                            || child.has_tag_name("collab")
+                    })
+                    .map(|child| person_name(&child))
+                    .unwrap_or_default();
+                if name.is_empty() {
+                    continue;
+                }
+
+                let orcid = node
+                    .children()
+                    .find(|child| {
+                        child.has_tag_name("contrib-id")
+                            && child.attribute("contrib-id-type") == Some("orcid")
+                    })
+                    .map(|child| {
+                        text(&child)
+                            .trim_start_matches("https://orcid.org/")
+                            .trim_start_matches("http://orcid.org/")
+                            .to_string()
+                    })
+                    .unwrap_or_default();
+                summary.people.insert((contrib_type, name.clone(), orcid));
+
+                if let Some(role) = node.children().find(|child| child.has_tag_name("role")) {
+                    summary.roles.insert((name, text(&role)));
+                }
+
+                for aff in node.children().filter(|child| child.has_tag_name("aff")) {
+                    summary.affiliations.extend(institutions(&aff));
+                }
+                for rid in node
+                    .children()
+                    .filter(|child| {
+                        child.has_tag_name("xref") && child.attribute("ref-type") == Some("aff")
+                    })
+                    .filter_map(|child| child.attribute("rid"))
+                    .flat_map(str::split_whitespace)
+                {
+                    referenced.insert(rid.to_string());
+                }
+            }
+            "funding-source" => summary.funders.extend(institutions(&node)),
+            "award-id" => {
+                let value = text(&node);
+                if !value.is_empty() {
+                    summary.awards.insert(value);
+                }
+            }
+            _ => {}
+        }
+    }
+
+    for aff in document.descendants().filter(|node| {
+        node.has_tag_name("aff")
+            && node
+                .attribute("id")
+                .is_some_and(|id| referenced.contains(id))
+    }) {
+        summary.affiliations.extend(institutions(&aff));
     }
 
     Ok(summary)

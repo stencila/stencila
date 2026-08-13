@@ -1,4 +1,4 @@
-use std::collections::BTreeMap;
+use std::collections::{BTreeMap, BTreeSet};
 
 use roxmltree::Node;
 use stencila_codec_text_trait::to_text;
@@ -7,11 +7,11 @@ use stencila_codec::{
     Losses,
     stencila_schema::{
         Array, Article, ArticleOptions, Author, Block, CreativeWorkVariant,
-        CreativeWorkVariantOrString, DateTime, Heading, IntegerOrString, Object, Organization,
-        OrganizationOptions, Periodical, Person, PersonOptions, PersonOrOrganization,
-        PostalAddressOrString, Primitive, PropertyValue, PropertyValueOptions,
-        PropertyValueOrString, PublicationIssue, PublicationVolume, Section, SectionType,
-        StringOrNumber, ThingVariant,
+        CreativeWorkVariantOrString, DateTime, GrantOrMonetaryGrant, Heading, IntegerOrString,
+        MonetaryGrant, Object, Organization, OrganizationOptions, Periodical, Person,
+        PersonOptions, PersonOrOrganization, PostalAddressOrString, Primitive, PropertyValue,
+        PropertyValueOptions, PropertyValueOrString, PublicationIssue, PublicationVolume, Section,
+        SectionType, StringOrNumber, ThingVariant,
     },
 };
 
@@ -49,6 +49,15 @@ fn non_empty_text(node: &Node) -> Option<String> {
         .collect::<String>();
     let text = text.trim();
     (!text.is_empty()).then(|| text.to_string())
+}
+
+/// Remove any resolver prefix from a ROR id
+fn strip_ror_prefix(ror: &str) -> String {
+    ror.trim()
+        .trim_start_matches("https://ror.org/")
+        .trim_start_matches("http://ror.org/")
+        .trim_end_matches('/')
+        .to_string()
 }
 
 /// Remove any resolver prefix from a DOI
@@ -345,6 +354,9 @@ struct ArticleMetaExtra {
     /// The prose of a `<license>`, which can state restrictions that the
     /// license URL alone does not convey
     license_text: Option<String>,
+
+    /// The `<fn>` elements of `<author-notes>`
+    author_notes: Vec<Object>,
 }
 
 impl ArticleMetaExtra {
@@ -424,6 +436,18 @@ impl ArticleMetaExtra {
             extra.insert("licenseText".to_string(), Primitive::String(text));
         }
 
+        if !self.author_notes.is_empty() {
+            extra.insert(
+                "authorNotes".to_string(),
+                Primitive::Array(Array(
+                    self.author_notes
+                        .into_iter()
+                        .map(Primitive::Object)
+                        .collect(),
+                )),
+            );
+        }
+
         if !extra.is_empty() {
             match &mut article.options.extra {
                 Some(existing) => existing.extend(extra.0),
@@ -477,6 +501,7 @@ pub(super) fn decode_article_meta(
     losses: &mut Losses,
 ) {
     let correspondence_emails = correspondence_emails(node);
+    let affiliations = affiliations(node);
     let mut extra = ArticleMetaExtra::default();
 
     for child in node.children() {
@@ -505,13 +530,22 @@ pub(super) fn decode_article_meta(
                 decode_custom_meta_group(&child_path, &child, losses)
             }
             "funding-group" => decode_funding_group(&child_path, &child, article, losses),
-            "contrib-group" => {
-                decode_contrib_group(&child_path, &child, &correspondence_emails, article, losses)
+            "contrib-group" => decode_contrib_group(
+                &child_path,
+                &child,
+                &correspondence_emails,
+                &affiliations,
+                article,
+                losses,
+            ),
+            // An affiliation is decoded onto each contributor that refers to it,
+            // so only one that nothing refers to is lost
+            "aff" => {
+                if !affiliations.is_referenced(child.attribute("id").unwrap_or_default()) {
+                    record_node_lost(path, &child, losses)
+                }
             }
-            // Correspondence email addresses are associated with contributors
-            // in the pre-pass above. Retain the loss for the surrounding notes
-            // because labels, prose, and non-correspondence notes are not decoded.
-            "author-notes" => record_node_lost(path, &child, losses),
+            "author-notes" => decode_author_notes(&child_path, &child, &mut extra, losses),
             "title-group" => decode_title_group(&child_path, &child, article, losses),
             "kwd-group" => decode_kwd_group(&child_path, &child, article, losses),
             _ => record_node_lost(path, &child, losses),
@@ -541,6 +575,126 @@ fn correspondence_emails(node: &Node) -> BTreeMap<String, Vec<String>> {
             (!emails.is_empty()).then_some((id, emails))
         })
         .collect()
+}
+
+/// Every `<aff>` of an article, and the ids that its contributors refer to
+///
+/// JATS allows an affiliation to be nested in the contributor it belongs to, to
+/// be a sibling of the contributors in their `<contrib-group>`, or to stand on
+/// its own in the article metadata, in each case addressed by id. Collecting
+/// them all before any contributor is decoded means that a contributor resolves
+/// its affiliations the same way wherever they are written, and that an
+/// affiliation consumed in that way is not also reported as lost.
+#[derive(Default)]
+struct Affiliations {
+    /// Each `<aff>` that has an id, by that id
+    by_id: BTreeMap<String, Organization>,
+    /// The ids that `<xref ref-type="aff">` elements refer to
+    referenced: BTreeSet<String>,
+}
+
+impl Affiliations {
+    /// Get the affiliation with an id
+    fn get(&self, id: &str) -> Option<&Organization> {
+        self.by_id.get(id)
+    }
+
+    /// Whether any contributor refers to the affiliation with an id
+    fn is_referenced(&self, id: &str) -> bool {
+        self.referenced.contains(id)
+    }
+}
+
+/// Collect the affiliations of an `<article-meta>` (or `<front-stub>`)
+fn affiliations(node: &Node) -> Affiliations {
+    let mut affiliations = Affiliations::default();
+
+    for descendant in node.descendants().filter(Node::is_element) {
+        match descendant.tag_name().name() {
+            "aff" => {
+                if let Some(id) = descendant.attribute("id") {
+                    affiliations
+                        .by_id
+                        .insert(id.to_string(), decode_aff(&descendant));
+                }
+            }
+            "xref" if matches!(descendant.attribute("ref-type"), Some("aff")) => {
+                if let Some(id) = descendant.attribute("rid") {
+                    affiliations.referenced.extend(
+                        id.split_whitespace()
+                            .map(String::from)
+                            .collect::<Vec<String>>(),
+                    );
+                }
+            }
+            _ => {}
+        }
+    }
+
+    affiliations
+}
+
+/// Decode an `<author-notes>` element
+///
+/// Author notes are about the contributors rather than about the content of the
+/// article, and the schema has no property for them. Each `<fn>` is retained as
+/// a structured value in `Article.extra` so that its id, type, label and text
+/// survive and are emitted in the same place again. Correspondence addresses are
+/// not retained here because they are decoded onto the people they belong to.
+fn decode_author_notes(path: &str, node: &Node, extra: &mut ArticleMetaExtra, losses: &mut Losses) {
+    record_attrs_lost(path, node, [], losses);
+
+    for child in node.children().filter(Node::is_element) {
+        let tag = child.tag_name().name();
+        match tag {
+            "fn" => {
+                let mut object = Object::new();
+                for (name, value) in [
+                    ("id", child.attribute("id")),
+                    ("type", child.attribute("fn-type")),
+                    (
+                        "label",
+                        child
+                            .children()
+                            .find(|grandchild| grandchild.has_tag_name("label"))
+                            .and_then(|label| label.text())
+                            .map(str::trim),
+                    ),
+                ] {
+                    if let Some(value) = value.filter(|value| !value.is_empty()) {
+                        object.insert(name.to_string(), Primitive::String(value.to_string()));
+                    }
+                }
+
+                let text = child
+                    .children()
+                    .filter(|grandchild| !grandchild.has_tag_name("label"))
+                    .filter_map(|grandchild| non_empty_text_deep(&grandchild))
+                    .collect::<Vec<String>>()
+                    .join(" ");
+                if text.is_empty() {
+                    continue;
+                }
+                object.insert("text".to_string(), Primitive::String(text));
+
+                extra.author_notes.push(object);
+            }
+            // The email addresses are decoded onto the contributors that refer
+            // to them, so only prose that says something more is lost
+            "corresp" => {
+                let emails = child
+                    .descendants()
+                    .filter(|descendant| descendant.has_tag_name("email"))
+                    .filter_map(|email| email.text())
+                    .collect::<String>();
+                let text = non_empty_text_deep(&child).unwrap_or_default();
+                if text.replace(&emails, "").chars().any(char::is_alphanumeric) {
+                    record_node_lost(path, &child, losses);
+                }
+            }
+            _ => record_node_lost(path, &child, losses),
+        }
+    }
 }
 
 /// Decode an `<abstract>` element
@@ -1282,23 +1436,133 @@ fn non_empty_text_deep(node: &Node) -> Option<String> {
 }
 
 /// Decode a `<funding-group>` element
+///
+/// Every organization that funded the article becomes one of its `funders`, and
+/// each `<award-group>` also becomes a grant in `fundedBy` so that an award
+/// keeps its identifier, its funding source and its recipients. A recipient is
+/// held as a `fundedItem` of the grant, which is what the schema has for the
+/// thing that a grant supports.
 fn decode_funding_group(path: &str, node: &Node, article: &mut Article, losses: &mut Losses) {
     record_attrs_lost(path, node, [], losses);
 
-    let funders = node
-        .children()
-        .filter(|child| child.tag_name().name() == "award-group")
-        .flat_map(|award_group| {
-            let path = &extend_path(path, "award-group");
-            award_group
-                .children()
-                .filter(|child| child.tag_name().name() == "funding-source")
-                .filter_map(|child| decode_funding_source(path, &child, losses))
-                .collect::<Vec<PersonOrOrganization>>()
-        })
-        .collect();
+    let mut funders: Vec<PersonOrOrganization> = Vec::new();
+    let mut grants = Vec::new();
+    for child in node.children().filter(Node::is_element) {
+        let tag = child.tag_name().name();
+        let child_path = extend_path(path, tag);
+        if tag != "award-group" {
+            record_node_lost(path, &child, losses);
+            continue;
+        }
 
-    article.options.funders = Some(funders);
+        record_attrs_lost(&child_path, &child, ["id"], losses);
+
+        let mut grant = MonetaryGrant {
+            id: child.attribute("id").map(String::from),
+            ..Default::default()
+        };
+        for grandchild in child.children().filter(Node::is_element) {
+            let tag = grandchild.tag_name().name();
+            match tag {
+                "funding-source" => {
+                    if let Some(funder) = decode_funding_source(&child_path, &grandchild, losses) {
+                        if !funders.contains(&funder) {
+                            funders.push(funder.clone());
+                        }
+                        grant.options.funders.get_or_insert_default().push(funder);
+                    }
+                }
+                "award-id" => {
+                    if let Some(value) = non_empty_text_deep(&grandchild) {
+                        push_identifier(
+                            &mut grant.options.identifiers,
+                            Some("award-id".to_string()),
+                            None,
+                            &value,
+                        );
+                    }
+                }
+                "principal-award-recipient" | "principal-investigator" => {
+                    for name in grandchild.children().filter(|node| {
+                        node.has_tag_name("name") || node.has_tag_name("string-name")
+                    }) {
+                        grant
+                            .options
+                            .funded_items
+                            .get_or_insert_default()
+                            .push(ThingVariant::Person(decode_name(&name)));
+                    }
+                }
+                "award-desc" => {
+                    grant.options.description = non_empty_text_deep(&grandchild);
+                }
+                _ => record_node_lost(&child_path, &grandchild, losses),
+            }
+        }
+
+        if grant.options.identifiers.is_some()
+            || grant.options.funded_items.is_some()
+            || grant.options.description.is_some()
+        {
+            grants.push(grant);
+        }
+    }
+
+    // An article may have more than one `<funding-group>`, each of which adds
+    // to its funding rather than replacing it
+    let existing = article.options.funders.get_or_insert_default();
+    for funder in funders {
+        if !existing.contains(&funder) {
+            existing.push(funder);
+        }
+    }
+    if existing.is_empty() {
+        article.options.funders = None;
+    }
+
+    if !grants.is_empty() {
+        article
+            .options
+            .funded_by
+            .get_or_insert_default()
+            .extend(grants.into_iter().map(GrantOrMonetaryGrant::MonetaryGrant));
+    }
+}
+
+/// Decode a `<name>` or `<string-name>` element to a [`Person`]
+fn decode_name(node: &Node) -> Person {
+    let mut family_names = Vec::new();
+    let mut given_names = Vec::new();
+    for child in node.children().filter(Node::is_element) {
+        match child.tag_name().name() {
+            "surname" => {
+                if let Some(value) = child.text() {
+                    family_names.push(value.to_string());
+                }
+            }
+            "given-names" => {
+                if let Some(value) = child.text() {
+                    given_names.append(&mut split_given_names(value));
+                }
+            }
+            _ => {}
+        }
+    }
+
+    // A name written as running text has no parts to separate
+    let name = (family_names.is_empty() && given_names.is_empty())
+        .then(|| non_empty_text_deep(node))
+        .flatten();
+
+    Person {
+        family_names: (!family_names.is_empty()).then_some(family_names),
+        given_names: (!given_names.is_empty()).then_some(given_names),
+        options: Box::new(PersonOptions {
+            name,
+            ..Default::default()
+        }),
+        ..Default::default()
+    }
 }
 
 /// Decode a `<funding-source>` element
@@ -1310,14 +1574,25 @@ fn decode_funding_source(
     record_attrs_lost(path, node, [], losses);
 
     let mut name = None;
-    let mut url = None;
+    let mut ror = None;
+    let mut identifiers = None;
 
     for child in node.descendants() {
         let tag = child.tag_name().name();
         if tag == "institution" {
             name = child.text().map(String::from);
-        } else if tag == "institution-id" {
-            url = child.text().map(String::from);
+        } else if tag == "institution-id"
+            && let Some(value) = non_empty_text_deep(&child)
+        {
+            match child.attribute("institution-id-type") {
+                // A funder is most often identified by a Crossref Funder
+                // Registry id, which is kept with the kind of id that it is so
+                // that it can be emitted again as one
+                Some("ror") => ror = Some(strip_ror_prefix(&value)),
+                id_type => {
+                    push_identifier(&mut identifiers, id_type.map(String::from), None, &value)
+                }
+            }
         }
     }
 
@@ -1330,14 +1605,15 @@ fn decode_funding_source(
         }
     }
 
-    if name.is_none() && url.is_none() {
+    if name.is_none() && ror.is_none() && identifiers.is_none() {
         return None;
     }
 
     Some(PersonOrOrganization::Organization(Organization {
         name,
+        ror,
         options: Box::new(OrganizationOptions {
-            url,
+            identifiers,
             ..Default::default()
         }),
         ..Default::default()
@@ -1349,6 +1625,7 @@ fn decode_contrib_group(
     path: &str,
     node: &Node,
     correspondence_emails: &BTreeMap<String, Vec<String>>,
+    affiliations: &Affiliations,
     article: &mut Article,
     losses: &mut Losses,
 ) {
@@ -1356,22 +1633,47 @@ fn decode_contrib_group(
 
     let mut authors = Vec::new();
     let mut editors = Vec::new();
-    for child in node
-        .children()
-        .filter(|child| child.tag_name().name() == "contrib")
-    {
-        let (contrib_type, contributor) =
-            decode_contrib(path, &child, correspondence_emails, losses);
+    for child in node.children().filter(Node::is_element) {
+        let tag = child.tag_name().name();
+        if tag == "aff" {
+            // Decoded onto each contributor that refers to it
+            if !affiliations.is_referenced(child.attribute("id").unwrap_or_default()) {
+                record_node_lost(path, &child, losses);
+            }
+            continue;
+        }
+        if tag != "contrib" {
+            record_node_lost(path, &child, losses);
+            continue;
+        }
+
+        // A contributor that is neither an author nor an editor has nowhere to
+        // go, so is reported as one loss rather than as each of its parts
+        let contrib_type = contrib_type(&child);
+        if !(contrib_type.contains("author") || contrib_type.contains("editor")) {
+            record_node_lost(path, &child, losses);
+            continue;
+        }
+
+        let contributor = decode_contrib(
+            &extend_path(path, tag),
+            &child,
+            correspondence_emails,
+            affiliations,
+            losses,
+        );
         if contrib_type.contains("author") {
             let author = match contributor {
                 PersonOrOrganization::Person(person) => Author::Person(person),
                 PersonOrOrganization::Organization(org) => Author::Organization(org),
             };
             authors.push(author);
-        } else if contrib_type.contains("editor") {
+        } else {
             // Allows for variants such as "senior_editor"
-            if let PersonOrOrganization::Person(person) = contributor {
-                editors.push(person);
+            match contributor {
+                PersonOrOrganization::Person(person) => editors.push(person),
+                // `CreativeWork.editors` is a list of people
+                PersonOrOrganization::Organization(..) => record_node_lost(path, &child, losses),
             }
         }
     }
@@ -1391,23 +1693,38 @@ fn decode_contrib_group(
     }
 }
 
+/// The kind of contributor that a `<contrib>` element represents
+fn contrib_type(node: &Node) -> String {
+    node.attribute("contrib-type")
+        .map_or_else(|| "author".to_string(), |ct| ct.to_lowercase().to_string())
+}
+
 /// Decode a `<contrib>` element
 fn decode_contrib(
     path: &str,
     node: &Node,
     correspondence_emails: &BTreeMap<String, Vec<String>>,
+    article_affiliations: &Affiliations,
     losses: &mut Losses,
-) -> (String, PersonOrOrganization) {
-    let contrib_type = node
-        .attribute("contrib-type")
-        .map_or_else(|| "author".to_string(), |ct| ct.to_lowercase().to_string());
-
-    record_attrs_lost(path, node, ["contrib-type", "corresp"], losses);
+) -> PersonOrOrganization {
+    // A contributor is either an author or an editor, so a finer distinction
+    // such as `senior_editor` is normalized away and reported
+    let contrib_type = contrib_type(node);
+    let not_lost = if matches!(contrib_type.as_str(), "author" | "editor") {
+        ["contrib-type", "corresp"].as_slice()
+    } else {
+        ["corresp"].as_slice()
+    };
+    record_attrs_lost(path, node, not_lost.iter().copied(), losses);
 
     let mut family_names = Vec::new();
     let mut given_names = Vec::new();
+    let mut name = None;
     let mut orcid = None;
+    let mut identifiers = None;
     let mut emails = Vec::new();
+    let mut address = None;
+    let mut job_title = None;
     let mut affiliations = Vec::new();
 
     for child in node.children() {
@@ -1425,16 +1742,34 @@ fn decode_contrib(
                     given_names.append(&mut split_given_names(value));
                 }
             }
-        } else if tag == "contrib-id"
-            && matches!(child.attribute("contrib-id-type"), Some("orcid"))
-            && orcid.is_none()
+        } else if tag == "collab" {
+            name = non_empty_text_deep(&child);
+        } else if tag == "contrib-id" && matches!(child.attribute("contrib-id-type"), Some("orcid"))
         {
-            orcid = child.text().map(|orcid| {
-                orcid
-                    .trim_start_matches("https://orcid.org/")
-                    .trim_start_matches("http://orcid.org/")
-                    .to_string()
-            });
+            if orcid.is_none() {
+                orcid = child.text().map(|orcid| {
+                    orcid
+                        .trim_start_matches("https://orcid.org/")
+                        .trim_start_matches("http://orcid.org/")
+                        .to_string()
+                });
+            }
+        } else if tag == "contrib-id" {
+            // A contributor identifier of any other kind, e.g. a Scopus id
+            push_identifier(
+                &mut identifiers,
+                child.attribute("contrib-id-type").map(String::from),
+                None,
+                &non_empty_text_deep(&child).unwrap_or_default(),
+            );
+        } else if tag == "role" {
+            if job_title.is_none() {
+                job_title = non_empty_text_deep(&child);
+            } else {
+                record_node_lost(path, &child, losses);
+            }
+        } else if tag == "address" {
+            address = non_empty_text_deep(&child).map(PostalAddressOrString::String);
         } else if tag == "object-id" && orcid.is_none() {
             if let Some(url) = child.attribute("xlink:href")
                 && let Some(id) = url
@@ -1451,20 +1786,14 @@ fn decode_contrib(
             affiliations.push(decode_aff(&child))
         } else if tag == "xref"
             && matches!(child.attribute("ref-type"), Some("aff"))
-            && let Some(id) = child.attribute("rid")
+            && let Some(ids) = child.attribute("rid")
         {
-            // Search up the tree for the <aff> with the id, starting at this node
-            let mut ancestor = Some(*node);
-            while let Some(ancestor_node) = ancestor {
-                if let Some(aff) = ancestor_node
-                    .children()
-                    .find(|n| n.has_tag_name("aff") && n.attribute("id").unwrap_or_default() == id)
-                {
-                    affiliations.push(decode_aff(&aff));
-                    break;
+            for id in ids.split_whitespace() {
+                match article_affiliations.get(id) {
+                    Some(affiliation) => affiliations.push(affiliation.clone()),
+                    // An affiliation that the article does not define
+                    None => record_node_lost(path, &child, losses),
                 }
-
-                ancestor = ancestor_node.parent();
             }
         } else if tag == "xref"
             && matches!(child.attribute("ref-type"), Some("corresp"))
@@ -1482,19 +1811,34 @@ fn decode_contrib(
     let emails = (!emails.is_empty()).then_some(emails);
     let affiliations = (!affiliations.is_empty()).then_some(affiliations);
 
-    let contributor = PersonOrOrganization::Person(Person {
+    // A `<collab>` names a group rather than a person, and is the only kind of
+    // contributor that JATS writes without a personal name
+    if family_names.is_none() && given_names.is_none() && name.is_some() {
+        return PersonOrOrganization::Organization(Organization {
+            name,
+            options: Box::new(OrganizationOptions {
+                identifiers,
+                ..Default::default()
+            }),
+            ..Default::default()
+        });
+    }
+
+    PersonOrOrganization::Person(Person {
         orcid,
         family_names,
         given_names,
         affiliations,
         options: Box::new(PersonOptions {
+            name,
+            identifiers,
             emails,
+            address,
+            job_title,
             ..Default::default()
         }),
         ..Default::default()
-    });
-
-    (contrib_type, contributor)
+    })
 }
 
 /// Decode an `<aff>` element
@@ -1502,6 +1846,7 @@ fn decode_aff(node: &Node) -> Organization {
     const TRIM_CHARS: &[char] = &[',', '.', ' ', '\n'];
 
     let mut ror = None;
+    let mut identifiers = None;
     let mut name = Vec::new();
     let mut address = Vec::new();
     for child in node.children() {
@@ -1509,6 +1854,16 @@ fn decode_aff(node: &Node) -> Organization {
         match tag {
             "institution-id" if matches!(child.attribute("institution-id-type"), Some("ror")) => {
                 ror = child.text().map(String::from);
+            }
+            "institution-id" => {
+                if let Some(value) = non_empty_text_deep(&child) {
+                    push_identifier(
+                        &mut identifiers,
+                        child.attribute("institution-id-type").map(String::from),
+                        None,
+                        &value,
+                    );
+                }
             }
 
             "named-content"
@@ -1533,6 +1888,17 @@ fn decode_aff(node: &Node) -> Organization {
                         && matches!(grandchild.attribute("institution-id-type"), Some("ror"))
                     {
                         ror = grandchild.text().map(String::from);
+                    } else if tag_name == "institution-id" {
+                        if let Some(value) = non_empty_text_deep(&grandchild) {
+                            push_identifier(
+                                &mut identifiers,
+                                grandchild
+                                    .attribute("institution-id-type")
+                                    .map(String::from),
+                                None,
+                                &value,
+                            );
+                        }
                     } else if tag_name == "institution"
                         && let Some(text) = grandchild.text()
                     {
@@ -1569,7 +1935,7 @@ fn decode_aff(node: &Node) -> Organization {
     name.retain(|name| !name.is_empty());
     address.retain(|name| !name.is_empty());
 
-    let ror = ror.map(|ror| ror.trim_start_matches("https://ror.org/").to_string());
+    let ror = ror.map(|ror| strip_ror_prefix(&ror));
 
     let name = if name.is_empty() {
         if address.is_empty() {
@@ -1591,6 +1957,7 @@ fn decode_aff(node: &Node) -> Organization {
         ror,
         options: Box::new(OrganizationOptions {
             address,
+            identifiers,
             ..Default::default()
         }),
         ..Default::default()

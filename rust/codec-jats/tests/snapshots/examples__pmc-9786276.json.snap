@@ -273,7 +273,8 @@ expression: article
       "givenNames": [
         "Alexander",
         "N"
-      ]
+      ],
+      "address": "sasakuzn@mail.ru"
     }
   ],
   "datePublished": {

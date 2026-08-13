@@ -41,6 +41,7 @@ expression: jats
             <given-names>C David</given-names>
           </name>
           <xref ref-type="aff" rid="aff1"></xref>
+          <address>desantanac@si.edu</address>
         </contrib>
         <contrib contrib-type="author">
           <name>
@@ -129,36 +130,48 @@ expression: jats
         <aff id="aff1">
           <institution-wrap>
             <institution>Division of Fishes, Department of Vertebrate Zoology, MRC 159, National Museum of Natural History, Smithsonian Institution</institution>
+            <institution-id institution-id-type="GRID">grid.1214.6</institution-id>
+            <institution-id institution-id-type="ISNI">0000 0000 8716 3312</institution-id>
           </institution-wrap>
           <addr-line>PO Box 37012, Washington, DC 20013-7012 USA</addr-line>
         </aff>
         <aff id="aff2">
           <institution-wrap>
             <institution>Cornell University Museum of Vertebrates, Department of Ecology and Evolutionary Biology, Cornell University</institution>
+            <institution-id institution-id-type="GRID">grid.5386.8</institution-id>
+            <institution-id institution-id-type="ISNI">000000041936877X</institution-id>
           </institution-wrap>
           <addr-line>Ithaca, NY 14850 USA</addr-line>
         </aff>
         <aff id="aff3">
           <institution-wrap>
             <institution>Global Genome Initiative, National Museum of Natural History, Smithsonian Institution</institution>
+            <institution-id institution-id-type="GRID">grid.1214.6</institution-id>
+            <institution-id institution-id-type="ISNI">0000 0000 8716 3312</institution-id>
           </institution-wrap>
           <addr-line>PO Box 37012, Washington, DC 20013-7012 USA</addr-line>
         </aff>
         <aff id="aff4">
           <institution-wrap>
             <institution>Programa de Pós‐Graduação em Ciências Biológicas (BADPI), Instituto Nacional de Pesquisas da Amazônia</institution>
+            <institution-id institution-id-type="GRID">grid.419220.c</institution-id>
+            <institution-id institution-id-type="ISNI">0000 0004 0427 0577</institution-id>
           </institution-wrap>
           <addr-line>Manaus, Brazil</addr-line>
         </aff>
         <aff id="aff5">
           <institution-wrap>
             <institution>Coordenação de Biodiversidade, Instituto Nacional de Pesquisas da Amazônia</institution>
+            <institution-id institution-id-type="GRID">grid.419220.c</institution-id>
+            <institution-id institution-id-type="ISNI">0000 0004 0427 0577</institution-id>
           </institution-wrap>
           <addr-line>Manaus, Amazonas Brazil</addr-line>
         </aff>
         <aff id="aff6">
           <institution-wrap>
             <institution>Instituto do Mar, Universidade Federal de São Paulo</institution>
+            <institution-id institution-id-type="GRID">grid.411249.b</institution-id>
+            <institution-id institution-id-type="ISNI">0000 0001 0514 7202</institution-id>
           </institution-wrap>
           <addr-line>Campus Baixada Santista, Santos, São Paulo Brazil</addr-line>
         </aff>
@@ -170,12 +183,15 @@ expression: jats
         <aff id="aff8">
           <institution-wrap>
             <institution>Museu de Zoologia da Universidade de São Paulo (MZUSP)</institution>
+            <institution-id institution-id-type="GRID">grid.11899.38</institution-id>
+            <institution-id institution-id-type="ISNI">0000 0004 1937 0722</institution-id>
           </institution-wrap>
           <addr-line>Av. Nazaré, 481, São Paulo, SP 04263-000 Brazil</addr-line>
         </aff>
         <aff id="aff9">
           <institution-wrap>
             <institution>Natural History Museum and Institute</institution>
+            <institution-id institution-id-type="GRID">grid.471892.1</institution-id>
           </institution-wrap>
           <addr-line>Chuo-ku, Chiba, 260-8682 Japan</addr-line>
         </aff>
@@ -240,6 +256,80 @@ expression: jats
         <kwd>Ecology</kwd>
         <kwd>Biodiversity</kwd>
       </kwd-group>
+      <funding-group>
+        <award-group>
+          <funding-source>
+            <institution-wrap>
+              <institution>Fundação de Amparo à Pesquisa do Estado de São Paulo</institution>
+              <institution-id institution-id-type="FundRef">http://dx.doi.org/10.13039/501100001807</institution-id>
+            </institution-wrap>
+          </funding-source>
+          <award-id>2016/19075-9</award-id>
+          <award-id>2016/07910-0</award-id>
+          <principal-award-recipient>
+            <name>
+              <surname>Torrente-Vilara</surname>
+              <given-names>Gislene</given-names>
+            </name>
+          </principal-award-recipient>
+        </award-group>
+        <award-group>
+          <funding-source>
+            <institution-wrap>
+              <institution>Smithsonian&apos;s Global Genome Initiative</institution>
+            </institution-wrap>
+          </funding-source>
+          <award-id>GGI-Peer-2017-149</award-id>
+        </award-group>
+        <award-group>
+          <funding-source>
+            <institution-wrap>
+              <institution>GGI-Peer-2020-258</institution>
+            </institution-wrap>
+          </funding-source>
+          <award-id>GGI-Peer-2020-258</award-id>
+          <principal-award-recipient>
+            <name>
+              <surname>de Santana</surname>
+              <given-names>C David</given-names>
+            </name>
+          </principal-award-recipient>
+        </award-group>
+        <award-group>
+          <funding-source>
+            <institution-wrap>
+              <institution>Conselho Nacional de Desenvolvimento Científico e Tecnológico</institution>
+              <institution-id institution-id-type="FundRef">http://dx.doi.org/10.13039/501100003593</institution-id>
+            </institution-wrap>
+          </funding-source>
+          <award-id>313183/2014-7</award-id>
+          <principal-award-recipient>
+            <name>
+              <surname>Zuanon</surname>
+              <given-names>Jansen</given-names>
+            </name>
+          </principal-award-recipient>
+        </award-group>
+        <award-group>
+          <funding-source>
+            <institution-wrap>
+              <institution>Environment Research and Technology Development Fund of the Ministry of the Environment, Japan</institution>
+            </institution-wrap>
+          </funding-source>
+          <award-id>4-1602</award-id>
+          <award-id>4-1602</award-id>
+          <principal-award-recipient>
+            <name>
+              <surname>Sado</surname>
+              <given-names>T</given-names>
+            </name>
+            <name>
+              <surname>Miya</surname>
+              <given-names>M</given-names>
+            </name>
+          </principal-award-recipient>
+        </award-group>
+      </funding-group>
     </article-meta>
   </front>
   <body>
