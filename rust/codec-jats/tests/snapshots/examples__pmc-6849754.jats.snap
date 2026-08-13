@@ -698,7 +698,7 @@ expression: jats
               </mml:msubsup>
             </mml:math></inline-formula>and&#10;              χ sensitivities. Sensitivity analyses were done while keeping all other&#10;              environmental variables at standard levels: <italic>I</italic>&#10;<sub>g</sub>&#10;<italic>&#10;               </italic>= 800 μmol m<sup>−2</sup> s<sup>−1</sup>&#10;              , <italic>T</italic>&#10;<sub>g</sub>&#10;<italic> </italic>= 25 °C, <italic>&#10;              D</italic>&#10;<sub>g</sub>&#10;<italic> </italic>= 1 <styled-content style="fixed-case">kP</styled-content>a, z = 0 km. Note: χ is insensitive to <italic>&#10;              I</italic>&#10;<sub>g</sub>, and as such, no dashed grey line was plotted<sub>.</sub>&#10;            </p>
           </caption>
-          <inline-graphic xlink:href="ELE-22-506-g001"></inline-graphic>
+          <graphic xlink:href="ELE-22-506-g001"></graphic>
         </fig>
       </sec>
       <sec id="ele13210-sec-0006">
@@ -2114,7 +2114,7 @@ expression: jats
               </mml:msubsup>
             </mml:math></inline-formula>value&#10;              at that site from the theoretical model. Sites are coloured by Köppen climate&#10;              classification. Tropical (first letter A), arid (first letter B), temperate (first&#10;              letter C), boreal (first letter D) and polar (first letter E) regions are represented&#10;              by red, yellow, green, blue and grey colours. Error bars represent standard errors of&#10;              the mean. The solid black line is the best fit line from the reduced major axis&#10;              regression. The grey‐shaded area represents a 95% confidence interval. The&#10;              dotted black line is a 1:1 line. Köppen climate classification key: Af= tropical&#10;              rainforest, Am= tropical monsoon, Aw= tropical wet savannah, <styled-content style="fixed-case">BS</styled-content>h= hot arid steppe, <styled-content style="fixed-case">BS</styled-content>k= cold arid steppe, <styled-content style="fixed-case">BW</styled-content>h= hot arid desert, <styled-content style="fixed-case">BW</styled-content>k= cold arid desert, Cfa= temperate hot summer without&#10;              dry season, Cfb= temperate warm summer without dry season, Cfc= temperate cold summer&#10;              without dry season, Csa= temperate hot summer with dry summer, Csb= temperate warm&#10;              summer with dry summer, Cwa= temperate hot summer with dry winter, Cwb= temperate warm&#10;              summer with dry winter, Dfa= boreal hot summer without dry season, Dfb= boreal warm&#10;              summer without dry season, Dfc= boreal cold summer without dry season, Dsc= boreal&#10;              cold summer with dry summer, Dwc= boreal cold summer with dry winter, <styled-content style="fixed-case">EF</styled-content>= eternal winter, <styled-content style="fixed-case">ET</styled-content>= tundra. A version of this figure with individual&#10;              points can be found in the Supplementary Information (Figure S8).</p>
           </caption>
-          <inline-graphic xlink:href="ELE-22-506-g002"></inline-graphic>
+          <graphic xlink:href="ELE-22-506-g002"></graphic>
         </fig>
       </sec>
       <sec id="ele13210-sec-0012">
@@ -2245,7 +2245,7 @@ expression: jats
               </mml:msubsup>
             </mml:math></inline-formula>.&#10;              Lines indicate the modelled response from the multiple linear regression models.&#10;              Shading indicates 95% confidence intervals for regression lines. Only significant&#10;              trends (<italic>P</italic> &lt; 0.05) are shown. Colours are as in&#10;              Figure <xref ref-type="fig" rid="ele13210-fig-0002">2</xref>.</p>
           </caption>
-          <inline-graphic xlink:href="ELE-22-506-g003"></inline-graphic>
+          <graphic xlink:href="ELE-22-506-g003"></graphic>
         </fig>
         <p>The warmest and driest environments in our dataset (<italic>D</italic>&#10;<sub>g</sub> &gt;&#10;          1.5 kPa) showed the greatest underestimation of <inline-formula><mml:math xmlns:mml="http://www.w3.org/1998/Math/MathML" id="nlm-math-97">
           <mml:msubsup>
@@ -2459,7 +2459,7 @@ expression: jats
               </mml:msubsup>
             </mml:math></inline-formula>.&#10;              Lines indicate the modelled response from the multiple linear regression models.&#10;              Shading indicates 95% confidence intervals for regression lines. Only significant&#10;              trends (P &lt; 0.05) are shown. Colours are as in Figure <xref ref-type="fig" rid="ele13210-fig-0002">2</xref>.</p>
           </caption>
-          <inline-graphic xlink:href="ELE-22-506-g004"></inline-graphic>
+          <graphic xlink:href="ELE-22-506-g004"></graphic>
         </fig>
       </sec>
       <sec id="ele13210-sec-0014">
@@ -2656,7 +2656,7 @@ expression: jats
               </mml:msubsup>
             </mml:math></inline-formula>.&#10;              Lines indicate the modelled response from the multiple linear regression models.&#10;              Shading indicates 95% confidence intervals for regression lines. Only significant&#10;              trends (<italic>P </italic>&lt;<italic> </italic>0.05) are shown. Data are&#10;              plotted for each of the 193 sites that had available soil data. Colours are as in&#10;              Figure <xref ref-type="fig" rid="ele13210-fig-0002">2</xref>.</p>
           </caption>
-          <inline-graphic xlink:href="ELE-22-506-g005"></inline-graphic>
+          <graphic xlink:href="ELE-22-506-g005"></graphic>
         </fig>
       </sec>
     </sec>
@@ -2692,7 +2692,7 @@ expression: jats
             </mml:msubsup>
           </mml:math></inline-formula>)&#10;            computed using mean growing season irradiance, air temperature, vapour pressure deficit&#10;            and elevation. Values were calculated at 0.5° resolution using effective growing&#10;            season mean temperature (<italic>T</italic>&#10;<sub>g</sub>; °C), atmospheric vapour&#10;            pressure deficit (<italic>D</italic>&#10;<sub>g</sub>; Pa) and incoming photosynthetically&#10;            active radiation (<italic>I</italic>&#10;<sub>g</sub>; μmol m<sup>−2</sup>&#10;             s<sup>−1</sup>) for each location from monthly data provided by the&#10;            Climatic Research Unit (<styled-content style="fixed-case">CRU TS</styled-content>3.24.01) (Harris <italic>et al</italic>. <xref ref-type="bibr" rid="ele13210-bib-0025">2014</xref>). Growing season was defined as months having temperatures&#10;            greater than 0 °C. Elevation (<italic>z</italic>; m) at each location was&#10;            obtained from the <styled-content style="fixed-case">WFDEI</styled-content> meteorological forcing dataset (Weedon <italic>&#10;            et al</italic>. <xref ref-type="bibr" rid="ele13210-bib-0067">2014</xref>). Atmospheric <styled-content style="fixed-case">CO</styled-content>&#10;<sub>2</sub> was assumed to be 400 μmol mol<sup>&#10;            −1</sup> at <italic>z </italic>=<italic> </italic>0 m and&#10;            converted to Pa for each location based on <italic>z</italic>.</p>
         </caption>
-        <inline-graphic xlink:href="ELE-22-506-g006"></inline-graphic>
+        <graphic xlink:href="ELE-22-506-g006"></graphic>
       </fig>
       <p>Nonetheless, there were some significant biases in our model predictions that warrant&#10;        further discussion. The linear model results indicated a positive bias with light&#10;        availability, suggesting that the observational data were less sensitive to light&#10;        availability than predicted by the theory. It is possible that this was driven by individual&#10;        variation in the realized quantum yield of photosynthetic electron transport (φ),&#10;        which is the product of the intrinsic quantum efficiency and leaf absorptance of incoming&#10;        radiation. Previous studies have suggested that intrinsic quantum efficiency and leaf&#10;        absorptance are not driven by light availability (Evans &amp; Poorter <xref ref-type="bibr" rid="ele13210-bib-0020">2001</xref>) and, for intrinsic quantum efficiency, that observed&#10;        variability may be due to measurement technique rather than meaningful biological variation&#10;        (Skillman <xref ref-type="bibr" rid="ele13210-bib-0049">2008</xref>). This suggests that the bias in the light response may be due&#10;        to variability in leaf position and angle, which influence the actual light reaching the&#10;        leaf surface. Our comparison to the CANTRIP dataset (Keenan &amp; Niinemets <xref ref-type="bibr" rid="ele13210-bib-0031">2016</xref>) indeed suggests that measured leaves likely were not receiving&#10;        full sunlight, which would have contributed to the model overestimation that we observed.&#10;        The combined impact of light availability, leaf position and canopy architecture is a major&#10;        research need for scaling from leaf to whole‐plant responses at large scales.</p>
       <p>Unlike with light availability, there was no bias in our model related to temperature,&#10;        indicating that the temperature response predicted tends to follow similar responses seen in&#10;        the global dataset. Notably, the response is also similar to that seen in&#10;        meta‐analytical (Kattge &amp; Knorr <xref ref-type="bibr" rid="ele13210-bib-0028">2007</xref>) and controlled‐environment (Scafaro <italic>et al</italic>&#10;        . <xref ref-type="bibr" rid="ele13210-bib-0047">2017</xref>; Smith &amp; Dukes <xref ref-type="bibr" rid="ele13210-bib-0053">2017b</xref>) studies. Nonetheless, temperature was an important determinant&#10;        of optimal <inline-formula><mml:math xmlns:mml="http://www.w3.org/1998/Math/MathML" id="nlm-math-131">
@@ -2846,11 +2846,13 @@ expression: jats
     </sec>
     <sec sec-type="SupplementaryMaterials">
       <title level="1">Supporting information</title>
-      <supplementary-material id="ele13210-sup-0001" href="ELE-22-506-s001.docx"></supplementary-material>
+      <supplementary-material id="ele13210-sup-0001">
+        <media xlink:href="ELE-22-506-s001.docx"></media>
+      </supplementary-material>
     </sec>
     <sec id="ele13210-sec-0018" sec-type="DataAvailability">
       <title level="1">Data availability</title>
-      <p>Model code can be found at <ext-link ext-link-type="uri" xlink:href="https://github.com/SmithEcophysLab/optimal_vcmax_R">&#10;        https://github.com/SmithEcophysLab/optimal_vcmax_R</ext-link> (<ext-link ext-link-type="uri" xlink:href="https://doi.org/10.5281/zenodo.1482044">https://doi.org/10.5281/zenodo.1482044</ext-link>).&#10;        No new data were used in the analyses. Investigators should refer to the citations provided&#10;        in the Methods section for data access. Please contact Nick Smith ()&#10;        with any issues.</p>
+      <p>Model code can be found at <ext-link ext-link-type="uri" xlink:href="https://github.com/SmithEcophysLab/optimal_vcmax_R">&#10;        https://github.com/SmithEcophysLab/optimal_vcmax_R</ext-link> (<ext-link ext-link-type="uri" xlink:href="https://doi.org/10.5281/zenodo.1482044">https://doi.org/10.5281/zenodo.1482044</ext-link>).&#10;        No new data were used in the analyses. Investigators should refer to the citations provided&#10;        in the Methods section for data access. Please contact Nick Smith (<email>nick.smith@ttu.edu</email>)&#10;        with any issues.</p>
     </sec>
   </body>
   <back>

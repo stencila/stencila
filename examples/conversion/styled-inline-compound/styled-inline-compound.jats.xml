@@ -5,6 +5,6 @@
     <article-meta></article-meta>
   </front>
   <body>
-    <p>A styled inlines containing other compound inline nodes: <styled-content style="text-blue-600"><italic>emphasis</italic>, <ext-link xlink:href="https://example.org">link</ext-link></styled-content></p>
+    <p>A styled inlines containing other compound inline nodes: <styled-content style="text-blue-600"><italic>emphasis</italic>, <ext-link ext-link-type="uri" xlink:href="https://example.org">link</ext-link></styled-content></p>
   </body>
 </article>

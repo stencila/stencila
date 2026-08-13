@@ -6420,8 +6420,7 @@ expression: article
                       }
                     }
                   ],
-                  "target": "https://github.com/COSIN3-UOC/N-Q-IBN",
-                  "jatsExtLinkType": "uri"
+                  "target": "https://github.com/COSIN3-UOC/N-Q-IBN"
                 },
                 {
                   "type": "Text",
@@ -10020,8 +10019,7 @@ expression: article
                       }
                     }
                   ],
-                  "target": "https://github.com/COSIN3-UOC/network-generator",
-                  "jatsExtLinkType": "uri"
+                  "target": "https://github.com/COSIN3-UOC/network-generator"
                 },
                 {
                   "type": "Text",
@@ -11567,8 +11565,7 @@ expression: article
                       }
                     }
                   ],
-                  "target": "http://www.ecologia.ib.usp.br/iwdb",
-                  "jatsExtLinkType": "uri"
+                  "target": "http://www.ecologia.ib.usp.br/iwdb"
                 },
                 {
                   "type": "Text",
@@ -18748,8 +18745,7 @@ expression: article
                       }
                     }
                   ],
-                  "target": "https://github.com/COSIN3-UOC",
-                  "jatsExtLinkType": "uri"
+                  "target": "https://github.com/COSIN3-UOC"
                 },
                 {
                   "type": "Text",
@@ -18800,8 +18796,7 @@ expression: article
                   }
                 }
               ],
-              "target": "https://github.com/COSIN3-UOC",
-              "jatsExtLinkType": "uri"
+              "target": "https://github.com/COSIN3-UOC"
             },
             {
               "type": "Text",

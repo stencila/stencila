@@ -6,7 +6,7 @@
   </front>
   <body>
     <p>Test of media objects as blocks</p>
-    <inline-graphic xlink:href="https://example.org/cat.jpg"></inline-graphic>
+    <graphic xlink:href="https://example.org/cat.jpg"></graphic>
     <inline-media xlink:href="https://example.org/cat.mp3" mimetype="audio"></inline-media>
     <inline-media xlink:href="https://example.org/cat.mp4" mimetype="video"></inline-media>
   </body>

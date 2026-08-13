@@ -9457,8 +9457,7 @@ expression: article
                       }
                     }
                   ],
-                  "target": "http://www.soilgrids.org",
-                  "jatsExtLinkType": "uri"
+                  "target": "http://www.soilgrids.org"
                 },
                 {
                   "type": "Text",
@@ -10127,8 +10126,7 @@ expression: article
               },
               "mathLanguage": "mathml",
               "label": "1",
-              "labelAutomatically": false,
-              "mathml": "<mml:math xmlns:mml=\"http://www.w3.org/1998/Math/MathML\" id=\"nlm-math-8\">\n            <mml:mrow>\n              <mml:mi>χ</mml:mi>\n              <mml:mo>=</mml:mo>\n              <mml:mfrac>\n                <mml:msup>\n                  <mml:mrow>\n                    <mml:mi mathvariant=\"normal\">Γ</mml:mi>\n                  </mml:mrow>\n                  <mml:mo>∗</mml:mo>\n                </mml:msup>\n                <mml:msub>\n                  <mml:mi>C</mml:mi>\n                  <mml:mi>a</mml:mi>\n                </mml:msub>\n              </mml:mfrac>\n              <mml:mo>+</mml:mo>\n              <mml:mfenced close=\")\" open=\"(\" separators=\"\">\n                <mml:mrow>\n                  <mml:mn>1</mml:mn>\n                  <mml:mo>−</mml:mo>\n                  <mml:mfrac>\n                    <mml:msup>\n                      <mml:mrow>\n                        <mml:mi mathvariant=\"normal\">Γ</mml:mi>\n                      </mml:mrow>\n                      <mml:mo>∗</mml:mo>\n                    </mml:msup>\n                    <mml:msub>\n                      <mml:mi>C</mml:mi>\n                      <mml:mi>a</mml:mi>\n                    </mml:msub>\n                  </mml:mfrac>\n                </mml:mrow>\n              </mml:mfenced>\n              <mml:mfrac>\n                <mml:mi mathvariant=\"normal\">ξ</mml:mi>\n                <mml:mrow>\n                  <mml:mi mathvariant=\"normal\">ξ</mml:mi>\n                  <mml:mo>+</mml:mo>\n                  <mml:msqrt>\n                    <mml:msub>\n                      <mml:mi>D</mml:mi>\n                      <mml:mi>g</mml:mi>\n                    </mml:msub>\n                  </mml:msqrt>\n                </mml:mrow>\n              </mml:mfrac>\n            </mml:mrow>\n          </mml:math>"
+              "labelAutomatically": false
             },
             {
               "type": "Paragraph",
@@ -10149,8 +10147,7 @@ expression: article
               },
               "mathLanguage": "mathml",
               "label": "2",
-              "labelAutomatically": false,
-              "mathml": "<mml:math xmlns:mml=\"http://www.w3.org/1998/Math/MathML\" id=\"nlm-math-9\">\n            <mml:mrow>\n              <mml:mi mathvariant=\"normal\">ξ</mml:mi>\n              <mml:mo>=</mml:mo>\n              <mml:msqrt>\n                <mml:mrow>\n                  <mml:mi mathvariant=\"normal\">β</mml:mi>\n                  <mml:mfrac>\n                    <mml:mrow>\n                      <mml:mi>K</mml:mi>\n                      <mml:mo>+</mml:mo>\n                      <mml:msup>\n                        <mml:mrow>\n                          <mml:mi mathvariant=\"normal\">Γ</mml:mi>\n                        </mml:mrow>\n                        <mml:mo>∗</mml:mo>\n                      </mml:msup>\n                    </mml:mrow>\n                    <mml:mrow>\n                      <mml:mn>1.6</mml:mn>\n                      <mml:msup>\n                        <mml:mi>η</mml:mi>\n                        <mml:mo>∗</mml:mo>\n                      </mml:msup>\n                    </mml:mrow>\n                  </mml:mfrac>\n                </mml:mrow>\n              </mml:msqrt>\n            </mml:mrow>\n          </mml:math>"
+              "labelAutomatically": false
             },
             {
               "type": "Paragraph",
@@ -10335,8 +10332,7 @@ expression: article
               },
               "mathLanguage": "mathml",
               "label": "3",
-              "labelAutomatically": false,
-              "mathml": "<mml:math xmlns:mml=\"http://www.w3.org/1998/Math/MathML\" id=\"nlm-math-12\">\n            <mml:mrow>\n              <mml:mi>K</mml:mi>\n              <mml:mo>=</mml:mo>\n              <mml:msub>\n                <mml:mi>K</mml:mi>\n                <mml:mi>c</mml:mi>\n              </mml:msub>\n              <mml:mfenced close=\")\" open=\"(\" separators=\"\">\n                <mml:mrow>\n                  <mml:mn>1</mml:mn>\n                  <mml:mo>+</mml:mo>\n                  <mml:mfrac>\n                    <mml:msub>\n                      <mml:mi>O</mml:mi>\n                      <mml:mi>i</mml:mi>\n                    </mml:msub>\n                    <mml:msub>\n                      <mml:mi>K</mml:mi>\n                      <mml:mi>o</mml:mi>\n                    </mml:msub>\n                  </mml:mfrac>\n                </mml:mrow>\n              </mml:mfenced>\n            </mml:mrow>\n          </mml:math>"
+              "labelAutomatically": false
             },
             {
               "type": "Paragraph",
@@ -11686,8 +11682,7 @@ expression: article
               },
               "mathLanguage": "mathml",
               "label": "4",
-              "labelAutomatically": false,
-              "mathml": "<mml:math xmlns:mml=\"http://www.w3.org/1998/Math/MathML\" id=\"nlm-math-21\">\n            <mml:mrow>\n              <mml:msub>\n                <mml:mi>A</mml:mi>\n                <mml:mi>c</mml:mi>\n              </mml:msub>\n              <mml:mo>=</mml:mo>\n              <mml:msub>\n                <mml:mi>A</mml:mi>\n                <mml:mi>j</mml:mi>\n              </mml:msub>\n            </mml:mrow>\n          </mml:math>"
+              "labelAutomatically": false
             },
             {
               "type": "Paragraph",
@@ -11844,8 +11839,7 @@ expression: article
               },
               "mathLanguage": "mathml",
               "label": "5",
-              "labelAutomatically": false,
-              "mathml": "<mml:math xmlns:mml=\"http://www.w3.org/1998/Math/MathML\" id=\"nlm-math-22\">\n            <mml:mrow>\n              <mml:msub>\n                <mml:mi>A</mml:mi>\n                <mml:mi>c</mml:mi>\n              </mml:msub>\n              <mml:mo>=</mml:mo>\n              <mml:msub>\n                <mml:mi>V</mml:mi>\n                <mml:mi mathvariant=\"normal\">cmax</mml:mi>\n              </mml:msub>\n              <mml:msub>\n                <mml:mi>m</mml:mi>\n                <mml:mi>c</mml:mi>\n              </mml:msub>\n            </mml:mrow>\n          </mml:math>"
+              "labelAutomatically": false
             },
             {
               "type": "Paragraph",
@@ -11866,8 +11860,7 @@ expression: article
               },
               "mathLanguage": "mathml",
               "label": "6",
-              "labelAutomatically": false,
-              "mathml": "<mml:math xmlns:mml=\"http://www.w3.org/1998/Math/MathML\" id=\"nlm-math-23\">\n            <mml:mrow>\n              <mml:msub>\n                <mml:mi>m</mml:mi>\n                <mml:mi>c</mml:mi>\n              </mml:msub>\n              <mml:mo>=</mml:mo>\n              <mml:mfrac>\n                <mml:mrow>\n                  <mml:msubsup>\n                    <mml:mi>C</mml:mi>\n                    <mml:mi>i</mml:mi>\n                    <mml:mo>′</mml:mo>\n                  </mml:msubsup>\n                  <mml:mo>−</mml:mo>\n                  <mml:msup>\n                    <mml:mrow>\n                      <mml:mi mathvariant=\"normal\">Γ</mml:mi>\n                    </mml:mrow>\n                    <mml:mo>∗</mml:mo>\n                  </mml:msup>\n                </mml:mrow>\n                <mml:mrow>\n                  <mml:msubsup>\n                    <mml:mi>C</mml:mi>\n                    <mml:mi>i</mml:mi>\n                    <mml:mo>′</mml:mo>\n                  </mml:msubsup>\n                  <mml:mo>+</mml:mo>\n                  <mml:mi>K</mml:mi>\n                </mml:mrow>\n              </mml:mfrac>\n            </mml:mrow>\n          </mml:math>"
+              "labelAutomatically": false
             },
             {
               "type": "Paragraph",
@@ -12078,8 +12071,7 @@ expression: article
               },
               "mathLanguage": "mathml",
               "label": "7",
-              "labelAutomatically": false,
-              "mathml": "<mml:math xmlns:mml=\"http://www.w3.org/1998/Math/MathML\" id=\"nlm-math-26\">\n            <mml:mrow>\n              <mml:msub>\n                <mml:mi>A</mml:mi>\n                <mml:mi>j</mml:mi>\n              </mml:msub>\n              <mml:mo>=</mml:mo>\n              <mml:mfenced close=\")\" open=\"(\" separators=\"\">\n                <mml:mfrac>\n                  <mml:mi>J</mml:mi>\n                  <mml:mn>4</mml:mn>\n                </mml:mfrac>\n              </mml:mfenced>\n              <mml:mi>m</mml:mi>\n            </mml:mrow>\n          </mml:math>"
+              "labelAutomatically": false
             },
             {
               "type": "Paragraph",
@@ -12100,8 +12092,7 @@ expression: article
               },
               "mathLanguage": "mathml",
               "label": "8",
-              "labelAutomatically": false,
-              "mathml": "<mml:math xmlns:mml=\"http://www.w3.org/1998/Math/MathML\" id=\"nlm-math-27\">\n            <mml:mrow>\n              <mml:mi>m</mml:mi>\n              <mml:mo>=</mml:mo>\n              <mml:mfrac>\n                <mml:mrow>\n                  <mml:msubsup>\n                    <mml:mi>C</mml:mi>\n                    <mml:mi>i</mml:mi>\n                    <mml:mo>′</mml:mo>\n                  </mml:msubsup>\n                  <mml:mo>−</mml:mo>\n                  <mml:msup>\n                    <mml:mrow>\n                      <mml:mi mathvariant=\"normal\">Γ</mml:mi>\n                    </mml:mrow>\n                    <mml:mo>∗</mml:mo>\n                  </mml:msup>\n                </mml:mrow>\n                <mml:mrow>\n                  <mml:msubsup>\n                    <mml:mi>C</mml:mi>\n                    <mml:mi>i</mml:mi>\n                    <mml:mo>′</mml:mo>\n                  </mml:msubsup>\n                  <mml:mo>+</mml:mo>\n                  <mml:mn>2</mml:mn>\n                  <mml:msup>\n                    <mml:mrow>\n                      <mml:mi mathvariant=\"normal\">Γ</mml:mi>\n                    </mml:mrow>\n                    <mml:mo>∗</mml:mo>\n                  </mml:msup>\n                </mml:mrow>\n              </mml:mfrac>\n            </mml:mrow>\n          </mml:math>"
+              "labelAutomatically": false
             },
             {
               "type": "Paragraph",
@@ -12207,8 +12198,7 @@ expression: article
               },
               "mathLanguage": "mathml",
               "label": "9",
-              "labelAutomatically": false,
-              "mathml": "<mml:math xmlns:mml=\"http://www.w3.org/1998/Math/MathML\" id=\"nlm-math-28\">\n            <mml:mrow>\n              <mml:mi>θ</mml:mi>\n              <mml:msup>\n                <mml:mi>J</mml:mi>\n                <mml:mn>2</mml:mn>\n              </mml:msup>\n              <mml:mo>−</mml:mo>\n              <mml:mfenced close=\")\" open=\"(\" separators=\"\">\n                <mml:mrow>\n                  <mml:mi>φ</mml:mi>\n                  <mml:mi>I</mml:mi>\n                  <mml:mo>+</mml:mo>\n                  <mml:msub>\n                    <mml:mi>J</mml:mi>\n                    <mml:mi mathvariant=\"normal\">max</mml:mi>\n                  </mml:msub>\n                </mml:mrow>\n              </mml:mfenced>\n              <mml:mi>J</mml:mi>\n              <mml:mo>+</mml:mo>\n              <mml:mi>φ</mml:mi>\n              <mml:mi>I</mml:mi>\n              <mml:msub>\n                <mml:mi>J</mml:mi>\n                <mml:mi mathvariant=\"normal\">max</mml:mi>\n              </mml:msub>\n              <mml:mo>=</mml:mo>\n              <mml:mn>0</mml:mn>\n            </mml:mrow>\n          </mml:math>"
+              "labelAutomatically": false
             },
             {
               "type": "Paragraph",
@@ -12572,8 +12562,7 @@ expression: article
               },
               "mathLanguage": "mathml",
               "label": "10",
-              "labelAutomatically": false,
-              "mathml": "<mml:math xmlns:mml=\"http://www.w3.org/1998/Math/MathML\" id=\"nlm-math-35\">\n            <mml:mrow>\n              <mml:msub>\n                <mml:mi>A</mml:mi>\n                <mml:mi>j</mml:mi>\n              </mml:msub>\n              <mml:mo>=</mml:mo>\n              <mml:mfenced close=\")\" open=\"(\" separators=\"\">\n                <mml:mfrac>\n                  <mml:mi>m</mml:mi>\n                  <mml:mn>4</mml:mn>\n                </mml:mfrac>\n              </mml:mfenced>\n              <mml:mfrac>\n                <mml:mrow>\n                  <mml:mi>φ</mml:mi>\n                  <mml:mi>I</mml:mi>\n                  <mml:mo>+</mml:mo>\n                  <mml:msub>\n                    <mml:mi>J</mml:mi>\n                    <mml:mi mathvariant=\"normal\">max</mml:mi>\n                  </mml:msub>\n                  <mml:mo>±</mml:mo>\n                  <mml:msqrt>\n                    <mml:mrow>\n                      <mml:msup>\n                        <mml:mrow>\n                          <mml:mfenced close=\")\" open=\"(\" separators=\"\">\n                            <mml:mrow>\n                              <mml:mi>φ</mml:mi>\n                              <mml:mi>I</mml:mi>\n                              <mml:mo>+</mml:mo>\n                              <mml:msub>\n                                <mml:mi>J</mml:mi>\n                                <mml:mi mathvariant=\"normal\">max</mml:mi>\n                              </mml:msub>\n                            </mml:mrow>\n                          </mml:mfenced>\n                        </mml:mrow>\n                        <mml:mn>2</mml:mn>\n                      </mml:msup>\n                      <mml:mo>−</mml:mo>\n                      <mml:mn>4</mml:mn>\n                      <mml:mi>θ</mml:mi>\n                      <mml:mi>φ</mml:mi>\n                      <mml:mi>I</mml:mi>\n                      <mml:msub>\n                        <mml:mi>J</mml:mi>\n                        <mml:mi mathvariant=\"normal\">max</mml:mi>\n                      </mml:msub>\n                    </mml:mrow>\n                  </mml:msqrt>\n                </mml:mrow>\n                <mml:mrow>\n                  <mml:mn>2</mml:mn>\n                  <mml:mi>θ</mml:mi>\n                </mml:mrow>\n              </mml:mfrac>\n            </mml:mrow>\n          </mml:math>"
+              "labelAutomatically": false
             },
             {
               "type": "Paragraph",
@@ -12880,8 +12869,7 @@ expression: article
               },
               "mathLanguage": "mathml",
               "label": "11",
-              "labelAutomatically": false,
-              "mathml": "<mml:math xmlns:mml=\"http://www.w3.org/1998/Math/MathML\" id=\"nlm-math-36\">\n            <mml:mrow>\n              <mml:mi>c</mml:mi>\n              <mml:mo>=</mml:mo>\n              <mml:mfrac>\n                <mml:mrow>\n                  <mml:mi>∂</mml:mi>\n                  <mml:msub>\n                    <mml:mi>A</mml:mi>\n                    <mml:mi>j</mml:mi>\n                  </mml:msub>\n                </mml:mrow>\n                <mml:mrow>\n                  <mml:mi>∂</mml:mi>\n                  <mml:msub>\n                    <mml:mi>J</mml:mi>\n                    <mml:mi mathvariant=\"normal\">max</mml:mi>\n                  </mml:msub>\n                </mml:mrow>\n              </mml:mfrac>\n            </mml:mrow>\n          </mml:math>"
+              "labelAutomatically": false
             },
             {
               "type": "Paragraph",
@@ -12919,8 +12907,7 @@ expression: article
               },
               "mathLanguage": "mathml",
               "label": "12",
-              "labelAutomatically": false,
-              "mathml": "<mml:math xmlns:mml=\"http://www.w3.org/1998/Math/MathML\" id=\"nlm-math-37\">\n            <mml:mrow>\n              <mml:mi>c</mml:mi>\n              <mml:mo>=</mml:mo>\n              <mml:mfenced close=\")\" open=\"(\" separators=\"\">\n                <mml:mfrac>\n                  <mml:mi>m</mml:mi>\n                  <mml:mn>4</mml:mn>\n                </mml:mfrac>\n              </mml:mfenced>\n              <mml:mfrac>\n                <mml:mi>∂</mml:mi>\n                <mml:mrow>\n                  <mml:mi>∂</mml:mi>\n                  <mml:msub>\n                    <mml:mi>J</mml:mi>\n                    <mml:mi mathvariant=\"normal\">max</mml:mi>\n                  </mml:msub>\n                </mml:mrow>\n              </mml:mfrac>\n              <mml:mfenced close=\")\" open=\"(\" separators=\"\">\n                <mml:mfrac>\n                  <mml:mrow>\n                    <mml:mi>φ</mml:mi>\n                    <mml:mi>I</mml:mi>\n                    <mml:mo>+</mml:mo>\n                    <mml:msub>\n                      <mml:mi>J</mml:mi>\n                      <mml:mi mathvariant=\"normal\">max</mml:mi>\n                    </mml:msub>\n                    <mml:mo>−</mml:mo>\n                    <mml:msqrt>\n                      <mml:mrow>\n                        <mml:msup>\n                          <mml:mrow>\n                            <mml:mfenced close=\")\" open=\"(\" separators=\"\">\n                              <mml:mrow>\n                                <mml:mi>φ</mml:mi>\n                                <mml:mi>I</mml:mi>\n                                <mml:mo>+</mml:mo>\n                                <mml:msub>\n                                  <mml:mi>J</mml:mi>\n                                  <mml:mi mathvariant=\"normal\">max</mml:mi>\n                                </mml:msub>\n                              </mml:mrow>\n                            </mml:mfenced>\n                          </mml:mrow>\n                          <mml:mn>2</mml:mn>\n                        </mml:msup>\n                        <mml:mo>−</mml:mo>\n                        <mml:mn>4</mml:mn>\n                        <mml:mi>θ</mml:mi>\n                        <mml:mi>φ</mml:mi>\n                        <mml:mi>I</mml:mi>\n                        <mml:msub>\n                          <mml:mi>J</mml:mi>\n                          <mml:mi mathvariant=\"normal\">max</mml:mi>\n                        </mml:msub>\n                      </mml:mrow>\n                    </mml:msqrt>\n                  </mml:mrow>\n                  <mml:mrow>\n                    <mml:mn>2</mml:mn>\n                    <mml:mi>θ</mml:mi>\n                  </mml:mrow>\n                </mml:mfrac>\n              </mml:mfenced>\n            </mml:mrow>\n          </mml:math>"
+              "labelAutomatically": false
             },
             {
               "type": "Paragraph",
@@ -12941,8 +12928,7 @@ expression: article
               },
               "mathLanguage": "mathml",
               "label": "13",
-              "labelAutomatically": false,
-              "mathml": "<mml:math xmlns:mml=\"http://www.w3.org/1998/Math/MathML\" id=\"nlm-math-38\">\n            <mml:mrow>\n              <mml:mi>c</mml:mi>\n              <mml:mo>=</mml:mo>\n              <mml:mfrac>\n                <mml:mi>m</mml:mi>\n                <mml:mrow>\n                  <mml:mn>8</mml:mn>\n                  <mml:mi>θ</mml:mi>\n                </mml:mrow>\n              </mml:mfrac>\n              <mml:mfenced close=\")\" open=\"(\" separators=\"\">\n                <mml:mrow>\n                  <mml:mn>1</mml:mn>\n                  <mml:mo>−</mml:mo>\n                  <mml:mfrac>\n                    <mml:mi>∂</mml:mi>\n                    <mml:mrow>\n                      <mml:mi>∂</mml:mi>\n                      <mml:msub>\n                        <mml:mi>J</mml:mi>\n                        <mml:mi mathvariant=\"normal\">max</mml:mi>\n                      </mml:msub>\n                    </mml:mrow>\n                  </mml:mfrac>\n                  <mml:msqrt>\n                    <mml:mrow>\n                      <mml:msup>\n                        <mml:mrow>\n                          <mml:mfenced close=\")\" open=\"(\" separators=\"\">\n                            <mml:mrow>\n                              <mml:mi>φ</mml:mi>\n                              <mml:mi>I</mml:mi>\n                              <mml:mo>+</mml:mo>\n                              <mml:msub>\n                                <mml:mi>J</mml:mi>\n                                <mml:mi mathvariant=\"normal\">max</mml:mi>\n                              </mml:msub>\n                            </mml:mrow>\n                          </mml:mfenced>\n                        </mml:mrow>\n                        <mml:mn>2</mml:mn>\n                      </mml:msup>\n                      <mml:mo>−</mml:mo>\n                      <mml:mn>4</mml:mn>\n                      <mml:mi>θ</mml:mi>\n                      <mml:mi>φ</mml:mi>\n                      <mml:mi>I</mml:mi>\n                      <mml:msub>\n                        <mml:mi>J</mml:mi>\n                        <mml:mi mathvariant=\"normal\">max</mml:mi>\n                      </mml:msub>\n                    </mml:mrow>\n                  </mml:msqrt>\n                </mml:mrow>\n              </mml:mfenced>\n            </mml:mrow>\n          </mml:math>"
+              "labelAutomatically": false
             },
             {
               "type": "Paragraph",
@@ -12963,8 +12949,7 @@ expression: article
               },
               "mathLanguage": "mathml",
               "label": "14",
-              "labelAutomatically": false,
-              "mathml": "<mml:math xmlns:mml=\"http://www.w3.org/1998/Math/MathML\" id=\"nlm-math-39\">\n            <mml:mrow>\n              <mml:mi>c</mml:mi>\n              <mml:mo>=</mml:mo>\n              <mml:mfrac>\n                <mml:mi>m</mml:mi>\n                <mml:mrow>\n                  <mml:mn>8</mml:mn>\n                  <mml:mi>θ</mml:mi>\n                </mml:mrow>\n              </mml:mfrac>\n              <mml:mfenced close=\")\" open=\"(\" separators=\"\">\n                <mml:mrow>\n                  <mml:mn>1</mml:mn>\n                  <mml:mo>−</mml:mo>\n                  <mml:mfrac>\n                    <mml:mrow>\n                      <mml:mi>φ</mml:mi>\n                      <mml:mi>I</mml:mi>\n                      <mml:mo>+</mml:mo>\n                      <mml:msub>\n                        <mml:mi>J</mml:mi>\n                        <mml:mi mathvariant=\"normal\">max</mml:mi>\n                      </mml:msub>\n                      <mml:mo>−</mml:mo>\n                      <mml:mn>2</mml:mn>\n                      <mml:mi>θ</mml:mi>\n                      <mml:mi>φ</mml:mi>\n                      <mml:mi>I</mml:mi>\n                    </mml:mrow>\n                    <mml:msqrt>\n                      <mml:mrow>\n                        <mml:msup>\n                          <mml:mrow>\n                            <mml:mfenced close=\")\" open=\"(\" separators=\"\">\n                              <mml:mrow>\n                                <mml:mi>φ</mml:mi>\n                                <mml:mi>I</mml:mi>\n                                <mml:mo>+</mml:mo>\n                                <mml:msub>\n                                  <mml:mi>J</mml:mi>\n                                  <mml:mi mathvariant=\"normal\">max</mml:mi>\n                                </mml:msub>\n                              </mml:mrow>\n                            </mml:mfenced>\n                          </mml:mrow>\n                          <mml:mn>2</mml:mn>\n                        </mml:msup>\n                        <mml:mo>−</mml:mo>\n                        <mml:mn>4</mml:mn>\n                        <mml:mi>θ</mml:mi>\n                        <mml:mi>φ</mml:mi>\n                        <mml:mi>I</mml:mi>\n                        <mml:msub>\n                          <mml:mi>J</mml:mi>\n                          <mml:mi mathvariant=\"normal\">max</mml:mi>\n                        </mml:msub>\n                      </mml:mrow>\n                    </mml:msqrt>\n                  </mml:mfrac>\n                </mml:mrow>\n              </mml:mfenced>\n            </mml:mrow>\n          </mml:math>"
+              "labelAutomatically": false
             },
             {
               "type": "Paragraph",
@@ -13004,8 +12989,7 @@ expression: article
               },
               "mathLanguage": "mathml",
               "label": "15",
-              "labelAutomatically": false,
-              "mathml": "<mml:math xmlns:mml=\"http://www.w3.org/1998/Math/MathML\" id=\"nlm-math-40\">\n            <mml:mrow>\n              <mml:msub>\n                <mml:mi>J</mml:mi>\n                <mml:mi mathvariant=\"normal\">max</mml:mi>\n              </mml:msub>\n              <mml:mo>=</mml:mo>\n              <mml:mi>φ</mml:mi>\n              <mml:mi>I</mml:mi>\n              <mml:mi>ϖ</mml:mi>\n            </mml:mrow>\n          </mml:math>"
+              "labelAutomatically": false
             },
             {
               "type": "Paragraph",
@@ -13026,8 +13010,7 @@ expression: article
               },
               "mathLanguage": "mathml",
               "label": "16",
-              "labelAutomatically": false,
-              "mathml": "<mml:math xmlns:mml=\"http://www.w3.org/1998/Math/MathML\" id=\"nlm-math-41\">\n            <mml:mrow>\n              <mml:mi>ϖ</mml:mi>\n              <mml:mo>=</mml:mo>\n              <mml:mo>−</mml:mo>\n              <mml:mfenced close=\")\" open=\"(\" separators=\"\">\n                <mml:mrow>\n                  <mml:mn>1</mml:mn>\n                  <mml:mo>−</mml:mo>\n                  <mml:mn>2</mml:mn>\n                  <mml:mi>θ</mml:mi>\n                </mml:mrow>\n              </mml:mfenced>\n              <mml:mo>+</mml:mo>\n              <mml:msqrt>\n                <mml:mrow>\n                  <mml:mfenced close=\")\" open=\"(\" separators=\"\">\n                    <mml:mrow>\n                      <mml:mn>1</mml:mn>\n                      <mml:mo>−</mml:mo>\n                      <mml:mi>θ</mml:mi>\n                    </mml:mrow>\n                  </mml:mfenced>\n                  <mml:mfenced close=\")\" open=\"(\" separators=\"\">\n                    <mml:mrow>\n                      <mml:mfrac>\n                        <mml:mn>1</mml:mn>\n                        <mml:mrow>\n                          <mml:mfrac>\n                            <mml:mrow>\n                              <mml:mn>4</mml:mn>\n                              <mml:mi>c</mml:mi>\n                            </mml:mrow>\n                            <mml:mi>m</mml:mi>\n                          </mml:mfrac>\n                          <mml:mfenced close=\")\" open=\"(\" separators=\"\">\n                            <mml:mrow>\n                              <mml:mn>1</mml:mn>\n                              <mml:mo>−</mml:mo>\n                              <mml:mi>θ</mml:mi>\n                              <mml:mfrac>\n                                <mml:mrow>\n                                  <mml:mn>4</mml:mn>\n                                  <mml:mi>c</mml:mi>\n                                </mml:mrow>\n                                <mml:mi>m</mml:mi>\n                              </mml:mfrac>\n                            </mml:mrow>\n                          </mml:mfenced>\n                        </mml:mrow>\n                      </mml:mfrac>\n                      <mml:mo>−</mml:mo>\n                      <mml:mn>4</mml:mn>\n                      <mml:mi>θ</mml:mi>\n                    </mml:mrow>\n                  </mml:mfenced>\n                </mml:mrow>\n              </mml:msqrt>\n            </mml:mrow>\n          </mml:math>"
+              "labelAutomatically": false
             },
             {
               "type": "Paragraph",
@@ -13165,8 +13148,7 @@ expression: article
               },
               "mathLanguage": "mathml",
               "label": "17",
-              "labelAutomatically": false,
-              "mathml": "<mml:math xmlns:mml=\"http://www.w3.org/1998/Math/MathML\" id=\"nlm-math-43\">\n            <mml:mrow>\n              <mml:msub>\n                <mml:mi>A</mml:mi>\n                <mml:mi>j</mml:mi>\n              </mml:msub>\n              <mml:mo>=</mml:mo>\n              <mml:mfrac>\n                <mml:mrow>\n                  <mml:mi>φ</mml:mi>\n                  <mml:mi>I</mml:mi>\n                  <mml:mi>m</mml:mi>\n                  <mml:msup>\n                    <mml:mi>ϖ</mml:mi>\n                    <mml:mo>∗</mml:mo>\n                  </mml:msup>\n                </mml:mrow>\n                <mml:mrow>\n                  <mml:mn>8</mml:mn>\n                  <mml:mi>θ</mml:mi>\n                </mml:mrow>\n              </mml:mfrac>\n            </mml:mrow>\n          </mml:math>"
+              "labelAutomatically": false
             },
             {
               "type": "Paragraph",
@@ -13187,8 +13169,7 @@ expression: article
               },
               "mathLanguage": "mathml",
               "label": "18",
-              "labelAutomatically": false,
-              "mathml": "<mml:math xmlns:mml=\"http://www.w3.org/1998/Math/MathML\" id=\"nlm-math-44\">\n            <mml:mrow>\n              <mml:msup>\n                <mml:mi>ϖ</mml:mi>\n                <mml:mo>∗</mml:mo>\n              </mml:msup>\n              <mml:mo>=</mml:mo>\n              <mml:mn>1</mml:mn>\n              <mml:mo>+</mml:mo>\n              <mml:mi>ϖ</mml:mi>\n              <mml:mo>−</mml:mo>\n              <mml:msqrt>\n                <mml:mrow>\n                  <mml:msup>\n                    <mml:mrow>\n                      <mml:mfenced close=\")\" open=\"(\" separators=\"\">\n                        <mml:mrow>\n                          <mml:mn>1</mml:mn>\n                          <mml:mo>+</mml:mo>\n                          <mml:mi>ϖ</mml:mi>\n                        </mml:mrow>\n                      </mml:mfenced>\n                    </mml:mrow>\n                    <mml:mn>2</mml:mn>\n                  </mml:msup>\n                  <mml:mo>−</mml:mo>\n                  <mml:mn>4</mml:mn>\n                  <mml:mi>θ</mml:mi>\n                  <mml:mi>ϖ</mml:mi>\n                </mml:mrow>\n              </mml:msqrt>\n            </mml:mrow>\n          </mml:math>"
+              "labelAutomatically": false
             },
             {
               "type": "Paragraph",
@@ -13379,8 +13360,7 @@ expression: article
               },
               "mathLanguage": "mathml",
               "label": "19",
-              "labelAutomatically": false,
-              "mathml": "<mml:math xmlns:mml=\"http://www.w3.org/1998/Math/MathML\" id=\"nlm-math-45\">\n            <mml:mrow>\n              <mml:msup>\n                <mml:mrow>\n                  <mml:msub>\n                    <mml:mi>V</mml:mi>\n                    <mml:mi mathvariant=\"normal\">cmax</mml:mi>\n                  </mml:msub>\n                </mml:mrow>\n                <mml:mo>∗</mml:mo>\n              </mml:msup>\n              <mml:mo>=</mml:mo>\n              <mml:mi>φ</mml:mi>\n              <mml:mi>I</mml:mi>\n              <mml:mfenced close=\")\" open=\"(\" separators=\"\">\n                <mml:mfrac>\n                  <mml:mi>m</mml:mi>\n                  <mml:msub>\n                    <mml:mi>m</mml:mi>\n                    <mml:mi>c</mml:mi>\n                  </mml:msub>\n                </mml:mfrac>\n              </mml:mfenced>\n              <mml:mfenced close=\")\" open=\"(\" separators=\"\">\n                <mml:mfrac>\n                  <mml:msup>\n                    <mml:mi>ϖ</mml:mi>\n                    <mml:mo>∗</mml:mo>\n                  </mml:msup>\n                  <mml:mrow>\n                    <mml:mn>8</mml:mn>\n                    <mml:mi>θ</mml:mi>\n                  </mml:mrow>\n                </mml:mfrac>\n              </mml:mfenced>\n            </mml:mrow>\n          </mml:math>"
+              "labelAutomatically": false
             },
             {
               "type": "Paragraph",
@@ -13551,8 +13531,7 @@ expression: article
               },
               "mathLanguage": "mathml",
               "label": "20",
-              "labelAutomatically": false,
-              "mathml": "<mml:math xmlns:mml=\"http://www.w3.org/1998/Math/MathML\" id=\"nlm-math-47\">\n            <mml:mrow>\n              <mml:msubsup>\n                <mml:mi>V</mml:mi>\n                <mml:mrow>\n                  <mml:mi mathvariant=\"normal\">cmax</mml:mi>\n                  <mml:mfenced close=\"]\" open=\"[\">\n                    <mml:mi mathvariant=\"normal\">pred</mml:mi>\n                  </mml:mfenced>\n                </mml:mrow>\n                <mml:mo>′</mml:mo>\n              </mml:msubsup>\n              <mml:mo>=</mml:mo>\n              <mml:mrow>\n                <mml:mo stretchy=\"false\">(</mml:mo>\n                <mml:msup>\n                  <mml:mrow>\n                    <mml:msub>\n                      <mml:mi>V</mml:mi>\n                      <mml:mi mathvariant=\"normal\">cmax</mml:mi>\n                    </mml:msub>\n                  </mml:mrow>\n                  <mml:mo>∗</mml:mo>\n                </mml:msup>\n                <mml:mo stretchy=\"false\">)</mml:mo>\n              </mml:mrow>\n              <mml:msup>\n                <mml:mrow>\n                  <mml:mi mathvariant=\"normal\">e</mml:mi>\n                </mml:mrow>\n                <mml:mfrac>\n                  <mml:mrow>\n                    <mml:msub>\n                      <mml:mi>H</mml:mi>\n                      <mml:mi mathvariant=\"normal\">a</mml:mi>\n                    </mml:msub>\n                    <mml:mfenced close=\")\" open=\"(\" separators=\"\">\n                      <mml:mrow>\n                        <mml:msub>\n                          <mml:mi>T</mml:mi>\n                          <mml:mi mathvariant=\"normal\">g</mml:mi>\n                        </mml:msub>\n                        <mml:mo>−</mml:mo>\n                        <mml:msub>\n                          <mml:mi>T</mml:mi>\n                          <mml:mi mathvariant=\"normal\">o</mml:mi>\n                        </mml:msub>\n                      </mml:mrow>\n                    </mml:mfenced>\n                  </mml:mrow>\n                  <mml:mrow>\n                    <mml:mi>R</mml:mi>\n                    <mml:msub>\n                      <mml:mi>T</mml:mi>\n                      <mml:mi mathvariant=\"normal\">g</mml:mi>\n                    </mml:msub>\n                    <mml:msub>\n                      <mml:mi>T</mml:mi>\n                      <mml:mi mathvariant=\"normal\">o</mml:mi>\n                    </mml:msub>\n                  </mml:mrow>\n                </mml:mfrac>\n              </mml:msup>\n              <mml:mfrac>\n                <mml:mrow>\n                  <mml:mn>1</mml:mn>\n                  <mml:mo>+</mml:mo>\n                  <mml:msup>\n                    <mml:mrow>\n                      <mml:mi mathvariant=\"normal\">e</mml:mi>\n                    </mml:mrow>\n                    <mml:mfrac>\n                      <mml:mrow>\n                        <mml:msub>\n                          <mml:mi>T</mml:mi>\n                          <mml:mi mathvariant=\"normal\">o</mml:mi>\n                        </mml:msub>\n                        <mml:mrow>\n                          <mml:mo stretchy=\"false\">(</mml:mo>\n                          <mml:mi mathvariant=\"normal\">Δ</mml:mi>\n                          <mml:mi>S</mml:mi>\n                          <mml:mo stretchy=\"false\">)</mml:mo>\n                        </mml:mrow>\n                        <mml:mo>−</mml:mo>\n                        <mml:msub>\n                          <mml:mi>H</mml:mi>\n                          <mml:mi mathvariant=\"normal\">d</mml:mi>\n                        </mml:msub>\n                      </mml:mrow>\n                      <mml:mrow>\n                        <mml:mi>R</mml:mi>\n                        <mml:msub>\n                          <mml:mi>T</mml:mi>\n                          <mml:mi mathvariant=\"normal\">o</mml:mi>\n                        </mml:msub>\n                      </mml:mrow>\n                    </mml:mfrac>\n                  </mml:msup>\n                </mml:mrow>\n                <mml:mrow>\n                  <mml:mn>1</mml:mn>\n                  <mml:mo>+</mml:mo>\n                  <mml:msup>\n                    <mml:mrow>\n                      <mml:mi mathvariant=\"normal\">e</mml:mi>\n                    </mml:mrow>\n                    <mml:mfrac>\n                      <mml:mrow>\n                        <mml:msub>\n                          <mml:mi>T</mml:mi>\n                          <mml:mi mathvariant=\"normal\">g</mml:mi>\n                        </mml:msub>\n                        <mml:mrow>\n                          <mml:mo stretchy=\"false\">(</mml:mo>\n                          <mml:mi mathvariant=\"normal\">Δ</mml:mi>\n                          <mml:mi>S</mml:mi>\n                          <mml:mo stretchy=\"false\">)</mml:mo>\n                        </mml:mrow>\n                        <mml:mo>−</mml:mo>\n                        <mml:msub>\n                          <mml:mi>H</mml:mi>\n                          <mml:mi mathvariant=\"normal\">d</mml:mi>\n                        </mml:msub>\n                      </mml:mrow>\n                      <mml:mrow>\n                        <mml:mi>R</mml:mi>\n                        <mml:msub>\n                          <mml:mi>T</mml:mi>\n                          <mml:mi mathvariant=\"normal\">g</mml:mi>\n                        </mml:msub>\n                      </mml:mrow>\n                    </mml:mfrac>\n                  </mml:msup>\n                </mml:mrow>\n              </mml:mfrac>\n            </mml:mrow>\n          </mml:math>"
+              "labelAutomatically": false
             },
             {
               "type": "Paragraph",
@@ -13965,8 +13944,7 @@ expression: article
               },
               "mathLanguage": "mathml",
               "label": "21",
-              "labelAutomatically": false,
-              "mathml": "<mml:math xmlns:mml=\"http://www.w3.org/1998/Math/MathML\" id=\"nlm-math-48\">\n            <mml:mrow>\n              <mml:msub>\n                <mml:mi>T</mml:mi>\n                <mml:mi>o</mml:mi>\n              </mml:msub>\n              <mml:mo>=</mml:mo>\n              <mml:mn>177.884</mml:mn>\n              <mml:mo>+</mml:mo>\n              <mml:mn>0.44</mml:mn>\n              <mml:msub>\n                <mml:mi>T</mml:mi>\n                <mml:mi>g</mml:mi>\n              </mml:msub>\n            </mml:mrow>\n          </mml:math>"
+              "labelAutomatically": false
             },
             {
               "type": "Paragraph",
@@ -14384,8 +14362,7 @@ expression: article
               },
               "mathLanguage": "mathml",
               "label": "22",
-              "labelAutomatically": false,
-              "mathml": "<mml:math xmlns:mml=\"http://www.w3.org/1998/Math/MathML\" id=\"nlm-math-54\">\n            <mml:mrow>\n              <mml:msubsup>\n                <mml:mi>V</mml:mi>\n                <mml:mrow>\n                  <mml:mi mathvariant=\"normal\">cmax</mml:mi>\n                  <mml:mfenced close=\"]\" open=\"[\">\n                    <mml:mi mathvariant=\"normal\">obs</mml:mi>\n                  </mml:mfenced>\n                </mml:mrow>\n                <mml:mo>′</mml:mo>\n              </mml:msubsup>\n              <mml:mo>=</mml:mo>\n              <mml:msub>\n                <mml:mi mathvariant=\"normal\">V</mml:mi>\n                <mml:mrow>\n                  <mml:mi mathvariant=\"normal\">cmax</mml:mi>\n                  <mml:mfenced close=\"]\" open=\"[\">\n                    <mml:mi mathvariant=\"normal\">meas</mml:mi>\n                  </mml:mfenced>\n                </mml:mrow>\n              </mml:msub>\n              <mml:msup>\n                <mml:mrow>\n                  <mml:mi mathvariant=\"normal\">e</mml:mi>\n                </mml:mrow>\n                <mml:mfrac>\n                  <mml:mrow>\n                    <mml:msub>\n                      <mml:mi>H</mml:mi>\n                      <mml:mi mathvariant=\"normal\">a</mml:mi>\n                    </mml:msub>\n                    <mml:mfenced close=\")\" open=\"(\" separators=\"\">\n                      <mml:mrow>\n                        <mml:msub>\n                          <mml:mi>T</mml:mi>\n                          <mml:mi mathvariant=\"normal\">g</mml:mi>\n                        </mml:msub>\n                        <mml:mo>−</mml:mo>\n                        <mml:msub>\n                          <mml:mi>T</mml:mi>\n                          <mml:mi mathvariant=\"normal\">meas</mml:mi>\n                        </mml:msub>\n                      </mml:mrow>\n                    </mml:mfenced>\n                  </mml:mrow>\n                  <mml:mrow>\n                    <mml:mi>R</mml:mi>\n                    <mml:msub>\n                      <mml:mi>T</mml:mi>\n                      <mml:mi mathvariant=\"normal\">g</mml:mi>\n                    </mml:msub>\n                    <mml:msub>\n                      <mml:mi>T</mml:mi>\n                      <mml:mi mathvariant=\"normal\">meas</mml:mi>\n                    </mml:msub>\n                  </mml:mrow>\n                </mml:mfrac>\n              </mml:msup>\n              <mml:mfrac>\n                <mml:mrow>\n                  <mml:mn>1</mml:mn>\n                  <mml:mo>+</mml:mo>\n                  <mml:msup>\n                    <mml:mrow>\n                      <mml:mi mathvariant=\"normal\">e</mml:mi>\n                    </mml:mrow>\n                    <mml:mfrac>\n                      <mml:mrow>\n                        <mml:msub>\n                          <mml:mi>T</mml:mi>\n                          <mml:mi mathvariant=\"normal\">meas</mml:mi>\n                        </mml:msub>\n                        <mml:mrow>\n                          <mml:mo stretchy=\"false\">(</mml:mo>\n                          <mml:mi mathvariant=\"normal\">Δ</mml:mi>\n                          <mml:mi>S</mml:mi>\n                          <mml:mo stretchy=\"false\">)</mml:mo>\n                        </mml:mrow>\n                        <mml:mo>−</mml:mo>\n                        <mml:msub>\n                          <mml:mi>H</mml:mi>\n                          <mml:mi mathvariant=\"normal\">d</mml:mi>\n                        </mml:msub>\n                      </mml:mrow>\n                      <mml:mrow>\n                        <mml:mi>R</mml:mi>\n                        <mml:msub>\n                          <mml:mi>T</mml:mi>\n                          <mml:mi mathvariant=\"normal\">meas</mml:mi>\n                        </mml:msub>\n                      </mml:mrow>\n                    </mml:mfrac>\n                  </mml:msup>\n                </mml:mrow>\n                <mml:mrow>\n                  <mml:mn>1</mml:mn>\n                  <mml:mo>+</mml:mo>\n                  <mml:msup>\n                    <mml:mrow>\n                      <mml:mi mathvariant=\"normal\">e</mml:mi>\n                    </mml:mrow>\n                    <mml:mfrac>\n                      <mml:mrow>\n                        <mml:msub>\n                          <mml:mi>T</mml:mi>\n                          <mml:mi mathvariant=\"normal\">g</mml:mi>\n                        </mml:msub>\n                        <mml:mrow>\n                          <mml:mo stretchy=\"false\">(</mml:mo>\n                          <mml:mi mathvariant=\"normal\">Δ</mml:mi>\n                          <mml:mi>S</mml:mi>\n                          <mml:mo stretchy=\"false\">)</mml:mo>\n                        </mml:mrow>\n                        <mml:mo>−</mml:mo>\n                        <mml:msub>\n                          <mml:mi>H</mml:mi>\n                          <mml:mi mathvariant=\"normal\">d</mml:mi>\n                        </mml:msub>\n                      </mml:mrow>\n                      <mml:mrow>\n                        <mml:mi>R</mml:mi>\n                        <mml:msub>\n                          <mml:mi>T</mml:mi>\n                          <mml:mi mathvariant=\"normal\">g</mml:mi>\n                        </mml:msub>\n                      </mml:mrow>\n                    </mml:mfrac>\n                  </mml:msup>\n                </mml:mrow>\n              </mml:mfrac>\n            </mml:mrow>\n          </mml:math>"
+              "labelAutomatically": false
             },
             {
               "type": "Paragraph",
@@ -14989,8 +14966,7 @@ expression: article
               },
               "mathLanguage": "mathml",
               "label": "23",
-              "labelAutomatically": false,
-              "mathml": "<mml:math xmlns:mml=\"http://www.w3.org/1998/Math/MathML\" id=\"nlm-math-66\">\n            <mml:mrow>\n              <mml:mi>B</mml:mi>\n              <mml:mo>=</mml:mo>\n              <mml:mfrac>\n                <mml:mrow>\n                  <mml:msubsup>\n                    <mml:mi>V</mml:mi>\n                    <mml:mrow>\n                      <mml:mi mathvariant=\"normal\">cmax</mml:mi>\n                      <mml:mfenced close=\"]\" open=\"[\">\n                        <mml:mi mathvariant=\"normal\">pred</mml:mi>\n                      </mml:mfenced>\n                    </mml:mrow>\n                    <mml:mo>′</mml:mo>\n                  </mml:msubsup>\n                  <mml:mo>−</mml:mo>\n                  <mml:msubsup>\n                    <mml:mi>V</mml:mi>\n                    <mml:mrow>\n                      <mml:mi mathvariant=\"normal\">cmax</mml:mi>\n                      <mml:mfenced close=\"]\" open=\"[\">\n                        <mml:mi mathvariant=\"normal\">obs</mml:mi>\n                      </mml:mfenced>\n                    </mml:mrow>\n                    <mml:mo>′</mml:mo>\n                  </mml:msubsup>\n                </mml:mrow>\n                <mml:msubsup>\n                  <mml:mi>V</mml:mi>\n                  <mml:mrow>\n                    <mml:mi mathvariant=\"normal\">cmax</mml:mi>\n                    <mml:mfenced close=\"]\" open=\"[\">\n                      <mml:mi mathvariant=\"normal\">obs</mml:mi>\n                    </mml:mfenced>\n                  </mml:mrow>\n                  <mml:mo>′</mml:mo>\n                </mml:msubsup>\n              </mml:mfrac>\n              <mml:mrow></mml:mrow>\n              <mml:mo>∗</mml:mo>\n              <mml:mn>100</mml:mn>\n            </mml:mrow>\n          </mml:math>"
+              "labelAutomatically": false
             },
             {
               "type": "Paragraph",
@@ -21187,8 +21163,7 @@ expression: article
                   }
                 }
               ],
-              "target": "https://github.com/SmithEcophysLab/optimal_vcmax_R",
-              "jatsExtLinkType": "uri"
+              "target": "https://github.com/SmithEcophysLab/optimal_vcmax_R"
             },
             {
               "type": "Text",
@@ -21206,14 +21181,25 @@ expression: article
                   }
                 }
               ],
-              "target": "https://doi.org/10.5281/zenodo.1482044",
-              "jatsExtLinkType": "uri"
+              "target": "https://doi.org/10.5281/zenodo.1482044"
             },
             {
               "type": "Text",
               "value": {
                 "string": ").\n        No new data were used in the analyses. Investigators should refer to the citations provided\n        in the Methods section for data access. Please contact Nick Smith ("
               }
+            },
+            {
+              "type": "Link",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "nick.smith@ttu.edu"
+                  }
+                }
+              ],
+              "target": "mailto:nick.smith@ttu.edu"
             },
             {
               "type": "Text",

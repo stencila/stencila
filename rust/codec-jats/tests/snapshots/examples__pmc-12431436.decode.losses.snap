@@ -13,10 +13,12 @@ expression: info.losses
 //article/body/sec/sec/p/italic/@toggle: 8
 //article/body/sec/sec/table-wrap/@orientation: 4
 //article/body/sec/sec/table-wrap/@position: 4
-//article/body/sec/sec/table-wrap/table/tbody/tr/td/break: 3
+//article/body/sec/sec/table-wrap/table/colgroup: 4
 //article/body/sec/supplementary-material/@content-type: 3
 //article/body/sec/supplementary-material/@orientation: 3
 //article/body/sec/supplementary-material/@position: 3
+//article/body/sec/supplementary-material/media/@orientation: 3
+//article/body/sec/supplementary-material/media/@position: 3
 //article/front/article-meta/abstract/p/italic/@toggle: 3
 //article/front/article-meta/article-version/@article-version-type: 1
 //article/front/article-meta/author-notes/corresp: 1

@@ -3,9 +3,6 @@ source: rust/codec-jats/tests/examples.rs
 expression: info.losses
 ---
 //article/back/app-group/app/table-wrap/@position: 1
-//article/back/app-group/app/table-wrap/table/tbody/tr/td/@char: 7
-//article/back/app-group/app/table-wrap/table/tbody/tr/td/break: 31
-//article/back/app-group/app/table-wrap/table/tbody/tr/td/italic/break: 14
 //article/back/app-group/app/table-wrap/table/tbody/tr/td/named-content: 18
 //article/back/app-group/app/table-wrap/table/tbody/tr/td/named-content/@content-type: 18
 //article/back/ref-list/title: 1
@@ -16,18 +13,11 @@ expression: info.losses
 //article/back/sec/p/element-citation/@publication-type: 1
 //article/back/sec/p/element-citation/@specific-use: 1
 //article/body/sec/fig/@position: 1
-//article/body/sec/fig/graphic/@mime-subtype: 1
-//article/body/sec/fig/graphic/@mimetype: 1
 //article/body/sec/sec/fig-group/fig/@position: 14
 //article/body/sec/sec/fig-group/fig/@specific-use: 9
-//article/body/sec/sec/fig-group/fig/graphic/@mime-subtype: 14
-//article/body/sec/sec/fig-group/fig/graphic/@mimetype: 14
 //article/body/sec/sec/fig/@position: 4
-//article/body/sec/sec/fig/graphic/@mime-subtype: 4
-//article/body/sec/sec/fig/graphic/@mimetype: 4
 //article/body/sec/sec/table-wrap/@position: 1
 //article/body/sec/sec/table-wrap/table-wrap-foot/fn/label: 2
-//article/body/sec/sec/table-wrap/table/tbody/tr/td/@char: 61
 //article/front/article-meta/article-version/@article-version-type: 1
 //article/front/article-meta/contrib-group/@content-type: 1
 //article/front/article-meta/contrib-group/contrib/@contrib-type: 1

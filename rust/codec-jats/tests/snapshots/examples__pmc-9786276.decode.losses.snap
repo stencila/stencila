@@ -34,12 +34,15 @@ expression: info.losses
 //article/body/sec/sec/table-wrap/@content-type: 1
 //article/body/sec/sec/table-wrap/@orientation: 1
 //article/body/sec/sec/table-wrap/@position: 1
+//article/body/sec/sec/table-wrap/table/col: 4
 //article/body/sec/sec/table-wrap/table/tbody/tr/td/italic/@toggle: 4
 //article/body/sec/sec/table-wrap/table/thead/@style: 1
 //article/body/sec/sec/title/italic/@toggle: 4
 //article/body/sec/supplementary-material/@content-type: 10
 //article/body/sec/supplementary-material/@orientation: 10
 //article/body/sec/supplementary-material/@position: 10
+//article/body/sec/supplementary-material/media/@orientation: 10
+//article/body/sec/supplementary-material/media/@position: 10
 //article/body/sec/supplementary-material/p/italic/@toggle: 12
 //article/front/article-meta/abstract/p/boxed-text/@orientation: 1
 //article/front/article-meta/abstract/p/boxed-text/@position: 1

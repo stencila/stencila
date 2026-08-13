@@ -91,6 +91,23 @@ impl JatsCodec for Link {
             context.add_loss("Link.jatsRefType");
         }
 
+        // JATS has its own element for an email address, which is what a reader
+        // expects to find one in
+        if let Some(address) = self.target.strip_prefix("mailto:") {
+            context.enter_elem("email");
+            if let Some(id) = &self.id {
+                context.push_attr("id", id);
+            }
+            if self.content.is_empty() {
+                context.push_text(address);
+            } else {
+                self.content.to_jats(context);
+            }
+            context.exit_elem();
+
+            return;
+        }
+
         context.enter_elem("ext-link");
         if let Some(id) = &self.id {
             context.push_attr("id", id);

@@ -9,7 +9,7 @@
       <caption>
         <p>A cat with an annotation overlay.</p>
       </caption>
-      <inline-graphic xlink:href="https://example.org/cat.jpg"></inline-graphic>
+      <graphic xlink:href="https://example.org/cat.jpg"></graphic>
     </fig>
     <fig>
       <caption>
@@ -19,13 +19,13 @@
         <caption>
           <p>Left panel.</p>
         </caption>
-        <inline-graphic xlink:href="https://example.org/panel-a.jpg"></inline-graphic>
+        <graphic xlink:href="https://example.org/panel-a.jpg"></graphic>
       </fig>
       <fig>
         <caption>
           <p>Right panel.</p>
         </caption>
-        <inline-graphic xlink:href="https://example.org/panel-b.jpg"></inline-graphic>
+        <graphic xlink:href="https://example.org/panel-b.jpg"></graphic>
       </fig>
     </fig>
   </body>

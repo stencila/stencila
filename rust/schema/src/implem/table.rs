@@ -18,7 +18,6 @@ impl JatsCodec for Table {
                 alternate_names,
                 description,
                 identifiers,
-                images,
                 name,
                 url,
                 about,
@@ -59,28 +58,35 @@ impl JatsCodec for Table {
             context,
         );
 
-        context.enter_elem("table");
-        for (row_type, name) in [
-            (Some(TableRowType::HeaderRow), "thead"),
-            (None, "tbody"),
-            (Some(TableRowType::FooterRow), "tfoot"),
-        ] {
-            context.enter_elem(name);
-            for row in &self.rows {
-                let matches_group = match row_type {
-                    Some(expected) => row.row_type == Some(expected),
-                    None => !matches!(
-                        row.row_type,
-                        Some(TableRowType::HeaderRow | TableRowType::FooterRow)
-                    ),
-                };
-                if matches_group {
-                    row.to_jats(context);
-                }
+        // A table given only as an image has no rows to emit
+        if self.rows.is_empty() {
+            for image in self.options.images.iter().flatten() {
+                image.to_jats(context);
             }
-            context.exit_elem_omit_empty();
+        } else {
+            context.enter_elem("table");
+            for (row_type, name) in [
+                (Some(TableRowType::HeaderRow), "thead"),
+                (None, "tbody"),
+                (Some(TableRowType::FooterRow), "tfoot"),
+            ] {
+                context.enter_elem(name);
+                for row in &self.rows {
+                    let matches_group = match row_type {
+                        Some(expected) => row.row_type == Some(expected),
+                        None => !matches!(
+                            row.row_type,
+                            Some(TableRowType::HeaderRow | TableRowType::FooterRow)
+                        ),
+                    };
+                    if matches_group {
+                        row.to_jats(context);
+                    }
+                }
+                context.exit_elem_omit_empty();
+            }
+            context.exit_elem();
         }
-        context.exit_elem();
 
         if let Some(notes) = &self.notes {
             context.enter_elem("table-wrap-foot");

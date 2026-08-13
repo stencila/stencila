@@ -3,4 +3,3 @@ source: rust/codec-jats/tests/examples.rs
 expression: info.losses
 ---
 Link.jatsRefType: 14
-Supplement.work_type: 10

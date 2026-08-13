@@ -24,7 +24,7 @@
             <td><p><code executable="yes" language="jinja"> 2 * 2 </code></p></td>
           </tr>
           <tr>
-            <td><p><inline-formula code="E = mc^2" language="tex"></inline-formula></p></td>
+            <td><p><inline-formula><tex-math>E = mc^2</tex-math></inline-formula></p></td>
             <td><p>H<sub>2</sub>0</p></td>
           </tr>
         </tbody>
@@ -35,21 +35,21 @@
       <table>
         <thead>
           <tr>
-            <th><p>Left</p></th>
-            <th><p>Center</p></th>
-            <th><p>Right</p></th>
+            <th align="left"><p>Left</p></th>
+            <th align="center"><p>Center</p></th>
+            <th align="right"><p>Right</p></th>
           </tr>
         </thead>
         <tbody>
           <tr>
-            <td><p>L1</p></td>
-            <td><p>C1</p></td>
-            <td><p>R1</p></td>
+            <td align="left"><p>L1</p></td>
+            <td align="center"><p>C1</p></td>
+            <td align="right"><p>R1</p></td>
           </tr>
           <tr>
-            <td><p>L2</p></td>
-            <td><p>C2</p></td>
-            <td><p>R2</p></td>
+            <td align="left"><p>L2</p></td>
+            <td align="center"><p>C2</p></td>
+            <td align="right"><p>R2</p></td>
           </tr>
         </tbody>
       </table>

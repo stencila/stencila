@@ -1,6 +1,8 @@
 use stencila_codec_info::{lost_options, lost_options_of};
 
-use crate::{TableCellType, TableRow, TableRowType, prelude::*};
+use crate::{
+    HorizontalAlignment, TableCellType, TableRow, TableRowType, VerticalAlignment, prelude::*,
+};
 
 impl JatsCodec for TableRow {
     fn to_jats(&self, context: &mut JatsEncodeContext) {
@@ -19,19 +21,38 @@ impl JatsCodec for TableRow {
             context
                 .enter_elem(tag)
                 .merge_losses(lost_options!(cell, id))
-                .merge_losses(lost_options_of!(
-                    "TableCell",
-                    cell.options,
-                    name,
-                    vertical_alignment,
-                    horizontal_alignment,
-                    horizontal_alignment_character
-                ));
+                .merge_losses(lost_options_of!("TableCell", cell.options, name));
             if let Some(value) = &cell.options.row_span {
                 context.push_attr("rowspan", value);
             }
             if let Some(value) = &cell.options.column_span {
                 context.push_attr("colspan", value);
+            }
+            if let Some(value) = &cell.options.horizontal_alignment {
+                context.push_attr(
+                    "align",
+                    match value {
+                        HorizontalAlignment::AlignLeft => "left",
+                        HorizontalAlignment::AlignRight => "right",
+                        HorizontalAlignment::AlignCenter => "center",
+                        HorizontalAlignment::AlignJustify => "justify",
+                        HorizontalAlignment::AlignCharacter => "char",
+                    },
+                );
+            }
+            if let Some(value) = &cell.options.horizontal_alignment_character {
+                context.push_attr("char", value);
+            }
+            if let Some(value) = &cell.options.vertical_alignment {
+                context.push_attr(
+                    "valign",
+                    match value {
+                        VerticalAlignment::AlignTop => "top",
+                        VerticalAlignment::AlignMiddle => "middle",
+                        VerticalAlignment::AlignBottom => "bottom",
+                        VerticalAlignment::AlignBaseline => "baseline",
+                    },
+                );
             }
             cell.content.to_jats(context);
             context.exit_elem();

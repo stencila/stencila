@@ -12,11 +12,10 @@ use super::string::String;
 /// A supplementary creative work associated with a document.
 #[skip_serializing_none]
 #[serde_as]
-#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, ProbeNode, StripNode, WalkNode, WriteNode, ReadNode, PatchNode, HtmlCodec, JatsCodec, LatexCodec, TextCodec)]
+#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, ProbeNode, StripNode, WalkNode, WriteNode, ReadNode, PatchNode, HtmlCodec, LatexCodec, TextCodec)]
 #[serde(rename_all = "camelCase")]
 #[derive(derive_more::Display)]
 #[display("Supplement")]
-#[jats(elem = "supplementary-material")]
 pub struct Supplement {
     /// The type of this item.
     pub r#type: MustBe!("Supplement"),
@@ -25,7 +24,6 @@ pub struct Supplement {
     #[strip(metadata)]
     #[patch(format = "md", format = "smd", format = "myst", format = "qmd", format = "tiptap")]
     #[html(attr = "id")]
-    #[jats(attr = "id")]
     pub id: Option<String>,
 
     /// Whether the identifier should be automatically updated.
@@ -35,7 +33,6 @@ pub struct Supplement {
 
     /// A short label for the node.
     #[patch(format = "md", format = "smd", format = "myst", format = "ipynb", format = "qmd", format = "latex", format = "tiptap")]
-    #[jats(elem = "label")]
     pub label: Option<String>,
 
     /// Whether the label should be automatically updated.
@@ -51,18 +48,15 @@ pub struct Supplement {
     #[serde(default, deserialize_with = "option_one_or_many")]
     #[walk]
     #[patch(format = "md", format = "smd", format = "myst", format = "ipynb", format = "qmd")]
-    #[jats(elem = "caption")]
     pub caption: Option<Vec<Block>>,
 
     /// A reference to the supplement.
     #[patch(format = "md", format = "smd", format = "myst", format = "ipynb", format = "qmd")]
-    #[jats(attr = "href")]
     pub target: Option<String>,
 
     /// Non-core optional fields
     #[serde(flatten)]
     #[html(flatten)]
-    #[jats(flatten)]
     pub options: Box<SupplementOptions>,
 
     /// A unique identifier for a node within a document
@@ -72,7 +66,7 @@ pub struct Supplement {
 
 #[skip_serializing_none]
 #[serde_as]
-#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, ProbeNode, StripNode, WalkNode, WriteNode, ReadNode, PatchNode, HtmlCodec, JatsCodec, LatexCodec, TextCodec)]
+#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, ProbeNode, StripNode, WalkNode, WriteNode, ReadNode, PatchNode, HtmlCodec, LatexCodec, TextCodec)]
 #[serde(rename_all = "camelCase")]
 pub struct SupplementOptions {
     /// Any messages generated while embedding the supplement.

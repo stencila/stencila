@@ -7,6 +7,6 @@
   <body>
     <p>A TeX equation <inline-formula code="2 \pi r^2" language="asciimath"></inline-formula>.</p>
     <p>An ASCIIMath equation <inline-formula code="2 pi r^2" language="asciimath"></inline-formula>.</p>
-    <p>A MathML equation <inline-formula code="&lt;math&gt;&lt;mrow&gt;&lt;mn&gt;2&lt;/mn&gt;&lt;mi&gt;π&lt;/mi&gt;&lt;msup&gt;&lt;mi&gt;r&lt;/mi&gt;&lt;mn&gt;2&lt;/mn&gt;&lt;/msup&gt;&lt;/mrow&gt;&lt;/math&gt;" language="mathml"></inline-formula>.</p>
+    <p>A MathML equation <inline-formula><math><mrow><mn>2</mn><mi>π</mi><msup><mi>r</mi><mn>2</mn></msup></mrow></math></inline-formula>.</p>
   </body>
 </article>

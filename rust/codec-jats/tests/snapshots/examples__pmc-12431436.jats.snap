@@ -588,50 +588,50 @@ expression: jats
           <table>
             <thead>
               <tr>
-                <th></th>
-                <th colspan="2"><p>MOI of DENV-2</p></th>
+                <th align="left"></th>
+                <th colspan="2" align="left"><p>MOI of DENV-2</p></th>
               </tr>
             </thead>
             <tbody>
               <tr>
-                <td><p>dpi</p></td>
-                <td><p>1 × 10<sup>−4</sup></p></td>
-                <td><p>1 × 10<sup>−2</sup></p></td>
+                <td align="left"><p>dpi</p></td>
+                <td align="left"><p>1 × 10<sup>−4</sup></p></td>
+                <td align="left"><p>1 × 10<sup>−2</sup></p></td>
               </tr>
               <tr>
-                <td><p>1</p></td>
-                <td><p>&#10;                      – – –&#10;                    </p></td>
-                <td><p>&#10;                      – – –&#10;                    </p></td>
+                <td align="left"><p>1</p></td>
+                <td align="left"><p>&#10;                      – – –&#10;                    </p></td>
+                <td align="left"><p>&#10;                      – – –&#10;                    </p></td>
               </tr>
               <tr>
-                <td><p>2</p></td>
-                <td><p>&#10;                      – – –&#10;                    </p></td>
-                <td><p>&#10;                      – – –&#10;                    </p></td>
+                <td align="left"><p>2</p></td>
+                <td align="left"><p>&#10;                      – – –&#10;                    </p></td>
+                <td align="left"><p>&#10;                      – – –&#10;                    </p></td>
               </tr>
               <tr>
-                <td><p>3</p></td>
-                <td><p>&#10;                      – – –&#10;                    </p></td>
-                <td><p>&#10;                      – – –&#10;                    </p></td>
+                <td align="left"><p>3</p></td>
+                <td align="left"><p>&#10;                      – – –&#10;                    </p></td>
+                <td align="left"><p>&#10;                      – – –&#10;                    </p></td>
               </tr>
               <tr>
-                <td><p>4</p></td>
-                <td><p>&#10;                      – – –&#10;                    </p></td>
-                <td><p>+ – –</p></td>
+                <td align="left"><p>4</p></td>
+                <td align="left"><p>&#10;                      – – –&#10;                    </p></td>
+                <td align="left"><p>+ – –</p></td>
               </tr>
               <tr>
-                <td><p>5</p></td>
-                <td><p>&#10;                      – – –&#10;                    </p></td>
-                <td><p>+ – –</p></td>
+                <td align="left"><p>5</p></td>
+                <td align="left"><p>&#10;                      – – –&#10;                    </p></td>
+                <td align="left"><p>+ – –</p></td>
               </tr>
               <tr>
-                <td><p>6</p></td>
-                <td><p>&#10;                      – – –&#10;                    </p></td>
-                <td><p>+ – –</p></td>
+                <td align="left"><p>6</p></td>
+                <td align="left"><p>&#10;                      – – –&#10;                    </p></td>
+                <td align="left"><p>+ – –</p></td>
               </tr>
               <tr>
-                <td><p>7</p></td>
-                <td><p>+ – –</p></td>
-                <td><p>+ – –</p></td>
+                <td align="left"><p>7</p></td>
+                <td align="left"><p>+ – –</p></td>
+                <td align="left"><p>+ – –</p></td>
               </tr>
             </tbody>
           </table>
@@ -652,74 +652,74 @@ expression: jats
           <table>
             <thead>
               <tr>
-                <th></th>
-                <th colspan="2"><p>RNA</p></th>
-                <th colspan="2"><p>vDNA</p></th>
+                <th align="left"></th>
+                <th colspan="2" align="left"><p>RNA</p></th>
+                <th colspan="2" align="left"><p>vDNA</p></th>
               </tr>
             </thead>
             <tbody>
               <tr>
-                <td><p>MOI of DENV-2</p></td>
-                <td><p>RT-qPCR</p></td>
-                <td><p>RT-LAMP</p></td>
-                <td><p>qPCR</p></td>
-                <td><p>LAMP</p></td>
+                <td align="left"><p>MOI of DENV-2</p></td>
+                <td align="left"><p>RT-qPCR</p></td>
+                <td align="left"><p>RT-LAMP</p></td>
+                <td align="left"><p>qPCR</p></td>
+                <td align="left"><p>LAMP</p></td>
               </tr>
               <tr>
-                <td><p>1 × 10<sup>−1</sup></p></td>
-                <td><p>+ + +</p></td>
-                <td><p>+ + +</p></td>
-                <td><p>+ + –</p></td>
-                <td><p>+ + (+)</p></td>
+                <td align="left"><p>1 × 10<sup>−1</sup></p></td>
+                <td align="left"><p>+ + +</p></td>
+                <td align="left"><p>+ + +</p></td>
+                <td align="left"><p>+ + –</p></td>
+                <td align="left"><p>+ + (+)</p></td>
               </tr>
               <tr>
-                <td><p>1 × 10<sup>−2</sup></p></td>
-                <td><p>+ + +</p></td>
-                <td><p>+ + +</p></td>
-                <td><p>+ – –</p></td>
-                <td><p>+ + (+)</p></td>
+                <td align="left"><p>1 × 10<sup>−2</sup></p></td>
+                <td align="left"><p>+ + +</p></td>
+                <td align="left"><p>+ + +</p></td>
+                <td align="left"><p>+ – –</p></td>
+                <td align="left"><p>+ + (+)</p></td>
               </tr>
               <tr>
-                <td><p>1 × 10<sup>−3</sup></p></td>
-                <td><p>+ + +</p></td>
-                <td><p>+ + +</p></td>
-                <td><p>+ + –</p></td>
-                <td><p>+ + (+)</p></td>
+                <td align="left"><p>1 × 10<sup>−3</sup></p></td>
+                <td align="left"><p>+ + +</p></td>
+                <td align="left"><p>+ + +</p></td>
+                <td align="left"><p>+ + –</p></td>
+                <td align="left"><p>+ + (+)</p></td>
               </tr>
               <tr>
-                <td><p>1 × 10<sup>−4</sup></p></td>
-                <td><p>+ + +</p></td>
-                <td><p>+ + +</p></td>
-                <td><p>&#10;                      – – –&#10;                    </p></td>
-                <td><p>+ + +</p></td>
+                <td align="left"><p>1 × 10<sup>−4</sup></p></td>
+                <td align="left"><p>+ + +</p></td>
+                <td align="left"><p>+ + +</p></td>
+                <td align="left"><p>&#10;                      – – –&#10;                    </p></td>
+                <td align="left"><p>+ + +</p></td>
               </tr>
               <tr>
-                <td><p>1 × 10<sup>−5</sup></p></td>
-                <td><p>+ + –</p></td>
-                <td><p>+ + –</p></td>
-                <td><p>&#10;                      – – –&#10;                    </p></td>
-                <td><p>&#10;                      – – –&#10;                    </p></td>
+                <td align="left"><p>1 × 10<sup>−5</sup></p></td>
+                <td align="left"><p>+ + –</p></td>
+                <td align="left"><p>+ + –</p></td>
+                <td align="left"><p>&#10;                      – – –&#10;                    </p></td>
+                <td align="left"><p>&#10;                      – – –&#10;                    </p></td>
               </tr>
               <tr>
-                <td><p>1 × 10<sup>−6</sup></p></td>
-                <td><p>&#10;                      – – –&#10;                    </p></td>
-                <td><p>(+) – –</p></td>
-                <td><p>&#10;                      – – –&#10;                    </p></td>
-                <td><p>(+) – –</p></td>
+                <td align="left"><p>1 × 10<sup>−6</sup></p></td>
+                <td align="left"><p>&#10;                      – – –&#10;                    </p></td>
+                <td align="left"><p>(+) – –</p></td>
+                <td align="left"><p>&#10;                      – – –&#10;                    </p></td>
+                <td align="left"><p>(+) – –</p></td>
               </tr>
               <tr>
-                <td><p>1 × 10<sup>−7</sup></p></td>
-                <td><p>&#10;                      – – –&#10;                    </p></td>
-                <td><p>(+) – –</p></td>
-                <td><p>&#10;                      – – –&#10;                    </p></td>
-                <td><p>&#10;                      – – –&#10;                    </p></td>
+                <td align="left"><p>1 × 10<sup>−7</sup></p></td>
+                <td align="left"><p>&#10;                      – – –&#10;                    </p></td>
+                <td align="left"><p>(+) – –</p></td>
+                <td align="left"><p>&#10;                      – – –&#10;                    </p></td>
+                <td align="left"><p>&#10;                      – – –&#10;                    </p></td>
               </tr>
               <tr>
-                <td><p>1 × 10<sup>−8</sup></p></td>
-                <td><p>&#10;                      – – –&#10;                    </p></td>
-                <td><p>(+) – –</p></td>
-                <td><p>&#10;                      – – –&#10;                    </p></td>
-                <td><p>&#10;                      – – –&#10;                    </p></td>
+                <td align="left"><p>1 × 10<sup>−8</sup></p></td>
+                <td align="left"><p>&#10;                      – – –&#10;                    </p></td>
+                <td align="left"><p>(+) – –</p></td>
+                <td align="left"><p>&#10;                      – – –&#10;                    </p></td>
+                <td align="left"><p>&#10;                      – – –&#10;                    </p></td>
               </tr>
             </tbody>
           </table>
@@ -736,51 +736,51 @@ expression: jats
           <table>
             <thead>
               <tr>
-                <th><p>Location of collection</p></th>
-                <th><p>Houses</p></th>
-                <th><p>Mosquitoes</p></th>
-                <th><p>Pools</p></th>
-                <th><p>Pool size</p></th>
-                <th><p>Positive pools</p></th>
-                <th><p>Infection rate* (95%CI)</p></th>
+                <th align="left"><p>Location of collection</p></th>
+                <th align="left"><p>Houses</p></th>
+                <th align="left"><p>Mosquitoes</p></th>
+                <th align="left"><p>Pools</p></th>
+                <th align="left"><p>Pool size</p></th>
+                <th align="left"><p>Positive pools</p></th>
+                <th align="left"><p>Infection rate* (95%CI)</p></th>
               </tr>
             </thead>
             <tbody>
               <tr>
-                <td><p>1200 logements</p></td>
-                <td><p>70</p></td>
-                <td><p>228</p></td>
-                <td><p>112</p></td>
-                <td><p>1-13</p></td>
-                <td><p>6</p></td>
-                <td><p>26.52 (11.06–53.82)</p></td>
+                <td align="left"><p>1200 logements</p></td>
+                <td align="left"><p>70</p></td>
+                <td align="left"><p>228</p></td>
+                <td align="left"><p>112</p></td>
+                <td align="left"><p>1-13</p></td>
+                <td align="left"><p>6</p></td>
+                <td align="left"><p>26.52  (11.06–53.82)</p></td>
               </tr>
               <tr>
-                <td><p>Tabtenga</p></td>
-                <td><p>61</p></td>
-                <td><p>139</p></td>
-                <td><p>95</p></td>
-                <td><p>1-10</p></td>
-                <td><p>5</p></td>
-                <td><p>36.18 (13.70–77.61)</p></td>
+                <td align="left"><p>Tabtenga</p></td>
+                <td align="left"><p>61</p></td>
+                <td align="left"><p>139</p></td>
+                <td align="left"><p>95</p></td>
+                <td align="left"><p>1-10</p></td>
+                <td align="left"><p>5</p></td>
+                <td align="left"><p>36.18  (13.70–77.61)</p></td>
               </tr>
               <tr>
-                <td><p>Goundry</p></td>
-                <td><p>13</p></td>
-                <td><p>30</p></td>
-                <td><p>19</p></td>
-                <td><p>1-5</p></td>
-                <td><p>1</p></td>
-                <td><p>33.24 (1.94–150.42)</p></td>
+                <td align="left"><p>Goundry</p></td>
+                <td align="left"><p>13</p></td>
+                <td align="left"><p>30</p></td>
+                <td align="left"><p>19</p></td>
+                <td align="left"><p>1-5</p></td>
+                <td align="left"><p>1</p></td>
+                <td align="left"><p>33.24  (1.94–150.42)</p></td>
               </tr>
               <tr>
-                <td><p>Total</p></td>
-                <td><p>144</p></td>
-                <td><p>397</p></td>
-                <td><p>226</p></td>
-                <td></td>
-                <td><p>12</p></td>
-                <td></td>
+                <td align="left"><p>Total</p></td>
+                <td align="left"><p>144</p></td>
+                <td align="left"><p>397</p></td>
+                <td align="left"><p>226</p></td>
+                <td align="left"></td>
+                <td align="left"><p>12</p></td>
+                <td align="left"></td>
               </tr>
             </tbody>
           </table>
@@ -795,7 +795,7 @@ expression: jats
           <caption>
             <p><bold>Schematic diagram of the DENV-2 RNA genome with LAMP primer positions for amplifying vDNA. </bold>(A) DENV-2 vDNA is generated from genomic RNA using endogenous RTase activity in mosquito cells. A set of arrows (brown) indicates the region of vDNA used as the target for the LAMP reaction. (B) Partial sequence of DENV-2 (GenBank: <ext-link ext-link-type="pmc:entrez-nucleotide" xlink:href="LC111438">LC111438</ext-link>) with primer binding sites.</p>
           </caption>
-          <inline-graphic xlink:href="pone.0332245.g001.jpg"></inline-graphic>
+          <graphic xlink:href="pone.0332245.g001.jpg"></graphic>
         </fig>
         <fig id="pone.0332245.g002">
           <object-id pub-id-type="doi">10.1371/journal.pone.0332245.g002</object-id>
@@ -803,7 +803,7 @@ expression: jats
           <caption>
             <p><bold>Sensitivity and serotype specificity of RT-LAMP for detecting DENV-2 genomic RNA. </bold>RNA of DENV-2 (1 × 10<sup>2</sup>, 1 × 10<sup>1</sup>, 1 × 10<sup>0</sup>, 1 × 10<sup>−1</sup>, 1 × 10<sup>−2</sup>, 1 × 10<sup>−3</sup>, and 1 × 10<sup>−4</sup> ng) and DENV 1, 3, and 4 were used as a template for RT-LAMP reactions for 60 min at 58°C. Water served as a negative control. (A) Agarose gel electrophoresis of the RT-LAMP amplified products. Numbers on the left indicate migration of the molecular weight marker (bp). (B) (left) Amplification of DENV-2 RNA by RT-LAMP reaction monitored using a real-time turbidimeter. (right) Fitted curve based on quantities of RNA and the threshold time. The threshold time was determined as when turbidity reached greater than 0.05 by RT-LAMP reaction. (C) (left) Agarose gel electrophoresis of RT-LAMP amplified products with genomic RNA of DENV-1, 2, 3, and 4, showing the specificity of the reaction. The reaction mixtures were electrophoresed in a 2% agarose gel. Numbers on the left indicate migration of the molecular weight marker (bp). (right) Specific amplification of DENV-2 RNA monitored using a real-time turbidimeter.</p>
           </caption>
-          <inline-graphic xlink:href="pone.0332245.g002.jpg"></inline-graphic>
+          <graphic xlink:href="pone.0332245.g002.jpg"></graphic>
         </fig>
         <fig id="pone.0332245.g003">
           <object-id pub-id-type="doi">10.1371/journal.pone.0332245.g003</object-id>
@@ -811,7 +811,7 @@ expression: jats
           <caption>
             <p><bold>Detection of DENV-2 vDNA produced in mosquito cultured cells. </bold>(A) Scheme for preparing DENV-infected culture cells and mosquitoes for vDNA detection. Ten infected mosquitoes were pooled in each group and subjected to DNA extraction. One-fiftieth of the extracted DNA per group was used as the template for the LAMP reaction. dpi, days post- infection. (B) DENV-2 vDNA production in infected cells and detection using the LAMP reaction. (left) The reaction mixtures were electrophoresed on a 2% agarose gel. Numbers on the left indicate migration of the molecular weight marker (bp). (right) Amplification of vDNA in infected cells monitored using a real-time turbidimeter. (C) vDNA of DENV-2 in infected mosquitoes was specifically detected using LAMP. (left) Amplified products were electrophoresed in 2% agarose gels. DENV-2 cDNA was used as the positive control. Water served as a negative control. Numbers on the left indicate migration of molecular weight marker (bp). (right) Amplification of vDNA in infected mosquitoes monitored using a real-time turbidimeter. DENV-2 cDNA was used as a positive control.</p>
           </caption>
-          <inline-graphic xlink:href="pone.0332245.g003.jpg"></inline-graphic>
+          <graphic xlink:href="pone.0332245.g003.jpg"></graphic>
         </fig>
         <fig id="pone.0332245.g004">
           <object-id pub-id-type="doi">10.1371/journal.pone.0332245.g004</object-id>
@@ -819,7 +819,7 @@ expression: jats
           <caption>
             <p><bold>DENV-2 vDNA detection in wild mosquitoes collected in endemic locations. </bold>(A) Location of mosquito collection sites showing the capital city Ouagadougou (gray circled) and the study localities (colored squares) in Burkina Faso. (B) Spatial distribution of the households where mosquitoes were collected in three localities. Blue dots indicate households where mosquitoes were collected. Red dots indicate where DENV-2 vDNA was detected from the mosquitoes. Street map (left), aerial map (right). Plots on maps were created using LeafletR and OpenStreetMap (openstreetmap.org). Map data © OpenStreetMap contributors. Imagery © Esri, Maxar, Earthstar Geographics, and the GIS User Community.</p>
           </caption>
-          <inline-graphic xlink:href="pone.0332245.g004.jpg"></inline-graphic>
+          <graphic xlink:href="pone.0332245.g004.jpg"></graphic>
         </fig>
       </sec>
       <sec id="sec008">
@@ -834,34 +834,34 @@ expression: jats
           <table>
             <thead>
               <tr>
-                <th><p>Primer</p></th>
-                <th><p>Sequence (5’ → 3’)</p></th>
+                <th align="left"><p>Primer</p></th>
+                <th align="left"><p>Sequence (5’ → 3’)</p></th>
               </tr>
             </thead>
             <tbody>
               <tr>
-                <td><p>F3</p></td>
-                <td><p>CATAGGGGAGTCGTCACC</p></td>
+                <td align="left"><p>F3</p></td>
+                <td align="left"><p>CATAGGGGAGTCGTCACC</p></td>
               </tr>
               <tr>
-                <td><p>B3</p></td>
-                <td><p>TTGGATACCCAGTACATCTC</p></td>
+                <td align="left"><p>B3</p></td>
+                <td align="left"><p>TTGGATACCCAGTACATCTC</p></td>
               </tr>
               <tr>
-                <td><p>FIP (F1c-F2)</p></td>
-                <td><p>CAAAATTGGATGTTGTTGTTCAACCTAGAAGCAGGACGAACACT</p></td>
+                <td align="left"><p>FIP (F1c-F2)</p></td>
+                <td align="left"><p>CAAAATTGGATGTTGTTGTTCAACCTAGAAGCAGGACGAACACT</p></td>
               </tr>
               <tr>
-                <td><p>BIP (B1c-B2)</p></td>
-                <td><p>ATGCCCTCAGTCATAGAAAAAATGGAGTTTCGTGAGAGTGGATT</p></td>
+                <td align="left"><p>BIP (B1c-B2)</p></td>
+                <td align="left"><p>ATGCCCTCAGTCATAGAAAAAATGGAGTTTCGTGAGAGTGGATT</p></td>
               </tr>
               <tr>
-                <td><p>LF</p></td>
-                <td><p>TTTTCCACTAAGTTGAGGACTCTG</p></td>
+                <td align="left"><p>LF</p></td>
+                <td align="left"><p>TTTTCCACTAAGTTGAGGACTCTG</p></td>
               </tr>
               <tr>
-                <td><p>LB</p></td>
-                <td><p>AAGCACTACAAAGGAAATATGGAGG</p></td>
+                <td align="left"><p>LB</p></td>
+                <td align="left"><p>AAGCACTACAAAGGAAATATGGAGG</p></td>
               </tr>
             </tbody>
           </table>
@@ -925,26 +925,29 @@ expression: jats
     </sec>
     <sec id="sec020" sec-type="SupplementaryMaterials">
       <title level="1">Supporting information</title>
-      <supplementary-material id="pone.0332245.s001" href="pone.0332245.s001.pdf">
+      <supplementary-material id="pone.0332245.s001">
         <label>S1 Fig</label>
         <caption>
           <title level="1">Agarose gel electrophoresis of LAMP products corresponding to Table 3.</title>
           <p>(PDF)</p>
         </caption>
+        <media xlink:href="pone.0332245.s001.pdf"></media>
       </supplementary-material>
-      <supplementary-material id="pone.0332245.s002" href="pone.0332245.s002.pdf">
+      <supplementary-material id="pone.0332245.s002">
         <label>S1 Raw Images</label>
         <caption>
           <title level="1">Original blot and gel images contained in the manuscript’s figures.</title>
           <p>(PDF)</p>
         </caption>
+        <media xlink:href="pone.0332245.s002.pdf"></media>
       </supplementary-material>
-      <supplementary-material id="pone.0332245.s003" href="pone.0332245.s003.xlsx">
+      <supplementary-material id="pone.0332245.s003">
         <label>S2 Data</label>
         <caption>
           <title level="1">Excel file containing the raw data used to generate all figures and tables in the manuscript.</title>
           <p>(XLSX)</p>
         </caption>
+        <media xlink:href="pone.0332245.s003.xlsx"></media>
       </supplementary-material>
     </sec>
     <sec sec-type="DataAvailability">

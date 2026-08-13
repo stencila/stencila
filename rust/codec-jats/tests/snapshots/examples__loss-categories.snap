@@ -4,31 +4,29 @@ expression: categories
 ---
 biorxiv-465267 decode:
   content: 20
-  link-or-identifier: 648
+  link-or-identifier: 649
   metadata: 40
-  presentation: 1456
-biorxiv-465267 encode:
-  metadata: 2
+  presentation: 1458
+biorxiv-465267 encode: {}
 biorxiv-573522 decode:
   content: 1
-  link-or-identifier: 371
+  link-or-identifier: 372
   metadata: 36
-  presentation: 780
-biorxiv-573522 encode:
-  metadata: 3
+  presentation: 782
+biorxiv-573522 encode: {}
 biorxiv-630838 decode:
   content: 210
-  link-or-identifier: 690
+  link-or-identifier: 691
   metadata: 78
-  presentation: 1224
+  presentation: 1226
 biorxiv-630838 encode: {}
 elife-94334-v1 decode:
   content: 21
   link-or-identifier: 34
-  metadata: 52
-  presentation: 204
+  metadata: 7
+  presentation: 98
 elife-94334-v1 encode:
-  metadata: 74
+  metadata: 4
 pmc-11518443 decode:
   metadata: 20
   presentation: 2
@@ -37,32 +35,30 @@ pmc-12354728 decode:
   content: 2
   link-or-identifier: 65
   metadata: 55
-  presentation: 201
+  presentation: 203
 pmc-12354728 encode:
   link-or-identifier: 3
 pmc-12431436 decode:
   content: 1
-  metadata: 60
-  presentation: 192
+  metadata: 61
+  presentation: 198
 pmc-12431436 encode: {}
 pmc-6849754 decode:
   content: 301
   link-or-identifier: 109
-  metadata: 40
+  metadata: 39
   presentation: 112
 pmc-6849754 encode: {}
 pmc-8438044 decode:
   content: 1
   link-or-identifier: 69
   metadata: 43
-  presentation: 637
+  presentation: 543
 pmc-8438044 encode:
   link-or-identifier: 14
-  metadata: 10
 pmc-9786276 decode:
   content: 3
   link-or-identifier: 82
-  metadata: 35
-  presentation: 754
-pmc-9786276 encode:
-  metadata: 10
+  metadata: 39
+  presentation: 774
+pmc-9786276 encode: {}

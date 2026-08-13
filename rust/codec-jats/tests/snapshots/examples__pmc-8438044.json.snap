@@ -9570,8 +9570,7 @@ expression: article
                           }
                         }
                       ],
-                      "target": "https://www.esri.com/news/arcuser/0312/national-geographic-basemap.html",
-                      "jatsExtLinkType": "uri"
+                      "target": "https://www.esri.com/news/arcuser/0312/national-geographic-basemap.html"
                     },
                     {
                       "type": "Text",
@@ -9803,7 +9802,8 @@ expression: article
                                 }
                               ]
                             }
-                          ]
+                          ],
+                          "horizontalAlignment": "AlignLeft"
                         },
                         {
                           "type": "TableCell",
@@ -9820,7 +9820,8 @@ expression: article
                                 }
                               ]
                             }
-                          ]
+                          ],
+                          "horizontalAlignment": "AlignLeft"
                         },
                         {
                           "type": "TableCell",
@@ -9837,7 +9838,8 @@ expression: article
                                 }
                               ]
                             }
-                          ]
+                          ],
+                          "horizontalAlignment": "AlignLeft"
                         },
                         {
                           "type": "TableCell",
@@ -9854,7 +9856,8 @@ expression: article
                                 }
                               ]
                             }
-                          ]
+                          ],
+                          "horizontalAlignment": "AlignLeft"
                         },
                         {
                           "type": "TableCell",
@@ -9871,7 +9874,8 @@ expression: article
                                 }
                               ]
                             }
-                          ]
+                          ],
+                          "horizontalAlignment": "AlignLeft"
                         },
                         {
                           "type": "TableCell",
@@ -9888,7 +9892,8 @@ expression: article
                                 }
                               ]
                             }
-                          ]
+                          ],
+                          "horizontalAlignment": "AlignLeft"
                         },
                         {
                           "type": "TableCell",
@@ -9905,7 +9910,8 @@ expression: article
                                 }
                               ]
                             }
-                          ]
+                          ],
+                          "horizontalAlignment": "AlignLeft"
                         },
                         {
                           "type": "TableCell",
@@ -9922,7 +9928,8 @@ expression: article
                                 }
                               ]
                             }
-                          ]
+                          ],
+                          "horizontalAlignment": "AlignLeft"
                         }
                       ],
                       "rowType": "HeaderRow"
@@ -9944,7 +9951,8 @@ expression: article
                                 }
                               ]
                             }
-                          ]
+                          ],
+                          "horizontalAlignment": "AlignLeft"
                         },
                         {
                           "type": "TableCell",
@@ -9960,7 +9968,8 @@ expression: article
                                 }
                               ]
                             }
-                          ]
+                          ],
+                          "horizontalAlignment": "AlignLeft"
                         },
                         {
                           "type": "TableCell",
@@ -9981,7 +9990,8 @@ expression: article
                                 }
                               ]
                             }
-                          ]
+                          ],
+                          "horizontalAlignment": "AlignLeft"
                         },
                         {
                           "type": "TableCell",
@@ -9997,7 +10007,9 @@ expression: article
                                 }
                               ]
                             }
-                          ]
+                          ],
+                          "horizontalAlignment": "AlignCharacter",
+                          "horizontalAlignmentCharacter": "."
                         },
                         {
                           "type": "TableCell",
@@ -10013,15 +10025,19 @@ expression: article
                                 }
                               ]
                             }
-                          ]
+                          ],
+                          "horizontalAlignment": "AlignCharacter",
+                          "horizontalAlignmentCharacter": "."
                         },
                         {
                           "type": "TableCell",
-                          "content": []
+                          "content": [],
+                          "horizontalAlignment": "AlignLeft"
                         },
                         {
                           "type": "TableCell",
-                          "content": []
+                          "content": [],
+                          "horizontalAlignment": "AlignLeft"
                         },
                         {
                           "type": "TableCell",
@@ -10037,7 +10053,8 @@ expression: article
                                 }
                               ]
                             }
-                          ]
+                          ],
+                          "horizontalAlignment": "AlignLeft"
                         }
                       ]
                     },
@@ -10058,7 +10075,8 @@ expression: article
                                 }
                               ]
                             }
-                          ]
+                          ],
+                          "horizontalAlignment": "AlignLeft"
                         },
                         {
                           "type": "TableCell",
@@ -10074,7 +10092,8 @@ expression: article
                                 }
                               ]
                             }
-                          ]
+                          ],
+                          "horizontalAlignment": "AlignLeft"
                         },
                         {
                           "type": "TableCell",
@@ -10101,7 +10120,8 @@ expression: article
                                 }
                               ]
                             }
-                          ]
+                          ],
+                          "horizontalAlignment": "AlignLeft"
                         },
                         {
                           "type": "TableCell",
@@ -10117,7 +10137,9 @@ expression: article
                                 }
                               ]
                             }
-                          ]
+                          ],
+                          "horizontalAlignment": "AlignCharacter",
+                          "horizontalAlignmentCharacter": "."
                         },
                         {
                           "type": "TableCell",
@@ -10133,7 +10155,9 @@ expression: article
                                 }
                               ]
                             }
-                          ]
+                          ],
+                          "horizontalAlignment": "AlignCharacter",
+                          "horizontalAlignmentCharacter": "."
                         },
                         {
                           "type": "TableCell",
@@ -10149,7 +10173,8 @@ expression: article
                                 }
                               ]
                             }
-                          ]
+                          ],
+                          "horizontalAlignment": "AlignLeft"
                         },
                         {
                           "type": "TableCell",
@@ -10165,7 +10190,8 @@ expression: article
                                 }
                               ]
                             }
-                          ]
+                          ],
+                          "horizontalAlignment": "AlignLeft"
                         },
                         {
                           "type": "TableCell",
@@ -10181,7 +10207,8 @@ expression: article
                                 }
                               ]
                             }
-                          ]
+                          ],
+                          "horizontalAlignment": "AlignLeft"
                         }
                       ]
                     },
@@ -10202,7 +10229,8 @@ expression: article
                                 }
                               ]
                             }
-                          ]
+                          ],
+                          "horizontalAlignment": "AlignLeft"
                         },
                         {
                           "type": "TableCell",
@@ -10218,7 +10246,8 @@ expression: article
                                 }
                               ]
                             }
-                          ]
+                          ],
+                          "horizontalAlignment": "AlignLeft"
                         },
                         {
                           "type": "TableCell",
@@ -10245,7 +10274,8 @@ expression: article
                                 }
                               ]
                             }
-                          ]
+                          ],
+                          "horizontalAlignment": "AlignLeft"
                         },
                         {
                           "type": "TableCell",
@@ -10261,7 +10291,9 @@ expression: article
                                 }
                               ]
                             }
-                          ]
+                          ],
+                          "horizontalAlignment": "AlignCharacter",
+                          "horizontalAlignmentCharacter": "."
                         },
                         {
                           "type": "TableCell",
@@ -10277,15 +10309,19 @@ expression: article
                                 }
                               ]
                             }
-                          ]
+                          ],
+                          "horizontalAlignment": "AlignCharacter",
+                          "horizontalAlignmentCharacter": "."
                         },
                         {
                           "type": "TableCell",
-                          "content": []
+                          "content": [],
+                          "horizontalAlignment": "AlignLeft"
                         },
                         {
                           "type": "TableCell",
-                          "content": []
+                          "content": [],
+                          "horizontalAlignment": "AlignLeft"
                         },
                         {
                           "type": "TableCell",
@@ -10301,7 +10337,8 @@ expression: article
                                 }
                               ]
                             }
-                          ]
+                          ],
+                          "horizontalAlignment": "AlignLeft"
                         }
                       ]
                     },
@@ -10322,7 +10359,8 @@ expression: article
                                 }
                               ]
                             }
-                          ]
+                          ],
+                          "horizontalAlignment": "AlignLeft"
                         },
                         {
                           "type": "TableCell",
@@ -10338,7 +10376,8 @@ expression: article
                                 }
                               ]
                             }
-                          ]
+                          ],
+                          "horizontalAlignment": "AlignLeft"
                         },
                         {
                           "type": "TableCell",
@@ -10359,7 +10398,8 @@ expression: article
                                 }
                               ]
                             }
-                          ]
+                          ],
+                          "horizontalAlignment": "AlignLeft"
                         },
                         {
                           "type": "TableCell",
@@ -10375,7 +10415,9 @@ expression: article
                                 }
                               ]
                             }
-                          ]
+                          ],
+                          "horizontalAlignment": "AlignCharacter",
+                          "horizontalAlignmentCharacter": "."
                         },
                         {
                           "type": "TableCell",
@@ -10391,15 +10433,19 @@ expression: article
                                 }
                               ]
                             }
-                          ]
+                          ],
+                          "horizontalAlignment": "AlignCharacter",
+                          "horizontalAlignmentCharacter": "."
                         },
                         {
                           "type": "TableCell",
-                          "content": []
+                          "content": [],
+                          "horizontalAlignment": "AlignLeft"
                         },
                         {
                           "type": "TableCell",
-                          "content": []
+                          "content": [],
+                          "horizontalAlignment": "AlignLeft"
                         },
                         {
                           "type": "TableCell",
@@ -10415,7 +10461,8 @@ expression: article
                                 }
                               ]
                             }
-                          ]
+                          ],
+                          "horizontalAlignment": "AlignLeft"
                         }
                       ]
                     },
@@ -10436,7 +10483,8 @@ expression: article
                                 }
                               ]
                             }
-                          ]
+                          ],
+                          "horizontalAlignment": "AlignLeft"
                         },
                         {
                           "type": "TableCell",
@@ -10452,7 +10500,8 @@ expression: article
                                 }
                               ]
                             }
-                          ]
+                          ],
+                          "horizontalAlignment": "AlignLeft"
                         },
                         {
                           "type": "TableCell",
@@ -10473,7 +10522,8 @@ expression: article
                                 }
                               ]
                             }
-                          ]
+                          ],
+                          "horizontalAlignment": "AlignLeft"
                         },
                         {
                           "type": "TableCell",
@@ -10489,7 +10539,9 @@ expression: article
                                 }
                               ]
                             }
-                          ]
+                          ],
+                          "horizontalAlignment": "AlignCharacter",
+                          "horizontalAlignmentCharacter": "."
                         },
                         {
                           "type": "TableCell",
@@ -10505,7 +10557,9 @@ expression: article
                                 }
                               ]
                             }
-                          ]
+                          ],
+                          "horizontalAlignment": "AlignCharacter",
+                          "horizontalAlignmentCharacter": "."
                         },
                         {
                           "type": "TableCell",
@@ -10521,7 +10575,8 @@ expression: article
                                 }
                               ]
                             }
-                          ]
+                          ],
+                          "horizontalAlignment": "AlignLeft"
                         },
                         {
                           "type": "TableCell",
@@ -10537,7 +10592,8 @@ expression: article
                                 }
                               ]
                             }
-                          ]
+                          ],
+                          "horizontalAlignment": "AlignLeft"
                         },
                         {
                           "type": "TableCell",
@@ -10553,7 +10609,8 @@ expression: article
                                 }
                               ]
                             }
-                          ]
+                          ],
+                          "horizontalAlignment": "AlignLeft"
                         }
                       ]
                     },
@@ -10574,7 +10631,8 @@ expression: article
                                 }
                               ]
                             }
-                          ]
+                          ],
+                          "horizontalAlignment": "AlignLeft"
                         },
                         {
                           "type": "TableCell",
@@ -10590,7 +10648,8 @@ expression: article
                                 }
                               ]
                             }
-                          ]
+                          ],
+                          "horizontalAlignment": "AlignLeft"
                         },
                         {
                           "type": "TableCell",
@@ -10611,7 +10670,8 @@ expression: article
                                 }
                               ]
                             }
-                          ]
+                          ],
+                          "horizontalAlignment": "AlignLeft"
                         },
                         {
                           "type": "TableCell",
@@ -10627,7 +10687,9 @@ expression: article
                                 }
                               ]
                             }
-                          ]
+                          ],
+                          "horizontalAlignment": "AlignCharacter",
+                          "horizontalAlignmentCharacter": "."
                         },
                         {
                           "type": "TableCell",
@@ -10643,15 +10705,19 @@ expression: article
                                 }
                               ]
                             }
-                          ]
+                          ],
+                          "horizontalAlignment": "AlignCharacter",
+                          "horizontalAlignmentCharacter": "."
                         },
                         {
                           "type": "TableCell",
-                          "content": []
+                          "content": [],
+                          "horizontalAlignment": "AlignLeft"
                         },
                         {
                           "type": "TableCell",
-                          "content": []
+                          "content": [],
+                          "horizontalAlignment": "AlignLeft"
                         },
                         {
                           "type": "TableCell",
@@ -10667,7 +10733,8 @@ expression: article
                                 }
                               ]
                             }
-                          ]
+                          ],
+                          "horizontalAlignment": "AlignLeft"
                         }
                       ]
                     },
@@ -10688,7 +10755,8 @@ expression: article
                                 }
                               ]
                             }
-                          ]
+                          ],
+                          "horizontalAlignment": "AlignLeft"
                         },
                         {
                           "type": "TableCell",
@@ -10704,7 +10772,8 @@ expression: article
                                 }
                               ]
                             }
-                          ]
+                          ],
+                          "horizontalAlignment": "AlignLeft"
                         },
                         {
                           "type": "TableCell",
@@ -10725,7 +10794,8 @@ expression: article
                                 }
                               ]
                             }
-                          ]
+                          ],
+                          "horizontalAlignment": "AlignLeft"
                         },
                         {
                           "type": "TableCell",
@@ -10741,7 +10811,9 @@ expression: article
                                 }
                               ]
                             }
-                          ]
+                          ],
+                          "horizontalAlignment": "AlignCharacter",
+                          "horizontalAlignmentCharacter": "."
                         },
                         {
                           "type": "TableCell",
@@ -10757,15 +10829,19 @@ expression: article
                                 }
                               ]
                             }
-                          ]
+                          ],
+                          "horizontalAlignment": "AlignCharacter",
+                          "horizontalAlignmentCharacter": "."
                         },
                         {
                           "type": "TableCell",
-                          "content": []
+                          "content": [],
+                          "horizontalAlignment": "AlignLeft"
                         },
                         {
                           "type": "TableCell",
-                          "content": []
+                          "content": [],
+                          "horizontalAlignment": "AlignLeft"
                         },
                         {
                           "type": "TableCell",
@@ -10781,7 +10857,8 @@ expression: article
                                 }
                               ]
                             }
-                          ]
+                          ],
+                          "horizontalAlignment": "AlignLeft"
                         }
                       ]
                     },
@@ -10802,7 +10879,8 @@ expression: article
                                 }
                               ]
                             }
-                          ]
+                          ],
+                          "horizontalAlignment": "AlignLeft"
                         },
                         {
                           "type": "TableCell",
@@ -10818,7 +10896,8 @@ expression: article
                                 }
                               ]
                             }
-                          ]
+                          ],
+                          "horizontalAlignment": "AlignLeft"
                         },
                         {
                           "type": "TableCell",
@@ -10839,7 +10918,8 @@ expression: article
                                 }
                               ]
                             }
-                          ]
+                          ],
+                          "horizontalAlignment": "AlignLeft"
                         },
                         {
                           "type": "TableCell",
@@ -10855,7 +10935,9 @@ expression: article
                                 }
                               ]
                             }
-                          ]
+                          ],
+                          "horizontalAlignment": "AlignCharacter",
+                          "horizontalAlignmentCharacter": "."
                         },
                         {
                           "type": "TableCell",
@@ -10871,15 +10953,19 @@ expression: article
                                 }
                               ]
                             }
-                          ]
+                          ],
+                          "horizontalAlignment": "AlignCharacter",
+                          "horizontalAlignmentCharacter": "."
                         },
                         {
                           "type": "TableCell",
-                          "content": []
+                          "content": [],
+                          "horizontalAlignment": "AlignLeft"
                         },
                         {
                           "type": "TableCell",
-                          "content": []
+                          "content": [],
+                          "horizontalAlignment": "AlignLeft"
                         },
                         {
                           "type": "TableCell",
@@ -10895,7 +10981,8 @@ expression: article
                                 }
                               ]
                             }
-                          ]
+                          ],
+                          "horizontalAlignment": "AlignLeft"
                         }
                       ]
                     },
@@ -10916,7 +11003,8 @@ expression: article
                                 }
                               ]
                             }
-                          ]
+                          ],
+                          "horizontalAlignment": "AlignLeft"
                         },
                         {
                           "type": "TableCell",
@@ -10932,7 +11020,8 @@ expression: article
                                 }
                               ]
                             }
-                          ]
+                          ],
+                          "horizontalAlignment": "AlignLeft"
                         },
                         {
                           "type": "TableCell",
@@ -10959,7 +11048,8 @@ expression: article
                                 }
                               ]
                             }
-                          ]
+                          ],
+                          "horizontalAlignment": "AlignLeft"
                         },
                         {
                           "type": "TableCell",
@@ -10975,7 +11065,9 @@ expression: article
                                 }
                               ]
                             }
-                          ]
+                          ],
+                          "horizontalAlignment": "AlignCharacter",
+                          "horizontalAlignmentCharacter": "."
                         },
                         {
                           "type": "TableCell",
@@ -10991,15 +11083,19 @@ expression: article
                                 }
                               ]
                             }
-                          ]
+                          ],
+                          "horizontalAlignment": "AlignCharacter",
+                          "horizontalAlignmentCharacter": "."
                         },
                         {
                           "type": "TableCell",
-                          "content": []
+                          "content": [],
+                          "horizontalAlignment": "AlignLeft"
                         },
                         {
                           "type": "TableCell",
-                          "content": []
+                          "content": [],
+                          "horizontalAlignment": "AlignLeft"
                         },
                         {
                           "type": "TableCell",
@@ -11015,7 +11111,8 @@ expression: article
                                 }
                               ]
                             }
-                          ]
+                          ],
+                          "horizontalAlignment": "AlignLeft"
                         }
                       ]
                     },
@@ -11036,7 +11133,8 @@ expression: article
                                 }
                               ]
                             }
-                          ]
+                          ],
+                          "horizontalAlignment": "AlignLeft"
                         },
                         {
                           "type": "TableCell",
@@ -11052,7 +11150,8 @@ expression: article
                                 }
                               ]
                             }
-                          ]
+                          ],
+                          "horizontalAlignment": "AlignLeft"
                         },
                         {
                           "type": "TableCell",
@@ -11073,7 +11172,8 @@ expression: article
                                 }
                               ]
                             }
-                          ]
+                          ],
+                          "horizontalAlignment": "AlignLeft"
                         },
                         {
                           "type": "TableCell",
@@ -11089,7 +11189,9 @@ expression: article
                                 }
                               ]
                             }
-                          ]
+                          ],
+                          "horizontalAlignment": "AlignCharacter",
+                          "horizontalAlignmentCharacter": "."
                         },
                         {
                           "type": "TableCell",
@@ -11105,15 +11207,19 @@ expression: article
                                 }
                               ]
                             }
-                          ]
+                          ],
+                          "horizontalAlignment": "AlignCharacter",
+                          "horizontalAlignmentCharacter": "."
                         },
                         {
                           "type": "TableCell",
-                          "content": []
+                          "content": [],
+                          "horizontalAlignment": "AlignLeft"
                         },
                         {
                           "type": "TableCell",
-                          "content": []
+                          "content": [],
+                          "horizontalAlignment": "AlignLeft"
                         },
                         {
                           "type": "TableCell",
@@ -11129,7 +11235,8 @@ expression: article
                                 }
                               ]
                             }
-                          ]
+                          ],
+                          "horizontalAlignment": "AlignLeft"
                         }
                       ]
                     },
@@ -11150,7 +11257,8 @@ expression: article
                                 }
                               ]
                             }
-                          ]
+                          ],
+                          "horizontalAlignment": "AlignLeft"
                         },
                         {
                           "type": "TableCell",
@@ -11166,7 +11274,8 @@ expression: article
                                 }
                               ]
                             }
-                          ]
+                          ],
+                          "horizontalAlignment": "AlignLeft"
                         },
                         {
                           "type": "TableCell",
@@ -11187,7 +11296,8 @@ expression: article
                                 }
                               ]
                             }
-                          ]
+                          ],
+                          "horizontalAlignment": "AlignLeft"
                         },
                         {
                           "type": "TableCell",
@@ -11203,7 +11313,9 @@ expression: article
                                 }
                               ]
                             }
-                          ]
+                          ],
+                          "horizontalAlignment": "AlignCharacter",
+                          "horizontalAlignmentCharacter": "."
                         },
                         {
                           "type": "TableCell",
@@ -11219,15 +11331,19 @@ expression: article
                                 }
                               ]
                             }
-                          ]
+                          ],
+                          "horizontalAlignment": "AlignCharacter",
+                          "horizontalAlignmentCharacter": "."
                         },
                         {
                           "type": "TableCell",
-                          "content": []
+                          "content": [],
+                          "horizontalAlignment": "AlignLeft"
                         },
                         {
                           "type": "TableCell",
-                          "content": []
+                          "content": [],
+                          "horizontalAlignment": "AlignLeft"
                         },
                         {
                           "type": "TableCell",
@@ -11243,7 +11359,8 @@ expression: article
                                 }
                               ]
                             }
-                          ]
+                          ],
+                          "horizontalAlignment": "AlignLeft"
                         }
                       ]
                     },
@@ -11264,7 +11381,8 @@ expression: article
                                 }
                               ]
                             }
-                          ]
+                          ],
+                          "horizontalAlignment": "AlignLeft"
                         },
                         {
                           "type": "TableCell",
@@ -11280,7 +11398,8 @@ expression: article
                                 }
                               ]
                             }
-                          ]
+                          ],
+                          "horizontalAlignment": "AlignLeft"
                         },
                         {
                           "type": "TableCell",
@@ -11301,7 +11420,8 @@ expression: article
                                 }
                               ]
                             }
-                          ]
+                          ],
+                          "horizontalAlignment": "AlignLeft"
                         },
                         {
                           "type": "TableCell",
@@ -11317,7 +11437,9 @@ expression: article
                                 }
                               ]
                             }
-                          ]
+                          ],
+                          "horizontalAlignment": "AlignCharacter",
+                          "horizontalAlignmentCharacter": "."
                         },
                         {
                           "type": "TableCell",
@@ -11333,15 +11455,19 @@ expression: article
                                 }
                               ]
                             }
-                          ]
+                          ],
+                          "horizontalAlignment": "AlignCharacter",
+                          "horizontalAlignmentCharacter": "."
                         },
                         {
                           "type": "TableCell",
-                          "content": []
+                          "content": [],
+                          "horizontalAlignment": "AlignLeft"
                         },
                         {
                           "type": "TableCell",
-                          "content": []
+                          "content": [],
+                          "horizontalAlignment": "AlignLeft"
                         },
                         {
                           "type": "TableCell",
@@ -11357,7 +11483,8 @@ expression: article
                                 }
                               ]
                             }
-                          ]
+                          ],
+                          "horizontalAlignment": "AlignLeft"
                         }
                       ]
                     },
@@ -11378,7 +11505,8 @@ expression: article
                                 }
                               ]
                             }
-                          ]
+                          ],
+                          "horizontalAlignment": "AlignLeft"
                         },
                         {
                           "type": "TableCell",
@@ -11394,7 +11522,8 @@ expression: article
                                 }
                               ]
                             }
-                          ]
+                          ],
+                          "horizontalAlignment": "AlignLeft"
                         },
                         {
                           "type": "TableCell",
@@ -11415,7 +11544,8 @@ expression: article
                                 }
                               ]
                             }
-                          ]
+                          ],
+                          "horizontalAlignment": "AlignLeft"
                         },
                         {
                           "type": "TableCell",
@@ -11431,7 +11561,9 @@ expression: article
                                 }
                               ]
                             }
-                          ]
+                          ],
+                          "horizontalAlignment": "AlignCharacter",
+                          "horizontalAlignmentCharacter": "."
                         },
                         {
                           "type": "TableCell",
@@ -11447,15 +11579,19 @@ expression: article
                                 }
                               ]
                             }
-                          ]
+                          ],
+                          "horizontalAlignment": "AlignCharacter",
+                          "horizontalAlignmentCharacter": "."
                         },
                         {
                           "type": "TableCell",
-                          "content": []
+                          "content": [],
+                          "horizontalAlignment": "AlignLeft"
                         },
                         {
                           "type": "TableCell",
-                          "content": []
+                          "content": [],
+                          "horizontalAlignment": "AlignLeft"
                         },
                         {
                           "type": "TableCell",
@@ -11471,7 +11607,8 @@ expression: article
                                 }
                               ]
                             }
-                          ]
+                          ],
+                          "horizontalAlignment": "AlignLeft"
                         }
                       ]
                     },
@@ -11492,7 +11629,8 @@ expression: article
                                 }
                               ]
                             }
-                          ]
+                          ],
+                          "horizontalAlignment": "AlignLeft"
                         },
                         {
                           "type": "TableCell",
@@ -11508,7 +11646,8 @@ expression: article
                                 }
                               ]
                             }
-                          ]
+                          ],
+                          "horizontalAlignment": "AlignLeft"
                         },
                         {
                           "type": "TableCell",
@@ -11529,7 +11668,8 @@ expression: article
                                 }
                               ]
                             }
-                          ]
+                          ],
+                          "horizontalAlignment": "AlignLeft"
                         },
                         {
                           "type": "TableCell",
@@ -11545,7 +11685,9 @@ expression: article
                                 }
                               ]
                             }
-                          ]
+                          ],
+                          "horizontalAlignment": "AlignCharacter",
+                          "horizontalAlignmentCharacter": "."
                         },
                         {
                           "type": "TableCell",
@@ -11561,7 +11703,9 @@ expression: article
                                 }
                               ]
                             }
-                          ]
+                          ],
+                          "horizontalAlignment": "AlignCharacter",
+                          "horizontalAlignmentCharacter": "."
                         },
                         {
                           "type": "TableCell",
@@ -11577,7 +11721,8 @@ expression: article
                                 }
                               ]
                             }
-                          ]
+                          ],
+                          "horizontalAlignment": "AlignLeft"
                         },
                         {
                           "type": "TableCell",
@@ -11593,7 +11738,8 @@ expression: article
                                 }
                               ]
                             }
-                          ]
+                          ],
+                          "horizontalAlignment": "AlignLeft"
                         },
                         {
                           "type": "TableCell",
@@ -11609,7 +11755,8 @@ expression: article
                                 }
                               ]
                             }
-                          ]
+                          ],
+                          "horizontalAlignment": "AlignLeft"
                         }
                       ]
                     },
@@ -11630,7 +11777,8 @@ expression: article
                                 }
                               ]
                             }
-                          ]
+                          ],
+                          "horizontalAlignment": "AlignLeft"
                         },
                         {
                           "type": "TableCell",
@@ -11646,7 +11794,8 @@ expression: article
                                 }
                               ]
                             }
-                          ]
+                          ],
+                          "horizontalAlignment": "AlignLeft"
                         },
                         {
                           "type": "TableCell",
@@ -11673,7 +11822,8 @@ expression: article
                                 }
                               ]
                             }
-                          ]
+                          ],
+                          "horizontalAlignment": "AlignLeft"
                         },
                         {
                           "type": "TableCell",
@@ -11689,7 +11839,9 @@ expression: article
                                 }
                               ]
                             }
-                          ]
+                          ],
+                          "horizontalAlignment": "AlignCharacter",
+                          "horizontalAlignmentCharacter": "."
                         },
                         {
                           "type": "TableCell",
@@ -11705,15 +11857,19 @@ expression: article
                                 }
                               ]
                             }
-                          ]
+                          ],
+                          "horizontalAlignment": "AlignCharacter",
+                          "horizontalAlignmentCharacter": "."
                         },
                         {
                           "type": "TableCell",
-                          "content": []
+                          "content": [],
+                          "horizontalAlignment": "AlignLeft"
                         },
                         {
                           "type": "TableCell",
-                          "content": []
+                          "content": [],
+                          "horizontalAlignment": "AlignLeft"
                         },
                         {
                           "type": "TableCell",
@@ -11729,7 +11885,8 @@ expression: article
                                 }
                               ]
                             }
-                          ]
+                          ],
+                          "horizontalAlignment": "AlignLeft"
                         }
                       ]
                     },
@@ -11750,7 +11907,8 @@ expression: article
                                 }
                               ]
                             }
-                          ]
+                          ],
+                          "horizontalAlignment": "AlignLeft"
                         },
                         {
                           "type": "TableCell",
@@ -11766,7 +11924,8 @@ expression: article
                                 }
                               ]
                             }
-                          ]
+                          ],
+                          "horizontalAlignment": "AlignLeft"
                         },
                         {
                           "type": "TableCell",
@@ -11787,7 +11946,8 @@ expression: article
                                 }
                               ]
                             }
-                          ]
+                          ],
+                          "horizontalAlignment": "AlignLeft"
                         },
                         {
                           "type": "TableCell",
@@ -11803,7 +11963,9 @@ expression: article
                                 }
                               ]
                             }
-                          ]
+                          ],
+                          "horizontalAlignment": "AlignCharacter",
+                          "horizontalAlignmentCharacter": "."
                         },
                         {
                           "type": "TableCell",
@@ -11819,15 +11981,19 @@ expression: article
                                 }
                               ]
                             }
-                          ]
+                          ],
+                          "horizontalAlignment": "AlignCharacter",
+                          "horizontalAlignmentCharacter": "."
                         },
                         {
                           "type": "TableCell",
-                          "content": []
+                          "content": [],
+                          "horizontalAlignment": "AlignLeft"
                         },
                         {
                           "type": "TableCell",
-                          "content": []
+                          "content": [],
+                          "horizontalAlignment": "AlignLeft"
                         },
                         {
                           "type": "TableCell",
@@ -11843,7 +12009,8 @@ expression: article
                                 }
                               ]
                             }
-                          ]
+                          ],
+                          "horizontalAlignment": "AlignLeft"
                         }
                       ]
                     },
@@ -11864,7 +12031,8 @@ expression: article
                                 }
                               ]
                             }
-                          ]
+                          ],
+                          "horizontalAlignment": "AlignLeft"
                         },
                         {
                           "type": "TableCell",
@@ -11880,7 +12048,8 @@ expression: article
                                 }
                               ]
                             }
-                          ]
+                          ],
+                          "horizontalAlignment": "AlignLeft"
                         },
                         {
                           "type": "TableCell",
@@ -11907,7 +12076,8 @@ expression: article
                                 }
                               ]
                             }
-                          ]
+                          ],
+                          "horizontalAlignment": "AlignLeft"
                         },
                         {
                           "type": "TableCell",
@@ -11923,7 +12093,9 @@ expression: article
                                 }
                               ]
                             }
-                          ]
+                          ],
+                          "horizontalAlignment": "AlignCharacter",
+                          "horizontalAlignmentCharacter": "."
                         },
                         {
                           "type": "TableCell",
@@ -11939,15 +12111,19 @@ expression: article
                                 }
                               ]
                             }
-                          ]
+                          ],
+                          "horizontalAlignment": "AlignCharacter",
+                          "horizontalAlignmentCharacter": "."
                         },
                         {
                           "type": "TableCell",
-                          "content": []
+                          "content": [],
+                          "horizontalAlignment": "AlignLeft"
                         },
                         {
                           "type": "TableCell",
-                          "content": []
+                          "content": [],
+                          "horizontalAlignment": "AlignLeft"
                         },
                         {
                           "type": "TableCell",
@@ -11963,7 +12139,8 @@ expression: article
                                 }
                               ]
                             }
-                          ]
+                          ],
+                          "horizontalAlignment": "AlignLeft"
                         }
                       ]
                     },
@@ -11984,7 +12161,8 @@ expression: article
                                 }
                               ]
                             }
-                          ]
+                          ],
+                          "horizontalAlignment": "AlignLeft"
                         },
                         {
                           "type": "TableCell",
@@ -12000,7 +12178,8 @@ expression: article
                                 }
                               ]
                             }
-                          ]
+                          ],
+                          "horizontalAlignment": "AlignLeft"
                         },
                         {
                           "type": "TableCell",
@@ -12021,7 +12200,8 @@ expression: article
                                 }
                               ]
                             }
-                          ]
+                          ],
+                          "horizontalAlignment": "AlignLeft"
                         },
                         {
                           "type": "TableCell",
@@ -12037,7 +12217,9 @@ expression: article
                                 }
                               ]
                             }
-                          ]
+                          ],
+                          "horizontalAlignment": "AlignCharacter",
+                          "horizontalAlignmentCharacter": "."
                         },
                         {
                           "type": "TableCell",
@@ -12053,7 +12235,9 @@ expression: article
                                 }
                               ]
                             }
-                          ]
+                          ],
+                          "horizontalAlignment": "AlignCharacter",
+                          "horizontalAlignmentCharacter": "."
                         },
                         {
                           "type": "TableCell",
@@ -12069,7 +12253,8 @@ expression: article
                                 }
                               ]
                             }
-                          ]
+                          ],
+                          "horizontalAlignment": "AlignLeft"
                         },
                         {
                           "type": "TableCell",
@@ -12085,7 +12270,8 @@ expression: article
                                 }
                               ]
                             }
-                          ]
+                          ],
+                          "horizontalAlignment": "AlignLeft"
                         },
                         {
                           "type": "TableCell",
@@ -12101,7 +12287,8 @@ expression: article
                                 }
                               ]
                             }
-                          ]
+                          ],
+                          "horizontalAlignment": "AlignLeft"
                         }
                       ]
                     },
@@ -12122,7 +12309,8 @@ expression: article
                                 }
                               ]
                             }
-                          ]
+                          ],
+                          "horizontalAlignment": "AlignLeft"
                         },
                         {
                           "type": "TableCell",
@@ -12138,7 +12326,8 @@ expression: article
                                 }
                               ]
                             }
-                          ]
+                          ],
+                          "horizontalAlignment": "AlignLeft"
                         },
                         {
                           "type": "TableCell",
@@ -12159,7 +12348,8 @@ expression: article
                                 }
                               ]
                             }
-                          ]
+                          ],
+                          "horizontalAlignment": "AlignLeft"
                         },
                         {
                           "type": "TableCell",
@@ -12175,7 +12365,9 @@ expression: article
                                 }
                               ]
                             }
-                          ]
+                          ],
+                          "horizontalAlignment": "AlignCharacter",
+                          "horizontalAlignmentCharacter": "."
                         },
                         {
                           "type": "TableCell",
@@ -12191,7 +12383,9 @@ expression: article
                                 }
                               ]
                             }
-                          ]
+                          ],
+                          "horizontalAlignment": "AlignCharacter",
+                          "horizontalAlignmentCharacter": "."
                         },
                         {
                           "type": "TableCell",
@@ -12207,7 +12401,8 @@ expression: article
                                 }
                               ]
                             }
-                          ]
+                          ],
+                          "horizontalAlignment": "AlignLeft"
                         },
                         {
                           "type": "TableCell",
@@ -12223,7 +12418,8 @@ expression: article
                                 }
                               ]
                             }
-                          ]
+                          ],
+                          "horizontalAlignment": "AlignLeft"
                         },
                         {
                           "type": "TableCell",
@@ -12239,7 +12435,8 @@ expression: article
                                 }
                               ]
                             }
-                          ]
+                          ],
+                          "horizontalAlignment": "AlignLeft"
                         }
                       ]
                     },
@@ -12260,7 +12457,8 @@ expression: article
                                 }
                               ]
                             }
-                          ]
+                          ],
+                          "horizontalAlignment": "AlignLeft"
                         },
                         {
                           "type": "TableCell",
@@ -12276,7 +12474,8 @@ expression: article
                                 }
                               ]
                             }
-                          ]
+                          ],
+                          "horizontalAlignment": "AlignLeft"
                         },
                         {
                           "type": "TableCell",
@@ -12297,7 +12496,8 @@ expression: article
                                 }
                               ]
                             }
-                          ]
+                          ],
+                          "horizontalAlignment": "AlignLeft"
                         },
                         {
                           "type": "TableCell",
@@ -12313,7 +12513,9 @@ expression: article
                                 }
                               ]
                             }
-                          ]
+                          ],
+                          "horizontalAlignment": "AlignCharacter",
+                          "horizontalAlignmentCharacter": "."
                         },
                         {
                           "type": "TableCell",
@@ -12329,15 +12531,19 @@ expression: article
                                 }
                               ]
                             }
-                          ]
+                          ],
+                          "horizontalAlignment": "AlignCharacter",
+                          "horizontalAlignmentCharacter": "."
                         },
                         {
                           "type": "TableCell",
-                          "content": []
+                          "content": [],
+                          "horizontalAlignment": "AlignLeft"
                         },
                         {
                           "type": "TableCell",
-                          "content": []
+                          "content": [],
+                          "horizontalAlignment": "AlignLeft"
                         },
                         {
                           "type": "TableCell",
@@ -12353,7 +12559,8 @@ expression: article
                                 }
                               ]
                             }
-                          ]
+                          ],
+                          "horizontalAlignment": "AlignLeft"
                         }
                       ]
                     },
@@ -12374,7 +12581,8 @@ expression: article
                                 }
                               ]
                             }
-                          ]
+                          ],
+                          "horizontalAlignment": "AlignLeft"
                         },
                         {
                           "type": "TableCell",
@@ -12390,7 +12598,8 @@ expression: article
                                 }
                               ]
                             }
-                          ]
+                          ],
+                          "horizontalAlignment": "AlignLeft"
                         },
                         {
                           "type": "TableCell",
@@ -12411,7 +12620,8 @@ expression: article
                                 }
                               ]
                             }
-                          ]
+                          ],
+                          "horizontalAlignment": "AlignLeft"
                         },
                         {
                           "type": "TableCell",
@@ -12427,7 +12637,9 @@ expression: article
                                 }
                               ]
                             }
-                          ]
+                          ],
+                          "horizontalAlignment": "AlignCharacter",
+                          "horizontalAlignmentCharacter": "."
                         },
                         {
                           "type": "TableCell",
@@ -12443,15 +12655,19 @@ expression: article
                                 }
                               ]
                             }
-                          ]
+                          ],
+                          "horizontalAlignment": "AlignCharacter",
+                          "horizontalAlignmentCharacter": "."
                         },
                         {
                           "type": "TableCell",
-                          "content": []
+                          "content": [],
+                          "horizontalAlignment": "AlignLeft"
                         },
                         {
                           "type": "TableCell",
-                          "content": []
+                          "content": [],
+                          "horizontalAlignment": "AlignLeft"
                         },
                         {
                           "type": "TableCell",
@@ -12467,7 +12683,8 @@ expression: article
                                 }
                               ]
                             }
-                          ]
+                          ],
+                          "horizontalAlignment": "AlignLeft"
                         }
                       ]
                     },
@@ -12488,7 +12705,8 @@ expression: article
                                 }
                               ]
                             }
-                          ]
+                          ],
+                          "horizontalAlignment": "AlignLeft"
                         },
                         {
                           "type": "TableCell",
@@ -12504,7 +12722,8 @@ expression: article
                                 }
                               ]
                             }
-                          ]
+                          ],
+                          "horizontalAlignment": "AlignLeft"
                         },
                         {
                           "type": "TableCell",
@@ -12531,7 +12750,8 @@ expression: article
                                 }
                               ]
                             }
-                          ]
+                          ],
+                          "horizontalAlignment": "AlignLeft"
                         },
                         {
                           "type": "TableCell",
@@ -12547,7 +12767,9 @@ expression: article
                                 }
                               ]
                             }
-                          ]
+                          ],
+                          "horizontalAlignment": "AlignCharacter",
+                          "horizontalAlignmentCharacter": "."
                         },
                         {
                           "type": "TableCell",
@@ -12563,15 +12785,19 @@ expression: article
                                 }
                               ]
                             }
-                          ]
+                          ],
+                          "horizontalAlignment": "AlignCharacter",
+                          "horizontalAlignmentCharacter": "."
                         },
                         {
                           "type": "TableCell",
-                          "content": []
+                          "content": [],
+                          "horizontalAlignment": "AlignLeft"
                         },
                         {
                           "type": "TableCell",
-                          "content": []
+                          "content": [],
+                          "horizontalAlignment": "AlignLeft"
                         },
                         {
                           "type": "TableCell",
@@ -12587,7 +12813,8 @@ expression: article
                                 }
                               ]
                             }
-                          ]
+                          ],
+                          "horizontalAlignment": "AlignLeft"
                         }
                       ]
                     },
@@ -12608,7 +12835,8 @@ expression: article
                                 }
                               ]
                             }
-                          ]
+                          ],
+                          "horizontalAlignment": "AlignLeft"
                         },
                         {
                           "type": "TableCell",
@@ -12624,7 +12852,8 @@ expression: article
                                 }
                               ]
                             }
-                          ]
+                          ],
+                          "horizontalAlignment": "AlignLeft"
                         },
                         {
                           "type": "TableCell",
@@ -12645,7 +12874,8 @@ expression: article
                                 }
                               ]
                             }
-                          ]
+                          ],
+                          "horizontalAlignment": "AlignLeft"
                         },
                         {
                           "type": "TableCell",
@@ -12661,7 +12891,9 @@ expression: article
                                 }
                               ]
                             }
-                          ]
+                          ],
+                          "horizontalAlignment": "AlignCharacter",
+                          "horizontalAlignmentCharacter": "."
                         },
                         {
                           "type": "TableCell",
@@ -12677,15 +12909,19 @@ expression: article
                                 }
                               ]
                             }
-                          ]
+                          ],
+                          "horizontalAlignment": "AlignCharacter",
+                          "horizontalAlignmentCharacter": "."
                         },
                         {
                           "type": "TableCell",
-                          "content": []
+                          "content": [],
+                          "horizontalAlignment": "AlignLeft"
                         },
                         {
                           "type": "TableCell",
-                          "content": []
+                          "content": [],
+                          "horizontalAlignment": "AlignLeft"
                         },
                         {
                           "type": "TableCell",
@@ -12701,7 +12937,8 @@ expression: article
                                 }
                               ]
                             }
-                          ]
+                          ],
+                          "horizontalAlignment": "AlignLeft"
                         }
                       ]
                     },
@@ -12722,7 +12959,8 @@ expression: article
                                 }
                               ]
                             }
-                          ]
+                          ],
+                          "horizontalAlignment": "AlignLeft"
                         },
                         {
                           "type": "TableCell",
@@ -12738,7 +12976,8 @@ expression: article
                                 }
                               ]
                             }
-                          ]
+                          ],
+                          "horizontalAlignment": "AlignLeft"
                         },
                         {
                           "type": "TableCell",
@@ -12759,7 +12998,8 @@ expression: article
                                 }
                               ]
                             }
-                          ]
+                          ],
+                          "horizontalAlignment": "AlignLeft"
                         },
                         {
                           "type": "TableCell",
@@ -12775,7 +13015,9 @@ expression: article
                                 }
                               ]
                             }
-                          ]
+                          ],
+                          "horizontalAlignment": "AlignCharacter",
+                          "horizontalAlignmentCharacter": "."
                         },
                         {
                           "type": "TableCell",
@@ -12791,15 +13033,19 @@ expression: article
                                 }
                               ]
                             }
-                          ]
+                          ],
+                          "horizontalAlignment": "AlignCharacter",
+                          "horizontalAlignmentCharacter": "."
                         },
                         {
                           "type": "TableCell",
-                          "content": []
+                          "content": [],
+                          "horizontalAlignment": "AlignLeft"
                         },
                         {
                           "type": "TableCell",
-                          "content": []
+                          "content": [],
+                          "horizontalAlignment": "AlignLeft"
                         },
                         {
                           "type": "TableCell",
@@ -12815,7 +13061,8 @@ expression: article
                                 }
                               ]
                             }
-                          ]
+                          ],
+                          "horizontalAlignment": "AlignLeft"
                         }
                       ]
                     },
@@ -12836,7 +13083,8 @@ expression: article
                                 }
                               ]
                             }
-                          ]
+                          ],
+                          "horizontalAlignment": "AlignLeft"
                         },
                         {
                           "type": "TableCell",
@@ -12852,7 +13100,8 @@ expression: article
                                 }
                               ]
                             }
-                          ]
+                          ],
+                          "horizontalAlignment": "AlignLeft"
                         },
                         {
                           "type": "TableCell",
@@ -12873,7 +13122,8 @@ expression: article
                                 }
                               ]
                             }
-                          ]
+                          ],
+                          "horizontalAlignment": "AlignLeft"
                         },
                         {
                           "type": "TableCell",
@@ -12889,7 +13139,9 @@ expression: article
                                 }
                               ]
                             }
-                          ]
+                          ],
+                          "horizontalAlignment": "AlignCharacter",
+                          "horizontalAlignmentCharacter": "."
                         },
                         {
                           "type": "TableCell",
@@ -12905,15 +13157,19 @@ expression: article
                                 }
                               ]
                             }
-                          ]
+                          ],
+                          "horizontalAlignment": "AlignCharacter",
+                          "horizontalAlignmentCharacter": "."
                         },
                         {
                           "type": "TableCell",
-                          "content": []
+                          "content": [],
+                          "horizontalAlignment": "AlignLeft"
                         },
                         {
                           "type": "TableCell",
-                          "content": []
+                          "content": [],
+                          "horizontalAlignment": "AlignLeft"
                         },
                         {
                           "type": "TableCell",
@@ -12929,7 +13185,8 @@ expression: article
                                 }
                               ]
                             }
-                          ]
+                          ],
+                          "horizontalAlignment": "AlignLeft"
                         }
                       ]
                     },
@@ -12950,7 +13207,8 @@ expression: article
                                 }
                               ]
                             }
-                          ]
+                          ],
+                          "horizontalAlignment": "AlignLeft"
                         },
                         {
                           "type": "TableCell",
@@ -12966,7 +13224,8 @@ expression: article
                                 }
                               ]
                             }
-                          ]
+                          ],
+                          "horizontalAlignment": "AlignLeft"
                         },
                         {
                           "type": "TableCell",
@@ -12987,7 +13246,8 @@ expression: article
                                 }
                               ]
                             }
-                          ]
+                          ],
+                          "horizontalAlignment": "AlignLeft"
                         },
                         {
                           "type": "TableCell",
@@ -13003,7 +13263,9 @@ expression: article
                                 }
                               ]
                             }
-                          ]
+                          ],
+                          "horizontalAlignment": "AlignCharacter",
+                          "horizontalAlignmentCharacter": "."
                         },
                         {
                           "type": "TableCell",
@@ -13019,15 +13281,19 @@ expression: article
                                 }
                               ]
                             }
-                          ]
+                          ],
+                          "horizontalAlignment": "AlignCharacter",
+                          "horizontalAlignmentCharacter": "."
                         },
                         {
                           "type": "TableCell",
-                          "content": []
+                          "content": [],
+                          "horizontalAlignment": "AlignLeft"
                         },
                         {
                           "type": "TableCell",
-                          "content": []
+                          "content": [],
+                          "horizontalAlignment": "AlignLeft"
                         },
                         {
                           "type": "TableCell",
@@ -13043,7 +13309,8 @@ expression: article
                                 }
                               ]
                             }
-                          ]
+                          ],
+                          "horizontalAlignment": "AlignLeft"
                         }
                       ]
                     },
@@ -13064,7 +13331,8 @@ expression: article
                                 }
                               ]
                             }
-                          ]
+                          ],
+                          "horizontalAlignment": "AlignLeft"
                         },
                         {
                           "type": "TableCell",
@@ -13080,7 +13348,8 @@ expression: article
                                 }
                               ]
                             }
-                          ]
+                          ],
+                          "horizontalAlignment": "AlignLeft"
                         },
                         {
                           "type": "TableCell",
@@ -13101,7 +13370,8 @@ expression: article
                                 }
                               ]
                             }
-                          ]
+                          ],
+                          "horizontalAlignment": "AlignLeft"
                         },
                         {
                           "type": "TableCell",
@@ -13117,7 +13387,9 @@ expression: article
                                 }
                               ]
                             }
-                          ]
+                          ],
+                          "horizontalAlignment": "AlignCharacter",
+                          "horizontalAlignmentCharacter": "."
                         },
                         {
                           "type": "TableCell",
@@ -13133,7 +13405,9 @@ expression: article
                                 }
                               ]
                             }
-                          ]
+                          ],
+                          "horizontalAlignment": "AlignCharacter",
+                          "horizontalAlignmentCharacter": "."
                         },
                         {
                           "type": "TableCell",
@@ -13149,7 +13423,8 @@ expression: article
                                 }
                               ]
                             }
-                          ]
+                          ],
+                          "horizontalAlignment": "AlignLeft"
                         },
                         {
                           "type": "TableCell",
@@ -13165,7 +13440,8 @@ expression: article
                                 }
                               ]
                             }
-                          ]
+                          ],
+                          "horizontalAlignment": "AlignLeft"
                         },
                         {
                           "type": "TableCell",
@@ -13181,7 +13457,8 @@ expression: article
                                 }
                               ]
                             }
-                          ]
+                          ],
+                          "horizontalAlignment": "AlignLeft"
                         }
                       ]
                     },
@@ -13202,7 +13479,8 @@ expression: article
                                 }
                               ]
                             }
-                          ]
+                          ],
+                          "horizontalAlignment": "AlignLeft"
                         },
                         {
                           "type": "TableCell",
@@ -13218,7 +13496,8 @@ expression: article
                                 }
                               ]
                             }
-                          ]
+                          ],
+                          "horizontalAlignment": "AlignLeft"
                         },
                         {
                           "type": "TableCell",
@@ -13239,7 +13518,8 @@ expression: article
                                 }
                               ]
                             }
-                          ]
+                          ],
+                          "horizontalAlignment": "AlignLeft"
                         },
                         {
                           "type": "TableCell",
@@ -13255,7 +13535,9 @@ expression: article
                                 }
                               ]
                             }
-                          ]
+                          ],
+                          "horizontalAlignment": "AlignCharacter",
+                          "horizontalAlignmentCharacter": "."
                         },
                         {
                           "type": "TableCell",
@@ -13271,15 +13553,19 @@ expression: article
                                 }
                               ]
                             }
-                          ]
+                          ],
+                          "horizontalAlignment": "AlignCharacter",
+                          "horizontalAlignmentCharacter": "."
                         },
                         {
                           "type": "TableCell",
-                          "content": []
+                          "content": [],
+                          "horizontalAlignment": "AlignLeft"
                         },
                         {
                           "type": "TableCell",
-                          "content": []
+                          "content": [],
+                          "horizontalAlignment": "AlignLeft"
                         },
                         {
                           "type": "TableCell",
@@ -13295,7 +13581,8 @@ expression: article
                                 }
                               ]
                             }
-                          ]
+                          ],
+                          "horizontalAlignment": "AlignLeft"
                         }
                       ]
                     },
@@ -13316,7 +13603,8 @@ expression: article
                                 }
                               ]
                             }
-                          ]
+                          ],
+                          "horizontalAlignment": "AlignLeft"
                         },
                         {
                           "type": "TableCell",
@@ -13332,7 +13620,8 @@ expression: article
                                 }
                               ]
                             }
-                          ]
+                          ],
+                          "horizontalAlignment": "AlignLeft"
                         },
                         {
                           "type": "TableCell",
@@ -13359,7 +13648,8 @@ expression: article
                                 }
                               ]
                             }
-                          ]
+                          ],
+                          "horizontalAlignment": "AlignLeft"
                         },
                         {
                           "type": "TableCell",
@@ -13375,7 +13665,9 @@ expression: article
                                 }
                               ]
                             }
-                          ]
+                          ],
+                          "horizontalAlignment": "AlignCharacter",
+                          "horizontalAlignmentCharacter": "."
                         },
                         {
                           "type": "TableCell",
@@ -13391,15 +13683,19 @@ expression: article
                                 }
                               ]
                             }
-                          ]
+                          ],
+                          "horizontalAlignment": "AlignCharacter",
+                          "horizontalAlignmentCharacter": "."
                         },
                         {
                           "type": "TableCell",
-                          "content": []
+                          "content": [],
+                          "horizontalAlignment": "AlignLeft"
                         },
                         {
                           "type": "TableCell",
-                          "content": []
+                          "content": [],
+                          "horizontalAlignment": "AlignLeft"
                         },
                         {
                           "type": "TableCell",
@@ -13415,7 +13711,8 @@ expression: article
                                 }
                               ]
                             }
-                          ]
+                          ],
+                          "horizontalAlignment": "AlignLeft"
                         }
                       ]
                     },
@@ -13436,7 +13733,8 @@ expression: article
                                 }
                               ]
                             }
-                          ]
+                          ],
+                          "horizontalAlignment": "AlignLeft"
                         },
                         {
                           "type": "TableCell",
@@ -13452,7 +13750,8 @@ expression: article
                                 }
                               ]
                             }
-                          ]
+                          ],
+                          "horizontalAlignment": "AlignLeft"
                         },
                         {
                           "type": "TableCell",
@@ -13473,7 +13772,8 @@ expression: article
                                 }
                               ]
                             }
-                          ]
+                          ],
+                          "horizontalAlignment": "AlignLeft"
                         },
                         {
                           "type": "TableCell",
@@ -13489,7 +13789,9 @@ expression: article
                                 }
                               ]
                             }
-                          ]
+                          ],
+                          "horizontalAlignment": "AlignCharacter",
+                          "horizontalAlignmentCharacter": "."
                         },
                         {
                           "type": "TableCell",
@@ -13505,7 +13807,9 @@ expression: article
                                 }
                               ]
                             }
-                          ]
+                          ],
+                          "horizontalAlignment": "AlignCharacter",
+                          "horizontalAlignmentCharacter": "."
                         },
                         {
                           "type": "TableCell",
@@ -13521,7 +13825,8 @@ expression: article
                                 }
                               ]
                             }
-                          ]
+                          ],
+                          "horizontalAlignment": "AlignLeft"
                         },
                         {
                           "type": "TableCell",
@@ -13537,7 +13842,8 @@ expression: article
                                 }
                               ]
                             }
-                          ]
+                          ],
+                          "horizontalAlignment": "AlignLeft"
                         },
                         {
                           "type": "TableCell",
@@ -13553,7 +13859,8 @@ expression: article
                                 }
                               ]
                             }
-                          ]
+                          ],
+                          "horizontalAlignment": "AlignLeft"
                         }
                       ]
                     },
@@ -13574,7 +13881,8 @@ expression: article
                                 }
                               ]
                             }
-                          ]
+                          ],
+                          "horizontalAlignment": "AlignLeft"
                         },
                         {
                           "type": "TableCell",
@@ -13590,7 +13898,8 @@ expression: article
                                 }
                               ]
                             }
-                          ]
+                          ],
+                          "horizontalAlignment": "AlignLeft"
                         },
                         {
                           "type": "TableCell",
@@ -13611,7 +13920,8 @@ expression: article
                                 }
                               ]
                             }
-                          ]
+                          ],
+                          "horizontalAlignment": "AlignLeft"
                         },
                         {
                           "type": "TableCell",
@@ -13627,7 +13937,9 @@ expression: article
                                 }
                               ]
                             }
-                          ]
+                          ],
+                          "horizontalAlignment": "AlignCharacter",
+                          "horizontalAlignmentCharacter": "."
                         },
                         {
                           "type": "TableCell",
@@ -13643,15 +13955,19 @@ expression: article
                                 }
                               ]
                             }
-                          ]
+                          ],
+                          "horizontalAlignment": "AlignCharacter",
+                          "horizontalAlignmentCharacter": "."
                         },
                         {
                           "type": "TableCell",
-                          "content": []
+                          "content": [],
+                          "horizontalAlignment": "AlignLeft"
                         },
                         {
                           "type": "TableCell",
-                          "content": []
+                          "content": [],
+                          "horizontalAlignment": "AlignLeft"
                         },
                         {
                           "type": "TableCell",
@@ -13667,7 +13983,8 @@ expression: article
                                 }
                               ]
                             }
-                          ]
+                          ],
+                          "horizontalAlignment": "AlignLeft"
                         }
                       ]
                     },
@@ -13688,7 +14005,8 @@ expression: article
                                 }
                               ]
                             }
-                          ]
+                          ],
+                          "horizontalAlignment": "AlignLeft"
                         },
                         {
                           "type": "TableCell",
@@ -13704,7 +14022,8 @@ expression: article
                                 }
                               ]
                             }
-                          ]
+                          ],
+                          "horizontalAlignment": "AlignLeft"
                         },
                         {
                           "type": "TableCell",
@@ -13725,7 +14044,8 @@ expression: article
                                 }
                               ]
                             }
-                          ]
+                          ],
+                          "horizontalAlignment": "AlignLeft"
                         },
                         {
                           "type": "TableCell",
@@ -13741,7 +14061,9 @@ expression: article
                                 }
                               ]
                             }
-                          ]
+                          ],
+                          "horizontalAlignment": "AlignCharacter",
+                          "horizontalAlignmentCharacter": "."
                         },
                         {
                           "type": "TableCell",
@@ -13757,15 +14079,19 @@ expression: article
                                 }
                               ]
                             }
-                          ]
+                          ],
+                          "horizontalAlignment": "AlignCharacter",
+                          "horizontalAlignmentCharacter": "."
                         },
                         {
                           "type": "TableCell",
-                          "content": []
+                          "content": [],
+                          "horizontalAlignment": "AlignLeft"
                         },
                         {
                           "type": "TableCell",
-                          "content": []
+                          "content": [],
+                          "horizontalAlignment": "AlignLeft"
                         },
                         {
                           "type": "TableCell",
@@ -13781,7 +14107,8 @@ expression: article
                                 }
                               ]
                             }
-                          ]
+                          ],
+                          "horizontalAlignment": "AlignLeft"
                         }
                       ]
                     },
@@ -13802,7 +14129,8 @@ expression: article
                                 }
                               ]
                             }
-                          ]
+                          ],
+                          "horizontalAlignment": "AlignLeft"
                         },
                         {
                           "type": "TableCell",
@@ -13818,7 +14146,8 @@ expression: article
                                 }
                               ]
                             }
-                          ]
+                          ],
+                          "horizontalAlignment": "AlignLeft"
                         },
                         {
                           "type": "TableCell",
@@ -13839,7 +14168,8 @@ expression: article
                                 }
                               ]
                             }
-                          ]
+                          ],
+                          "horizontalAlignment": "AlignLeft"
                         },
                         {
                           "type": "TableCell",
@@ -13855,7 +14185,9 @@ expression: article
                                 }
                               ]
                             }
-                          ]
+                          ],
+                          "horizontalAlignment": "AlignCharacter",
+                          "horizontalAlignmentCharacter": "."
                         },
                         {
                           "type": "TableCell",
@@ -13871,7 +14203,9 @@ expression: article
                                 }
                               ]
                             }
-                          ]
+                          ],
+                          "horizontalAlignment": "AlignCharacter",
+                          "horizontalAlignmentCharacter": "."
                         },
                         {
                           "type": "TableCell",
@@ -13887,7 +14221,8 @@ expression: article
                                 }
                               ]
                             }
-                          ]
+                          ],
+                          "horizontalAlignment": "AlignLeft"
                         },
                         {
                           "type": "TableCell",
@@ -13903,7 +14238,8 @@ expression: article
                                 }
                               ]
                             }
-                          ]
+                          ],
+                          "horizontalAlignment": "AlignLeft"
                         },
                         {
                           "type": "TableCell",
@@ -13919,7 +14255,8 @@ expression: article
                                 }
                               ]
                             }
-                          ]
+                          ],
+                          "horizontalAlignment": "AlignLeft"
                         }
                       ]
                     },
@@ -13940,7 +14277,8 @@ expression: article
                                 }
                               ]
                             }
-                          ]
+                          ],
+                          "horizontalAlignment": "AlignLeft"
                         },
                         {
                           "type": "TableCell",
@@ -13956,7 +14294,8 @@ expression: article
                                 }
                               ]
                             }
-                          ]
+                          ],
+                          "horizontalAlignment": "AlignLeft"
                         },
                         {
                           "type": "TableCell",
@@ -13977,7 +14316,8 @@ expression: article
                                 }
                               ]
                             }
-                          ]
+                          ],
+                          "horizontalAlignment": "AlignLeft"
                         },
                         {
                           "type": "TableCell",
@@ -13993,7 +14333,9 @@ expression: article
                                 }
                               ]
                             }
-                          ]
+                          ],
+                          "horizontalAlignment": "AlignCharacter",
+                          "horizontalAlignmentCharacter": "."
                         },
                         {
                           "type": "TableCell",
@@ -14009,15 +14351,19 @@ expression: article
                                 }
                               ]
                             }
-                          ]
+                          ],
+                          "horizontalAlignment": "AlignCharacter",
+                          "horizontalAlignmentCharacter": "."
                         },
                         {
                           "type": "TableCell",
-                          "content": []
+                          "content": [],
+                          "horizontalAlignment": "AlignLeft"
                         },
                         {
                           "type": "TableCell",
-                          "content": []
+                          "content": [],
+                          "horizontalAlignment": "AlignLeft"
                         },
                         {
                           "type": "TableCell",
@@ -14033,7 +14379,8 @@ expression: article
                                 }
                               ]
                             }
-                          ]
+                          ],
+                          "horizontalAlignment": "AlignLeft"
                         }
                       ]
                     },
@@ -14054,7 +14401,8 @@ expression: article
                                 }
                               ]
                             }
-                          ]
+                          ],
+                          "horizontalAlignment": "AlignLeft"
                         },
                         {
                           "type": "TableCell",
@@ -14070,7 +14418,8 @@ expression: article
                                 }
                               ]
                             }
-                          ]
+                          ],
+                          "horizontalAlignment": "AlignLeft"
                         },
                         {
                           "type": "TableCell",
@@ -14091,7 +14440,8 @@ expression: article
                                 }
                               ]
                             }
-                          ]
+                          ],
+                          "horizontalAlignment": "AlignLeft"
                         },
                         {
                           "type": "TableCell",
@@ -14107,7 +14457,9 @@ expression: article
                                 }
                               ]
                             }
-                          ]
+                          ],
+                          "horizontalAlignment": "AlignCharacter",
+                          "horizontalAlignmentCharacter": "."
                         },
                         {
                           "type": "TableCell",
@@ -14123,7 +14475,9 @@ expression: article
                                 }
                               ]
                             }
-                          ]
+                          ],
+                          "horizontalAlignment": "AlignCharacter",
+                          "horizontalAlignmentCharacter": "."
                         },
                         {
                           "type": "TableCell",
@@ -14139,7 +14493,8 @@ expression: article
                                 }
                               ]
                             }
-                          ]
+                          ],
+                          "horizontalAlignment": "AlignLeft"
                         },
                         {
                           "type": "TableCell",
@@ -14155,7 +14510,8 @@ expression: article
                                 }
                               ]
                             }
-                          ]
+                          ],
+                          "horizontalAlignment": "AlignLeft"
                         },
                         {
                           "type": "TableCell",
@@ -14171,7 +14527,8 @@ expression: article
                                 }
                               ]
                             }
-                          ]
+                          ],
+                          "horizontalAlignment": "AlignLeft"
                         }
                       ]
                     },
@@ -14192,7 +14549,8 @@ expression: article
                                 }
                               ]
                             }
-                          ]
+                          ],
+                          "horizontalAlignment": "AlignLeft"
                         },
                         {
                           "type": "TableCell",
@@ -14208,7 +14566,8 @@ expression: article
                                 }
                               ]
                             }
-                          ]
+                          ],
+                          "horizontalAlignment": "AlignLeft"
                         },
                         {
                           "type": "TableCell",
@@ -14229,7 +14588,8 @@ expression: article
                                 }
                               ]
                             }
-                          ]
+                          ],
+                          "horizontalAlignment": "AlignLeft"
                         },
                         {
                           "type": "TableCell",
@@ -14245,7 +14605,9 @@ expression: article
                                 }
                               ]
                             }
-                          ]
+                          ],
+                          "horizontalAlignment": "AlignCharacter",
+                          "horizontalAlignmentCharacter": "."
                         },
                         {
                           "type": "TableCell",
@@ -14261,15 +14623,19 @@ expression: article
                                 }
                               ]
                             }
-                          ]
+                          ],
+                          "horizontalAlignment": "AlignCharacter",
+                          "horizontalAlignmentCharacter": "."
                         },
                         {
                           "type": "TableCell",
-                          "content": []
+                          "content": [],
+                          "horizontalAlignment": "AlignLeft"
                         },
                         {
                           "type": "TableCell",
-                          "content": []
+                          "content": [],
+                          "horizontalAlignment": "AlignLeft"
                         },
                         {
                           "type": "TableCell",
@@ -14285,7 +14651,8 @@ expression: article
                                 }
                               ]
                             }
-                          ]
+                          ],
+                          "horizontalAlignment": "AlignLeft"
                         }
                       ]
                     },
@@ -14306,7 +14673,8 @@ expression: article
                                 }
                               ]
                             }
-                          ]
+                          ],
+                          "horizontalAlignment": "AlignLeft"
                         },
                         {
                           "type": "TableCell",
@@ -14322,7 +14690,8 @@ expression: article
                                 }
                               ]
                             }
-                          ]
+                          ],
+                          "horizontalAlignment": "AlignLeft"
                         },
                         {
                           "type": "TableCell",
@@ -14343,7 +14712,8 @@ expression: article
                                 }
                               ]
                             }
-                          ]
+                          ],
+                          "horizontalAlignment": "AlignLeft"
                         },
                         {
                           "type": "TableCell",
@@ -14359,7 +14729,9 @@ expression: article
                                 }
                               ]
                             }
-                          ]
+                          ],
+                          "horizontalAlignment": "AlignCharacter",
+                          "horizontalAlignmentCharacter": "."
                         },
                         {
                           "type": "TableCell",
@@ -14375,7 +14747,9 @@ expression: article
                                 }
                               ]
                             }
-                          ]
+                          ],
+                          "horizontalAlignment": "AlignCharacter",
+                          "horizontalAlignmentCharacter": "."
                         },
                         {
                           "type": "TableCell",
@@ -14391,7 +14765,8 @@ expression: article
                                 }
                               ]
                             }
-                          ]
+                          ],
+                          "horizontalAlignment": "AlignLeft"
                         },
                         {
                           "type": "TableCell",
@@ -14407,7 +14782,8 @@ expression: article
                                 }
                               ]
                             }
-                          ]
+                          ],
+                          "horizontalAlignment": "AlignLeft"
                         },
                         {
                           "type": "TableCell",
@@ -14423,7 +14799,8 @@ expression: article
                                 }
                               ]
                             }
-                          ]
+                          ],
+                          "horizontalAlignment": "AlignLeft"
                         }
                       ]
                     },
@@ -14444,7 +14821,8 @@ expression: article
                                 }
                               ]
                             }
-                          ]
+                          ],
+                          "horizontalAlignment": "AlignLeft"
                         },
                         {
                           "type": "TableCell",
@@ -14460,7 +14838,8 @@ expression: article
                                 }
                               ]
                             }
-                          ]
+                          ],
+                          "horizontalAlignment": "AlignLeft"
                         },
                         {
                           "type": "TableCell",
@@ -14481,7 +14860,8 @@ expression: article
                                 }
                               ]
                             }
-                          ]
+                          ],
+                          "horizontalAlignment": "AlignLeft"
                         },
                         {
                           "type": "TableCell",
@@ -14497,7 +14877,9 @@ expression: article
                                 }
                               ]
                             }
-                          ]
+                          ],
+                          "horizontalAlignment": "AlignCharacter",
+                          "horizontalAlignmentCharacter": "."
                         },
                         {
                           "type": "TableCell",
@@ -14513,7 +14895,9 @@ expression: article
                                 }
                               ]
                             }
-                          ]
+                          ],
+                          "horizontalAlignment": "AlignCharacter",
+                          "horizontalAlignmentCharacter": "."
                         },
                         {
                           "type": "TableCell",
@@ -14529,7 +14913,8 @@ expression: article
                                 }
                               ]
                             }
-                          ]
+                          ],
+                          "horizontalAlignment": "AlignLeft"
                         },
                         {
                           "type": "TableCell",
@@ -14545,7 +14930,8 @@ expression: article
                                 }
                               ]
                             }
-                          ]
+                          ],
+                          "horizontalAlignment": "AlignLeft"
                         },
                         {
                           "type": "TableCell",
@@ -14561,7 +14947,8 @@ expression: article
                                 }
                               ]
                             }
-                          ]
+                          ],
+                          "horizontalAlignment": "AlignLeft"
                         }
                       ]
                     },
@@ -14582,7 +14969,8 @@ expression: article
                                 }
                               ]
                             }
-                          ]
+                          ],
+                          "horizontalAlignment": "AlignLeft"
                         },
                         {
                           "type": "TableCell",
@@ -14598,7 +14986,8 @@ expression: article
                                 }
                               ]
                             }
-                          ]
+                          ],
+                          "horizontalAlignment": "AlignLeft"
                         },
                         {
                           "type": "TableCell",
@@ -14619,7 +15008,8 @@ expression: article
                                 }
                               ]
                             }
-                          ]
+                          ],
+                          "horizontalAlignment": "AlignLeft"
                         },
                         {
                           "type": "TableCell",
@@ -14635,7 +15025,9 @@ expression: article
                                 }
                               ]
                             }
-                          ]
+                          ],
+                          "horizontalAlignment": "AlignCharacter",
+                          "horizontalAlignmentCharacter": "."
                         },
                         {
                           "type": "TableCell",
@@ -14651,15 +15043,19 @@ expression: article
                                 }
                               ]
                             }
-                          ]
+                          ],
+                          "horizontalAlignment": "AlignCharacter",
+                          "horizontalAlignmentCharacter": "."
                         },
                         {
                           "type": "TableCell",
-                          "content": []
+                          "content": [],
+                          "horizontalAlignment": "AlignLeft"
                         },
                         {
                           "type": "TableCell",
-                          "content": []
+                          "content": [],
+                          "horizontalAlignment": "AlignLeft"
                         },
                         {
                           "type": "TableCell",
@@ -14675,7 +15071,8 @@ expression: article
                                 }
                               ]
                             }
-                          ]
+                          ],
+                          "horizontalAlignment": "AlignLeft"
                         }
                       ]
                     },
@@ -14696,7 +15093,8 @@ expression: article
                                 }
                               ]
                             }
-                          ]
+                          ],
+                          "horizontalAlignment": "AlignLeft"
                         },
                         {
                           "type": "TableCell",
@@ -14712,7 +15110,8 @@ expression: article
                                 }
                               ]
                             }
-                          ]
+                          ],
+                          "horizontalAlignment": "AlignLeft"
                         },
                         {
                           "type": "TableCell",
@@ -14733,7 +15132,8 @@ expression: article
                                 }
                               ]
                             }
-                          ]
+                          ],
+                          "horizontalAlignment": "AlignLeft"
                         },
                         {
                           "type": "TableCell",
@@ -14749,7 +15149,9 @@ expression: article
                                 }
                               ]
                             }
-                          ]
+                          ],
+                          "horizontalAlignment": "AlignCharacter",
+                          "horizontalAlignmentCharacter": "."
                         },
                         {
                           "type": "TableCell",
@@ -14765,15 +15167,19 @@ expression: article
                                 }
                               ]
                             }
-                          ]
+                          ],
+                          "horizontalAlignment": "AlignCharacter",
+                          "horizontalAlignmentCharacter": "."
                         },
                         {
                           "type": "TableCell",
-                          "content": []
+                          "content": [],
+                          "horizontalAlignment": "AlignLeft"
                         },
                         {
                           "type": "TableCell",
-                          "content": []
+                          "content": [],
+                          "horizontalAlignment": "AlignLeft"
                         },
                         {
                           "type": "TableCell",
@@ -14789,7 +15195,8 @@ expression: article
                                 }
                               ]
                             }
-                          ]
+                          ],
+                          "horizontalAlignment": "AlignLeft"
                         }
                       ]
                     },
@@ -14810,7 +15217,8 @@ expression: article
                                 }
                               ]
                             }
-                          ]
+                          ],
+                          "horizontalAlignment": "AlignLeft"
                         },
                         {
                           "type": "TableCell",
@@ -14826,7 +15234,8 @@ expression: article
                                 }
                               ]
                             }
-                          ]
+                          ],
+                          "horizontalAlignment": "AlignLeft"
                         },
                         {
                           "type": "TableCell",
@@ -14847,7 +15256,8 @@ expression: article
                                 }
                               ]
                             }
-                          ]
+                          ],
+                          "horizontalAlignment": "AlignLeft"
                         },
                         {
                           "type": "TableCell",
@@ -14863,7 +15273,9 @@ expression: article
                                 }
                               ]
                             }
-                          ]
+                          ],
+                          "horizontalAlignment": "AlignCharacter",
+                          "horizontalAlignmentCharacter": "."
                         },
                         {
                           "type": "TableCell",
@@ -14879,15 +15291,19 @@ expression: article
                                 }
                               ]
                             }
-                          ]
+                          ],
+                          "horizontalAlignment": "AlignCharacter",
+                          "horizontalAlignmentCharacter": "."
                         },
                         {
                           "type": "TableCell",
-                          "content": []
+                          "content": [],
+                          "horizontalAlignment": "AlignLeft"
                         },
                         {
                           "type": "TableCell",
-                          "content": []
+                          "content": [],
+                          "horizontalAlignment": "AlignLeft"
                         },
                         {
                           "type": "TableCell",
@@ -14903,7 +15319,8 @@ expression: article
                                 }
                               ]
                             }
-                          ]
+                          ],
+                          "horizontalAlignment": "AlignLeft"
                         }
                       ]
                     },
@@ -14924,7 +15341,8 @@ expression: article
                                 }
                               ]
                             }
-                          ]
+                          ],
+                          "horizontalAlignment": "AlignLeft"
                         },
                         {
                           "type": "TableCell",
@@ -14940,7 +15358,8 @@ expression: article
                                 }
                               ]
                             }
-                          ]
+                          ],
+                          "horizontalAlignment": "AlignLeft"
                         },
                         {
                           "type": "TableCell",
@@ -14961,7 +15380,8 @@ expression: article
                                 }
                               ]
                             }
-                          ]
+                          ],
+                          "horizontalAlignment": "AlignLeft"
                         },
                         {
                           "type": "TableCell",
@@ -14977,7 +15397,9 @@ expression: article
                                 }
                               ]
                             }
-                          ]
+                          ],
+                          "horizontalAlignment": "AlignCharacter",
+                          "horizontalAlignmentCharacter": "."
                         },
                         {
                           "type": "TableCell",
@@ -14993,7 +15415,9 @@ expression: article
                                 }
                               ]
                             }
-                          ]
+                          ],
+                          "horizontalAlignment": "AlignCharacter",
+                          "horizontalAlignmentCharacter": "."
                         },
                         {
                           "type": "TableCell",
@@ -15009,7 +15433,8 @@ expression: article
                                 }
                               ]
                             }
-                          ]
+                          ],
+                          "horizontalAlignment": "AlignLeft"
                         },
                         {
                           "type": "TableCell",
@@ -15025,7 +15450,8 @@ expression: article
                                 }
                               ]
                             }
-                          ]
+                          ],
+                          "horizontalAlignment": "AlignLeft"
                         },
                         {
                           "type": "TableCell",
@@ -15041,7 +15467,8 @@ expression: article
                                 }
                               ]
                             }
-                          ]
+                          ],
+                          "horizontalAlignment": "AlignLeft"
                         }
                       ]
                     },
@@ -15062,7 +15489,8 @@ expression: article
                                 }
                               ]
                             }
-                          ]
+                          ],
+                          "horizontalAlignment": "AlignLeft"
                         },
                         {
                           "type": "TableCell",
@@ -15078,7 +15506,8 @@ expression: article
                                 }
                               ]
                             }
-                          ]
+                          ],
+                          "horizontalAlignment": "AlignLeft"
                         },
                         {
                           "type": "TableCell",
@@ -15099,7 +15528,8 @@ expression: article
                                 }
                               ]
                             }
-                          ]
+                          ],
+                          "horizontalAlignment": "AlignLeft"
                         },
                         {
                           "type": "TableCell",
@@ -15115,7 +15545,9 @@ expression: article
                                 }
                               ]
                             }
-                          ]
+                          ],
+                          "horizontalAlignment": "AlignCharacter",
+                          "horizontalAlignmentCharacter": "."
                         },
                         {
                           "type": "TableCell",
@@ -15131,7 +15563,9 @@ expression: article
                                 }
                               ]
                             }
-                          ]
+                          ],
+                          "horizontalAlignment": "AlignCharacter",
+                          "horizontalAlignmentCharacter": "."
                         },
                         {
                           "type": "TableCell",
@@ -15147,7 +15581,8 @@ expression: article
                                 }
                               ]
                             }
-                          ]
+                          ],
+                          "horizontalAlignment": "AlignLeft"
                         },
                         {
                           "type": "TableCell",
@@ -15163,7 +15598,8 @@ expression: article
                                 }
                               ]
                             }
-                          ]
+                          ],
+                          "horizontalAlignment": "AlignLeft"
                         },
                         {
                           "type": "TableCell",
@@ -15179,7 +15615,8 @@ expression: article
                                 }
                               ]
                             }
-                          ]
+                          ],
+                          "horizontalAlignment": "AlignLeft"
                         }
                       ]
                     },
@@ -15200,7 +15637,8 @@ expression: article
                                 }
                               ]
                             }
-                          ]
+                          ],
+                          "horizontalAlignment": "AlignLeft"
                         },
                         {
                           "type": "TableCell",
@@ -15216,7 +15654,8 @@ expression: article
                                 }
                               ]
                             }
-                          ]
+                          ],
+                          "horizontalAlignment": "AlignLeft"
                         },
                         {
                           "type": "TableCell",
@@ -15237,7 +15676,8 @@ expression: article
                                 }
                               ]
                             }
-                          ]
+                          ],
+                          "horizontalAlignment": "AlignLeft"
                         },
                         {
                           "type": "TableCell",
@@ -15253,7 +15693,9 @@ expression: article
                                 }
                               ]
                             }
-                          ]
+                          ],
+                          "horizontalAlignment": "AlignCharacter",
+                          "horizontalAlignmentCharacter": "."
                         },
                         {
                           "type": "TableCell",
@@ -15269,15 +15711,19 @@ expression: article
                                 }
                               ]
                             }
-                          ]
+                          ],
+                          "horizontalAlignment": "AlignCharacter",
+                          "horizontalAlignmentCharacter": "."
                         },
                         {
                           "type": "TableCell",
-                          "content": []
+                          "content": [],
+                          "horizontalAlignment": "AlignLeft"
                         },
                         {
                           "type": "TableCell",
-                          "content": []
+                          "content": [],
+                          "horizontalAlignment": "AlignLeft"
                         },
                         {
                           "type": "TableCell",
@@ -15293,7 +15739,8 @@ expression: article
                                 }
                               ]
                             }
-                          ]
+                          ],
+                          "horizontalAlignment": "AlignLeft"
                         }
                       ]
                     },
@@ -15314,7 +15761,8 @@ expression: article
                                 }
                               ]
                             }
-                          ]
+                          ],
+                          "horizontalAlignment": "AlignLeft"
                         },
                         {
                           "type": "TableCell",
@@ -15330,7 +15778,8 @@ expression: article
                                 }
                               ]
                             }
-                          ]
+                          ],
+                          "horizontalAlignment": "AlignLeft"
                         },
                         {
                           "type": "TableCell",
@@ -15351,7 +15800,8 @@ expression: article
                                 }
                               ]
                             }
-                          ]
+                          ],
+                          "horizontalAlignment": "AlignLeft"
                         },
                         {
                           "type": "TableCell",
@@ -15367,7 +15817,9 @@ expression: article
                                 }
                               ]
                             }
-                          ]
+                          ],
+                          "horizontalAlignment": "AlignCharacter",
+                          "horizontalAlignmentCharacter": "."
                         },
                         {
                           "type": "TableCell",
@@ -15383,15 +15835,19 @@ expression: article
                                 }
                               ]
                             }
-                          ]
+                          ],
+                          "horizontalAlignment": "AlignCharacter",
+                          "horizontalAlignmentCharacter": "."
                         },
                         {
                           "type": "TableCell",
-                          "content": []
+                          "content": [],
+                          "horizontalAlignment": "AlignLeft"
                         },
                         {
                           "type": "TableCell",
-                          "content": []
+                          "content": [],
+                          "horizontalAlignment": "AlignLeft"
                         },
                         {
                           "type": "TableCell",
@@ -15407,7 +15863,8 @@ expression: article
                                 }
                               ]
                             }
-                          ]
+                          ],
+                          "horizontalAlignment": "AlignLeft"
                         }
                       ]
                     },
@@ -15428,7 +15885,8 @@ expression: article
                                 }
                               ]
                             }
-                          ]
+                          ],
+                          "horizontalAlignment": "AlignLeft"
                         },
                         {
                           "type": "TableCell",
@@ -15444,7 +15902,8 @@ expression: article
                                 }
                               ]
                             }
-                          ]
+                          ],
+                          "horizontalAlignment": "AlignLeft"
                         },
                         {
                           "type": "TableCell",
@@ -15465,7 +15924,8 @@ expression: article
                                 }
                               ]
                             }
-                          ]
+                          ],
+                          "horizontalAlignment": "AlignLeft"
                         },
                         {
                           "type": "TableCell",
@@ -15481,7 +15941,9 @@ expression: article
                                 }
                               ]
                             }
-                          ]
+                          ],
+                          "horizontalAlignment": "AlignCharacter",
+                          "horizontalAlignmentCharacter": "."
                         },
                         {
                           "type": "TableCell",
@@ -15497,15 +15959,19 @@ expression: article
                                 }
                               ]
                             }
-                          ]
+                          ],
+                          "horizontalAlignment": "AlignCharacter",
+                          "horizontalAlignmentCharacter": "."
                         },
                         {
                           "type": "TableCell",
-                          "content": []
+                          "content": [],
+                          "horizontalAlignment": "AlignLeft"
                         },
                         {
                           "type": "TableCell",
-                          "content": []
+                          "content": [],
+                          "horizontalAlignment": "AlignLeft"
                         },
                         {
                           "type": "TableCell",
@@ -15521,7 +15987,8 @@ expression: article
                                 }
                               ]
                             }
-                          ]
+                          ],
+                          "horizontalAlignment": "AlignLeft"
                         }
                       ]
                     },
@@ -15542,7 +16009,8 @@ expression: article
                                 }
                               ]
                             }
-                          ]
+                          ],
+                          "horizontalAlignment": "AlignLeft"
                         },
                         {
                           "type": "TableCell",
@@ -15558,7 +16026,8 @@ expression: article
                                 }
                               ]
                             }
-                          ]
+                          ],
+                          "horizontalAlignment": "AlignLeft"
                         },
                         {
                           "type": "TableCell",
@@ -15579,7 +16048,8 @@ expression: article
                                 }
                               ]
                             }
-                          ]
+                          ],
+                          "horizontalAlignment": "AlignLeft"
                         },
                         {
                           "type": "TableCell",
@@ -15595,7 +16065,9 @@ expression: article
                                 }
                               ]
                             }
-                          ]
+                          ],
+                          "horizontalAlignment": "AlignCharacter",
+                          "horizontalAlignmentCharacter": "."
                         },
                         {
                           "type": "TableCell",
@@ -15611,15 +16083,19 @@ expression: article
                                 }
                               ]
                             }
-                          ]
+                          ],
+                          "horizontalAlignment": "AlignCharacter",
+                          "horizontalAlignmentCharacter": "."
                         },
                         {
                           "type": "TableCell",
-                          "content": []
+                          "content": [],
+                          "horizontalAlignment": "AlignLeft"
                         },
                         {
                           "type": "TableCell",
-                          "content": []
+                          "content": [],
+                          "horizontalAlignment": "AlignLeft"
                         },
                         {
                           "type": "TableCell",
@@ -15635,7 +16111,8 @@ expression: article
                                 }
                               ]
                             }
-                          ]
+                          ],
+                          "horizontalAlignment": "AlignLeft"
                         }
                       ]
                     },
@@ -15656,7 +16133,8 @@ expression: article
                                 }
                               ]
                             }
-                          ]
+                          ],
+                          "horizontalAlignment": "AlignLeft"
                         },
                         {
                           "type": "TableCell",
@@ -15672,7 +16150,8 @@ expression: article
                                 }
                               ]
                             }
-                          ]
+                          ],
+                          "horizontalAlignment": "AlignLeft"
                         },
                         {
                           "type": "TableCell",
@@ -15693,7 +16172,8 @@ expression: article
                                 }
                               ]
                             }
-                          ]
+                          ],
+                          "horizontalAlignment": "AlignLeft"
                         },
                         {
                           "type": "TableCell",
@@ -15709,7 +16189,9 @@ expression: article
                                 }
                               ]
                             }
-                          ]
+                          ],
+                          "horizontalAlignment": "AlignCharacter",
+                          "horizontalAlignmentCharacter": "."
                         },
                         {
                           "type": "TableCell",
@@ -15725,15 +16207,19 @@ expression: article
                                 }
                               ]
                             }
-                          ]
+                          ],
+                          "horizontalAlignment": "AlignCharacter",
+                          "horizontalAlignmentCharacter": "."
                         },
                         {
                           "type": "TableCell",
-                          "content": []
+                          "content": [],
+                          "horizontalAlignment": "AlignLeft"
                         },
                         {
                           "type": "TableCell",
-                          "content": []
+                          "content": [],
+                          "horizontalAlignment": "AlignLeft"
                         },
                         {
                           "type": "TableCell",
@@ -15749,7 +16235,8 @@ expression: article
                                 }
                               ]
                             }
-                          ]
+                          ],
+                          "horizontalAlignment": "AlignLeft"
                         }
                       ]
                     },
@@ -15770,7 +16257,8 @@ expression: article
                                 }
                               ]
                             }
-                          ]
+                          ],
+                          "horizontalAlignment": "AlignLeft"
                         },
                         {
                           "type": "TableCell",
@@ -15786,7 +16274,8 @@ expression: article
                                 }
                               ]
                             }
-                          ]
+                          ],
+                          "horizontalAlignment": "AlignLeft"
                         },
                         {
                           "type": "TableCell",
@@ -15807,7 +16296,8 @@ expression: article
                                 }
                               ]
                             }
-                          ]
+                          ],
+                          "horizontalAlignment": "AlignLeft"
                         },
                         {
                           "type": "TableCell",
@@ -15823,7 +16313,9 @@ expression: article
                                 }
                               ]
                             }
-                          ]
+                          ],
+                          "horizontalAlignment": "AlignCharacter",
+                          "horizontalAlignmentCharacter": "."
                         },
                         {
                           "type": "TableCell",
@@ -15839,15 +16331,19 @@ expression: article
                                 }
                               ]
                             }
-                          ]
+                          ],
+                          "horizontalAlignment": "AlignCharacter",
+                          "horizontalAlignmentCharacter": "."
                         },
                         {
                           "type": "TableCell",
-                          "content": []
+                          "content": [],
+                          "horizontalAlignment": "AlignLeft"
                         },
                         {
                           "type": "TableCell",
-                          "content": []
+                          "content": [],
+                          "horizontalAlignment": "AlignLeft"
                         },
                         {
                           "type": "TableCell",
@@ -15863,7 +16359,8 @@ expression: article
                                 }
                               ]
                             }
-                          ]
+                          ],
+                          "horizontalAlignment": "AlignLeft"
                         }
                       ]
                     },
@@ -15884,7 +16381,8 @@ expression: article
                                 }
                               ]
                             }
-                          ]
+                          ],
+                          "horizontalAlignment": "AlignLeft"
                         },
                         {
                           "type": "TableCell",
@@ -15900,7 +16398,8 @@ expression: article
                                 }
                               ]
                             }
-                          ]
+                          ],
+                          "horizontalAlignment": "AlignLeft"
                         },
                         {
                           "type": "TableCell",
@@ -15921,7 +16420,8 @@ expression: article
                                 }
                               ]
                             }
-                          ]
+                          ],
+                          "horizontalAlignment": "AlignLeft"
                         },
                         {
                           "type": "TableCell",
@@ -15937,7 +16437,9 @@ expression: article
                                 }
                               ]
                             }
-                          ]
+                          ],
+                          "horizontalAlignment": "AlignCharacter",
+                          "horizontalAlignmentCharacter": "."
                         },
                         {
                           "type": "TableCell",
@@ -15953,15 +16455,19 @@ expression: article
                                 }
                               ]
                             }
-                          ]
+                          ],
+                          "horizontalAlignment": "AlignCharacter",
+                          "horizontalAlignmentCharacter": "."
                         },
                         {
                           "type": "TableCell",
-                          "content": []
+                          "content": [],
+                          "horizontalAlignment": "AlignLeft"
                         },
                         {
                           "type": "TableCell",
-                          "content": []
+                          "content": [],
+                          "horizontalAlignment": "AlignLeft"
                         },
                         {
                           "type": "TableCell",
@@ -15977,7 +16483,8 @@ expression: article
                                 }
                               ]
                             }
-                          ]
+                          ],
+                          "horizontalAlignment": "AlignLeft"
                         }
                       ]
                     },
@@ -15998,7 +16505,8 @@ expression: article
                                 }
                               ]
                             }
-                          ]
+                          ],
+                          "horizontalAlignment": "AlignLeft"
                         },
                         {
                           "type": "TableCell",
@@ -16014,7 +16522,8 @@ expression: article
                                 }
                               ]
                             }
-                          ]
+                          ],
+                          "horizontalAlignment": "AlignLeft"
                         },
                         {
                           "type": "TableCell",
@@ -16035,7 +16544,8 @@ expression: article
                                 }
                               ]
                             }
-                          ]
+                          ],
+                          "horizontalAlignment": "AlignLeft"
                         },
                         {
                           "type": "TableCell",
@@ -16051,7 +16561,9 @@ expression: article
                                 }
                               ]
                             }
-                          ]
+                          ],
+                          "horizontalAlignment": "AlignCharacter",
+                          "horizontalAlignmentCharacter": "."
                         },
                         {
                           "type": "TableCell",
@@ -16067,15 +16579,19 @@ expression: article
                                 }
                               ]
                             }
-                          ]
+                          ],
+                          "horizontalAlignment": "AlignCharacter",
+                          "horizontalAlignmentCharacter": "."
                         },
                         {
                           "type": "TableCell",
-                          "content": []
+                          "content": [],
+                          "horizontalAlignment": "AlignLeft"
                         },
                         {
                           "type": "TableCell",
-                          "content": []
+                          "content": [],
+                          "horizontalAlignment": "AlignLeft"
                         },
                         {
                           "type": "TableCell",
@@ -16091,7 +16607,8 @@ expression: article
                                 }
                               ]
                             }
-                          ]
+                          ],
+                          "horizontalAlignment": "AlignLeft"
                         }
                       ]
                     },
@@ -16112,7 +16629,8 @@ expression: article
                                 }
                               ]
                             }
-                          ]
+                          ],
+                          "horizontalAlignment": "AlignLeft"
                         },
                         {
                           "type": "TableCell",
@@ -16128,7 +16646,8 @@ expression: article
                                 }
                               ]
                             }
-                          ]
+                          ],
+                          "horizontalAlignment": "AlignLeft"
                         },
                         {
                           "type": "TableCell",
@@ -16149,7 +16668,8 @@ expression: article
                                 }
                               ]
                             }
-                          ]
+                          ],
+                          "horizontalAlignment": "AlignLeft"
                         },
                         {
                           "type": "TableCell",
@@ -16165,7 +16685,9 @@ expression: article
                                 }
                               ]
                             }
-                          ]
+                          ],
+                          "horizontalAlignment": "AlignCharacter",
+                          "horizontalAlignmentCharacter": "."
                         },
                         {
                           "type": "TableCell",
@@ -16181,7 +16703,9 @@ expression: article
                                 }
                               ]
                             }
-                          ]
+                          ],
+                          "horizontalAlignment": "AlignCharacter",
+                          "horizontalAlignmentCharacter": "."
                         },
                         {
                           "type": "TableCell",
@@ -16197,7 +16721,8 @@ expression: article
                                 }
                               ]
                             }
-                          ]
+                          ],
+                          "horizontalAlignment": "AlignLeft"
                         },
                         {
                           "type": "TableCell",
@@ -16213,7 +16738,8 @@ expression: article
                                 }
                               ]
                             }
-                          ]
+                          ],
+                          "horizontalAlignment": "AlignLeft"
                         },
                         {
                           "type": "TableCell",
@@ -16229,7 +16755,8 @@ expression: article
                                 }
                               ]
                             }
-                          ]
+                          ],
+                          "horizontalAlignment": "AlignLeft"
                         }
                       ]
                     },
@@ -16250,7 +16777,8 @@ expression: article
                                 }
                               ]
                             }
-                          ]
+                          ],
+                          "horizontalAlignment": "AlignLeft"
                         },
                         {
                           "type": "TableCell",
@@ -16266,7 +16794,8 @@ expression: article
                                 }
                               ]
                             }
-                          ]
+                          ],
+                          "horizontalAlignment": "AlignLeft"
                         },
                         {
                           "type": "TableCell",
@@ -16287,7 +16816,8 @@ expression: article
                                 }
                               ]
                             }
-                          ]
+                          ],
+                          "horizontalAlignment": "AlignLeft"
                         },
                         {
                           "type": "TableCell",
@@ -16303,7 +16833,9 @@ expression: article
                                 }
                               ]
                             }
-                          ]
+                          ],
+                          "horizontalAlignment": "AlignCharacter",
+                          "horizontalAlignmentCharacter": "."
                         },
                         {
                           "type": "TableCell",
@@ -16319,15 +16851,19 @@ expression: article
                                 }
                               ]
                             }
-                          ]
+                          ],
+                          "horizontalAlignment": "AlignCharacter",
+                          "horizontalAlignmentCharacter": "."
                         },
                         {
                           "type": "TableCell",
-                          "content": []
+                          "content": [],
+                          "horizontalAlignment": "AlignLeft"
                         },
                         {
                           "type": "TableCell",
-                          "content": []
+                          "content": [],
+                          "horizontalAlignment": "AlignLeft"
                         },
                         {
                           "type": "TableCell",
@@ -16343,7 +16879,8 @@ expression: article
                                 }
                               ]
                             }
-                          ]
+                          ],
+                          "horizontalAlignment": "AlignLeft"
                         }
                       ]
                     },
@@ -16364,7 +16901,8 @@ expression: article
                                 }
                               ]
                             }
-                          ]
+                          ],
+                          "horizontalAlignment": "AlignLeft"
                         },
                         {
                           "type": "TableCell",
@@ -16380,7 +16918,8 @@ expression: article
                                 }
                               ]
                             }
-                          ]
+                          ],
+                          "horizontalAlignment": "AlignLeft"
                         },
                         {
                           "type": "TableCell",
@@ -16401,7 +16940,8 @@ expression: article
                                 }
                               ]
                             }
-                          ]
+                          ],
+                          "horizontalAlignment": "AlignLeft"
                         },
                         {
                           "type": "TableCell",
@@ -16417,7 +16957,9 @@ expression: article
                                 }
                               ]
                             }
-                          ]
+                          ],
+                          "horizontalAlignment": "AlignCharacter",
+                          "horizontalAlignmentCharacter": "."
                         },
                         {
                           "type": "TableCell",
@@ -16433,7 +16975,9 @@ expression: article
                                 }
                               ]
                             }
-                          ]
+                          ],
+                          "horizontalAlignment": "AlignCharacter",
+                          "horizontalAlignmentCharacter": "."
                         },
                         {
                           "type": "TableCell",
@@ -16449,7 +16993,8 @@ expression: article
                                 }
                               ]
                             }
-                          ]
+                          ],
+                          "horizontalAlignment": "AlignLeft"
                         },
                         {
                           "type": "TableCell",
@@ -16465,7 +17010,8 @@ expression: article
                                 }
                               ]
                             }
-                          ]
+                          ],
+                          "horizontalAlignment": "AlignLeft"
                         },
                         {
                           "type": "TableCell",
@@ -16481,7 +17027,8 @@ expression: article
                                 }
                               ]
                             }
-                          ]
+                          ],
+                          "horizontalAlignment": "AlignLeft"
                         }
                       ]
                     },
@@ -16502,7 +17049,8 @@ expression: article
                                 }
                               ]
                             }
-                          ]
+                          ],
+                          "horizontalAlignment": "AlignLeft"
                         },
                         {
                           "type": "TableCell",
@@ -16518,7 +17066,8 @@ expression: article
                                 }
                               ]
                             }
-                          ]
+                          ],
+                          "horizontalAlignment": "AlignLeft"
                         },
                         {
                           "type": "TableCell",
@@ -16539,7 +17088,8 @@ expression: article
                                 }
                               ]
                             }
-                          ]
+                          ],
+                          "horizontalAlignment": "AlignLeft"
                         },
                         {
                           "type": "TableCell",
@@ -16555,7 +17105,9 @@ expression: article
                                 }
                               ]
                             }
-                          ]
+                          ],
+                          "horizontalAlignment": "AlignCharacter",
+                          "horizontalAlignmentCharacter": "."
                         },
                         {
                           "type": "TableCell",
@@ -16571,15 +17123,19 @@ expression: article
                                 }
                               ]
                             }
-                          ]
+                          ],
+                          "horizontalAlignment": "AlignCharacter",
+                          "horizontalAlignmentCharacter": "."
                         },
                         {
                           "type": "TableCell",
-                          "content": []
+                          "content": [],
+                          "horizontalAlignment": "AlignLeft"
                         },
                         {
                           "type": "TableCell",
-                          "content": []
+                          "content": [],
+                          "horizontalAlignment": "AlignLeft"
                         },
                         {
                           "type": "TableCell",
@@ -16595,7 +17151,8 @@ expression: article
                                 }
                               ]
                             }
-                          ]
+                          ],
+                          "horizontalAlignment": "AlignLeft"
                         }
                       ]
                     },
@@ -16616,7 +17173,8 @@ expression: article
                                 }
                               ]
                             }
-                          ]
+                          ],
+                          "horizontalAlignment": "AlignLeft"
                         },
                         {
                           "type": "TableCell",
@@ -16632,7 +17190,8 @@ expression: article
                                 }
                               ]
                             }
-                          ]
+                          ],
+                          "horizontalAlignment": "AlignLeft"
                         },
                         {
                           "type": "TableCell",
@@ -16653,7 +17212,8 @@ expression: article
                                 }
                               ]
                             }
-                          ]
+                          ],
+                          "horizontalAlignment": "AlignLeft"
                         },
                         {
                           "type": "TableCell",
@@ -16669,7 +17229,9 @@ expression: article
                                 }
                               ]
                             }
-                          ]
+                          ],
+                          "horizontalAlignment": "AlignCharacter",
+                          "horizontalAlignmentCharacter": "."
                         },
                         {
                           "type": "TableCell",
@@ -16685,15 +17247,19 @@ expression: article
                                 }
                               ]
                             }
-                          ]
+                          ],
+                          "horizontalAlignment": "AlignCharacter",
+                          "horizontalAlignmentCharacter": "."
                         },
                         {
                           "type": "TableCell",
-                          "content": []
+                          "content": [],
+                          "horizontalAlignment": "AlignLeft"
                         },
                         {
                           "type": "TableCell",
-                          "content": []
+                          "content": [],
+                          "horizontalAlignment": "AlignLeft"
                         },
                         {
                           "type": "TableCell",
@@ -16709,7 +17275,8 @@ expression: article
                                 }
                               ]
                             }
-                          ]
+                          ],
+                          "horizontalAlignment": "AlignLeft"
                         }
                       ]
                     },
@@ -16730,7 +17297,8 @@ expression: article
                                 }
                               ]
                             }
-                          ]
+                          ],
+                          "horizontalAlignment": "AlignLeft"
                         },
                         {
                           "type": "TableCell",
@@ -16746,7 +17314,8 @@ expression: article
                                 }
                               ]
                             }
-                          ]
+                          ],
+                          "horizontalAlignment": "AlignLeft"
                         },
                         {
                           "type": "TableCell",
@@ -16767,7 +17336,8 @@ expression: article
                                 }
                               ]
                             }
-                          ]
+                          ],
+                          "horizontalAlignment": "AlignLeft"
                         },
                         {
                           "type": "TableCell",
@@ -16783,7 +17353,9 @@ expression: article
                                 }
                               ]
                             }
-                          ]
+                          ],
+                          "horizontalAlignment": "AlignCharacter",
+                          "horizontalAlignmentCharacter": "."
                         },
                         {
                           "type": "TableCell",
@@ -16799,7 +17371,9 @@ expression: article
                                 }
                               ]
                             }
-                          ]
+                          ],
+                          "horizontalAlignment": "AlignCharacter",
+                          "horizontalAlignmentCharacter": "."
                         },
                         {
                           "type": "TableCell",
@@ -16815,7 +17389,8 @@ expression: article
                                 }
                               ]
                             }
-                          ]
+                          ],
+                          "horizontalAlignment": "AlignLeft"
                         },
                         {
                           "type": "TableCell",
@@ -16831,7 +17406,8 @@ expression: article
                                 }
                               ]
                             }
-                          ]
+                          ],
+                          "horizontalAlignment": "AlignLeft"
                         },
                         {
                           "type": "TableCell",
@@ -16847,7 +17423,8 @@ expression: article
                                 }
                               ]
                             }
-                          ]
+                          ],
+                          "horizontalAlignment": "AlignLeft"
                         }
                       ]
                     },
@@ -16868,7 +17445,8 @@ expression: article
                                 }
                               ]
                             }
-                          ]
+                          ],
+                          "horizontalAlignment": "AlignLeft"
                         },
                         {
                           "type": "TableCell",
@@ -16884,7 +17462,8 @@ expression: article
                                 }
                               ]
                             }
-                          ]
+                          ],
+                          "horizontalAlignment": "AlignLeft"
                         },
                         {
                           "type": "TableCell",
@@ -16905,7 +17484,8 @@ expression: article
                                 }
                               ]
                             }
-                          ]
+                          ],
+                          "horizontalAlignment": "AlignLeft"
                         },
                         {
                           "type": "TableCell",
@@ -16921,7 +17501,9 @@ expression: article
                                 }
                               ]
                             }
-                          ]
+                          ],
+                          "horizontalAlignment": "AlignCharacter",
+                          "horizontalAlignmentCharacter": "."
                         },
                         {
                           "type": "TableCell",
@@ -16937,7 +17519,9 @@ expression: article
                                 }
                               ]
                             }
-                          ]
+                          ],
+                          "horizontalAlignment": "AlignCharacter",
+                          "horizontalAlignmentCharacter": "."
                         },
                         {
                           "type": "TableCell",
@@ -16953,7 +17537,8 @@ expression: article
                                 }
                               ]
                             }
-                          ]
+                          ],
+                          "horizontalAlignment": "AlignLeft"
                         },
                         {
                           "type": "TableCell",
@@ -16969,7 +17554,8 @@ expression: article
                                 }
                               ]
                             }
-                          ]
+                          ],
+                          "horizontalAlignment": "AlignLeft"
                         },
                         {
                           "type": "TableCell",
@@ -16985,7 +17571,8 @@ expression: article
                                 }
                               ]
                             }
-                          ]
+                          ],
+                          "horizontalAlignment": "AlignLeft"
                         }
                       ]
                     }

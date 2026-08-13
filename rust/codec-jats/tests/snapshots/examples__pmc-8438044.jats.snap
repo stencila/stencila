@@ -354,7 +354,7 @@ expression: jats
           <caption>
             <p>Map of Javari River basin showing 46 sampling stations (white and red dots). Red dots represent stations in two distinct ecosystems (River: stations 1—Javari, 3—Quixito; Stream: station 2—<italic>Terra firme</italic> stream) sampled by capture and molecular based methodologies. In the map one dot can represent more than one station. Illustration of 12 orders detected by capture-based sampling (CBS) and molecular based sampling (MBS) in the three stations: (<bold>A</bold>) Beloniformes—<italic>Potamorrhaphis guianensis</italic>, INPA-ICT 055254, station 2(CBS); (<bold>B</bold>) Cyprinodontiformes—<italic>Laimosemion</italic> sp., INPA-ICT 056039, station 2(CBS); (<bold>C</bold>) Osteoglossiformes—<italic>Osteoglossum bicirrhosum</italic>, INPA-ICT 056354; (<bold>D</bold>) Clupeiformes—<italic>Anchoviella jamesi</italic>, INPA-ICT 055391, stations 1&amp;3(CBS); (<bold>E</bold>) Characiformes—<italic>Chalceus erythrurus</italic>, INPA-ICT 055360, stations 1(CBS, MBS), 2(MBS); (<bold>F</bold>) Cichliformes—<italic>Crenicichla reticulata</italic>, INPA-ICT 055413, station 1(CBS); (<bold>G</bold>) Perciformes—<italic>Plagioscion squamosissimus,</italic> INPA-ICT 055328, stations 1(CBS, MBS), 3(CBS); (<bold>H</bold>) Synbranchiformes—<italic>Synbranchus</italic> sp., INPA-ICT 055815, station 2(MBS); (<bold>I</bold>) Gymnotiformes—<italic>Eigenmannia limbata</italic>, INPA-ICT 055420, stations 1 &amp; 3(CBS, MBS), 2(MBS); (<bold>J</bold>) Pleuronectiformes—<italic>Apionichthys nattereri</italic>, INPA-ICT 055487, stations 1(CBS, MBS), 3(MBS); (<bold>K</bold>) Siluriformes—<italic>Brachyplatystoma vaillantii</italic>, INPA-ICT 056703, station 1(MBS); (<bold>L</bold>) Myliobatiformes—<italic>Potmotrygon scobina,</italic> INPA-ICT 055553. The map was created in QGIS 3.10.2-A Coruna with images available at ESRI National Geographic (<ext-link ext-link-type="uri" xlink:href="https://www.esri.com/news/arcuser/0312/national-geographic-basemap.html">https://www.esri.com/news/arcuser/0312/national-geographic-basemap.html</ext-link>), using the plugin QuickMapServices 0.19.11.1.</p>
           </caption>
-          <inline-graphic xlink:href="41598_2021_97128_Fig1_HTML.jpg"></inline-graphic>
+          <graphic xlink:href="41598_2021_97128_Fig1_HTML.jpg"></graphic>
         </fig>
         <sec id="Sec4">
           <title level="3">eDNA data analyses and assessment of taxonomic resolution of public reference database (Molecular-based Sampling—MBS)</title>
@@ -364,7 +364,7 @@ expression: jats
             <caption>
               <p>Illustrative cladogram with reads and frequencies for each of 222 molecular operational taxonomic units (MOTUs) and reference sequences included in nine orders and 41 families detected by 11 eDNA samples in the Javari River basin. Color highlighting MOTUs names corresponds to each of the nine orders. In the left side, species richness, key color, and general bauplan silhouettes for each order. At the center, spherical view of species diversity detected by eDNA.</p>
             </caption>
-            <inline-graphic xlink:href="41598_2021_97128_Fig2_HTML.jpg"></inline-graphic>
+            <graphic xlink:href="41598_2021_97128_Fig2_HTML.jpg"></graphic>
           </fig>
           <p>Matching sequence identity of &gt; 98.5% for 58 species (26%) of 222 species detected by eDNA was found in the reference library database (Table <xref ref-type="table" rid="Tab1">1</xref>). For the most species-rich orders detected by eDNA, Siluriformes were represented by 36.3% of the species; Characiformes 27.1%; Cichliformes 11.7%; and Gymnotiformes 10.8%. From these, six species (10.3%) were identified as “sp.” in reference libraries. Only 17 species (7.6%) were also identified in the CBS (Table <xref ref-type="table" rid="Tab1">1</xref>).</p>
           <table-wrap id="Tab1">
@@ -375,596 +375,596 @@ expression: jats
             <table>
               <thead>
                 <tr>
-                  <th><p>Order</p></th>
-                  <th><p>Family</p></th>
-                  <th><p>Species</p></th>
-                  <th><p>Read abundance</p></th>
-                  <th><p>Frequency</p></th>
-                  <th><p>CBS</p></th>
-                  <th><p>Station</p></th>
-                  <th><p>Representative sequence</p></th>
+                  <th align="left"><p>Order</p></th>
+                  <th align="left"><p>Family</p></th>
+                  <th align="left"><p>Species</p></th>
+                  <th align="left"><p>Read abundance</p></th>
+                  <th align="left"><p>Frequency</p></th>
+                  <th align="left"><p>CBS</p></th>
+                  <th align="left"><p>Station</p></th>
+                  <th align="left"><p>Representative sequence</p></th>
                 </tr>
               </thead>
               <tbody>
                 <tr>
-                  <td><p>Osteoglossiformes</p></td>
-                  <td><p>Arapaimidae</p></td>
-                  <td><p><italic>Arapaima gigas</italic></p></td>
-                  <td><p>7050</p></td>
-                  <td><p>4</p></td>
-                  <td></td>
-                  <td></td>
-                  <td><p>ACCGCGGTTATACGAGAGGCTCAAGTTAATACTATCGGCGTAAAGTGTGATTATAGGACCCAATACTAAAGCCAAAAGGCCTCAAAACTGTTATACGCCCATTGAGACTTGTAGGCTCCAAAACGAAAGTAGCTTTAAAACTTTAACCTAGAATTCACGACAGCTAGGAA</p></td>
+                  <td align="left"><p>Osteoglossiformes</p></td>
+                  <td align="left"><p>Arapaimidae</p></td>
+                  <td align="left"><p><italic>Arapaima gigas</italic></p></td>
+                  <td align="char" char="."><p>7050</p></td>
+                  <td align="char" char="."><p>4</p></td>
+                  <td align="left"></td>
+                  <td align="left"></td>
+                  <td align="left"><p>ACCGCGGTTATACGAGAGGCTCAAGTTAATACTATCGGCGTAAAGTGTGATTATAGGACCCAATACTAAAGCCAAAAGGCCTCAAAACTGTTATACGCCCATTGAGACTTGTAGGCTCCAAAACGAAAGTAGCTTTAAAACTTTAACCTAGAATTCACGACAGCTAGGAA</p></td>
                 </tr>
                 <tr>
-                  <td><p>Clupeiformes</p></td>
-                  <td><p>Engraulidae</p></td>
-                  <td><p><italic>Anchoviella</italic> sp. 1</p></td>
-                  <td><p>18,117</p></td>
-                  <td><p>4</p></td>
-                  <td><p>INPA-ICT 055766</p></td>
-                  <td><p>S1</p></td>
-                  <td><p>ACCGCGGTTATACGAGAGACCCTAGTTGATTAAAGCGGCGTAAAGAGTGGTTATGGAACTATTCTTTTAAAGCAGAAAACCTCTCAAACTGTTATACGCACCCAGAGGTCTGAATCCCTCACACGAAAGTGACTTTATTTATGCCTACCAGAACCCACGAAAGCTGGGAC</p></td>
+                  <td align="left"><p>Clupeiformes</p></td>
+                  <td align="left"><p>Engraulidae</p></td>
+                  <td align="left"><p><italic>Anchoviella</italic> sp. 1</p></td>
+                  <td align="char" char="."><p>18,117</p></td>
+                  <td align="char" char="."><p>4</p></td>
+                  <td align="left"><p>INPA-ICT 055766</p></td>
+                  <td align="left"><p>S1</p></td>
+                  <td align="left"><p>ACCGCGGTTATACGAGAGACCCTAGTTGATTAAAGCGGCGTAAAGAGTGGTTATGGAACTATTCTTTTAAAGCAGAAAACCTCTCAAACTGTTATACGCACCCAGAGGTCTGAATCCCTCACACGAAAGTGACTTTATTTATGCCTACCAGAACCCACGAAAGCTGGGAC</p></td>
                 </tr>
                 <tr>
-                  <td><p>Characiformes</p></td>
-                  <td><p>Crenuchidae</p></td>
-                  <td><p><italic>Characidium</italic> sp. 1</p></td>
-                  <td><p>69</p></td>
-                  <td><p>2</p></td>
-                  <td></td>
-                  <td></td>
-                  <td><p>ACCGCGGTTATACGAGAGACCCTAGTTGACATCTGCGGCGTAAAGAGTGGTTAGAAATATAACATAAAACTAAAGCCAAAGATTTTCCAAGCCGTCGTACGCACCACGAAGACACGAAGCCCAAACACGAAAGTAGCTTTATTATTAAACCGACCCCACGAAAGCTAAGAA</p></td>
+                  <td align="left"><p>Characiformes</p></td>
+                  <td align="left"><p>Crenuchidae</p></td>
+                  <td align="left"><p><italic>Characidium</italic> sp. 1</p></td>
+                  <td align="char" char="."><p>69</p></td>
+                  <td align="char" char="."><p>2</p></td>
+                  <td align="left"></td>
+                  <td align="left"></td>
+                  <td align="left"><p>ACCGCGGTTATACGAGAGACCCTAGTTGACATCTGCGGCGTAAAGAGTGGTTAGAAATATAACATAAAACTAAAGCCAAAGATTTTCCAAGCCGTCGTACGCACCACGAAGACACGAAGCCCAAACACGAAAGTAGCTTTATTATTAAACCGACCCCACGAAAGCTAAGAA</p></td>
                 </tr>
                 <tr>
-                  <td><p>Characiformes</p></td>
-                  <td><p>Erythrinidae</p></td>
-                  <td><p><italic>Hoplerythrinus unitaeniatus</italic></p></td>
-                  <td><p>1332</p></td>
-                  <td><p>5</p></td>
-                  <td></td>
-                  <td></td>
-                  <td><p>ACCGCGGTTATACGAGAGACCCTAGTTGATAACTACGGCGTAAAGAGTGGTTAAGAATAAAACTTAATAAAGCCAAAGACCCCCCAAGCCGTCACACGCACATGCGGGCACGAAGTTCACACACGAAAGTAGCTTTAATTAACTGACGCCACGAAAGCTAAGAA</p></td>
+                  <td align="left"><p>Characiformes</p></td>
+                  <td align="left"><p>Erythrinidae</p></td>
+                  <td align="left"><p><italic>Hoplerythrinus unitaeniatus</italic></p></td>
+                  <td align="char" char="."><p>1332</p></td>
+                  <td align="char" char="."><p>5</p></td>
+                  <td align="left"></td>
+                  <td align="left"></td>
+                  <td align="left"><p>ACCGCGGTTATACGAGAGACCCTAGTTGATAACTACGGCGTAAAGAGTGGTTAAGAATAAAACTTAATAAAGCCAAAGACCCCCCAAGCCGTCACACGCACATGCGGGCACGAAGTTCACACACGAAAGTAGCTTTAATTAACTGACGCCACGAAAGCTAAGAA</p></td>
                 </tr>
                 <tr>
-                  <td><p>Characiformes</p></td>
-                  <td><p>Erythrinidae</p></td>
-                  <td><p><italic>Hoplias malabaricus</italic></p></td>
-                  <td><p>324</p></td>
-                  <td><p>2</p></td>
-                  <td><p>INPA-ICT 055204</p></td>
-                  <td><p>S2</p></td>
-                  <td><p>ACCGCGGTTATACGAGAGACCCTAGTTGATAAATACGGCGTAAAGAGTGGTTAGAGGACTCCCATAATAAAGCCAAAGACCCTCCAGGCCGTCACACGCATACGAGGGCACGAAGTTCACACACGAAAGTAGCTTTAAATTACCCGACGCCACGAAAGCTAAGAA</p></td>
+                  <td align="left"><p>Characiformes</p></td>
+                  <td align="left"><p>Erythrinidae</p></td>
+                  <td align="left"><p><italic>Hoplias malabaricus</italic></p></td>
+                  <td align="char" char="."><p>324</p></td>
+                  <td align="char" char="."><p>2</p></td>
+                  <td align="left"><p>INPA-ICT 055204</p></td>
+                  <td align="left"><p>S2</p></td>
+                  <td align="left"><p>ACCGCGGTTATACGAGAGACCCTAGTTGATAAATACGGCGTAAAGAGTGGTTAGAGGACTCCCATAATAAAGCCAAAGACCCTCCAGGCCGTCACACGCATACGAGGGCACGAAGTTCACACACGAAAGTAGCTTTAAATTACCCGACGCCACGAAAGCTAAGAA</p></td>
                 </tr>
                 <tr>
-                  <td><p>Characiformes</p></td>
-                  <td><p>Cynodontidae</p></td>
-                  <td><p><italic>Cynodon meionactis</italic></p></td>
-                  <td><p>1769</p></td>
-                  <td><p>1</p></td>
-                  <td></td>
-                  <td></td>
-                  <td><p>ACCGCGGTTAAACGAGAGACCCTAGTTGATCATCACGGCGTAAAGAGTGGTTAGGGGATTATCATAAATAAAGCCAAAGACCTCCCAAGCTGTCGCACGCATTCCGGAGGCGCGAAGCCCACACACGAAAGTAGCTTTAACTATTGACCCTGATGCCACGAAAGCTAAGAA</p></td>
+                  <td align="left"><p>Characiformes</p></td>
+                  <td align="left"><p>Cynodontidae</p></td>
+                  <td align="left"><p><italic>Cynodon meionactis</italic></p></td>
+                  <td align="char" char="."><p>1769</p></td>
+                  <td align="char" char="."><p>1</p></td>
+                  <td align="left"></td>
+                  <td align="left"></td>
+                  <td align="left"><p>ACCGCGGTTAAACGAGAGACCCTAGTTGATCATCACGGCGTAAAGAGTGGTTAGGGGATTATCATAAATAAAGCCAAAGACCTCCCAAGCTGTCGCACGCATTCCGGAGGCGCGAAGCCCACACACGAAAGTAGCTTTAACTATTGACCCTGATGCCACGAAAGCTAAGAA</p></td>
                 </tr>
                 <tr>
-                  <td><p>Characiformes</p></td>
-                  <td><p>Cynodontidae</p></td>
-                  <td><p><italic>Hydrolycus scomberoides</italic></p></td>
-                  <td><p>9118</p></td>
-                  <td><p>4</p></td>
-                  <td></td>
-                  <td></td>
-                  <td><p>ACCGCGGTTATACGAGAGACCCTAGTTGACCATCACGGCGTAAAGCGTGGTTAAAGGACCCCTATAAATAAAGCCAAAGACCTCCCAAGCTGTCGCACGCACCCCGGAGGCACGAAGCCCACACACGAAAGTAGCTTTAACTACAAACCTCGATGCCACGAAAGCTAAGAA</p></td>
+                  <td align="left"><p>Characiformes</p></td>
+                  <td align="left"><p>Cynodontidae</p></td>
+                  <td align="left"><p><italic>Hydrolycus scomberoides</italic></p></td>
+                  <td align="char" char="."><p>9118</p></td>
+                  <td align="char" char="."><p>4</p></td>
+                  <td align="left"></td>
+                  <td align="left"></td>
+                  <td align="left"><p>ACCGCGGTTATACGAGAGACCCTAGTTGACCATCACGGCGTAAAGCGTGGTTAAAGGACCCCTATAAATAAAGCCAAAGACCTCCCAAGCTGTCGCACGCACCCCGGAGGCACGAAGCCCACACACGAAAGTAGCTTTAACTACAAACCTCGATGCCACGAAAGCTAAGAA</p></td>
                 </tr>
                 <tr>
-                  <td><p>Characiformes</p></td>
-                  <td><p>Serrasalmidae</p></td>
-                  <td><p><italic>Serrasalmus eigenmanni</italic></p></td>
-                  <td><p>1222</p></td>
-                  <td><p>2</p></td>
-                  <td></td>
-                  <td></td>
-                  <td><p>ACCGCGGTTATACGAGAGACTCCAGTTGATAGCTACGGCGTAAAGAGTGGTTTGGGGCCCGCCCAAAATAAAGCCAAAGACCTCCCAAGCCGTCAAACGCACCCCGGAGGCACGAAGTCCTAACGCGAAAGCAACTTTACCTTCCCCGACGCCACGAAAGCTAAGAA</p></td>
+                  <td align="left"><p>Characiformes</p></td>
+                  <td align="left"><p>Serrasalmidae</p></td>
+                  <td align="left"><p><italic>Serrasalmus eigenmanni</italic></p></td>
+                  <td align="char" char="."><p>1222</p></td>
+                  <td align="char" char="."><p>2</p></td>
+                  <td align="left"></td>
+                  <td align="left"></td>
+                  <td align="left"><p>ACCGCGGTTATACGAGAGACTCCAGTTGATAGCTACGGCGTAAAGAGTGGTTTGGGGCCCGCCCAAAATAAAGCCAAAGACCTCCCAAGCCGTCAAACGCACCCCGGAGGCACGAAGTCCTAACGCGAAAGCAACTTTACCTTCCCCGACGCCACGAAAGCTAAGAA</p></td>
                 </tr>
                 <tr>
-                  <td><p>Characiformes</p></td>
-                  <td><p>Hemiodontidae</p></td>
-                  <td><p><italic>Anodus</italic> sp.</p></td>
-                  <td><p>4483</p></td>
-                  <td><p>3</p></td>
-                  <td></td>
-                  <td></td>
-                  <td><p>ACCGCGGTTATACGAGAGACCCTAGTTGATAGCCGCGGCGTAAAGAGTGGTTAGGGATACCCAACAAATAAAGCCAAAGACCTCCCAAGCTGTTACACGCATCTCGGAGGCACGAAGCCCCACTACGAAAGTGACTTTAATCTCTTCCCGACGCCACGAAAGCTAAGAA</p></td>
+                  <td align="left"><p>Characiformes</p></td>
+                  <td align="left"><p>Hemiodontidae</p></td>
+                  <td align="left"><p><italic>Anodus</italic> sp.</p></td>
+                  <td align="char" char="."><p>4483</p></td>
+                  <td align="char" char="."><p>3</p></td>
+                  <td align="left"></td>
+                  <td align="left"></td>
+                  <td align="left"><p>ACCGCGGTTATACGAGAGACCCTAGTTGATAGCCGCGGCGTAAAGAGTGGTTAGGGATACCCAACAAATAAAGCCAAAGACCTCCCAAGCTGTTACACGCATCTCGGAGGCACGAAGCCCCACTACGAAAGTGACTTTAATCTCTTCCCGACGCCACGAAAGCTAAGAA</p></td>
                 </tr>
                 <tr>
-                  <td><p>Characiformes</p></td>
-                  <td><p>Anostomidae</p></td>
-                  <td><p><italic>Abramites hypselonotus</italic></p></td>
-                  <td><p>1304</p></td>
-                  <td><p>1</p></td>
-                  <td></td>
-                  <td></td>
-                  <td><p>ACCGCGGTTATACGAGAGACCCTAGTTGATAGCTACGGCGTAAAGGGTGGTTCGAGATAAATTACAAATAAAGCTAAAGACCTTCTAAGCTGTTACAAGCACTCCGAAGACACGAAACCCCAACACGAAAGTAGCTTTACTACACTTGACGCCACGAAAGCTAAGAA</p></td>
+                  <td align="left"><p>Characiformes</p></td>
+                  <td align="left"><p>Anostomidae</p></td>
+                  <td align="left"><p><italic>Abramites hypselonotus</italic></p></td>
+                  <td align="char" char="."><p>1304</p></td>
+                  <td align="char" char="."><p>1</p></td>
+                  <td align="left"></td>
+                  <td align="left"></td>
+                  <td align="left"><p>ACCGCGGTTATACGAGAGACCCTAGTTGATAGCTACGGCGTAAAGGGTGGTTCGAGATAAATTACAAATAAAGCTAAAGACCTTCTAAGCTGTTACAAGCACTCCGAAGACACGAAACCCCAACACGAAAGTAGCTTTACTACACTTGACGCCACGAAAGCTAAGAA</p></td>
                 </tr>
                 <tr>
-                  <td><p>Characiformes</p></td>
-                  <td><p>Anostomidae</p></td>
-                  <td><p><italic>Leporinus apollo</italic></p></td>
-                  <td><p>846</p></td>
-                  <td><p>3</p></td>
-                  <td></td>
-                  <td></td>
-                  <td><p>ACCGCGGTTATACGAGAGACCCTAATTGATAGCTCACGGCGTAAAGGGTGGTTTGGGGAAACCTCAAAATAAAGCTAAAGACCTTCTAAGCCGTTACACGCATACCGAAGGCACGAGACCCTAGCACGAAAGTAGCTTTACTATTACCCCTGACGCCACGAAAACTAAGAA</p></td>
+                  <td align="left"><p>Characiformes</p></td>
+                  <td align="left"><p>Anostomidae</p></td>
+                  <td align="left"><p><italic>Leporinus apollo</italic></p></td>
+                  <td align="char" char="."><p>846</p></td>
+                  <td align="char" char="."><p>3</p></td>
+                  <td align="left"></td>
+                  <td align="left"></td>
+                  <td align="left"><p>ACCGCGGTTATACGAGAGACCCTAATTGATAGCTCACGGCGTAAAGGGTGGTTTGGGGAAACCTCAAAATAAAGCTAAAGACCTTCTAAGCCGTTACACGCATACCGAAGGCACGAGACCCTAGCACGAAAGTAGCTTTACTATTACCCCTGACGCCACGAAAACTAAGAA</p></td>
                 </tr>
                 <tr>
-                  <td><p>Characiformes</p></td>
-                  <td><p>Anostomidae</p></td>
-                  <td><p><italic>Leporinus fasciatus</italic></p></td>
-                  <td><p>31</p></td>
-                  <td><p>1</p></td>
-                  <td></td>
-                  <td></td>
-                  <td><p>ACCGCGGTTATACGAGAGACCCTAATTGATAGACACGGCGTAAAGAGTGGTTTGGGAAAGCCCAAAAATAAAGCTAAAGACCTTCTAAGCCGTCACACGCACGCCGAAGGCACGAAGCCCTGACACGAAAGTAGCTTTACTATTACCCCCGACGCCACGAAAGCTAAGAA</p></td>
+                  <td align="left"><p>Characiformes</p></td>
+                  <td align="left"><p>Anostomidae</p></td>
+                  <td align="left"><p><italic>Leporinus fasciatus</italic></p></td>
+                  <td align="char" char="."><p>31</p></td>
+                  <td align="char" char="."><p>1</p></td>
+                  <td align="left"></td>
+                  <td align="left"></td>
+                  <td align="left"><p>ACCGCGGTTATACGAGAGACCCTAATTGATAGACACGGCGTAAAGAGTGGTTTGGGAAAGCCCAAAAATAAAGCTAAAGACCTTCTAAGCCGTCACACGCACGCCGAAGGCACGAAGCCCTGACACGAAAGTAGCTTTACTATTACCCCCGACGCCACGAAAGCTAAGAA</p></td>
                 </tr>
                 <tr>
-                  <td><p>Characiformes</p></td>
-                  <td><p>Anostomidae</p></td>
-                  <td><p><italic>Schizodon knerii</italic></p></td>
-                  <td><p>46,775</p></td>
-                  <td><p>6</p></td>
-                  <td></td>
-                  <td></td>
-                  <td><p>ACCGCGGTTATACGAGAGACCCTAATTGATAGGCACGGCGTAAAGAGTGGTTAGGGGTAGACTATAAATAAAGCTAAAGACCTTCTAAGCTGTCATACGCACACCGAAGGCATGAAGTCCTAATACGAAAGTAGCTTTACTATTATCCTTGACGCCACGAAAGCTAAGAA</p></td>
+                  <td align="left"><p>Characiformes</p></td>
+                  <td align="left"><p>Anostomidae</p></td>
+                  <td align="left"><p><italic>Schizodon knerii</italic></p></td>
+                  <td align="char" char="."><p>46,775</p></td>
+                  <td align="char" char="."><p>6</p></td>
+                  <td align="left"></td>
+                  <td align="left"></td>
+                  <td align="left"><p>ACCGCGGTTATACGAGAGACCCTAATTGATAGGCACGGCGTAAAGAGTGGTTAGGGGTAGACTATAAATAAAGCTAAAGACCTTCTAAGCTGTCATACGCACACCGAAGGCATGAAGTCCTAATACGAAAGTAGCTTTACTATTATCCTTGACGCCACGAAAGCTAAGAA</p></td>
                 </tr>
                 <tr>
-                  <td><p>Characiformes</p></td>
-                  <td><p>Chilodontidae</p></td>
-                  <td><p><italic>Caenotropus labyrinthicus</italic></p></td>
-                  <td><p>14</p></td>
-                  <td><p>1</p></td>
-                  <td><p>INPA-ICT 055404</p></td>
-                  <td><p>S2</p></td>
-                  <td><p>ACCGCGGTTATACGAGAGACCCTAGTTGATATGTACGGCGTAAAGAGTGGTTTGGGACACCTTAATAAATAAAGCCAAAGACCTCCCCAAGCTGTTGTACGCACTCCGGAGGCACGAAGCCCTAATACGAAAGTAGCTTTATTGAGCCCGACGCCACGAAAGCTAAGAA</p></td>
+                  <td align="left"><p>Characiformes</p></td>
+                  <td align="left"><p>Chilodontidae</p></td>
+                  <td align="left"><p><italic>Caenotropus labyrinthicus</italic></p></td>
+                  <td align="char" char="."><p>14</p></td>
+                  <td align="char" char="."><p>1</p></td>
+                  <td align="left"><p>INPA-ICT 055404</p></td>
+                  <td align="left"><p>S2</p></td>
+                  <td align="left"><p>ACCGCGGTTATACGAGAGACCCTAGTTGATATGTACGGCGTAAAGAGTGGTTTGGGACACCTTAATAAATAAAGCCAAAGACCTCCCCAAGCTGTTGTACGCACTCCGGAGGCACGAAGCCCTAATACGAAAGTAGCTTTATTGAGCCCGACGCCACGAAAGCTAAGAA</p></td>
                 </tr>
                 <tr>
-                  <td><p>Characiformes</p></td>
-                  <td><p>Curimatidae</p></td>
-                  <td><p><italic>Potamorhina</italic> sp.</p></td>
-                  <td><p>18,470</p></td>
-                  <td><p>3</p></td>
-                  <td></td>
-                  <td></td>
-                  <td><p>ACCGCGGTTATACGAGAGACCCTAGTTAATATATACGGCGTAAAGAGTGGTTTGGGGTAAATACTTAATAAAGCCGAAGATCCCCCAAGCCGTCACACGCACTCCGGAGACACGAAGCCCCAGCACGAAAGTAGCTTTACAAAGACCCCCGACGCCACGAAAGCTAAGAA</p></td>
+                  <td align="left"><p>Characiformes</p></td>
+                  <td align="left"><p>Curimatidae</p></td>
+                  <td align="left"><p><italic>Potamorhina</italic> sp.</p></td>
+                  <td align="char" char="."><p>18,470</p></td>
+                  <td align="char" char="."><p>3</p></td>
+                  <td align="left"></td>
+                  <td align="left"></td>
+                  <td align="left"><p>ACCGCGGTTATACGAGAGACCCTAGTTAATATATACGGCGTAAAGAGTGGTTTGGGGTAAATACTTAATAAAGCCGAAGATCCCCCAAGCCGTCACACGCACTCCGGAGACACGAAGCCCCAGCACGAAAGTAGCTTTACAAAGACCCCCGACGCCACGAAAGCTAAGAA</p></td>
                 </tr>
                 <tr>
-                  <td><p>Characiformes</p></td>
-                  <td><p>Prochilodontidae</p></td>
-                  <td><p><italic>Prochilodus harttii</italic></p></td>
-                  <td><p>90,591</p></td>
-                  <td><p>6</p></td>
-                  <td></td>
-                  <td></td>
-                  <td><p>ACCGCGGTTATACGAGAGACCCTAGTTGATATATACGGCGTAAAGAGTGGTTTGGAATAACCAAGTAATATAGCCAAAGACCTCCCAAGCCGTCACACGCACCCCGGAGGCACGAAGCCCAAACACGAAAGTAGCTTTATTAACTTACCGACGCCACGAAAGCTAAGAA</p></td>
+                  <td align="left"><p>Characiformes</p></td>
+                  <td align="left"><p>Prochilodontidae</p></td>
+                  <td align="left"><p><italic>Prochilodus harttii</italic></p></td>
+                  <td align="char" char="."><p>90,591</p></td>
+                  <td align="char" char="."><p>6</p></td>
+                  <td align="left"></td>
+                  <td align="left"></td>
+                  <td align="left"><p>ACCGCGGTTATACGAGAGACCCTAGTTGATATATACGGCGTAAAGAGTGGTTTGGAATAACCAAGTAATATAGCCAAAGACCTCCCAAGCCGTCACACGCACCCCGGAGGCACGAAGCCCAAACACGAAAGTAGCTTTATTAACTTACCGACGCCACGAAAGCTAAGAA</p></td>
                 </tr>
                 <tr>
-                  <td><p>Characiformes</p></td>
-                  <td><p>Prochilodontidae</p></td>
-                  <td><p><italic>Semaprochilodus</italic> sp. 1</p></td>
-                  <td><p>15,460</p></td>
-                  <td><p>5</p></td>
-                  <td></td>
-                  <td></td>
-                  <td><p>ACCGCGGTTATACGAGAGACCCTAGTTGATATACACGGCGTAAAGAGTGGTTTGGGACAAACCAAATAATAGAGCCAAAGACCTCCCAAGCCGTCACACGCACCCCGGAGGCACGAAGCCCAAGCACGAAAGTAGCTTTATTACACCCCCGACGCCACGAAAGCTAAGAA</p></td>
+                  <td align="left"><p>Characiformes</p></td>
+                  <td align="left"><p>Prochilodontidae</p></td>
+                  <td align="left"><p><italic>Semaprochilodus</italic> sp. 1</p></td>
+                  <td align="char" char="."><p>15,460</p></td>
+                  <td align="char" char="."><p>5</p></td>
+                  <td align="left"></td>
+                  <td align="left"></td>
+                  <td align="left"><p>ACCGCGGTTATACGAGAGACCCTAGTTGATATACACGGCGTAAAGAGTGGTTTGGGACAAACCAAATAATAGAGCCAAAGACCTCCCAAGCCGTCACACGCACCCCGGAGGCACGAAGCCCAAGCACGAAAGTAGCTTTATTACACCCCCGACGCCACGAAAGCTAAGAA</p></td>
                 </tr>
                 <tr>
-                  <td><p>Characiformes</p></td>
-                  <td><p>Acestrorhynchidae</p></td>
-                  <td><p><italic>Acestrorhynchus falcatus</italic></p></td>
-                  <td><p>11,546</p></td>
-                  <td><p>5</p></td>
-                  <td><p>INPA-ICT 055991</p></td>
-                  <td><p>S2</p></td>
-                  <td><p>ACCGCGGTTACACGAGAGACTCAAGTTAATAGACTACGGCGTAAAGCGTGGTTAGGGGCCCTTAATAACTAAAGCCAAAGATCTTCTATGTCGTCGCACGCAACGCGAAGAAACGAAGCCCAAACACGAAAGTAGCTTTATTTCCCCTGACCCCACGAAAGCTAAGAT</p></td>
+                  <td align="left"><p>Characiformes</p></td>
+                  <td align="left"><p>Acestrorhynchidae</p></td>
+                  <td align="left"><p><italic>Acestrorhynchus falcatus</italic></p></td>
+                  <td align="char" char="."><p>11,546</p></td>
+                  <td align="char" char="."><p>5</p></td>
+                  <td align="left"><p>INPA-ICT 055991</p></td>
+                  <td align="left"><p>S2</p></td>
+                  <td align="left"><p>ACCGCGGTTACACGAGAGACTCAAGTTAATAGACTACGGCGTAAAGCGTGGTTAGGGGCCCTTAATAACTAAAGCCAAAGATCTTCTATGTCGTCGCACGCAACGCGAAGAAACGAAGCCCAAACACGAAAGTAGCTTTATTTCCCCTGACCCCACGAAAGCTAAGAT</p></td>
                 </tr>
                 <tr>
-                  <td><p>Characiformes</p></td>
-                  <td><p>Chalceidae</p></td>
-                  <td><p><italic>Chalceus erythrurus</italic></p></td>
-                  <td><p>8741</p></td>
-                  <td><p>5</p></td>
-                  <td><p>INPA-ICT 055360</p></td>
-                  <td><p>S1, S2</p></td>
-                  <td><p>ACCGCGGTTATACGAGAGACCCTAGTTGATAGCTACGGCGTAAAGAGTGGTCTAGGACCCACAGCAAATTAAAGCCAAAGACCTCCCAAGCTGTCGCACGCACCCGGAGGCACGAAGCCCAAACACGAAGGTAGCTTTATCACATCTCCTAACCCCACGAAAGCTAAGAA</p></td>
+                  <td align="left"><p>Characiformes</p></td>
+                  <td align="left"><p>Chalceidae</p></td>
+                  <td align="left"><p><italic>Chalceus erythrurus</italic></p></td>
+                  <td align="char" char="."><p>8741</p></td>
+                  <td align="char" char="."><p>5</p></td>
+                  <td align="left"><p>INPA-ICT 055360</p></td>
+                  <td align="left"><p>S1, S2</p></td>
+                  <td align="left"><p>ACCGCGGTTATACGAGAGACCCTAGTTGATAGCTACGGCGTAAAGAGTGGTCTAGGACCCACAGCAAATTAAAGCCAAAGACCTCCCAAGCTGTCGCACGCACCCGGAGGCACGAAGCCCAAACACGAAGGTAGCTTTATCACATCTCCTAACCCCACGAAAGCTAAGAA</p></td>
                 </tr>
                 <tr>
-                  <td><p>Characiformes</p></td>
-                  <td><p>Chalceidae</p></td>
-                  <td><p><italic>Chalceus macrolepidotus</italic></p></td>
-                  <td><p>4158</p></td>
-                  <td><p>2</p></td>
-                  <td></td>
-                  <td></td>
-                  <td><p>ACCGCGGTTATACGAGAGACCCTAGTTGATAGATACGGCGTAAAGAGTGGTCTAGGACCCACAACAAAATAAAGCCAAAGACCTCCCAAGCTGTCGCACGCACCCCGGAGGCACGAAGCCCAAACACGAAGGTAGCTTTATTACATTCTCCTAACCCCACGAAAGCTAAGAA</p></td>
+                  <td align="left"><p>Characiformes</p></td>
+                  <td align="left"><p>Chalceidae</p></td>
+                  <td align="left"><p><italic>Chalceus macrolepidotus</italic></p></td>
+                  <td align="char" char="."><p>4158</p></td>
+                  <td align="char" char="."><p>2</p></td>
+                  <td align="left"></td>
+                  <td align="left"></td>
+                  <td align="left"><p>ACCGCGGTTATACGAGAGACCCTAGTTGATAGATACGGCGTAAAGAGTGGTCTAGGACCCACAACAAAATAAAGCCAAAGACCTCCCAAGCTGTCGCACGCACCCCGGAGGCACGAAGCCCAAACACGAAGGTAGCTTTATTACATTCTCCTAACCCCACGAAAGCTAAGAA</p></td>
                 </tr>
                 <tr>
-                  <td><p>Characiformes</p></td>
-                  <td><p>Characidae</p></td>
-                  <td><p><italic>Charax pauciradiatus</italic></p></td>
-                  <td><p>10,186</p></td>
-                  <td><p>5</p></td>
-                  <td></td>
-                  <td></td>
-                  <td><p>ACCGCGGTTATACGAGAGACCCAAATTAATAGCTACGGCGTAAAGAGTGGTTTGGGGTAAAATTAATAAAGCCGAATACTCTCCTGGCCGTCGCACGCATTTTGAGAGCATGAAGCCCTATAACGAAAGTAGCTTTACCAATATTTTCCTGACCCCACGAAAGCTAAGAA</p></td>
+                  <td align="left"><p>Characiformes</p></td>
+                  <td align="left"><p>Characidae</p></td>
+                  <td align="left"><p><italic>Charax pauciradiatus</italic></p></td>
+                  <td align="char" char="."><p>10,186</p></td>
+                  <td align="char" char="."><p>5</p></td>
+                  <td align="left"></td>
+                  <td align="left"></td>
+                  <td align="left"><p>ACCGCGGTTATACGAGAGACCCAAATTAATAGCTACGGCGTAAAGAGTGGTTTGGGGTAAAATTAATAAAGCCGAATACTCTCCTGGCCGTCGCACGCATTTTGAGAGCATGAAGCCCTATAACGAAAGTAGCTTTACCAATATTTTCCTGACCCCACGAAAGCTAAGAA</p></td>
                 </tr>
                 <tr>
-                  <td><p>Characiformes</p></td>
-                  <td><p>Characidae</p></td>
-                  <td><p><italic>Charax</italic> sp. 1</p></td>
-                  <td><p>32</p></td>
-                  <td><p>1</p></td>
-                  <td></td>
-                  <td></td>
-                  <td><p>ACCGCGGTTATACGAGAGACCCTAATTAATAGCTACGGCGTAAAGAGTGGTTTAGGGTAAAAATTAATAAAGCCGAAGATTCTCATGGCCGTTGTACGCATTCTGAGAATATGAAGCCCCAACACGAAAGTAGCTTTACCAGTAATTTCCTGACCCCACGAAAGCTAAGAA</p></td>
+                  <td align="left"><p>Characiformes</p></td>
+                  <td align="left"><p>Characidae</p></td>
+                  <td align="left"><p><italic>Charax</italic> sp. 1</p></td>
+                  <td align="char" char="."><p>32</p></td>
+                  <td align="char" char="."><p>1</p></td>
+                  <td align="left"></td>
+                  <td align="left"></td>
+                  <td align="left"><p>ACCGCGGTTATACGAGAGACCCTAATTAATAGCTACGGCGTAAAGAGTGGTTTAGGGTAAAAATTAATAAAGCCGAAGATTCTCATGGCCGTTGTACGCATTCTGAGAATATGAAGCCCCAACACGAAAGTAGCTTTACCAGTAATTTCCTGACCCCACGAAAGCTAAGAA</p></td>
                 </tr>
                 <tr>
-                  <td><p>Characiformes</p></td>
-                  <td><p>Characidae</p></td>
-                  <td><p><italic>Ctenobrycon hauxwellianus</italic></p></td>
-                  <td><p>491</p></td>
-                  <td><p>3</p></td>
-                  <td></td>
-                  <td></td>
-                  <td><p>ACCGCGGTTATACGAGAGACCCTAGTTGATAAACACGGCGTAAAGAGTGGTTAGGATAAAAGAAAAATAAAGTCAAATGCCCTCTAGGCCGTTACACGCATTCTGAGAACATGAAGCCCCACTACGAAAGTAACTTTACTATTTCCGACCCCACGAAAGCTAAGAA</p></td>
+                  <td align="left"><p>Characiformes</p></td>
+                  <td align="left"><p>Characidae</p></td>
+                  <td align="left"><p><italic>Ctenobrycon hauxwellianus</italic></p></td>
+                  <td align="char" char="."><p>491</p></td>
+                  <td align="char" char="."><p>3</p></td>
+                  <td align="left"></td>
+                  <td align="left"></td>
+                  <td align="left"><p>ACCGCGGTTATACGAGAGACCCTAGTTGATAAACACGGCGTAAAGAGTGGTTAGGATAAAAGAAAAATAAAGTCAAATGCCCTCTAGGCCGTTACACGCATTCTGAGAACATGAAGCCCCACTACGAAAGTAACTTTACTATTTCCGACCCCACGAAAGCTAAGAA</p></td>
                 </tr>
                 <tr>
-                  <td><p>Characiformes</p></td>
-                  <td><p>Characidae</p></td>
-                  <td><p><italic>Jupiaba ocellata</italic></p></td>
-                  <td><p>1150</p></td>
-                  <td><p>4</p></td>
-                  <td></td>
-                  <td></td>
-                  <td><p>ACCGCGGTTATACGAGAGACCCTAGTTGATAAATACGGCGTAAAGAGTGGTTATGGGAAAAACAAATAAAGTCAAACAACCTCTTAGCTGTTATACGCATTATGAGAGTATGAAGCCCCCTCACGAAAGTAACTTTAATATCTCCTGACCCCACGAAAGCTAAGAA</p></td>
+                  <td align="left"><p>Characiformes</p></td>
+                  <td align="left"><p>Characidae</p></td>
+                  <td align="left"><p><italic>Jupiaba ocellata</italic></p></td>
+                  <td align="char" char="."><p>1150</p></td>
+                  <td align="char" char="."><p>4</p></td>
+                  <td align="left"></td>
+                  <td align="left"></td>
+                  <td align="left"><p>ACCGCGGTTATACGAGAGACCCTAGTTGATAAATACGGCGTAAAGAGTGGTTATGGGAAAAACAAATAAAGTCAAACAACCTCTTAGCTGTTATACGCATTATGAGAGTATGAAGCCCCCTCACGAAAGTAACTTTAATATCTCCTGACCCCACGAAAGCTAAGAA</p></td>
                 </tr>
                 <tr>
-                  <td><p>Characiformes</p></td>
-                  <td><p>Characidae</p></td>
-                  <td><p><italic>Moenkhausia lepidura</italic></p></td>
-                  <td><p>782</p></td>
-                  <td><p>3</p></td>
-                  <td></td>
-                  <td></td>
-                  <td><p>ACCGCGGTTATACGAGAGACCCTAGTTGATAGCTACGGCGTAAAGCGTGGTTAGGAGAACAATATAAATAAAGTCAAACAATCTCTCGGCCGTTATACGTTATCTGAGAATATGAAGTCCTACCACGAAAGTAACTTTAATTTTTCTGACCCCACGAAAACTGAGGA</p></td>
+                  <td align="left"><p>Characiformes</p></td>
+                  <td align="left"><p>Characidae</p></td>
+                  <td align="left"><p><italic>Moenkhausia lepidura</italic></p></td>
+                  <td align="char" char="."><p>782</p></td>
+                  <td align="char" char="."><p>3</p></td>
+                  <td align="left"></td>
+                  <td align="left"></td>
+                  <td align="left"><p>ACCGCGGTTATACGAGAGACCCTAGTTGATAGCTACGGCGTAAAGCGTGGTTAGGAGAACAATATAAATAAAGTCAAACAATCTCTCGGCCGTTATACGTTATCTGAGAATATGAAGTCCTACCACGAAAGTAACTTTAATTTTTCTGACCCCACGAAAACTGAGGA</p></td>
                 </tr>
                 <tr>
-                  <td><p>Characiformes</p></td>
-                  <td><p>Serrasalmidae</p></td>
-                  <td><p><italic>Myloplus rubripinnis</italic></p></td>
-                  <td><p>232</p></td>
-                  <td><p>4</p></td>
-                  <td></td>
-                  <td></td>
-                  <td><p>ACCGCGGTTATACGAGAGACCCTAGTTGACAGCTACGGCGTAAAGAGTGGTTTGGGGCACCCCATAAAAATAAAGCCAAAGACCTTCCAAGCTGTCAAACGCACTCCGGAGGCACGAAACCCCAACACGAAAGTAGCTTTACCTTCACCCCGACGCCACGAAAGCTAAGAA</p></td>
+                  <td align="left"><p>Characiformes</p></td>
+                  <td align="left"><p>Serrasalmidae</p></td>
+                  <td align="left"><p><italic>Myloplus rubripinnis</italic></p></td>
+                  <td align="char" char="."><p>232</p></td>
+                  <td align="char" char="."><p>4</p></td>
+                  <td align="left"></td>
+                  <td align="left"></td>
+                  <td align="left"><p>ACCGCGGTTATACGAGAGACCCTAGTTGACAGCTACGGCGTAAAGAGTGGTTTGGGGCACCCCATAAAAATAAAGCCAAAGACCTTCCAAGCTGTCAAACGCACTCCGGAGGCACGAAACCCCAACACGAAAGTAGCTTTACCTTCACCCCGACGCCACGAAAGCTAAGAA</p></td>
                 </tr>
                 <tr>
-                  <td><p>Characiformes</p></td>
-                  <td><p>Serrasalmidae</p></td>
-                  <td><p><italic>Pygocentrus nattereri</italic></p></td>
-                  <td><p>19,766</p></td>
-                  <td><p>9</p></td>
-                  <td><p>INPA-ICT 055811</p></td>
-                  <td><p>S1, S2</p></td>
-                  <td><p>ACCGCGGTTATACGAGAGACTCCAGTTGATAGCTACGGCGTAAAGAGTGGTTTGGGGCCCCACCCAAAATAAAGCCAAAGACCTCCCAAGCCGTCAAACGCACCCCGGAGGCACGAAGTCCTAACGCGAAAGCAACTTTACCTCCCCCGACGCCACGAAAGCTAAGAA</p></td>
+                  <td align="left"><p>Characiformes</p></td>
+                  <td align="left"><p>Serrasalmidae</p></td>
+                  <td align="left"><p><italic>Pygocentrus nattereri</italic></p></td>
+                  <td align="char" char="."><p>19,766</p></td>
+                  <td align="char" char="."><p>9</p></td>
+                  <td align="left"><p>INPA-ICT 055811</p></td>
+                  <td align="left"><p>S1, S2</p></td>
+                  <td align="left"><p>ACCGCGGTTATACGAGAGACTCCAGTTGATAGCTACGGCGTAAAGAGTGGTTTGGGGCCCCACCCAAAATAAAGCCAAAGACCTCCCAAGCCGTCAAACGCACCCCGGAGGCACGAAGTCCTAACGCGAAAGCAACTTTACCTCCCCCGACGCCACGAAAGCTAAGAA</p></td>
                 </tr>
                 <tr>
-                  <td><p>Characiformes</p></td>
-                  <td><p>Iguanodectidae</p></td>
-                  <td><p><italic>Bryconops affinis</italic></p></td>
-                  <td><p>9344</p></td>
-                  <td><p>5</p></td>
-                  <td></td>
-                  <td></td>
-                  <td><p>ACCGCGGTTATACGAGAGACCCTAATTGATAGACTACGGCGTAAAGAGTGGTTTAGAACAAAAATAAATAAAGCCAAAGATCCTCCTGGCCGTCGCACGCACTTCGAGGATACGAAGCCCCACTACGAAAGTAGCTTTACTATTAACTTTTCTGACCCCACGAAAGCTAAGAA</p></td>
+                  <td align="left"><p>Characiformes</p></td>
+                  <td align="left"><p>Iguanodectidae</p></td>
+                  <td align="left"><p><italic>Bryconops affinis</italic></p></td>
+                  <td align="char" char="."><p>9344</p></td>
+                  <td align="char" char="."><p>5</p></td>
+                  <td align="left"></td>
+                  <td align="left"></td>
+                  <td align="left"><p>ACCGCGGTTATACGAGAGACCCTAATTGATAGACTACGGCGTAAAGAGTGGTTTAGAACAAAAATAAATAAAGCCAAAGATCCTCCTGGCCGTCGCACGCACTTCGAGGATACGAAGCCCCACTACGAAAGTAGCTTTACTATTAACTTTTCTGACCCCACGAAAGCTAAGAA</p></td>
                 </tr>
                 <tr>
-                  <td><p>Characiformes</p></td>
-                  <td><p>Triportheidae</p></td>
-                  <td><p><italic>Triportheus</italic> sp. 1</p></td>
-                  <td><p>232</p></td>
-                  <td><p>3</p></td>
-                  <td></td>
-                  <td></td>
-                  <td><p>ACCGCGGTTATACGAGAGACCCAAGTTGATAAATACGGCGTAAAGAGTGGTTAAGGATAATAAAGAAATAAAGCCAAAGGCCTTCCAAGCTGTCACACGCACCTCTAAGGTACGAAGCCCAAACACGAAAGTAGCTTTACCACCTGCCTGACCCCACGAAAGCTAAGAA</p></td>
+                  <td align="left"><p>Characiformes</p></td>
+                  <td align="left"><p>Triportheidae</p></td>
+                  <td align="left"><p><italic>Triportheus</italic> sp. 1</p></td>
+                  <td align="char" char="."><p>232</p></td>
+                  <td align="char" char="."><p>3</p></td>
+                  <td align="left"></td>
+                  <td align="left"></td>
+                  <td align="left"><p>ACCGCGGTTATACGAGAGACCCAAGTTGATAAATACGGCGTAAAGAGTGGTTAAGGATAATAAAGAAATAAAGCCAAAGGCCTTCCAAGCTGTCACACGCACCTCTAAGGTACGAAGCCCAAACACGAAAGTAGCTTTACCACCTGCCTGACCCCACGAAAGCTAAGAA</p></td>
                 </tr>
                 <tr>
-                  <td><p>Siluriformes</p></td>
-                  <td><p>Loricariidae</p></td>
-                  <td><p><italic>Dekeyseria amazonica</italic></p></td>
-                  <td><p>86</p></td>
-                  <td><p>1</p></td>
-                  <td><p>INPA-ICT 055419</p></td>
-                  <td><p>S1</p></td>
-                  <td><p>ACCGCGGTTATACGAAAGACCCCAGTTTATATACACGGCGTAAAGGGTGGTTAGGGGACAAACAAAATAAAGCCAAAGACCCTCTAAGCCGTCATACGCTCACGAAGGTACTAAGCCCAAACACGAAGGTAGCTTTACTAAACATACCCGACTCCACGAAAGCTGAGAA</p></td>
+                  <td align="left"><p>Siluriformes</p></td>
+                  <td align="left"><p>Loricariidae</p></td>
+                  <td align="left"><p><italic>Dekeyseria amazonica</italic></p></td>
+                  <td align="char" char="."><p>86</p></td>
+                  <td align="char" char="."><p>1</p></td>
+                  <td align="left"><p>INPA-ICT 055419</p></td>
+                  <td align="left"><p>S1</p></td>
+                  <td align="left"><p>ACCGCGGTTATACGAAAGACCCCAGTTTATATACACGGCGTAAAGGGTGGTTAGGGGACAAACAAAATAAAGCCAAAGACCCTCTAAGCCGTCATACGCTCACGAAGGTACTAAGCCCAAACACGAAGGTAGCTTTACTAAACATACCCGACTCCACGAAAGCTGAGAA</p></td>
                 </tr>
                 <tr>
-                  <td><p>Siluriformes</p></td>
-                  <td><p>Loricariidae</p></td>
-                  <td><p><italic>Hypostomus plecostomus</italic></p></td>
-                  <td><p>113</p></td>
-                  <td><p>1</p></td>
-                  <td></td>
-                  <td></td>
-                  <td><p>ACCGCGGTTATACGAAAGACCCTAGTTTATAGGTACGGCGTAAAGGGTGGTTAGGGGACAAACAAAATAAAGCCAAAGACCTCCTAAGCCGTCATACGCTCACGGAGGCACGAAGCCCAAACACGAAAGTAGCTCTACCAAACATGCCCGACTCCACGAAAGCTGGGAA</p></td>
+                  <td align="left"><p>Siluriformes</p></td>
+                  <td align="left"><p>Loricariidae</p></td>
+                  <td align="left"><p><italic>Hypostomus plecostomus</italic></p></td>
+                  <td align="char" char="."><p>113</p></td>
+                  <td align="char" char="."><p>1</p></td>
+                  <td align="left"></td>
+                  <td align="left"></td>
+                  <td align="left"><p>ACCGCGGTTATACGAAAGACCCTAGTTTATAGGTACGGCGTAAAGGGTGGTTAGGGGACAAACAAAATAAAGCCAAAGACCTCCTAAGCCGTCATACGCTCACGGAGGCACGAAGCCCAAACACGAAAGTAGCTCTACCAAACATGCCCGACTCCACGAAAGCTGGGAA</p></td>
                 </tr>
                 <tr>
-                  <td><p>Siluriformes</p></td>
-                  <td><p>Loricariidae</p></td>
-                  <td><p><italic>Lasiancistrus saetiger</italic></p></td>
-                  <td><p>1837</p></td>
-                  <td><p>1</p></td>
-                  <td></td>
-                  <td></td>
-                  <td><p>ACCGCGGTTATACGAAAGACCCTAATTTATAGACACGGCGTAAAGGGTGGTTAGGGGACAAACAAAATAAGGCCAAAGACCTCCTAAGCCGTCATACGCTCACGGAGGCACGAAGCCCAAACACGAAAGTAGCTTTACCAAACATGCCCGACTCCACGAAAGCTAGGAA</p></td>
+                  <td align="left"><p>Siluriformes</p></td>
+                  <td align="left"><p>Loricariidae</p></td>
+                  <td align="left"><p><italic>Lasiancistrus saetiger</italic></p></td>
+                  <td align="char" char="."><p>1837</p></td>
+                  <td align="char" char="."><p>1</p></td>
+                  <td align="left"></td>
+                  <td align="left"></td>
+                  <td align="left"><p>ACCGCGGTTATACGAAAGACCCTAATTTATAGACACGGCGTAAAGGGTGGTTAGGGGACAAACAAAATAAGGCCAAAGACCTCCTAAGCCGTCATACGCTCACGGAGGCACGAAGCCCAAACACGAAAGTAGCTTTACCAAACATGCCCGACTCCACGAAAGCTAGGAA</p></td>
                 </tr>
                 <tr>
-                  <td><p>Siluriformes</p></td>
-                  <td><p>Doradidae</p></td>
-                  <td><p><italic>Hemidoras morrisi</italic></p></td>
-                  <td><p>14</p></td>
-                  <td><p>1</p></td>
-                  <td><p>INPA-ICT 055422</p></td>
-                  <td><p>S1</p></td>
-                  <td><p>ACCGCGGTTATACGAAAGACCCTAGTTGATAGATCACGGCGTAAAGGGTGGTTAAGGAGAACAAAAATAAAGCTAAAGATCCTCTAAGCTGTCATACGCTTTCCGAAGACATGAGATCCAACCACGAAAGTAGCTTTAAACTGTCCTGACGCCACGAAAGCCAAGAA</p></td>
+                  <td align="left"><p>Siluriformes</p></td>
+                  <td align="left"><p>Doradidae</p></td>
+                  <td align="left"><p><italic>Hemidoras morrisi</italic></p></td>
+                  <td align="char" char="."><p>14</p></td>
+                  <td align="char" char="."><p>1</p></td>
+                  <td align="left"><p>INPA-ICT 055422</p></td>
+                  <td align="left"><p>S1</p></td>
+                  <td align="left"><p>ACCGCGGTTATACGAAAGACCCTAGTTGATAGATCACGGCGTAAAGGGTGGTTAAGGAGAACAAAAATAAAGCTAAAGATCCTCTAAGCTGTCATACGCTTTCCGAAGACATGAGATCCAACCACGAAAGTAGCTTTAAACTGTCCTGACGCCACGAAAGCCAAGAA</p></td>
                 </tr>
                 <tr>
-                  <td><p>Siluriformes</p></td>
-                  <td><p>Auchenipteridae</p></td>
-                  <td><p><italic>Liosomadoras morrowi</italic></p></td>
-                  <td><p>25</p></td>
-                  <td><p>1</p></td>
-                  <td></td>
-                  <td></td>
-                  <td><p>ACCGCGGTTATACGAAAGACCCAAGTTGATTAATTACGGCGTAAAGGGTGGTTAAGGGTAAATTGAAAATAAGGCTAAAGACTCTCCAGGCTGTCATACGCTCTCCGAGATAACGAGACCCTCACACGAAAGTATCCTTAAAATTTAAACCCTGACGCCACGAAAGCCAAGAA</p></td>
+                  <td align="left"><p>Siluriformes</p></td>
+                  <td align="left"><p>Auchenipteridae</p></td>
+                  <td align="left"><p><italic>Liosomadoras morrowi</italic></p></td>
+                  <td align="char" char="."><p>25</p></td>
+                  <td align="char" char="."><p>1</p></td>
+                  <td align="left"></td>
+                  <td align="left"></td>
+                  <td align="left"><p>ACCGCGGTTATACGAAAGACCCAAGTTGATTAATTACGGCGTAAAGGGTGGTTAAGGGTAAATTGAAAATAAGGCTAAAGACTCTCCAGGCTGTCATACGCTCTCCGAGATAACGAGACCCTCACACGAAAGTATCCTTAAAATTTAAACCCTGACGCCACGAAAGCCAAGAA</p></td>
                 </tr>
                 <tr>
-                  <td><p>Siluriformes</p></td>
-                  <td><p>Doradidae</p></td>
-                  <td><p><italic>Megalodoras uranoscopus</italic></p></td>
-                  <td><p>9</p></td>
-                  <td><p>1</p></td>
-                  <td><p>INPA-ICT 055491</p></td>
-                  <td><p>S1</p></td>
-                  <td><p>ACCGCGGTTATACGAAAGACCCTAGTTGATAGACTACGGCGTAAAGGGTGGTTAAGGATTACAAAAATAAAGCTAAAGATCCTCTAGGCTGTCATACGCTTTCCGAGGAGATGAAACCCAGCCACGAAAGTAGCTTTAAACCCCTCCTGACACCACGAAAGCCAAGAA</p></td>
+                  <td align="left"><p>Siluriformes</p></td>
+                  <td align="left"><p>Doradidae</p></td>
+                  <td align="left"><p><italic>Megalodoras uranoscopus</italic></p></td>
+                  <td align="char" char="."><p>9</p></td>
+                  <td align="char" char="."><p>1</p></td>
+                  <td align="left"><p>INPA-ICT 055491</p></td>
+                  <td align="left"><p>S1</p></td>
+                  <td align="left"><p>ACCGCGGTTATACGAAAGACCCTAGTTGATAGACTACGGCGTAAAGGGTGGTTAAGGATTACAAAAATAAAGCTAAAGATCCTCTAGGCTGTCATACGCTTTCCGAGGAGATGAAACCCAGCCACGAAAGTAGCTTTAAACCCCTCCTGACACCACGAAAGCCAAGAA</p></td>
                 </tr>
                 <tr>
-                  <td><p>Siluriformes</p></td>
-                  <td><p>Doradidae</p></td>
-                  <td><p><italic>Platydoras costatus</italic></p></td>
-                  <td><p>40</p></td>
-                  <td><p>2</p></td>
-                  <td></td>
-                  <td></td>
-                  <td><p>ACCGCGGTTATACGAAAGACCCTAGTTGATAGACTACGGCGTAAAGGGTGGTTAAGGAATACAAAAATAAAGCTAAAGATCCTCTAGGCTGTCATACGCTTTCCGAGGAGATGAAGCCCCACCACGAAAGTAGCTTTAAGCATCTCCTGACACCACGAAAGCCAAGAA</p></td>
+                  <td align="left"><p>Siluriformes</p></td>
+                  <td align="left"><p>Doradidae</p></td>
+                  <td align="left"><p><italic>Platydoras costatus</italic></p></td>
+                  <td align="char" char="."><p>40</p></td>
+                  <td align="char" char="."><p>2</p></td>
+                  <td align="left"></td>
+                  <td align="left"></td>
+                  <td align="left"><p>ACCGCGGTTATACGAAAGACCCTAGTTGATAGACTACGGCGTAAAGGGTGGTTAAGGAATACAAAAATAAAGCTAAAGATCCTCTAGGCTGTCATACGCTTTCCGAGGAGATGAAGCCCCACCACGAAAGTAGCTTTAAGCATCTCCTGACACCACGAAAGCCAAGAA</p></td>
                 </tr>
                 <tr>
-                  <td><p>Siluriformes</p></td>
-                  <td><p>Doradidae</p></td>
-                  <td><p><italic>Pterodoras granulosus</italic></p></td>
-                  <td><p>94</p></td>
-                  <td><p>1</p></td>
-                  <td><p>INPA-ICT 055463</p></td>
-                  <td><p>S1</p></td>
-                  <td><p>ACCGCGGTTATACGAAAGACCCTAGTTGATAGCCCACGGCGTAAAGGGTGGTTAAGGGGCCACAAAAATAAAGCTAAAGATCCTCTAGGCTGTCATACGCTCTCCGAGGATATGAGACCCCACCACGAAAGTAGCTTTAAGCATCTCCTGAAACCACGAAAGCCAAGAA</p></td>
+                  <td align="left"><p>Siluriformes</p></td>
+                  <td align="left"><p>Doradidae</p></td>
+                  <td align="left"><p><italic>Pterodoras granulosus</italic></p></td>
+                  <td align="char" char="."><p>94</p></td>
+                  <td align="char" char="."><p>1</p></td>
+                  <td align="left"><p>INPA-ICT 055463</p></td>
+                  <td align="left"><p>S1</p></td>
+                  <td align="left"><p>ACCGCGGTTATACGAAAGACCCTAGTTGATAGCCCACGGCGTAAAGGGTGGTTAAGGGGCCACAAAAATAAAGCTAAAGATCCTCTAGGCTGTCATACGCTCTCCGAGGATATGAGACCCCACCACGAAAGTAGCTTTAAGCATCTCCTGAAACCACGAAAGCCAAGAA</p></td>
                 </tr>
                 <tr>
-                  <td><p>Siluriformes</p></td>
-                  <td><p>Doradidae</p></td>
-                  <td><p><italic>Trachydoras nattereri</italic></p></td>
-                  <td><p>34</p></td>
-                  <td><p>1</p></td>
-                  <td><p>INPA-ICT 055660</p></td>
-                  <td><p>S3</p></td>
-                  <td><p>ACCGCGGTTATACGAAAGACCCTAGTTGATGGATCACGGCGTAAAGGGTGGTTAAGGAGAACAAAAATAAAGCTAAAAATCCTCTAAGCTGTCATACGCTTTCTGAAGACATGAGACCCAACCACGAAAGTAGCTTTAAACTTTCCTGACACCACGAAAGCCAAAGA</p></td>
+                  <td align="left"><p>Siluriformes</p></td>
+                  <td align="left"><p>Doradidae</p></td>
+                  <td align="left"><p><italic>Trachydoras nattereri</italic></p></td>
+                  <td align="char" char="."><p>34</p></td>
+                  <td align="char" char="."><p>1</p></td>
+                  <td align="left"><p>INPA-ICT 055660</p></td>
+                  <td align="left"><p>S3</p></td>
+                  <td align="left"><p>ACCGCGGTTATACGAAAGACCCTAGTTGATGGATCACGGCGTAAAGGGTGGTTAAGGAGAACAAAAATAAAGCTAAAAATCCTCTAAGCTGTCATACGCTTTCTGAAGACATGAGACCCAACCACGAAAGTAGCTTTAAACTTTCCTGACACCACGAAAGCCAAAGA</p></td>
                 </tr>
                 <tr>
-                  <td><p>Siluriformes</p></td>
-                  <td><p>Pimelodidae</p></td>
-                  <td><p><italic>Hypophthalmus edentatus</italic></p></td>
-                  <td><p>472</p></td>
-                  <td><p>2</p></td>
-                  <td></td>
-                  <td></td>
-                  <td><p>ACCGCGGTTATACGAAAGACCCTAGTTGATAGCCACGGCGTAAAGGGTGGTTAAGGTATCCTACAAATAAAGCTAAAGAGCCTCTAAGCCGTCGCACGCATTCCGAGAGCCCGAAACCCAAACACGAAAGTAGCTTTAAAAACAACACACCTGACTCCACGAAAGCTAAGAA</p></td>
+                  <td align="left"><p>Siluriformes</p></td>
+                  <td align="left"><p>Pimelodidae</p></td>
+                  <td align="left"><p><italic>Hypophthalmus edentatus</italic></p></td>
+                  <td align="char" char="."><p>472</p></td>
+                  <td align="char" char="."><p>2</p></td>
+                  <td align="left"></td>
+                  <td align="left"></td>
+                  <td align="left"><p>ACCGCGGTTATACGAAAGACCCTAGTTGATAGCCACGGCGTAAAGGGTGGTTAAGGTATCCTACAAATAAAGCTAAAGAGCCTCTAAGCCGTCGCACGCATTCCGAGAGCCCGAAACCCAAACACGAAAGTAGCTTTAAAAACAACACACCTGACTCCACGAAAGCTAAGAA</p></td>
                 </tr>
                 <tr>
-                  <td><p>Siluriformes</p></td>
-                  <td><p>Heptapteridae</p></td>
-                  <td><p><italic>Pimelodella cristata</italic></p></td>
-                  <td><p>1359</p></td>
-                  <td><p>7</p></td>
-                  <td></td>
-                  <td></td>
-                  <td><p>ACCGCGGTTATACGAAAGACCCTAGTTGATAGGCACGGCGTAAAGGGTGGTTAGGGATATATCAAAAATAAAGTTAAAGAGCCTCTAAGCTGTCGCACGCATCCCGAGAGCTCGAGACCCAAACACGAAAGTAACTTTAAAATACTTCACCTGACCCCACGAAAGCTAAGAA</p></td>
+                  <td align="left"><p>Siluriformes</p></td>
+                  <td align="left"><p>Heptapteridae</p></td>
+                  <td align="left"><p><italic>Pimelodella cristata</italic></p></td>
+                  <td align="char" char="."><p>1359</p></td>
+                  <td align="char" char="."><p>7</p></td>
+                  <td align="left"></td>
+                  <td align="left"></td>
+                  <td align="left"><p>ACCGCGGTTATACGAAAGACCCTAGTTGATAGGCACGGCGTAAAGGGTGGTTAGGGATATATCAAAAATAAAGTTAAAGAGCCTCTAAGCTGTCGCACGCATCCCGAGAGCTCGAGACCCAAACACGAAAGTAACTTTAAAATACTTCACCTGACCCCACGAAAGCTAAGAA</p></td>
                 </tr>
                 <tr>
-                  <td><p>Siluriformes</p></td>
-                  <td><p>Pimelodidae</p></td>
-                  <td><p><italic>Pseudoplatystoma reticulatum</italic></p></td>
-                  <td><p>2064</p></td>
-                  <td><p>6</p></td>
-                  <td></td>
-                  <td></td>
-                  <td><p>ACCGCGGTTATACGAAAGACCCTAGTTGATAGCCACGGCGTAAAGGGTGGTTAAGGTAACTAATAAATAAAGCTAAAGAGCCTCTAAGCCGTCGCACGCATTCCGAGAGCTCGAAGCCCAAACACGAAAGTAGCTTTAAAATAAAGCACACCTGACCCCACGAAAGCTAAGAA</p></td>
+                  <td align="left"><p>Siluriformes</p></td>
+                  <td align="left"><p>Pimelodidae</p></td>
+                  <td align="left"><p><italic>Pseudoplatystoma reticulatum</italic></p></td>
+                  <td align="char" char="."><p>2064</p></td>
+                  <td align="char" char="."><p>6</p></td>
+                  <td align="left"></td>
+                  <td align="left"></td>
+                  <td align="left"><p>ACCGCGGTTATACGAAAGACCCTAGTTGATAGCCACGGCGTAAAGGGTGGTTAAGGTAACTAATAAATAAAGCTAAAGAGCCTCTAAGCCGTCGCACGCATTCCGAGAGCTCGAAGCCCAAACACGAAAGTAGCTTTAAAATAAAGCACACCTGACCCCACGAAAGCTAAGAA</p></td>
                 </tr>
                 <tr>
-                  <td><p>Siluriformes</p></td>
-                  <td><p>Pimelodidae</p></td>
-                  <td><p><italic>Pinirampus pinirampu</italic></p></td>
-                  <td><p>4</p></td>
-                  <td><p>1</p></td>
-                  <td><p>INPA-ICT 055316</p></td>
-                  <td><p>S1</p></td>
-                  <td><p>ACCTCGGTTATACGAAAGACCCTAGTTGATGGCCACGGCGTAAAGGGTGGTTAAGGTACCTAACAAATAAAGCTAAATAGCCTCTAAGCCGTCGAACGCGCCCTGAGAACTAGAAACTCAAAAACGAAAGTAGCTTTAAAACAACCCCACCTGACCCCACGAAAGCTAAGAA</p></td>
+                  <td align="left"><p>Siluriformes</p></td>
+                  <td align="left"><p>Pimelodidae</p></td>
+                  <td align="left"><p><italic>Pinirampus pinirampu</italic></p></td>
+                  <td align="char" char="."><p>4</p></td>
+                  <td align="char" char="."><p>1</p></td>
+                  <td align="left"><p>INPA-ICT 055316</p></td>
+                  <td align="left"><p>S1</p></td>
+                  <td align="left"><p>ACCTCGGTTATACGAAAGACCCTAGTTGATGGCCACGGCGTAAAGGGTGGTTAAGGTACCTAACAAATAAAGCTAAATAGCCTCTAAGCCGTCGAACGCGCCCTGAGAACTAGAAACTCAAAAACGAAAGTAGCTTTAAAACAACCCCACCTGACCCCACGAAAGCTAAGAA</p></td>
                 </tr>
                 <tr>
-                  <td><p>Siluriformes</p></td>
-                  <td><p>Pimelodidae</p></td>
-                  <td><p><italic>Pseudoplatystoma tigrinum</italic></p></td>
-                  <td><p>183</p></td>
-                  <td><p>2</p></td>
-                  <td><p>INPA-ICT 055379</p></td>
-                  <td><p>S1</p></td>
-                  <td><p>ACCGCGGTTATACGAAAGACCCTAGTTGATAGCCACGGCGTAAAGGGTGGTTAAGGTAACTAATAAATAAAGCTAAAGAGCCTCTAAGCCGTCGCACGCATTCCGAGAGCTCGAAGCCCAAACACGAAAGTAGCTTTAAAACAAAACACACCTGACCCCACGAAAGCTAAGAA</p></td>
+                  <td align="left"><p>Siluriformes</p></td>
+                  <td align="left"><p>Pimelodidae</p></td>
+                  <td align="left"><p><italic>Pseudoplatystoma tigrinum</italic></p></td>
+                  <td align="char" char="."><p>183</p></td>
+                  <td align="char" char="."><p>2</p></td>
+                  <td align="left"><p>INPA-ICT 055379</p></td>
+                  <td align="left"><p>S1</p></td>
+                  <td align="left"><p>ACCGCGGTTATACGAAAGACCCTAGTTGATAGCCACGGCGTAAAGGGTGGTTAAGGTAACTAATAAATAAAGCTAAAGAGCCTCTAAGCCGTCGCACGCATTCCGAGAGCTCGAAGCCCAAACACGAAAGTAGCTTTAAAACAAAACACACCTGACCCCACGAAAGCTAAGAA</p></td>
                 </tr>
                 <tr>
-                  <td><p>Siluriformes</p></td>
-                  <td><p>Pimelodidae</p></td>
-                  <td><p><italic>Hemisorubim platyrhynchos</italic></p></td>
-                  <td><p>110</p></td>
-                  <td><p>1</p></td>
-                  <td></td>
-                  <td></td>
-                  <td><p>ACCGCGGTTATACGAAAGACCCTAGTTGATAGCCACGGCGTAAAGGGTGGTTAAGGTATAAAATAAATAAAGCCAAAGAGCCTCTAAGTCGTCGTACACATTCCGAGTGCTCGAAGCCCAAATACGAAGGTTGCTTTAACATAACATACACCTGACCCCACGAAAGCTAAGAA</p></td>
+                  <td align="left"><p>Siluriformes</p></td>
+                  <td align="left"><p>Pimelodidae</p></td>
+                  <td align="left"><p><italic>Hemisorubim platyrhynchos</italic></p></td>
+                  <td align="char" char="."><p>110</p></td>
+                  <td align="char" char="."><p>1</p></td>
+                  <td align="left"></td>
+                  <td align="left"></td>
+                  <td align="left"><p>ACCGCGGTTATACGAAAGACCCTAGTTGATAGCCACGGCGTAAAGGGTGGTTAAGGTATAAAATAAATAAAGCCAAAGAGCCTCTAAGTCGTCGTACACATTCCGAGTGCTCGAAGCCCAAATACGAAGGTTGCTTTAACATAACATACACCTGACCCCACGAAAGCTAAGAA</p></td>
                 </tr>
                 <tr>
-                  <td><p>Siluriformes</p></td>
-                  <td><p>Pimelodidae</p></td>
-                  <td><p><italic>Brachyplatystoma vaillantii</italic></p></td>
-                  <td><p>25</p></td>
-                  <td><p>1</p></td>
-                  <td></td>
-                  <td></td>
-                  <td><p>ACCGCGGTTATACGAAAGACCCCAGTTGATAGCCACGGCGTAAAGGGTGGTTAAGGTAAATAATAAATAAAGCTAAAGAGCCTCTAAGTCGTCGCACGCATTCCGGGAGCTCGAAGCCCAGACACGAAAGTAGCTTTAAAATAAAATACACCTGACTCCACGAAAGCTAAGAA</p></td>
+                  <td align="left"><p>Siluriformes</p></td>
+                  <td align="left"><p>Pimelodidae</p></td>
+                  <td align="left"><p><italic>Brachyplatystoma vaillantii</italic></p></td>
+                  <td align="char" char="."><p>25</p></td>
+                  <td align="char" char="."><p>1</p></td>
+                  <td align="left"></td>
+                  <td align="left"></td>
+                  <td align="left"><p>ACCGCGGTTATACGAAAGACCCCAGTTGATAGCCACGGCGTAAAGGGTGGTTAAGGTAAATAATAAATAAAGCTAAAGAGCCTCTAAGTCGTCGCACGCATTCCGGGAGCTCGAAGCCCAGACACGAAAGTAGCTTTAAAATAAAATACACCTGACTCCACGAAAGCTAAGAA</p></td>
                 </tr>
                 <tr>
-                  <td><p>Siluriformes</p></td>
-                  <td><p>Pimelodidae</p></td>
-                  <td><p><italic>Sorubimichthys planiceps</italic></p></td>
-                  <td><p>431</p></td>
-                  <td><p>1</p></td>
-                  <td></td>
-                  <td></td>
-                  <td><p>ACCGCGGTTATACGAAAGACCCTAGTTGATAGCCACGGCGTAAAGGGTGGTTAAGGTAGACAACAAATAAAGCTAAAGAACCTCTAAGCTGTCGCACGCATTCCGAGAACTCGAAGCCCAAACACGAAAGTAGCTTTAAAACAAAAACACCTGAACCCACGAAAGCTAAGAA</p></td>
+                  <td align="left"><p>Siluriformes</p></td>
+                  <td align="left"><p>Pimelodidae</p></td>
+                  <td align="left"><p><italic>Sorubimichthys planiceps</italic></p></td>
+                  <td align="char" char="."><p>431</p></td>
+                  <td align="char" char="."><p>1</p></td>
+                  <td align="left"></td>
+                  <td align="left"></td>
+                  <td align="left"><p>ACCGCGGTTATACGAAAGACCCTAGTTGATAGCCACGGCGTAAAGGGTGGTTAAGGTAGACAACAAATAAAGCTAAAGAACCTCTAAGCTGTCGCACGCATTCCGAGAACTCGAAGCCCAAACACGAAAGTAGCTTTAAAACAAAAACACCTGAACCCACGAAAGCTAAGAA</p></td>
                 </tr>
                 <tr>
-                  <td><p>Siluriformes</p></td>
-                  <td><p>Pimelodidae</p></td>
-                  <td><p><italic>Sorubim elongatus</italic></p></td>
-                  <td><p>282</p></td>
-                  <td><p>1</p></td>
-                  <td></td>
-                  <td></td>
-                  <td><p>ACCGCGGTTATACGAAAGACCCTAGTTGATAGCTGCGGCGTAAAGGGTGGTTAAGGTATATAACAAATAAAGCTAAAGAACCTCCAAGCCGTCGTACGCATTATGAGAGCTCGAAACCCAAGCACGAAAGTAGCTTTAAAAAATCACACCTGACCCCACGAAAGCTAAGAA</p></td>
+                  <td align="left"><p>Siluriformes</p></td>
+                  <td align="left"><p>Pimelodidae</p></td>
+                  <td align="left"><p><italic>Sorubim elongatus</italic></p></td>
+                  <td align="char" char="."><p>282</p></td>
+                  <td align="char" char="."><p>1</p></td>
+                  <td align="left"></td>
+                  <td align="left"></td>
+                  <td align="left"><p>ACCGCGGTTATACGAAAGACCCTAGTTGATAGCTGCGGCGTAAAGGGTGGTTAAGGTATATAACAAATAAAGCTAAAGAACCTCCAAGCCGTCGTACGCATTATGAGAGCTCGAAACCCAAGCACGAAAGTAGCTTTAAAAAATCACACCTGACCCCACGAAAGCTAAGAA</p></td>
                 </tr>
                 <tr>
-                  <td><p>Siluriformes</p></td>
-                  <td><p>Pimelodidae</p></td>
-                  <td><p><italic>Phractocephalus hemioliopterus</italic></p></td>
-                  <td><p>316</p></td>
-                  <td><p>4</p></td>
-                  <td></td>
-                  <td></td>
-                  <td><p>ACCGCGGTTATACGAAAGACCCTAGTTGATAGCTACGGCGTAAAGGGTGGCTAAGGCAGACAACAAATAAAGCCAAAGAGCCTCTAAGCCGTCGCACGCACTCCGAGGCCTCGAAATCCAAACACGAAAGTAGCTTTAAAACAAAACACACCTGACCCCACGAAAGCTAAGAA</p></td>
+                  <td align="left"><p>Siluriformes</p></td>
+                  <td align="left"><p>Pimelodidae</p></td>
+                  <td align="left"><p><italic>Phractocephalus hemioliopterus</italic></p></td>
+                  <td align="char" char="."><p>316</p></td>
+                  <td align="char" char="."><p>4</p></td>
+                  <td align="left"></td>
+                  <td align="left"></td>
+                  <td align="left"><p>ACCGCGGTTATACGAAAGACCCTAGTTGATAGCTACGGCGTAAAGGGTGGCTAAGGCAGACAACAAATAAAGCCAAAGAGCCTCTAAGCCGTCGCACGCACTCCGAGGCCTCGAAATCCAAACACGAAAGTAGCTTTAAAACAAAACACACCTGACCCCACGAAAGCTAAGAA</p></td>
                 </tr>
                 <tr>
-                  <td><p>Siluriformes</p></td>
-                  <td><p>Pimelodidae</p></td>
-                  <td><p><italic>Zungaro jahu</italic></p></td>
-                  <td><p>31</p></td>
-                  <td><p>1</p></td>
-                  <td></td>
-                  <td></td>
-                  <td><p>ACCGCGGTTATACGAAAGACCCTAGTTGATAGCCACGGCGTAAAGGGTGGTTAAGGTAAATAATAAATAAAGCTAAAGGGCCTCTAAGCCGTCGCACGCATTCCGAGAGCTCGAAACCCAAGCACGAAAGTAGCTTTAAAATAAAACACACCTGACCCCACGAAAGCTAAGAA</p></td>
+                  <td align="left"><p>Siluriformes</p></td>
+                  <td align="left"><p>Pimelodidae</p></td>
+                  <td align="left"><p><italic>Zungaro jahu</italic></p></td>
+                  <td align="char" char="."><p>31</p></td>
+                  <td align="char" char="."><p>1</p></td>
+                  <td align="left"></td>
+                  <td align="left"></td>
+                  <td align="left"><p>ACCGCGGTTATACGAAAGACCCTAGTTGATAGCCACGGCGTAAAGGGTGGTTAAGGTAAATAATAAATAAAGCTAAAGGGCCTCTAAGCCGTCGCACGCATTCCGAGAGCTCGAAACCCAAGCACGAAAGTAGCTTTAAAATAAAACACACCTGACCCCACGAAAGCTAAGAA</p></td>
                 </tr>
                 <tr>
-                  <td><p>Gymnotiformes</p></td>
-                  <td><p>Gymnotidae</p></td>
-                  <td><p><italic>Electrophorus varii</italic></p></td>
-                  <td><p>1234</p></td>
-                  <td><p>5</p></td>
-                  <td></td>
-                  <td></td>
-                  <td><p>ACCGCGGTTATACGAGAGACTCCAGTTGACAGAACTCGGCATAAAGAGTGGTTATAATACACCCAAATAAAGCCAAAAATCTCTAGAGCCGTCATACGCTTTCCAGAGACATGAAGCCCTAACACGAAAGTAGCTTTATGACATTGAACCCACGAAAGCTAAGAA</p></td>
+                  <td align="left"><p>Gymnotiformes</p></td>
+                  <td align="left"><p>Gymnotidae</p></td>
+                  <td align="left"><p><italic>Electrophorus varii</italic></p></td>
+                  <td align="char" char="."><p>1234</p></td>
+                  <td align="char" char="."><p>5</p></td>
+                  <td align="left"></td>
+                  <td align="left"></td>
+                  <td align="left"><p>ACCGCGGTTATACGAGAGACTCCAGTTGACAGAACTCGGCATAAAGAGTGGTTATAATACACCCAAATAAAGCCAAAAATCTCTAGAGCCGTCATACGCTTTCCAGAGACATGAAGCCCTAACACGAAAGTAGCTTTATGACATTGAACCCACGAAAGCTAAGAA</p></td>
                 </tr>
                 <tr>
-                  <td><p>Gymnotiformes</p></td>
-                  <td><p>Gymnotidae</p></td>
-                  <td><p><italic>Gymnotus carapo</italic></p></td>
-                  <td><p>121</p></td>
-                  <td><p>1</p></td>
-                  <td></td>
-                  <td></td>
-                  <td><p>ACCGCGGTTATACGAGAGACCCTAGTTGATAATTACGGCGTAAAGAGTGGTTAAGGAACTACACAATTAAAGCCAAACACTTCCCCGGCTGTTATACGCTCCCGGAAATAACGAAACCCAAACGCGAAAGCAGCTTTATATTATAAGCCTGACCCCACGAAAGCTAAGAT</p></td>
+                  <td align="left"><p>Gymnotiformes</p></td>
+                  <td align="left"><p>Gymnotidae</p></td>
+                  <td align="left"><p><italic>Gymnotus carapo</italic></p></td>
+                  <td align="char" char="."><p>121</p></td>
+                  <td align="char" char="."><p>1</p></td>
+                  <td align="left"></td>
+                  <td align="left"></td>
+                  <td align="left"><p>ACCGCGGTTATACGAGAGACCCTAGTTGATAATTACGGCGTAAAGAGTGGTTAAGGAACTACACAATTAAAGCCAAACACTTCCCCGGCTGTTATACGCTCCCGGAAATAACGAAACCCAAACGCGAAAGCAGCTTTATATTATAAGCCTGACCCCACGAAAGCTAAGAT</p></td>
                 </tr>
                 <tr>
-                  <td><p>Gymnotiformes</p></td>
-                  <td><p>Sternopygidae</p></td>
-                  <td><p><italic>Eigenmannia limbata</italic></p></td>
-                  <td><p>10,443</p></td>
-                  <td><p>7</p></td>
-                  <td><p>INPA-ICT 055420</p></td>
-                  <td><p>S1, S2, S3</p></td>
-                  <td><p>ACCGCGGTTATACGAGAGGCCCTAGTTGATAGCCACGGCGCAAAGAGTGGTTAAGGAGCCCCACTAAATAAAGTCGAACACTTCCTAGGCCGTTATACGTTTTCTAGAAGCACGAAACCCAATTACACGAAAGCAACTTTATACTAAATAACCTGACCCCACGAAAGCTAAGAA</p></td>
+                  <td align="left"><p>Gymnotiformes</p></td>
+                  <td align="left"><p>Sternopygidae</p></td>
+                  <td align="left"><p><italic>Eigenmannia limbata</italic></p></td>
+                  <td align="char" char="."><p>10,443</p></td>
+                  <td align="char" char="."><p>7</p></td>
+                  <td align="left"><p>INPA-ICT 055420</p></td>
+                  <td align="left"><p>S1, S2, S3</p></td>
+                  <td align="left"><p>ACCGCGGTTATACGAGAGGCCCTAGTTGATAGCCACGGCGCAAAGAGTGGTTAAGGAGCCCCACTAAATAAAGTCGAACACTTCCTAGGCCGTTATACGTTTTCTAGAAGCACGAAACCCAATTACACGAAAGCAACTTTATACTAAATAACCTGACCCCACGAAAGCTAAGAA</p></td>
                 </tr>
                 <tr>
-                  <td><p>Gymnotiformes</p></td>
-                  <td><p>Apteronotidae</p></td>
-                  <td><p><italic>Apteronotus albifrons</italic></p></td>
-                  <td><p>567</p></td>
-                  <td><p>5</p></td>
-                  <td></td>
-                  <td></td>
-                  <td><p>ACCGCGGTTATACGAAAGACCCAAGTTGATAGTCACGGCGTAAAGAGTGGTTAAGGGAACTAATAAATAAAGCCAAACACTTCCCAGGCCGTTGCACGTTTTCTGGAAACACGAAGCCCAATCACGAAAGTAGCTTTACATAAACCACCTGACCCCACGAAAGCTAAGAA</p></td>
+                  <td align="left"><p>Gymnotiformes</p></td>
+                  <td align="left"><p>Apteronotidae</p></td>
+                  <td align="left"><p><italic>Apteronotus albifrons</italic></p></td>
+                  <td align="char" char="."><p>567</p></td>
+                  <td align="char" char="."><p>5</p></td>
+                  <td align="left"></td>
+                  <td align="left"></td>
+                  <td align="left"><p>ACCGCGGTTATACGAAAGACCCAAGTTGATAGTCACGGCGTAAAGAGTGGTTAAGGGAACTAATAAATAAAGCCAAACACTTCCCAGGCCGTTGCACGTTTTCTGGAAACACGAAGCCCAATCACGAAAGTAGCTTTACATAAACCACCTGACCCCACGAAAGCTAAGAA</p></td>
                 </tr>
                 <tr>
-                  <td><p>Characiformes</p></td>
-                  <td><p>Ctenoluciidae</p></td>
-                  <td><p><italic>Boulengerella maculata</italic></p></td>
-                  <td><p>126</p></td>
-                  <td><p>1</p></td>
-                  <td><p>INPA-ICT 055263</p></td>
-                  <td><p>S1</p></td>
-                  <td><p>ACCGCGGTTAGACGAGTAGGCCCAAGTTGATAGATTACGGCGTAAAGAGTGGTTAAGGATTTTCTCCAAATTAAAGCCAAAGGCCTTCATCGCTGTTATAAGCAGATCCGAAGATCCGAAGCCCATAACGAAAGTAGCTTTATTACCACCTGACCCCACGAAAGCTAAGGA</p></td>
+                  <td align="left"><p>Characiformes</p></td>
+                  <td align="left"><p>Ctenoluciidae</p></td>
+                  <td align="left"><p><italic>Boulengerella maculata</italic></p></td>
+                  <td align="char" char="."><p>126</p></td>
+                  <td align="char" char="."><p>1</p></td>
+                  <td align="left"><p>INPA-ICT 055263</p></td>
+                  <td align="left"><p>S1</p></td>
+                  <td align="left"><p>ACCGCGGTTAGACGAGTAGGCCCAAGTTGATAGATTACGGCGTAAAGAGTGGTTAAGGATTTTCTCCAAATTAAAGCCAAAGGCCTTCATCGCTGTTATAAGCAGATCCGAAGATCCGAAGCCCATAACGAAAGTAGCTTTATTACCACCTGACCCCACGAAAGCTAAGGA</p></td>
                 </tr>
                 <tr>
-                  <td><p>Cichliformes</p></td>
-                  <td><p>Cichlidae</p></td>
-                  <td><p><italic>Cichla ocellaris</italic></p></td>
-                  <td><p>52</p></td>
-                  <td><p>1</p></td>
-                  <td></td>
-                  <td></td>
-                  <td><p>ACCGCGGTTATACGAGAGGCCCAAGTTGACAGACACCGGCGTAAAGAGTGGCTAGGGAAAAATTACTACTAAAGCCGAACACCTTCAGAACTGTCATACGTTCCCGAAGATAAGAAGCCCCACCACGAAAGTGACTTTATATTACCCGACCCCACGAAAGCTGTGAA</p></td>
+                  <td align="left"><p>Cichliformes</p></td>
+                  <td align="left"><p>Cichlidae</p></td>
+                  <td align="left"><p><italic>Cichla ocellaris</italic></p></td>
+                  <td align="char" char="."><p>52</p></td>
+                  <td align="char" char="."><p>1</p></td>
+                  <td align="left"></td>
+                  <td align="left"></td>
+                  <td align="left"><p>ACCGCGGTTATACGAGAGGCCCAAGTTGACAGACACCGGCGTAAAGAGTGGCTAGGGAAAAATTACTACTAAAGCCGAACACCTTCAGAACTGTCATACGTTCCCGAAGATAAGAAGCCCCACCACGAAAGTGACTTTATATTACCCGACCCCACGAAAGCTGTGAA</p></td>
                 </tr>
                 <tr>
-                  <td><p>Cichliformes</p></td>
-                  <td><p>Cichlidae</p></td>
-                  <td><p><italic>Hypselecara temporalis</italic></p></td>
-                  <td><p>38</p></td>
-                  <td><p>1</p></td>
-                  <td></td>
-                  <td></td>
-                  <td><p>ACCGCGGTTATACGAGAGGCCCAAGTTGACAGGTTCCGGCGTAAAGAGTGGTTAAGGAAAAATACTCTACTAAAGCCGAACCCCCTCAGAACTGTTATACGTTTCCGAAGGAATGAAGCCCTACCACGAAAGTGGCTTTACCCTACCCGACTCCACGAAAGCTGCGAAA</p></td>
+                  <td align="left"><p>Cichliformes</p></td>
+                  <td align="left"><p>Cichlidae</p></td>
+                  <td align="left"><p><italic>Hypselecara temporalis</italic></p></td>
+                  <td align="char" char="."><p>38</p></td>
+                  <td align="char" char="."><p>1</p></td>
+                  <td align="left"></td>
+                  <td align="left"></td>
+                  <td align="left"><p>ACCGCGGTTATACGAGAGGCCCAAGTTGACAGGTTCCGGCGTAAAGAGTGGTTAAGGAAAAATACTCTACTAAAGCCGAACCCCCTCAGAACTGTTATACGTTTCCGAAGGAATGAAGCCCTACCACGAAAGTGGCTTTACCCTACCCGACTCCACGAAAGCTGCGAAA</p></td>
                 </tr>
                 <tr>
-                  <td><p>Pleuronectiformes</p></td>
-                  <td><p>Achiridae</p></td>
-                  <td><p><italic>Hypoclinemus mentalis</italic></p></td>
-                  <td><p>50,324</p></td>
-                  <td><p>1</p></td>
-                  <td><p>INPA-ICT 055269</p></td>
-                  <td><p>S1</p></td>
-                  <td><p>GCCGCGGTTACACGAGAGGTCCAAGTTGATAAACAACGGCGTAAAGGGTGGTTAGGAATAAAAATAAACTAAAGCCGAACGGTTCACAAAGTCATCCTCAAGCTAACGAGAACATGAAGCCCAACCACGAAAGTGGCTTTACATAATTCTGAATCCACAAAAGCTAAGAA</p></td>
+                  <td align="left"><p>Pleuronectiformes</p></td>
+                  <td align="left"><p>Achiridae</p></td>
+                  <td align="left"><p><italic>Hypoclinemus mentalis</italic></p></td>
+                  <td align="char" char="."><p>50,324</p></td>
+                  <td align="char" char="."><p>1</p></td>
+                  <td align="left"><p>INPA-ICT 055269</p></td>
+                  <td align="left"><p>S1</p></td>
+                  <td align="left"><p>GCCGCGGTTACACGAGAGGTCCAAGTTGATAAACAACGGCGTAAAGGGTGGTTAGGAATAAAAATAAACTAAAGCCGAACGGTTCACAAAGTCATCCTCAAGCTAACGAGAACATGAAGCCCAACCACGAAAGTGGCTTTACATAATTCTGAATCCACAAAAGCTAAGAA</p></td>
                 </tr>
                 <tr>
-                  <td><p>Perciformes</p></td>
-                  <td><p>Sciaenidae</p></td>
-                  <td><p><italic>Plagioscion squamosissimus</italic></p></td>
-                  <td><p>1220</p></td>
-                  <td><p>2</p></td>
-                  <td><p>INPA-ICT 055328</p></td>
-                  <td><p>S1</p></td>
-                  <td><p>ACCGCGGTTATACGAGAGGCCCAAGTTGATACTCCACGGCGTAAAGAGTGGTTAAAAAAAGACCTATTACTAAAGCCGAACGCCTTCAAAGCTGTTATACGCATCCGAAGGTGAGAAGCCCACCCACGAAAGTGGCTTTACAACCTTGACCCCACGAAAGCTACGAC</p></td>
+                  <td align="left"><p>Perciformes</p></td>
+                  <td align="left"><p>Sciaenidae</p></td>
+                  <td align="left"><p><italic>Plagioscion squamosissimus</italic></p></td>
+                  <td align="char" char="."><p>1220</p></td>
+                  <td align="char" char="."><p>2</p></td>
+                  <td align="left"><p>INPA-ICT 055328</p></td>
+                  <td align="left"><p>S1</p></td>
+                  <td align="left"><p>ACCGCGGTTATACGAGAGGCCCAAGTTGATACTCCACGGCGTAAAGAGTGGTTAAAAAAAGACCTATTACTAAAGCCGAACGCCTTCAAAGCTGTTATACGCATCCGAAGGTGAGAAGCCCACCCACGAAAGTGGCTTTACAACCTTGACCCCACGAAAGCTACGAC</p></td>
                 </tr>
               </tbody>
             </table>
@@ -982,7 +982,7 @@ expression: jats
           <caption>
             <p>Ichthyofauna segregation into river and stream at Javari Basin as detected by 11 samples of eDNA in the three stations: stream (station 2): samples 1 to 6; Javari river (station 1): Samples 6 to 10; and Quixito River (station 3): sample 11. (<bold>A</bold>) Heatmap based on the Pearson correlation coefficients between species composition and habitat. Note the difference in the species composition along the river, i.e., Javari versus Quixito rivers (<bold>B</bold>) Non-metric multidimensional scaling (NMDS) based on Jaccard’s dissimilarities coefficients discriminating habitat (streams vs. rivers). The Stress of the NMDS plot 0.052 indicates that its first three axes provided an appropriate three dimensional representation of the habitats according to their species composition. Each dot represents a species and the relative distance between two points represents the dissimilarity. The ANOSIM <italic>p</italic> &lt; 0.0001 suggests that NMDS significantly distinguished between the river and stream communities; (<bold>C</bold>) Heatmap for species abundance for each of the five orders detected in the stream; (<bold>D</bold>) Heatmap showing species abundance for each of the eight orders detected in the Javari river and Quixito River. Note the alteration in species abundance between samples 5 and 10 (Javari) and 11 (Quixito). In samples 5 and 10 Characiformes and Siluriformes are more abundant. Conversely, Gymnotiformes and Siluriformes are more species rich in the sample 6. (<bold>E</bold>) Chord diagram showing the directional relationship between habitat and species richness distributed into the nine detected orders.</p>
           </caption>
-          <inline-graphic xlink:href="41598_2021_97128_Fig3_HTML.jpg"></inline-graphic>
+          <graphic xlink:href="41598_2021_97128_Fig3_HTML.jpg"></graphic>
         </fig>
         <p>To assess whether the differences in species composition between stream and river communities observed in the Pearson correlation coefficients were significant, we calculated Jaccard’s dissimilarities indices through a NMDS analysis. The original position of the 222 detected species in river, stream, and in both habitats were represented in a three-dimensional NMDS space (Fig. <xref ref-type="fig" rid="Fig3">3</xref>B). The Stress = 0.0524 of the NMDS plot indicated that its first three axes provided an appropriate three-dimensional representation of the habitats according to their species composition<sup>&#10;            <xref ref-type="bibr" rid="CR36">36</xref>&#10;          </sup>, and NMDS significantly distinguished between the river and stream communities (ANOSIM R = 0.4327; <italic>p</italic> &lt; 0.0001; Fig. <xref ref-type="fig" rid="Fig3">3</xref>B).</p>
         <p>Based on the species frequency detected per order we determined the composition of the stream and river habitats (Fig. <xref ref-type="fig" rid="Fig3">3</xref>B,C). Of note is the difference in the species composition between the five samples from Javari River (Samples 1 to 5) and the single sample (Sample 6) collected in the Quixito River (Fig. <xref ref-type="fig" rid="Fig3">3</xref>A,D). The interrelationships between habitat and species diversity and composition per order are represented in the chord diagram in Fig. <xref ref-type="fig" rid="Fig3">3</xref>E.</p>
@@ -997,7 +997,7 @@ expression: jats
             <caption>
               <p>Comparison between Capture-Based Sampling (CBS) in blue and Molecular-Based Sampling (MBS) in red in two sampled localities. Javari River: (<bold>A</bold>) Histogram comparing the number of species per order detected by CBS and MBS; (<bold>B</bold>) Venn diagram of the number of orders detected by CBS and MBS; (<bold>C</bold>) Rarefaction species accumulation curve for CBS with 95% confidence interval and extrapolation for twice the number of individuals sampled. <italic>Terra firme</italic> stream: (<bold>D</bold>) Histogram comparing the number of species per order detected by CBS and MBS; (<bold>E</bold>) Venn diagram of the number of orders detected by CBS and MBS; (<bold>F</bold>) Rarefaction species accumulation curve for CBS with 95% confidence interval and extrapolation for twice the number of individuals sampled.</p>
             </caption>
-            <inline-graphic xlink:href="41598_2021_97128_Fig4_HTML.jpg"></inline-graphic>
+            <graphic xlink:href="41598_2021_97128_Fig4_HTML.jpg"></graphic>
           </fig>
         </sec>
         <sec id="Sec8">
@@ -1102,60 +1102,71 @@ expression: jats
     <sec sec-type="SupplementaryMaterials">
       <title level="1">Supplementary Information</title>
       <sec id="Sec25">
-        <supplementary-material id="MOESM1" href="41598_2021_97128_MOESM1_ESM.docx">
+        <supplementary-material id="MOESM1">
           <caption>
             <p>Supplementary Table S1.</p>
           </caption>
+          <media xlink:href="41598_2021_97128_MOESM1_ESM.docx"></media>
         </supplementary-material>
-        <supplementary-material id="MOESM2" href="41598_2021_97128_MOESM2_ESM.docx">
+        <supplementary-material id="MOESM2">
           <caption>
             <p>Supplementary Table S2.</p>
           </caption>
+          <media xlink:href="41598_2021_97128_MOESM2_ESM.docx"></media>
         </supplementary-material>
-        <supplementary-material id="MOESM3" href="41598_2021_97128_MOESM3_ESM.docx">
+        <supplementary-material id="MOESM3">
           <caption>
             <p>Supplementary Table S3.</p>
           </caption>
+          <media xlink:href="41598_2021_97128_MOESM3_ESM.docx"></media>
         </supplementary-material>
-        <supplementary-material id="MOESM4" href="41598_2021_97128_MOESM4_ESM.docx">
+        <supplementary-material id="MOESM4">
           <caption>
             <p>Supplementary Table S4.</p>
           </caption>
+          <media xlink:href="41598_2021_97128_MOESM4_ESM.docx"></media>
         </supplementary-material>
-        <supplementary-material id="MOESM5" href="41598_2021_97128_MOESM5_ESM.docx">
+        <supplementary-material id="MOESM5">
           <caption>
             <p>Supplementary Table S5.</p>
           </caption>
+          <media xlink:href="41598_2021_97128_MOESM5_ESM.docx"></media>
         </supplementary-material>
-        <supplementary-material id="MOESM6" href="41598_2021_97128_MOESM6_ESM.docx">
+        <supplementary-material id="MOESM6">
           <caption>
             <p>Supplementary Table S6.</p>
           </caption>
+          <media xlink:href="41598_2021_97128_MOESM6_ESM.docx"></media>
         </supplementary-material>
-        <supplementary-material id="MOESM7" href="41598_2021_97128_MOESM7_ESM.docx">
+        <supplementary-material id="MOESM7">
           <caption>
             <p>Supplementary Table S7.</p>
           </caption>
+          <media xlink:href="41598_2021_97128_MOESM7_ESM.docx"></media>
         </supplementary-material>
-        <supplementary-material id="MOESM8" href="41598_2021_97128_MOESM8_ESM.docx">
+        <supplementary-material id="MOESM8">
           <caption>
             <p>Supplementary Table S8.</p>
           </caption>
+          <media xlink:href="41598_2021_97128_MOESM8_ESM.docx"></media>
         </supplementary-material>
-        <supplementary-material id="MOESM9" href="41598_2021_97128_MOESM9_ESM.docx">
+        <supplementary-material id="MOESM9">
           <caption>
             <p>Supplementary Table S9.</p>
           </caption>
+          <media xlink:href="41598_2021_97128_MOESM9_ESM.docx"></media>
         </supplementary-material>
-        <supplementary-material id="MOESM10" href="41598_2021_97128_MOESM10_ESM.jpg">
+        <supplementary-material id="MOESM10">
           <caption>
             <p>Supplementary Figure S1.</p>
           </caption>
+          <media xlink:href="41598_2021_97128_MOESM10_ESM.jpg"></media>
         </supplementary-material>
-        <supplementary-material id="MOESM11" href="41598_2021_97128_MOESM11_ESM.docx">
+        <supplementary-material id="MOESM11">
           <caption>
             <p>Supplementary Information.</p>
           </caption>
+          <media xlink:href="41598_2021_97128_MOESM11_ESM.docx"></media>
         </supplementary-material>
       </sec>
     </sec>

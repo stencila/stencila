@@ -60,6 +60,9 @@ expression: info.losses
 //article/body/sec/sec/title/@id: 6
 //article/body/sec/supplementary-material/@orientation: 1
 //article/body/sec/supplementary-material/@position: 1
+//article/body/sec/supplementary-material/media/@id: 1
+//article/body/sec/supplementary-material/media/@orientation: 1
+//article/body/sec/supplementary-material/media/@position: 1
 //article/body/sec/title/@id: 5
 //article/front/article-meta/abstract/p/@id: 1
 //article/front/article-meta/abstract/sec/p/@id: 1

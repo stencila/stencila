@@ -38,9 +38,18 @@
         <kwd>keyword</kwd>
         <kwd>test</kwd>
       </kwd-group>
+      <funding-group>
+        <award-group>
+          <funding-source>
+            <institution-wrap>
+              <institution>Example Inc</institution>
+            </institution-wrap>
+          </funding-source>
+        </award-group>
+      </funding-group>
     </article-meta>
   </front>
   <body>
-    <p>An example article for testing metadata encoding in various formats. It illustrates Stencila&apos;s focus on the <ext-link xlink:href="https://en.wikipedia.org/wiki/Robustness_principle">Robustness Principle</ext-link>: <inline-quote>be conservative in what you do, be liberal in what you accept from others</inline-quote>. Metadata can be added to YAML front-matter in Markdown documents in a variety of ways, and it is parsed into Stencila Schema nodes.</p>
+    <p>An example article for testing metadata encoding in various formats. It illustrates Stencila&apos;s focus on the <ext-link ext-link-type="uri" xlink:href="https://en.wikipedia.org/wiki/Robustness_principle">Robustness Principle</ext-link>: <inline-quote>be conservative in what you do, be liberal in what you accept from others</inline-quote>. Metadata can be added to YAML front-matter in Markdown documents in a variety of ways, and it is parsed into Stencila Schema nodes.</p>
   </body>
 </article>

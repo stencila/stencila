@@ -7140,7 +7140,8 @@ expression: article
                     {
                       "type": "TableCell",
                       "cellType": "HeaderCell",
-                      "content": []
+                      "content": [],
+                      "horizontalAlignment": "AlignLeft"
                     },
                     {
                       "type": "TableCell",
@@ -7157,7 +7158,8 @@ expression: article
                             }
                           ]
                         }
-                      ]
+                      ],
+                      "horizontalAlignment": "AlignCenter"
                     },
                     {
                       "type": "TableCell",
@@ -7174,7 +7176,8 @@ expression: article
                             }
                           ]
                         }
-                      ]
+                      ],
+                      "horizontalAlignment": "AlignCenter"
                     },
                     {
                       "type": "TableCell",
@@ -7191,7 +7194,8 @@ expression: article
                             }
                           ]
                         }
-                      ]
+                      ],
+                      "horizontalAlignment": "AlignCenter"
                     }
                   ],
                   "rowType": "HeaderRow"
@@ -7219,7 +7223,8 @@ expression: article
                           ]
                         }
                       ],
-                      "rowSpan": 4
+                      "rowSpan": 4,
+                      "horizontalAlignment": "AlignLeft"
                     },
                     {
                       "type": "TableCell",
@@ -7235,7 +7240,8 @@ expression: article
                             }
                           ]
                         }
-                      ]
+                      ],
+                      "horizontalAlignment": "AlignLeft"
                     },
                     {
                       "type": "TableCell",
@@ -7252,7 +7258,9 @@ expression: article
                           ]
                         }
                       ],
-                      "rowSpan": 4
+                      "rowSpan": 4,
+                      "horizontalAlignment": "AlignLeft",
+                      "verticalAlignment": "AlignMiddle"
                     },
                     {
                       "type": "TableCell",
@@ -7269,7 +7277,9 @@ expression: article
                           ]
                         }
                       ],
-                      "rowSpan": 4
+                      "rowSpan": 4,
+                      "horizontalAlignment": "AlignLeft",
+                      "verticalAlignment": "AlignMiddle"
                     }
                   ]
                 },
@@ -7290,7 +7300,8 @@ expression: article
                             }
                           ]
                         }
-                      ]
+                      ],
+                      "horizontalAlignment": "AlignLeft"
                     }
                   ]
                 },
@@ -7311,7 +7322,8 @@ expression: article
                             }
                           ]
                         }
-                      ]
+                      ],
+                      "horizontalAlignment": "AlignLeft"
                     }
                   ]
                 },
@@ -7332,7 +7344,8 @@ expression: article
                             }
                           ]
                         }
-                      ]
+                      ],
+                      "horizontalAlignment": "AlignLeft"
                     }
                   ]
                 },
@@ -7359,7 +7372,8 @@ expression: article
                           ]
                         }
                       ],
-                      "rowSpan": 8
+                      "rowSpan": 8,
+                      "horizontalAlignment": "AlignLeft"
                     },
                     {
                       "type": "TableCell",
@@ -7375,7 +7389,8 @@ expression: article
                             }
                           ]
                         }
-                      ]
+                      ],
+                      "horizontalAlignment": "AlignLeft"
                     },
                     {
                       "type": "TableCell",
@@ -7391,7 +7406,8 @@ expression: article
                             }
                           ]
                         }
-                      ]
+                      ],
+                      "horizontalAlignment": "AlignLeft"
                     },
                     {
                       "type": "TableCell",
@@ -7407,7 +7423,8 @@ expression: article
                             }
                           ]
                         }
-                      ]
+                      ],
+                      "horizontalAlignment": "AlignLeft"
                     }
                   ]
                 },
@@ -7428,7 +7445,8 @@ expression: article
                             }
                           ]
                         }
-                      ]
+                      ],
+                      "horizontalAlignment": "AlignLeft"
                     },
                     {
                       "type": "TableCell",
@@ -7444,7 +7462,8 @@ expression: article
                             }
                           ]
                         }
-                      ]
+                      ],
+                      "horizontalAlignment": "AlignLeft"
                     },
                     {
                       "type": "TableCell",
@@ -7460,7 +7479,8 @@ expression: article
                             }
                           ]
                         }
-                      ]
+                      ],
+                      "horizontalAlignment": "AlignLeft"
                     }
                   ]
                 },
@@ -7481,7 +7501,8 @@ expression: article
                             }
                           ]
                         }
-                      ]
+                      ],
+                      "horizontalAlignment": "AlignLeft"
                     },
                     {
                       "type": "TableCell",
@@ -7497,11 +7518,13 @@ expression: article
                             }
                           ]
                         }
-                      ]
+                      ],
+                      "horizontalAlignment": "AlignLeft"
                     },
                     {
                       "type": "TableCell",
-                      "content": []
+                      "content": [],
+                      "horizontalAlignment": "AlignLeft"
                     }
                   ]
                 },
@@ -7522,7 +7545,8 @@ expression: article
                             }
                           ]
                         }
-                      ]
+                      ],
+                      "horizontalAlignment": "AlignLeft"
                     },
                     {
                       "type": "TableCell",
@@ -7538,11 +7562,13 @@ expression: article
                             }
                           ]
                         }
-                      ]
+                      ],
+                      "horizontalAlignment": "AlignLeft"
                     },
                     {
                       "type": "TableCell",
-                      "content": []
+                      "content": [],
+                      "horizontalAlignment": "AlignLeft"
                     }
                   ]
                 },
@@ -7563,7 +7589,8 @@ expression: article
                             }
                           ]
                         }
-                      ]
+                      ],
+                      "horizontalAlignment": "AlignLeft"
                     },
                     {
                       "type": "TableCell",
@@ -7579,11 +7606,13 @@ expression: article
                             }
                           ]
                         }
-                      ]
+                      ],
+                      "horizontalAlignment": "AlignLeft"
                     },
                     {
                       "type": "TableCell",
-                      "content": []
+                      "content": [],
+                      "horizontalAlignment": "AlignLeft"
                     }
                   ]
                 },
@@ -7604,7 +7633,8 @@ expression: article
                             }
                           ]
                         }
-                      ]
+                      ],
+                      "horizontalAlignment": "AlignLeft"
                     },
                     {
                       "type": "TableCell",
@@ -7620,11 +7650,13 @@ expression: article
                             }
                           ]
                         }
-                      ]
+                      ],
+                      "horizontalAlignment": "AlignLeft"
                     },
                     {
                       "type": "TableCell",
-                      "content": []
+                      "content": [],
+                      "horizontalAlignment": "AlignLeft"
                     }
                   ]
                 },
@@ -7645,7 +7677,8 @@ expression: article
                             }
                           ]
                         }
-                      ]
+                      ],
+                      "horizontalAlignment": "AlignLeft"
                     },
                     {
                       "type": "TableCell",
@@ -7661,7 +7694,8 @@ expression: article
                             }
                           ]
                         }
-                      ]
+                      ],
+                      "horizontalAlignment": "AlignLeft"
                     },
                     {
                       "type": "TableCell",
@@ -7677,7 +7711,8 @@ expression: article
                             }
                           ]
                         }
-                      ]
+                      ],
+                      "horizontalAlignment": "AlignLeft"
                     }
                   ]
                 },
@@ -7698,7 +7733,8 @@ expression: article
                             }
                           ]
                         }
-                      ]
+                      ],
+                      "horizontalAlignment": "AlignLeft"
                     },
                     {
                       "type": "TableCell",
@@ -7714,7 +7750,8 @@ expression: article
                             }
                           ]
                         }
-                      ]
+                      ],
+                      "horizontalAlignment": "AlignLeft"
                     },
                     {
                       "type": "TableCell",
@@ -7730,7 +7767,8 @@ expression: article
                             }
                           ]
                         }
-                      ]
+                      ],
+                      "horizontalAlignment": "AlignLeft"
                     }
                   ]
                 },
@@ -7757,7 +7795,8 @@ expression: article
                           ]
                         }
                       ],
-                      "rowSpan": 7
+                      "rowSpan": 7,
+                      "horizontalAlignment": "AlignLeft"
                     },
                     {
                       "type": "TableCell",
@@ -7773,7 +7812,8 @@ expression: article
                             }
                           ]
                         }
-                      ]
+                      ],
+                      "horizontalAlignment": "AlignLeft"
                     },
                     {
                       "type": "TableCell",
@@ -7789,11 +7829,13 @@ expression: article
                             }
                           ]
                         }
-                      ]
+                      ],
+                      "horizontalAlignment": "AlignLeft"
                     },
                     {
                       "type": "TableCell",
-                      "content": []
+                      "content": [],
+                      "horizontalAlignment": "AlignLeft"
                     }
                   ]
                 },
@@ -7814,7 +7856,8 @@ expression: article
                             }
                           ]
                         }
-                      ]
+                      ],
+                      "horizontalAlignment": "AlignLeft"
                     },
                     {
                       "type": "TableCell",
@@ -7830,11 +7873,13 @@ expression: article
                             }
                           ]
                         }
-                      ]
+                      ],
+                      "horizontalAlignment": "AlignLeft"
                     },
                     {
                       "type": "TableCell",
-                      "content": []
+                      "content": [],
+                      "horizontalAlignment": "AlignLeft"
                     }
                   ]
                 },
@@ -7855,7 +7900,8 @@ expression: article
                             }
                           ]
                         }
-                      ]
+                      ],
+                      "horizontalAlignment": "AlignLeft"
                     },
                     {
                       "type": "TableCell",
@@ -7871,7 +7917,8 @@ expression: article
                             }
                           ]
                         }
-                      ]
+                      ],
+                      "horizontalAlignment": "AlignLeft"
                     },
                     {
                       "type": "TableCell",
@@ -7887,7 +7934,8 @@ expression: article
                             }
                           ]
                         }
-                      ]
+                      ],
+                      "horizontalAlignment": "AlignLeft"
                     }
                   ]
                 },
@@ -7908,7 +7956,8 @@ expression: article
                             }
                           ]
                         }
-                      ]
+                      ],
+                      "horizontalAlignment": "AlignLeft"
                     },
                     {
                       "type": "TableCell",
@@ -7924,11 +7973,13 @@ expression: article
                             }
                           ]
                         }
-                      ]
+                      ],
+                      "horizontalAlignment": "AlignLeft"
                     },
                     {
                       "type": "TableCell",
-                      "content": []
+                      "content": [],
+                      "horizontalAlignment": "AlignLeft"
                     }
                   ]
                 },
@@ -7949,7 +8000,8 @@ expression: article
                             }
                           ]
                         }
-                      ]
+                      ],
+                      "horizontalAlignment": "AlignLeft"
                     },
                     {
                       "type": "TableCell",
@@ -7965,11 +8017,13 @@ expression: article
                             }
                           ]
                         }
-                      ]
+                      ],
+                      "horizontalAlignment": "AlignLeft"
                     },
                     {
                       "type": "TableCell",
-                      "content": []
+                      "content": [],
+                      "horizontalAlignment": "AlignLeft"
                     }
                   ]
                 },
@@ -7990,7 +8044,8 @@ expression: article
                             }
                           ]
                         }
-                      ]
+                      ],
+                      "horizontalAlignment": "AlignLeft"
                     },
                     {
                       "type": "TableCell",
@@ -8006,11 +8061,13 @@ expression: article
                             }
                           ]
                         }
-                      ]
+                      ],
+                      "horizontalAlignment": "AlignLeft"
                     },
                     {
                       "type": "TableCell",
-                      "content": []
+                      "content": [],
+                      "horizontalAlignment": "AlignLeft"
                     }
                   ]
                 },
@@ -8031,7 +8088,8 @@ expression: article
                             }
                           ]
                         }
-                      ]
+                      ],
+                      "horizontalAlignment": "AlignLeft"
                     },
                     {
                       "type": "TableCell",
@@ -8047,11 +8105,13 @@ expression: article
                             }
                           ]
                         }
-                      ]
+                      ],
+                      "horizontalAlignment": "AlignLeft"
                     },
                     {
                       "type": "TableCell",
-                      "content": []
+                      "content": [],
+                      "horizontalAlignment": "AlignLeft"
                     }
                   ]
                 },
@@ -8078,7 +8138,8 @@ expression: article
                           ]
                         }
                       ],
-                      "rowSpan": 6
+                      "rowSpan": 6,
+                      "horizontalAlignment": "AlignLeft"
                     },
                     {
                       "type": "TableCell",
@@ -8094,7 +8155,8 @@ expression: article
                             }
                           ]
                         }
-                      ]
+                      ],
+                      "horizontalAlignment": "AlignLeft"
                     },
                     {
                       "type": "TableCell",
@@ -8110,7 +8172,8 @@ expression: article
                             }
                           ]
                         }
-                      ]
+                      ],
+                      "horizontalAlignment": "AlignLeft"
                     },
                     {
                       "type": "TableCell",
@@ -8126,7 +8189,8 @@ expression: article
                             }
                           ]
                         }
-                      ]
+                      ],
+                      "horizontalAlignment": "AlignLeft"
                     }
                   ]
                 },
@@ -8147,7 +8211,8 @@ expression: article
                             }
                           ]
                         }
-                      ]
+                      ],
+                      "horizontalAlignment": "AlignLeft"
                     },
                     {
                       "type": "TableCell",
@@ -8163,11 +8228,13 @@ expression: article
                             }
                           ]
                         }
-                      ]
+                      ],
+                      "horizontalAlignment": "AlignLeft"
                     },
                     {
                       "type": "TableCell",
-                      "content": []
+                      "content": [],
+                      "horizontalAlignment": "AlignLeft"
                     }
                   ]
                 },
@@ -8188,7 +8255,8 @@ expression: article
                             }
                           ]
                         }
-                      ]
+                      ],
+                      "horizontalAlignment": "AlignLeft"
                     },
                     {
                       "type": "TableCell",
@@ -8204,11 +8272,13 @@ expression: article
                             }
                           ]
                         }
-                      ]
+                      ],
+                      "horizontalAlignment": "AlignLeft"
                     },
                     {
                       "type": "TableCell",
-                      "content": []
+                      "content": [],
+                      "horizontalAlignment": "AlignLeft"
                     }
                   ]
                 },
@@ -8229,7 +8299,8 @@ expression: article
                             }
                           ]
                         }
-                      ]
+                      ],
+                      "horizontalAlignment": "AlignLeft"
                     },
                     {
                       "type": "TableCell",
@@ -8245,11 +8316,13 @@ expression: article
                             }
                           ]
                         }
-                      ]
+                      ],
+                      "horizontalAlignment": "AlignLeft"
                     },
                     {
                       "type": "TableCell",
-                      "content": []
+                      "content": [],
+                      "horizontalAlignment": "AlignLeft"
                     }
                   ]
                 },
@@ -8270,7 +8343,8 @@ expression: article
                             }
                           ]
                         }
-                      ]
+                      ],
+                      "horizontalAlignment": "AlignLeft"
                     },
                     {
                       "type": "TableCell",
@@ -8286,11 +8360,13 @@ expression: article
                             }
                           ]
                         }
-                      ]
+                      ],
+                      "horizontalAlignment": "AlignLeft"
                     },
                     {
                       "type": "TableCell",
-                      "content": []
+                      "content": [],
+                      "horizontalAlignment": "AlignLeft"
                     }
                   ]
                 },
@@ -8311,7 +8387,8 @@ expression: article
                             }
                           ]
                         }
-                      ]
+                      ],
+                      "horizontalAlignment": "AlignLeft"
                     },
                     {
                       "type": "TableCell",
@@ -8327,7 +8404,8 @@ expression: article
                             }
                           ]
                         }
-                      ]
+                      ],
+                      "horizontalAlignment": "AlignLeft"
                     },
                     {
                       "type": "TableCell",
@@ -8343,7 +8421,8 @@ expression: article
                             }
                           ]
                         }
-                      ]
+                      ],
+                      "horizontalAlignment": "AlignLeft"
                     }
                   ]
                 }
@@ -8452,8 +8531,7 @@ expression: article
                       }
                     }
                   ],
-                  "target": "http://scenalyzer.com/",
-                  "jatsExtLinkType": "uri"
+                  "target": "http://scenalyzer.com/"
                 },
                 {
                   "type": "Text",
@@ -8488,8 +8566,7 @@ expression: article
                       }
                     }
                   ],
-                  "target": "http://avisynth.nl/index.php/Main_Page",
-                  "jatsExtLinkType": "uri"
+                  "target": "http://avisynth.nl/index.php/Main_Page"
                 },
                 {
                   "type": "Text",
@@ -8507,8 +8584,7 @@ expression: article
                       }
                     }
                   ],
-                  "target": "http://www.virtualdub.org/",
-                  "jatsExtLinkType": "uri"
+                  "target": "http://www.virtualdub.org/"
                 },
                 {
                   "type": "Text",
@@ -15028,8 +15104,7 @@ expression: article
               },
               "mathLanguage": "mathml",
               "label": "1",
-              "labelAutomatically": false,
-              "mathml": "<mml:math xmlns:mml=\"http://www.w3.org/1998/Math/MathML\" id=\"jats-math-1\" display=\"block\">\n              <mml:mrow>\n                <mml:mrow>\n                  <mml:mi>k</mml:mi>\n                  <mml:msub>\n                    <mml:mi>S</mml:mi>\n                    <mml:mi mathvariant=\"normal\">A</mml:mi>\n                  </mml:msub>\n                  <mml:mo linebreak=\"badbreak\">=</mml:mo>\n                  <mml:msub>\n                    <mml:mi>m</mml:mi>\n                    <mml:mi mathvariant=\"normal\">A</mml:mi>\n                  </mml:msub>\n                  <mml:mi>g</mml:mi>\n                  <mml:mo linebreak=\"goodbreak\">=</mml:mo>\n                  <mml:msub>\n                    <mml:mi>V</mml:mi>\n                    <mml:mi mathvariant=\"normal\">A</mml:mi>\n                  </mml:msub>\n                  <mml:mi>\n                    ρ\n                  </mml:mi>\n                  <mml:mi>g</mml:mi>\n                  <mml:mo linebreak=\"goodbreak\">=</mml:mo>\n                  <mml:msub>\n                    <mml:mi>S</mml:mi>\n                    <mml:mi mathvariant=\"normal\">A</mml:mi>\n                  </mml:msub>\n                  <mml:msub>\n                    <mml:mi>h</mml:mi>\n                    <mml:mi mathvariant=\"normal\">A</mml:mi>\n                  </mml:msub>\n                  <mml:mi>\n                    ρ\n                  </mml:mi>\n                  <mml:mi>g</mml:mi>\n                </mml:mrow>\n              </mml:mrow>\n            </mml:math>"
+              "labelAutomatically": false
             },
             {
               "type": "Paragraph",
@@ -15050,8 +15125,7 @@ expression: article
               },
               "mathLanguage": "mathml",
               "label": "2",
-              "labelAutomatically": false,
-              "mathml": "<mml:math xmlns:mml=\"http://www.w3.org/1998/Math/MathML\" id=\"jats-math-2\" display=\"block\">\n              <mml:mrow>\n                <mml:mrow>\n                  <mml:mi>k</mml:mi>\n                  <mml:mo linebreak=\"badbreak\">=</mml:mo>\n                  <mml:msub>\n                    <mml:mi>h</mml:mi>\n                    <mml:mi mathvariant=\"normal\">A</mml:mi>\n                  </mml:msub>\n                  <mml:mi>\n                    ρ\n                  </mml:mi>\n                  <mml:mi>g</mml:mi>\n                </mml:mrow>\n              </mml:mrow>\n            </mml:math>"
+              "labelAutomatically": false
             },
             {
               "type": "Paragraph",
@@ -15259,8 +15333,7 @@ expression: article
               },
               "mathLanguage": "mathml",
               "label": "3",
-              "labelAutomatically": false,
-              "mathml": "<mml:math xmlns:mml=\"http://www.w3.org/1998/Math/MathML\" id=\"jats-math-3\" display=\"block\">\n              <mml:mrow>\n                <mml:mrow>\n                  <mml:mi>k</mml:mi>\n                  <mml:msub>\n                    <mml:mi>S</mml:mi>\n                    <mml:mi mathvariant=\"normal\">B</mml:mi>\n                  </mml:msub>\n                  <mml:mo linebreak=\"badbreak\">=</mml:mo>\n                  <mml:msub>\n                    <mml:mi>S</mml:mi>\n                    <mml:mi mathvariant=\"normal\">B</mml:mi>\n                  </mml:msub>\n                  <mml:mi mathvariant=\"normal\">\n                    Δ\n                  </mml:mi>\n                  <mml:msub>\n                    <mml:mi>h</mml:mi>\n                    <mml:mi mathvariant=\"normal\">B</mml:mi>\n                  </mml:msub>\n                  <mml:mi>\n                    ρ\n                  </mml:mi>\n                  <mml:mi>g</mml:mi>\n                </mml:mrow>\n              </mml:mrow>\n            </mml:math>"
+              "labelAutomatically": false
             },
             {
               "type": "Paragraph",
@@ -15336,8 +15409,7 @@ expression: article
               },
               "mathLanguage": "mathml",
               "label": "4",
-              "labelAutomatically": false,
-              "mathml": "<mml:math xmlns:mml=\"http://www.w3.org/1998/Math/MathML\" id=\"jats-math-4\" display=\"block\">\n              <mml:mrow>\n                <mml:mrow>\n                  <mml:mi mathvariant=\"normal\">\n                    Δ\n                  </mml:mi>\n                  <mml:msub>\n                    <mml:mi>h</mml:mi>\n                    <mml:mi mathvariant=\"normal\">B</mml:mi>\n                  </mml:msub>\n                  <mml:mo linebreak=\"badbreak\">=</mml:mo>\n                  <mml:msub>\n                    <mml:mi>h</mml:mi>\n                    <mml:mi mathvariant=\"normal\">A</mml:mi>\n                  </mml:msub>\n                </mml:mrow>\n              </mml:mrow>\n            </mml:math>"
+              "labelAutomatically": false
             },
             {
               "type": "Paragraph",
@@ -15903,8 +15975,7 @@ expression: article
               },
               "mathLanguage": "mathml",
               "label": "5",
-              "labelAutomatically": false,
-              "mathml": "<mml:math xmlns:mml=\"http://www.w3.org/1998/Math/MathML\" id=\"jats-math-5\" display=\"block\">\n              <mml:mrow>\n                <mml:mrow>\n                  <mml:msubsup>\n                    <mml:mi>h</mml:mi>\n                    <mml:mi mathvariant=\"normal\">C</mml:mi>\n                    <mml:mo>\n                      ′\n                    </mml:mo>\n                  </mml:msubsup>\n                  <mml:mi>k</mml:mi>\n                  <mml:msub>\n                    <mml:mi>S</mml:mi>\n                    <mml:mi mathvariant=\"normal\">C</mml:mi>\n                  </mml:msub>\n                  <mml:mo>/</mml:mo>\n                  <mml:mn>3</mml:mn>\n                  <mml:mo linebreak=\"goodbreak\">=</mml:mo>\n                  <mml:msub>\n                    <mml:mi>m</mml:mi>\n                    <mml:mi mathvariant=\"normal\">C</mml:mi>\n                  </mml:msub>\n                  <mml:mi>g</mml:mi>\n                  <mml:msub>\n                    <mml:mi>H</mml:mi>\n                    <mml:mi mathvariant=\"normal\">C</mml:mi>\n                  </mml:msub>\n                  <mml:mo linebreak=\"goodbreak\">=</mml:mo>\n                  <mml:msub>\n                    <mml:mi>V</mml:mi>\n                    <mml:mi mathvariant=\"normal\">C</mml:mi>\n                  </mml:msub>\n                  <mml:mi>\n                    ρ\n                  </mml:mi>\n                  <mml:mi>g</mml:mi>\n                  <mml:msub>\n                    <mml:mi>H</mml:mi>\n                    <mml:mi mathvariant=\"normal\">C</mml:mi>\n                  </mml:msub>\n                  <mml:mo linebreak=\"goodbreak\">=</mml:mo>\n                  <mml:msub>\n                    <mml:mi>S</mml:mi>\n                    <mml:mi mathvariant=\"normal\">C</mml:mi>\n                  </mml:msub>\n                  <mml:msub>\n                    <mml:mi>h</mml:mi>\n                    <mml:mi mathvariant=\"normal\">C</mml:mi>\n                  </mml:msub>\n                  <mml:mi>\n                    ρ\n                  </mml:mi>\n                  <mml:mi>g</mml:mi>\n                  <mml:msub>\n                    <mml:mi>H</mml:mi>\n                    <mml:mi mathvariant=\"normal\">C</mml:mi>\n                  </mml:msub>\n                </mml:mrow>\n              </mml:mrow>\n            </mml:math>"
+              "labelAutomatically": false
             },
             {
               "type": "Paragraph",
@@ -15980,8 +16051,7 @@ expression: article
               },
               "mathLanguage": "mathml",
               "label": "6",
-              "labelAutomatically": false,
-              "mathml": "<mml:math xmlns:mml=\"http://www.w3.org/1998/Math/MathML\" id=\"jats-math-6\" display=\"block\">\n              <mml:mrow>\n                <mml:mrow>\n                  <mml:msub>\n                    <mml:mi>h</mml:mi>\n                    <mml:mi mathvariant=\"normal\">A</mml:mi>\n                  </mml:msub>\n                  <mml:msubsup>\n                    <mml:mi>h</mml:mi>\n                    <mml:mi mathvariant=\"normal\">C</mml:mi>\n                    <mml:mo>\n                      ′\n                    </mml:mo>\n                  </mml:msubsup>\n                  <mml:mo>/</mml:mo>\n                  <mml:mn>3</mml:mn>\n                  <mml:mo linebreak=\"goodbreak\">=</mml:mo>\n                  <mml:msub>\n                    <mml:mi>h</mml:mi>\n                    <mml:mi mathvariant=\"normal\">C</mml:mi>\n                  </mml:msub>\n                  <mml:msub>\n                    <mml:mi>H</mml:mi>\n                    <mml:mi mathvariant=\"normal\">C</mml:mi>\n                  </mml:msub>\n                </mml:mrow>\n              </mml:mrow>\n            </mml:math>"
+              "labelAutomatically": false
             },
             {
               "type": "Paragraph",
@@ -16036,8 +16106,7 @@ expression: article
               },
               "mathLanguage": "mathml",
               "label": "7",
-              "labelAutomatically": false,
-              "mathml": "<mml:math xmlns:mml=\"http://www.w3.org/1998/Math/MathML\" id=\"jats-math-7\" display=\"block\">\n              <mml:mrow>\n                <mml:mrow>\n                  <mml:msub>\n                    <mml:mi>h</mml:mi>\n                    <mml:mi mathvariant=\"normal\">A</mml:mi>\n                  </mml:msub>\n                  <mml:mo linebreak=\"badbreak\">=</mml:mo>\n                  <mml:msub>\n                    <mml:mi>H</mml:mi>\n                    <mml:mi mathvariant=\"normal\">C</mml:mi>\n                  </mml:msub>\n                  <mml:mfenced separators=\"\" open=\"(\" close=\")\">\n                    <mml:mn>3</mml:mn>\n                    <mml:msub>\n                      <mml:mi>h</mml:mi>\n                      <mml:mi mathvariant=\"normal\">C</mml:mi>\n                    </mml:msub>\n                    <mml:mo>/</mml:mo>\n                    <mml:msubsup>\n                      <mml:mi>h</mml:mi>\n                      <mml:mi mathvariant=\"normal\">C</mml:mi>\n                      <mml:mo>\n                        ′\n                      </mml:mo>\n                    </mml:msubsup>\n                  </mml:mfenced>\n                </mml:mrow>\n              </mml:mrow>\n            </mml:math>"
+              "labelAutomatically": false
             },
             {
               "type": "Paragraph",
@@ -16142,8 +16211,7 @@ expression: article
               "code": {
                 "string": "<mml:math xmlns:mml=\"http://www.w3.org/1998/Math/MathML\" id=\"jats-math-8\" display=\"block\">\n              <mml:mrow>\n                <mml:mrow>\n                  <mml:mn>3</mml:mn>\n                  <mml:msub>\n                    <mml:mi>h</mml:mi>\n                    <mml:mi mathvariant=\"normal\">C</mml:mi>\n                  </mml:msub>\n                  <mml:mo>/</mml:mo>\n                  <mml:msubsup>\n                    <mml:mi>h</mml:mi>\n                    <mml:mi mathvariant=\"normal\">C</mml:mi>\n                    <mml:mo>\n                      ′\n                    </mml:mo>\n                  </mml:msubsup>\n                  <mml:mo linebreak=\"goodbreak\">\n                    ≈\n                  </mml:mo>\n                  <mml:mn>1</mml:mn>\n                </mml:mrow>\n              </mml:mrow>\n            </mml:math>"
               },
-              "mathLanguage": "mathml",
-              "mathml": "<mml:math xmlns:mml=\"http://www.w3.org/1998/Math/MathML\" id=\"jats-math-8\" display=\"block\">\n              <mml:mrow>\n                <mml:mrow>\n                  <mml:mn>3</mml:mn>\n                  <mml:msub>\n                    <mml:mi>h</mml:mi>\n                    <mml:mi mathvariant=\"normal\">C</mml:mi>\n                  </mml:msub>\n                  <mml:mo>/</mml:mo>\n                  <mml:msubsup>\n                    <mml:mi>h</mml:mi>\n                    <mml:mi mathvariant=\"normal\">C</mml:mi>\n                    <mml:mo>\n                      ′\n                    </mml:mo>\n                  </mml:msubsup>\n                  <mml:mo linebreak=\"goodbreak\">\n                    ≈\n                  </mml:mo>\n                  <mml:mn>1</mml:mn>\n                </mml:mrow>\n              </mml:mrow>\n            </mml:math>"
+              "mathLanguage": "mathml"
             },
             {
               "type": "Paragraph",
@@ -16183,8 +16251,7 @@ expression: article
               },
               "mathLanguage": "mathml",
               "label": "8",
-              "labelAutomatically": false,
-              "mathml": "<mml:math xmlns:mml=\"http://www.w3.org/1998/Math/MathML\" id=\"jats-math-9\" display=\"block\">\n              <mml:mrow>\n                <mml:mrow>\n                  <mml:msub>\n                    <mml:mi>h</mml:mi>\n                    <mml:mi mathvariant=\"normal\">A</mml:mi>\n                  </mml:msub>\n                  <mml:mo linebreak=\"badbreak\">\n                    ≈\n                  </mml:mo>\n                  <mml:msub>\n                    <mml:mi>H</mml:mi>\n                    <mml:mi mathvariant=\"normal\">C</mml:mi>\n                  </mml:msub>\n                </mml:mrow>\n              </mml:mrow>\n            </mml:math>"
+              "labelAutomatically": false
             },
             {
               "type": "Paragraph",
@@ -20169,6 +20236,143 @@ expression: article
             }
           ],
           "target": "INZ2-17-849-s010.mov"
+        }
+      ]
+    },
+    {
+      "type": "Paragraph",
+      "content": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "\n          "
+          }
+        },
+        {
+          "type": "Text",
+          "value": {
+            "string": "\n            "
+          }
+        },
+        {
+          "type": "Text",
+          "value": {
+            "string": "Kuznetsov"
+          }
+        },
+        {
+          "type": "Text",
+          "value": {
+            "string": "\n            "
+          }
+        },
+        {
+          "type": "Text",
+          "value": {
+            "string": "AN"
+          }
+        },
+        {
+          "type": "Text",
+          "value": {
+            "string": "\n          "
+          }
+        },
+        {
+          "type": "Text",
+          "value": {
+            "string": " ("
+          }
+        },
+        {
+          "type": "Text",
+          "value": {
+            "string": "2022"
+          }
+        },
+        {
+          "type": "Text",
+          "value": {
+            "string": "). "
+          }
+        },
+        {
+          "type": "Text",
+          "value": {
+            "string": "How big can a walking fish be? A theoretical inference based on observations on four land‐dwelling fish genera of South Vietnam"
+          }
+        },
+        {
+          "type": "Text",
+          "value": {
+            "string": ". "
+          }
+        },
+        {
+          "type": "Text",
+          "value": {
+            "string": "Integrative Zoology"
+          }
+        },
+        {
+          "type": "Text",
+          "value": {
+            "string": "17"
+          }
+        },
+        {
+          "type": "Text",
+          "value": {
+            "string": ", "
+          }
+        },
+        {
+          "type": "Text",
+          "value": {
+            "string": "849"
+          }
+        },
+        {
+          "type": "Text",
+          "value": {
+            "string": "–"
+          }
+        },
+        {
+          "type": "Text",
+          "value": {
+            "string": "78"
+          }
+        },
+        {
+          "type": "Text",
+          "value": {
+            "string": "."
+          }
+        },
+        {
+          "type": "Text",
+          "value": {
+            "string": "34599557"
+          }
+        },
+        {
+          "type": "Text",
+          "value": {
+            "string": "10.1111/1749-4877.12599"
+          }
+        },
+        {
+          "type": "Text",
+          "value": {
+            "string": "PMC9786276"
+          }
+        },
+        {
+          "type": "Text",
+          "value": {
+            "string": "\n        "
+          }
         }
       ]
     },

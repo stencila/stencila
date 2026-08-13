@@ -21,7 +21,7 @@ analogues:
 dom:
   derive: false
 jats:
-  elem: supplementary-material
+  derive: false
 markdown:
   derive: false
 core:
@@ -46,8 +46,6 @@ properties:
     walk: true
     patch:
       formats: [md, smd, myst, ipynb, qmd]
-    jats:
-      elem: caption
   target:
     '@id': schema:target
     description: A reference to the supplement.
@@ -56,10 +54,6 @@ properties:
     type: string
     patch:
       formats: [md, smd, myst, ipynb, qmd]
-    jats:
-      # Note: The target should be encoded as a <media> element with the
-      # href within that. This is just a placeholder.
-      attr: href
   compilationMessages:
     '@id': stencila:compilationMessages
     description: Any messages generated while embedding the supplement.

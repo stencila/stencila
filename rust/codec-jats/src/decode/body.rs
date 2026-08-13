@@ -9,16 +9,16 @@ use stencila_codec::{
     stencila_schema::{
         Admonition, AudioObject, AudioObjectOptions, Block, Citation, CitationOptions, Claim,
         ClaimType, CodeBlock, CodeChunk, CodeExpression, CodeInline, Cord, CreativeWorkType, Date,
-        DateTime, Duration, ExecutionMode, Figure, Heading, ImageObject, ImageObjectOptions,
-        Inline, Link, List, ListItem, ListOrder, MathBlock, MathBlockOptions, MathInline,
-        MathInlineOptions, MediaObject, MediaObjectOptions, Note, NoteType, Parameter, Section,
-        SectionType, StyledInline, Supplement, Table, TableCell, TableCellOptions, TableCellType,
-        TableOptions, TableRow, TableRowType, Text, ThematicBreak, Time, Timestamp, VideoObject,
-        VideoObjectOptions,
+        DateTime, Duration, ExecutionMode, Figure, Heading, HorizontalAlignment, ImageObject,
+        ImageObjectOptions, Inline, Link, List, ListItem, ListOrder, MathBlock, MathBlockOptions,
+        MathInline, MathInlineOptions, MediaObject, MediaObjectOptions, Note, NoteType, Parameter,
+        Section, SectionType, StyledInline, Supplement, Table, TableCell, TableCellOptions,
+        TableCellType, TableOptions, TableRow, TableRowType, Text, ThematicBreak, Time, Timestamp,
+        VerticalAlignment, VideoObject, VideoObjectOptions,
         shortcuts::{em, mi, p, qb, qi, stg, stk, sub, sup, t, u},
     },
 };
-use stencila_codec_jats_trait::JatsRefType;
+use stencila_codec_jats_trait::{JatsRefType, has_uri_scheme};
 use stencila_codec_text_trait::to_text;
 
 use crate::encode::serialize_node;
@@ -325,9 +325,21 @@ fn decode_supplementary_material(path: &str, node: &Node, losses: &mut Losses, d
 
     let mut work_type = None;
 
-    let target = node
+    // The resource may be stated as a `<media>` or, for an image, as a
+    // `<graphic>`; either way it is what the supplement points at
+    let resource = node
         .children()
-        .find(|child| child.tag_name().name() == "media")
+        .find(|child| child.has_tag_name("media") || child.has_tag_name("graphic"));
+    if let Some(resource) = &resource {
+        record_attrs_lost(
+            &extend_path(path, resource.tag_name().name()),
+            resource,
+            ["href", "mimetype", "mime-subtype"],
+            losses,
+        );
+    }
+
+    let target = resource
         .and_then(|node| node.attribute((XLINK, "href")))
         .map(String::from);
 
@@ -433,7 +445,18 @@ fn decode_supplementary_material(path: &str, node: &Node, losses: &mut Losses, d
         }
     }
 
-    // If work type is still none, attempt to infer from the format of the target
+    // If work type is still none, attempt to infer from the media type stated
+    // by the resource itself, and then from the format of the target
+    if work_type.is_none()
+        && let Some(media_type) = resource.as_ref().and_then(media_type)
+    {
+        work_type = match media_type.split('/').next() {
+            Some("audio") => Some(CreativeWorkType::AudioObject),
+            Some("image") => Some(CreativeWorkType::ImageObject),
+            Some("video") => Some(CreativeWorkType::VideoObject),
+            _ => None,
+        };
+    }
     if work_type.is_none() {
         if format.is_audio() {
             work_type = Some(CreativeWorkType::AudioObject);
@@ -649,12 +672,39 @@ fn decode_graphic(path: &str, node: &Node, losses: &mut Losses) -> ImageObject {
         .map(String::from)
         .unwrap_or_default();
 
-    record_attrs_lost(path, node, ["href"], losses);
+    record_attrs_lost(path, node, ["href", "mimetype", "mime-subtype"], losses);
 
     ImageObject {
         content_url: url,
+        media_type: media_type(node),
+        caption: alt_text(node),
         ..Default::default()
     }
+}
+
+/// The media type of a `<graphic>`, `<inline-graphic>` or `<media>` element
+fn media_type(node: &Node) -> Option<String> {
+    let mime_type = node.attribute("mimetype")?.trim();
+    if mime_type.is_empty() {
+        return None;
+    }
+
+    Some(match node.attribute("mime-subtype").map(str::trim) {
+        Some(subtype) if !subtype.is_empty() => [mime_type, "/", subtype].concat(),
+        _ => mime_type.to_string(),
+    })
+}
+
+/// The `<alt-text>` of a media element, as a caption
+fn alt_text(node: &Node) -> Option<Vec<Inline>> {
+    let text = node
+        .children()
+        .find(|child| child.has_tag_name("alt-text"))
+        .and_then(|child| child.text())
+        .map(str::trim)
+        .filter(|text| !text.is_empty())?;
+
+    Some(vec![t(text)])
 }
 
 /// Decode a `<code>` to a Stencila [`Block::CodeBlock`] or Stencila [`Block::CodeChunk`]
@@ -801,10 +851,12 @@ fn decode_formula_math(node: &Node) -> FormulaMath {
             math_language: Some("tex".into()),
             mathml,
         },
+        // MathML that is the only statement of the math is the code itself,
+        // rather than a representation compiled from some other language
         (None, Some(mathml)) => FormulaMath {
-            code: mathml.clone().into(),
+            code: mathml.into(),
             math_language: Some("mathml".into()),
-            mathml: Some(mathml),
+            mathml: None,
         },
         (None, None) => FormulaMath {
             code: Cord::default(),
@@ -921,6 +973,9 @@ fn decode_table_wrap(path: &str, node: &Node, losses: &mut Losses, depth: u8) ->
                     } else if tag == "tr" {
                         vec![decode_table_row(path, &grandchild, losses, depth, None)]
                     } else {
+                        // e.g. a `<col>` or `<colgroup>`, which describes the
+                        // layout of the columns rather than their content
+                        record_node_lost(path, &grandchild, losses);
                         Vec::new()
                     }
                 })
@@ -1046,20 +1101,29 @@ fn decode_table_cell(path: &str, node: &Node, losses: &mut Losses, depth: u8) ->
         .and_then(|alignment| alignment.parse().ok())
         .and_then(|row_span| (row_span != 1).then_some(row_span));
 
-    let vertical_alignment = node
-        .attribute("valign")
-        .and_then(|alignment| alignment.parse().ok());
+    let vertical_alignment = node.attribute("valign").and_then(vertical_alignment);
+    let horizontal_alignment = node.attribute("align").and_then(horizontal_alignment);
 
-    let horizontal_alignment = node
-        .attribute("align")
-        .and_then(|alignment| alignment.parse().ok());
+    // The character that a column of numbers is aligned on only means something
+    // when the column is aligned on a character
+    let horizontal_alignment_character = matches!(
+        horizontal_alignment,
+        Some(HorizontalAlignment::AlignCharacter)
+    )
+    .then(|| node.attribute("char").map(String::from))
+    .flatten();
 
-    record_attrs_lost(
-        path,
-        node,
-        ["rowspan", "colspan", "valign", "align"],
-        losses,
-    );
+    let mut not_lost = vec!["rowspan", "colspan"];
+    if vertical_alignment.is_some() {
+        not_lost.push("valign");
+    }
+    if horizontal_alignment.is_some() {
+        not_lost.push("align");
+    }
+    if horizontal_alignment_character.is_some() {
+        not_lost.push("char");
+    }
+    record_attrs_lost(path, node, not_lost, losses);
 
     // Decide between block and inline decoding up front. Trial decoding as
     // inlines first would report every block child (usually a <p>) as lost even
@@ -1074,11 +1138,21 @@ fn decode_table_cell(path: &str, node: &Node, losses: &mut Losses, depth: u8) ->
             .filter_map(|block| (!to_text(&block).trim().is_empty()).then_some(block))
             .collect()
     } else {
-        // Filter out whitespace only inlines
-        let inlines: Vec<Inline> = decode_inlines(path, node.children(), losses)
-            .into_iter()
-            .filter_map(|inline| (!to_text(&inline).trim().is_empty()).then_some(inline))
-            .collect();
+        // Drop the whitespace that surrounds the content of a cell, but not
+        // whitespace within it, which separates words
+        let mut inlines: Vec<Inline> = decode_inlines(path, node.children(), losses);
+        while inlines
+            .first()
+            .is_some_and(|inline| to_text(inline).trim().is_empty())
+        {
+            inlines.remove(0);
+        }
+        while inlines
+            .last()
+            .is_some_and(|inline| to_text(inline).trim().is_empty())
+        {
+            inlines.pop();
+        }
 
         if inlines.is_empty() {
             Vec::new()
@@ -1095,10 +1169,37 @@ fn decode_table_cell(path: &str, node: &Node, losses: &mut Losses, depth: u8) ->
             column_span,
             vertical_alignment,
             horizontal_alignment,
+            horizontal_alignment_character,
             ..Default::default()
         }),
         ..Default::default()
     }
+}
+
+/// Decode the JATS `align` attribute of a table cell
+///
+/// The schema names each alignment after what it does rather than after the
+/// JATS value, so the two are mapped rather than parsed.
+fn horizontal_alignment(value: &str) -> Option<HorizontalAlignment> {
+    Some(match value.trim().to_lowercase().as_str() {
+        "left" => HorizontalAlignment::AlignLeft,
+        "right" => HorizontalAlignment::AlignRight,
+        "center" => HorizontalAlignment::AlignCenter,
+        "justify" => HorizontalAlignment::AlignJustify,
+        "char" => HorizontalAlignment::AlignCharacter,
+        _ => return None,
+    })
+}
+
+/// Decode the JATS `valign` attribute of a table cell
+fn vertical_alignment(value: &str) -> Option<VerticalAlignment> {
+    Some(match value.trim().to_lowercase().as_str() {
+        "top" => VerticalAlignment::AlignTop,
+        "middle" => VerticalAlignment::AlignMiddle,
+        "bottom" => VerticalAlignment::AlignBottom,
+        "baseline" => VerticalAlignment::AlignBaseline,
+        _ => return None,
+    })
 }
 
 /// Decode inline content nodes
@@ -1131,6 +1232,13 @@ pub fn decode_inlines<'a, 'input: 'a, I: Iterator<Item = Node<'a, 'input>>>(
                 "math" => decode_inline_math(&child),
                 "parameter" => decode_parameter(&child_path, &child, losses),
                 "styled-content" => decode_styled_content(&child_path, &child, losses),
+                "email" => decode_email(&child_path, &child, losses),
+                // A line break within a run of text separates the words on
+                // either side of it, which is all that the schema records here
+                "break" => {
+                    record_attrs_lost(&child_path, &child, [], losses);
+                    t(" ")
+                }
                 "time" => decode_time(&child_path, &child, losses),
                 "timestamp" => decode_timestamp(&child_path, &child, losses),
                 "xref" => match child.attribute("ref-type").map(JatsRefType::from) {
@@ -1159,8 +1267,22 @@ pub fn decode_inlines<'a, 'input: 'a, I: Iterator<Item = Node<'a, 'input>>>(
                         "sub" => sub(decode_inlines(&child_path, grandchildren, losses)),
                         "sup" => sup(decode_inlines(&child_path, grandchildren, losses)),
                         "underline" => u(decode_inlines(&child_path, grandchildren, losses)),
+                        // A wrapper the schema has no inline for still says
+                        // something with the words inside it, so the wrapper
+                        // alone is reported and its content is kept
                         _ => {
                             record_node_lost(path, &child, losses);
+
+                            // The parts of a citation are bibliographic fields
+                            // rather than prose, so what is lost is the
+                            // citation as a whole rather than each of them
+                            let mut discarded = Losses::default();
+                            let inner = if is_citation_element(tag) {
+                                &mut discarded
+                            } else {
+                                &mut *losses
+                            };
+                            inlines.append(&mut decode_inlines(&child_path, grandchildren, inner));
                             continue;
                         }
                     }
@@ -1343,7 +1465,14 @@ fn decode_link(path: &str, node: &Node, losses: &mut Losses) -> Inline {
     record_attrs_lost(path, node, ["id", "href", "title", "ext-link-type"], losses);
 
     let content = decode_inlines(path, node.children(), losses);
-    let jats_ext_link_type = node.attribute("ext-link-type").map(String::from);
+
+    // `uri` says no more than the target itself does, and is emitted again for
+    // any target with a scheme, so retaining it would add a link type to every
+    // link that did not have one
+    let jats_ext_link_type = node
+        .attribute("ext-link-type")
+        .filter(|link_type| !(*link_type == "uri" && has_uri_scheme(&target)))
+        .map(String::from);
 
     Inline::Link(Link {
         id: node.attribute("id").map(String::from),
@@ -1440,6 +1569,34 @@ fn decode_styled_content(path: &str, node: &Node, losses: &mut Losses) -> Inline
     Inline::StyledInline(StyledInline {
         code,
         style_language,
+        content,
+        ..Default::default()
+    })
+}
+
+/// Whether an element holds the fields of a bibliographic citation
+fn is_citation_element(tag: &str) -> bool {
+    matches!(
+        tag,
+        "citation"
+            | "element-citation"
+            | "mixed-citation"
+            | "nlm-citation"
+            | "person-group"
+            | "product"
+            | "related-object"
+    )
+}
+
+/// Decode an `<email>` to a [`Inline::Link`] that addresses the email address
+fn decode_email(path: &str, node: &Node, losses: &mut Losses) -> Inline {
+    record_attrs_lost(path, node, [], losses);
+
+    let content = decode_inlines(path, node.children(), losses);
+    let address = to_text(&content);
+
+    Inline::Link(Link {
+        target: ["mailto:", address.trim()].concat(),
         content,
         ..Default::default()
     })

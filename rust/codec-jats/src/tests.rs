@@ -359,6 +359,129 @@ async fn formula_images_are_preserved() -> Result<()> {
     Ok(())
 }
 
+/// Media metadata, and the JATS element that a resource belongs in, should
+/// survive a round trip
+#[tokio::test]
+async fn media_and_supplements_roundtrip() -> Result<()> {
+    let jats = r#"
+        <article xmlns:xlink="http://www.w3.org/1999/xlink">
+          <body>
+            <sec>
+              <fig id="fig1">
+                <label>Figure 1</label>
+                <graphic xlink:href="fig1.tif" mimetype="image" mime-subtype="tiff"/>
+              </fig>
+              <supplementary-material id="sup1">
+                <label>Video 1</label>
+                <media xlink:href="movie1.mp4" mimetype="video" mime-subtype="mp4"/>
+              </supplementary-material>
+            </sec>
+          </body>
+        </article>
+    "#;
+
+    let (node, ..) = JatsCodec.from_str(jats, None).await?;
+    let (encoded, ..) = JatsCodec
+        .to_string(
+            &node,
+            Some(EncodeOptions {
+                compact: Some(true),
+                ..Default::default()
+            }),
+        )
+        .await?;
+
+    // An image that stands on its own is a `<graphic>`, not an
+    // `<inline-graphic>`, and keeps the type of file that it is
+    assert!(
+        encoded.contains(
+            r#"<graphic xlink:href="fig1.tif" mimetype="image" mime-subtype="tiff"></graphic>"#
+        ),
+        "figure image not emitted as a typed graphic: {encoded}"
+    );
+
+    // A supplement points at its resource through a `<media>`, which is where
+    // JATS consumers look for it
+    assert!(
+        encoded.contains(r#"<media xlink:href="movie1.mp4"></media>"#),
+        "supplement target not emitted as media: {encoded}"
+    );
+    assert!(
+        !encoded.contains(r#"<supplementary-material id="sup1" href="#),
+        "supplement target emitted as an attribute: {encoded}"
+    );
+
+    // The kind of work a supplement is, which is inferred rather than stated,
+    // is inferred the same way again
+    let (again, ..) = JatsCodec.from_str(&encoded, None).await?;
+    assert_eq!(again, node);
+
+    Ok(())
+}
+
+/// Text within inline elements that the schema has no node for should be kept,
+/// and table cell alignment should survive a round trip
+#[tokio::test]
+async fn inline_and_table_cell_fallbacks() -> Result<()> {
+    let jats = r#"
+        <article>
+          <body>
+            <sec>
+              <p>The <named-content content-type="gene">BRCA1</named-content> gene, see <email>jane@example.org</email>.</p>
+              <table-wrap id="t1">
+                <table>
+                  <tbody>
+                    <tr>
+                      <td align="char" char="." valign="top">1.5<break/>2.5</td>
+                      <td align="center">middle</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </table-wrap>
+            </sec>
+          </body>
+        </article>
+    "#;
+
+    let (node, ..) = JatsCodec.from_str(jats, None).await?;
+    let (encoded, ..) = JatsCodec
+        .to_string(
+            &node,
+            Some(EncodeOptions {
+                compact: Some(true),
+                ..Default::default()
+            }),
+        )
+        .await?;
+
+    // The wrapper is reported as lost, but what it wrapped is still readable
+    assert!(
+        encoded.contains("The BRCA1 gene"),
+        "text of an unsupported wrapper dropped: {encoded}"
+    );
+    // A line break separates the words on either side of it
+    assert!(
+        encoded.contains("1.5 2.5"),
+        "line break ran two values together: {encoded}"
+    );
+    // An email address is emitted as the element JATS has for one
+    assert!(
+        encoded.contains("<email>jane@example.org</email>"),
+        "email not emitted as an email: {encoded}"
+    );
+    // Alignment is stated by JATS with values that the schema names differently
+    assert!(
+        encoded.contains(r#"<td align="char" char="." valign="top">"#),
+        "cell alignment dropped: {encoded}"
+    );
+    assert!(
+        encoded.contains(r#"<td align="center">"#),
+        "cell alignment dropped: {encoded}"
+    );
+
+    Ok(())
+}
+
 /// Front and back matter should be emitted in the locations expected by JATS consumers.
 #[tokio::test]
 async fn article_front_and_back_matter() -> Result<()> {

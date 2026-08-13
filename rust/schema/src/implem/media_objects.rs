@@ -254,30 +254,16 @@ impl JatsCodec for ImageObject {
     fn to_jats(&self, context: &mut JatsEncodeContext) {
         jats_media_losses!("ImageObject", self, context, thumbnail);
         context.merge_losses(lost_options!(self, title));
+        // JATS names an image that stands on its own differently from one that
+        // is part of a run of text
+        let element = if context.in_block_content() {
+            "graphic"
+        } else {
+            "inline-graphic"
+        };
         encode_jats_media(
             context,
-            "inline-graphic",
-            &self.content_url,
-            self.media_type.as_deref(),
-            None,
-            self.caption.as_ref(),
-        );
-    }
-}
-
-impl ImageObject {
-    /// Emit the image as a JATS `<graphic>`
-    ///
-    /// JATS distinguishes an image that is part of a run of text from one that
-    /// stands on its own, which are `<inline-graphic>` and `<graphic>`
-    /// respectively, so a block level image is emitted with this rather than
-    /// with `to_jats`.
-    pub fn to_jats_graphic(&self, context: &mut JatsEncodeContext) {
-        jats_media_losses!("ImageObject", self, context, thumbnail);
-        context.merge_losses(lost_options!(self, title));
-        encode_jats_media(
-            context,
-            "graphic",
+            element,
             &self.content_url,
             self.media_type.as_deref(),
             None,

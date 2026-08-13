@@ -18,6 +18,8 @@ expression: info.losses
 //article/body/sec/p/supplementary-material/@content-type: 1
 //article/body/sec/p/supplementary-material/@orientation: 1
 //article/body/sec/p/supplementary-material/@position: 1
+//article/body/sec/p/supplementary-material/media/@orientation: 1
+//article/body/sec/p/supplementary-material/media/@position: 1
 //article/body/sec/sec/p/@id: 14
 //article/body/sec/sec/p/fig/@orientation: 2
 //article/body/sec/sec/p/fig/@position: 2

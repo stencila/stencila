@@ -26,6 +26,8 @@ expression: info.losses
 //article/body/sec/sec/p/supplementary-material/@content-type: 11
 //article/body/sec/sec/p/supplementary-material/@orientation: 11
 //article/body/sec/sec/p/supplementary-material/@position: 11
+//article/body/sec/sec/p/supplementary-material/media/@orientation: 11
+//article/body/sec/sec/p/supplementary-material/media/@position: 11
 //article/body/sec/sec/sec/p/@id: 7
 //article/body/sec/sec/sec/p/fig/@orientation: 2
 //article/body/sec/sec/sec/p/fig/@position: 2
@@ -37,7 +39,6 @@ expression: info.losses
 //article/body/sec/sec/sec/p/table-wrap/@orientation: 1
 //article/body/sec/sec/sec/p/table-wrap/@position: 1
 //article/body/sec/sec/sec/p/table-wrap/table-wrap-foot/p/italic/@toggle: 5
-//article/body/sec/sec/sec/p/table-wrap/table/tbody/tr/td/@char: 116
 //article/body/sec/sec/sec/p/table-wrap/table/tbody/tr/td/italic/@toggle: 58
 //article/front/article-meta/abstract/p/@id: 1
 //article/front/article-meta/article-version/@article-version-type: 1

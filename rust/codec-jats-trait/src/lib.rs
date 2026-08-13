@@ -251,6 +251,33 @@ impl JatsEncodeContext {
         self
     }
 
+    /// Whether the element currently being written holds block content
+    ///
+    /// JATS names some things differently depending on whether they stand on
+    /// their own or are part of a run of text, `<graphic>` and
+    /// `<inline-graphic>` being one such pair, so a node needs to know which of
+    /// the two positions it is in.
+    pub fn in_block_content(&self) -> bool {
+        self.elements.last().is_some_and(|element| {
+            matches!(
+                element.name.as_str(),
+                "abstract"
+                    | "ack"
+                    | "app"
+                    | "body"
+                    | "boxed-text"
+                    | "caption"
+                    | "disp-formula"
+                    | "disp-quote"
+                    | "fig"
+                    | "list-item"
+                    | "sec"
+                    | "supplementary-material"
+                    | "table-wrap"
+            )
+        })
+    }
+
     /// Add a single encoding loss.
     pub fn add_loss(&mut self, label: impl AsRef<str>) -> &mut Self {
         self.losses.add(label);

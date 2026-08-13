@@ -20,7 +20,7 @@
     "derive": false
   },
   "jats": {
-    "elem": "supplementary-material"
+    "derive": false
   },
   "markdown": {
     "derive": false
@@ -165,9 +165,6 @@
         ]
       },
       "walk": true,
-      "jats": {
-        "elem": "caption"
-      },
       "type": "array",
       "items": {
         "$ref": "Block.schema.json"
@@ -185,9 +182,6 @@
           "ipynb",
           "qmd"
         ]
-      },
-      "jats": {
-        "attr": "href"
       },
       "type": "string"
     },

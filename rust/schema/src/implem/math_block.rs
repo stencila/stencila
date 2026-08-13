@@ -55,7 +55,7 @@ impl JatsCodec for MathBlock {
         );
 
         for image in self.options.images.iter().flatten() {
-            image.to_jats_graphic(context);
+            image.to_jats(context);
         }
 
         context.exit_elem().merge_losses(lost_options!(

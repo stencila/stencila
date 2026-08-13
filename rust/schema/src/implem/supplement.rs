@@ -4,6 +4,40 @@ use crate::{Supplement, prelude::*};
 
 use super::utils::caption_to_dom;
 
+impl JatsCodec for Supplement {
+    fn to_jats(&self, context: &mut JatsEncodeContext) {
+        context.enter_elem("supplementary-material");
+        if let Some(id) = &self.id {
+            context.push_attr("id", id);
+        }
+
+        if let Some(label) = &self.label {
+            context.enter_elem("label").push_text(label).exit_elem();
+        }
+        if let Some(caption) = &self.caption {
+            context.enter_elem("caption");
+            caption.to_jats(context);
+            context.exit_elem_omit_empty();
+        }
+
+        // The resource itself is a `<media>` rather than an attribute of the
+        // supplement, which is what JATS consumers read it from
+        if let Some(target) = &self.target {
+            context
+                .enter_elem("media")
+                .push_attr("xlink:href", target)
+                .exit_elem();
+        }
+
+        // `workType` is not emitted: it is inferred again from the label,
+        // caption and target when this JATS is decoded
+
+        context
+            .exit_elem()
+            .merge_losses(lost_options!(self.options, compilation_messages, work));
+    }
+}
+
 impl DomCodec for Supplement {
     fn to_dom(&self, context: &mut DomEncodeContext) {
         context.enter_node(self.node_type(), self.node_id());

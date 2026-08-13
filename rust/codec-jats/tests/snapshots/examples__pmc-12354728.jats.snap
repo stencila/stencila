@@ -241,7 +241,7 @@ expression: jats
           <caption>
             <p> Scatter plots of nine small cats in the Southeast Asia based on the first two principal components (PCs). Species are <italic>Prionailurus viverrinus</italic> (Pv), <italic>P. planiceps</italic> (Pp), <italic>P. bengalensis</italic> (Pb), <italic>P. javanensis</italic> (Pj), <italic>Catopuma temminckii</italic> (Ct), <italic>C. badia</italic> (Cb), <italic>Pardofelis marmorata</italic> (Pm), <italic>Felis chaus</italic> (Fc), and <italic>F. catus</italic> (Fca).</p>
           </caption>
-          <inline-graphic xlink:href="41598_2025_15365_Fig1_HTML.jpg"></inline-graphic>
+          <graphic xlink:href="41598_2025_15365_Fig1_HTML.jpg"></graphic>
         </fig>
         <table-wrap id="Tab1">
           <label>1</label>
@@ -251,219 +251,219 @@ expression: jats
           <table>
             <thead>
               <tr>
-                <th rowspan="2"></th>
-                <th rowspan="2"></th>
-                <th rowspan="2"><p>Species</p></th>
-                <th colspan="8"><p>Predicted group membership</p></th>
-                <th></th>
+                <th rowspan="2" align="left"></th>
+                <th rowspan="2" align="left"></th>
+                <th rowspan="2" align="left"><p>Species</p></th>
+                <th colspan="8" align="left"><p>Predicted group membership</p></th>
+                <th align="left"></th>
               </tr>
               <tr>
-                <th><p>Ct</p></th>
-                <th><p>Fc</p></th>
-                <th><p>Fca</p></th>
-                <th><p>Pb</p></th>
-                <th><p>Pj</p></th>
-                <th><p>Pm</p></th>
-                <th><p>Pp</p></th>
-                <th><p>Pv</p></th>
-                <th><p>Total</p></th>
+                <th align="left"><p>Ct</p></th>
+                <th align="left"><p>Fc</p></th>
+                <th align="left"><p>Fca</p></th>
+                <th align="left"><p>Pb</p></th>
+                <th align="left"><p>Pj</p></th>
+                <th align="left"><p>Pm</p></th>
+                <th align="left"><p>Pp</p></th>
+                <th align="left"><p>Pv</p></th>
+                <th align="left"><p>Total</p></th>
               </tr>
             </thead>
             <tbody>
               <tr>
-                <td rowspan="16"><p>Original</p></td>
-                <td rowspan="8"><p>Count</p></td>
-                <td><p>Ct</p></td>
-                <td><p>34</p></td>
-                <td><p>9</p></td>
-                <td><p>0</p></td>
-                <td><p>0</p></td>
-                <td><p>0</p></td>
-                <td><p>0</p></td>
-                <td><p>0</p></td>
-                <td><p>0</p></td>
-                <td><p>43</p></td>
+                <td rowspan="16" align="left"><p>Original</p></td>
+                <td rowspan="8" align="left"><p>Count</p></td>
+                <td align="left"><p>Ct</p></td>
+                <td align="left"><p>34</p></td>
+                <td align="left"><p>9</p></td>
+                <td align="left"><p>0</p></td>
+                <td align="left"><p>0</p></td>
+                <td align="left"><p>0</p></td>
+                <td align="left"><p>0</p></td>
+                <td align="left"><p>0</p></td>
+                <td align="left"><p>0</p></td>
+                <td align="left"><p>43</p></td>
               </tr>
               <tr>
-                <td><p>Fc</p></td>
-                <td><p>9</p></td>
-                <td><p>30</p></td>
-                <td><p>0</p></td>
-                <td><p>0</p></td>
-                <td><p>0</p></td>
-                <td><p>1</p></td>
-                <td><p>0</p></td>
-                <td><p>0</p></td>
-                <td><p>40</p></td>
+                <td align="left"><p>Fc</p></td>
+                <td align="left"><p>9</p></td>
+                <td align="left"><p>30</p></td>
+                <td align="left"><p>0</p></td>
+                <td align="left"><p>0</p></td>
+                <td align="left"><p>0</p></td>
+                <td align="left"><p>1</p></td>
+                <td align="left"><p>0</p></td>
+                <td align="left"><p>0</p></td>
+                <td align="left"><p>40</p></td>
               </tr>
               <tr>
-                <td><p>Fca</p></td>
-                <td><p>0</p></td>
-                <td><p>1</p></td>
-                <td><p>17</p></td>
-                <td><p>3</p></td>
-                <td><p>0</p></td>
-                <td><p>3</p></td>
-                <td><p>0</p></td>
-                <td><p>0</p></td>
-                <td><p>24</p></td>
+                <td align="left"><p>Fca</p></td>
+                <td align="left"><p>0</p></td>
+                <td align="left"><p>1</p></td>
+                <td align="left"><p>17</p></td>
+                <td align="left"><p>3</p></td>
+                <td align="left"><p>0</p></td>
+                <td align="left"><p>3</p></td>
+                <td align="left"><p>0</p></td>
+                <td align="left"><p>0</p></td>
+                <td align="left"><p>24</p></td>
               </tr>
               <tr>
-                <td><p>Pb</p></td>
-                <td><p>0</p></td>
-                <td><p>0</p></td>
-                <td><p>3</p></td>
-                <td><p>48</p></td>
-                <td><p>20</p></td>
-                <td><p>0</p></td>
-                <td><p>0</p></td>
-                <td><p>0</p></td>
-                <td><p>71</p></td>
+                <td align="left"><p>Pb</p></td>
+                <td align="left"><p>0</p></td>
+                <td align="left"><p>0</p></td>
+                <td align="left"><p>3</p></td>
+                <td align="left"><p>48</p></td>
+                <td align="left"><p>20</p></td>
+                <td align="left"><p>0</p></td>
+                <td align="left"><p>0</p></td>
+                <td align="left"><p>0</p></td>
+                <td align="left"><p>71</p></td>
               </tr>
               <tr>
-                <td><p>Pj</p></td>
-                <td><p>0</p></td>
-                <td><p>0</p></td>
-                <td><p>0</p></td>
-                <td><p>11</p></td>
-                <td><p>38</p></td>
-                <td><p>0</p></td>
-                <td><p>1</p></td>
-                <td><p>0</p></td>
-                <td><p>50</p></td>
+                <td align="left"><p>Pj</p></td>
+                <td align="left"><p>0</p></td>
+                <td align="left"><p>0</p></td>
+                <td align="left"><p>0</p></td>
+                <td align="left"><p>11</p></td>
+                <td align="left"><p>38</p></td>
+                <td align="left"><p>0</p></td>
+                <td align="left"><p>1</p></td>
+                <td align="left"><p>0</p></td>
+                <td align="left"><p>50</p></td>
               </tr>
               <tr>
-                <td><p>Pm</p></td>
-                <td><p>0</p></td>
-                <td><p>2</p></td>
-                <td><p>4</p></td>
-                <td><p>0</p></td>
-                <td><p>0</p></td>
-                <td><p>20</p></td>
-                <td><p>0</p></td>
-                <td><p>0</p></td>
-                <td><p>26</p></td>
+                <td align="left"><p>Pm</p></td>
+                <td align="left"><p>0</p></td>
+                <td align="left"><p>2</p></td>
+                <td align="left"><p>4</p></td>
+                <td align="left"><p>0</p></td>
+                <td align="left"><p>0</p></td>
+                <td align="left"><p>20</p></td>
+                <td align="left"><p>0</p></td>
+                <td align="left"><p>0</p></td>
+                <td align="left"><p>26</p></td>
               </tr>
               <tr>
-                <td><p>Pp</p></td>
-                <td><p>0</p></td>
-                <td><p>0</p></td>
-                <td><p>0</p></td>
-                <td><p>0</p></td>
-                <td><p>2</p></td>
-                <td><p>0</p></td>
-                <td><p>53</p></td>
-                <td><p>0</p></td>
-                <td><p>55</p></td>
+                <td align="left"><p>Pp</p></td>
+                <td align="left"><p>0</p></td>
+                <td align="left"><p>0</p></td>
+                <td align="left"><p>0</p></td>
+                <td align="left"><p>0</p></td>
+                <td align="left"><p>2</p></td>
+                <td align="left"><p>0</p></td>
+                <td align="left"><p>53</p></td>
+                <td align="left"><p>0</p></td>
+                <td align="left"><p>55</p></td>
               </tr>
               <tr>
-                <td><p>Pv</p></td>
-                <td><p>0</p></td>
-                <td><p>0</p></td>
-                <td><p>0</p></td>
-                <td><p>0</p></td>
-                <td><p>0</p></td>
-                <td><p>0</p></td>
-                <td><p>0</p></td>
-                <td><p>62</p></td>
-                <td><p>62</p></td>
+                <td align="left"><p>Pv</p></td>
+                <td align="left"><p>0</p></td>
+                <td align="left"><p>0</p></td>
+                <td align="left"><p>0</p></td>
+                <td align="left"><p>0</p></td>
+                <td align="left"><p>0</p></td>
+                <td align="left"><p>0</p></td>
+                <td align="left"><p>0</p></td>
+                <td align="left"><p>62</p></td>
+                <td align="left"><p>62</p></td>
               </tr>
               <tr>
-                <td rowspan="8"><p>%</p></td>
-                <td><p>Ct</p></td>
-                <td><p>79.0</p></td>
-                <td><p>21.0</p></td>
-                <td><p>0.0</p></td>
-                <td><p>0.0</p></td>
-                <td><p>0.0</p></td>
-                <td><p>0.0</p></td>
-                <td><p>0.0</p></td>
-                <td><p>0.0</p></td>
-                <td><p>100.0</p></td>
+                <td rowspan="8" align="left"><p>%</p></td>
+                <td align="left"><p>Ct</p></td>
+                <td align="left"><p>79.0</p></td>
+                <td align="left"><p>21.0</p></td>
+                <td align="left"><p>0.0</p></td>
+                <td align="left"><p>0.0</p></td>
+                <td align="left"><p>0.0</p></td>
+                <td align="left"><p>0.0</p></td>
+                <td align="left"><p>0.0</p></td>
+                <td align="left"><p>0.0</p></td>
+                <td align="left"><p>100.0</p></td>
               </tr>
               <tr>
-                <td><p>Fc</p></td>
-                <td><p>22.5</p></td>
-                <td><p>75.0</p></td>
-                <td><p>0.0</p></td>
-                <td><p>0.0</p></td>
-                <td><p>0.0</p></td>
-                <td><p>2.5</p></td>
-                <td><p>0.0</p></td>
-                <td><p>0.0</p></td>
-                <td><p>100.0</p></td>
+                <td align="left"><p>Fc</p></td>
+                <td align="left"><p>22.5</p></td>
+                <td align="left"><p>75.0</p></td>
+                <td align="left"><p>0.0</p></td>
+                <td align="left"><p>0.0</p></td>
+                <td align="left"><p>0.0</p></td>
+                <td align="left"><p>2.5</p></td>
+                <td align="left"><p>0.0</p></td>
+                <td align="left"><p>0.0</p></td>
+                <td align="left"><p>100.0</p></td>
               </tr>
               <tr>
-                <td><p>Fca</p></td>
-                <td><p>0.0</p></td>
-                <td><p>4.2</p></td>
-                <td><p>70.8</p></td>
-                <td><p>12.5</p></td>
-                <td><p>0.0</p></td>
-                <td><p>12.5</p></td>
-                <td><p>0.0</p></td>
-                <td><p>0.0</p></td>
-                <td><p>100.0</p></td>
+                <td align="left"><p>Fca</p></td>
+                <td align="left"><p>0.0</p></td>
+                <td align="left"><p>4.2</p></td>
+                <td align="left"><p>70.8</p></td>
+                <td align="left"><p>12.5</p></td>
+                <td align="left"><p>0.0</p></td>
+                <td align="left"><p>12.5</p></td>
+                <td align="left"><p>0.0</p></td>
+                <td align="left"><p>0.0</p></td>
+                <td align="left"><p>100.0</p></td>
               </tr>
               <tr>
-                <td><p>Pb</p></td>
-                <td><p>0.0</p></td>
-                <td><p>0.0</p></td>
-                <td><p>4.2</p></td>
-                <td><p>67.6</p></td>
-                <td><p>28.2</p></td>
-                <td><p>0.0</p></td>
-                <td><p>0.0</p></td>
-                <td><p>0.0</p></td>
-                <td><p>100.0</p></td>
+                <td align="left"><p>Pb</p></td>
+                <td align="left"><p>0.0</p></td>
+                <td align="left"><p>0.0</p></td>
+                <td align="left"><p>4.2</p></td>
+                <td align="left"><p>67.6</p></td>
+                <td align="left"><p>28.2</p></td>
+                <td align="left"><p>0.0</p></td>
+                <td align="left"><p>0.0</p></td>
+                <td align="left"><p>0.0</p></td>
+                <td align="left"><p>100.0</p></td>
               </tr>
               <tr>
-                <td><p>Pj</p></td>
-                <td><p>0.0</p></td>
-                <td><p>0.0</p></td>
-                <td><p>0.0</p></td>
-                <td><p>22.0</p></td>
-                <td><p>76.0</p></td>
-                <td><p>0.0</p></td>
-                <td><p>2.0</p></td>
-                <td><p>0.0</p></td>
-                <td><p>100.0</p></td>
+                <td align="left"><p>Pj</p></td>
+                <td align="left"><p>0.0</p></td>
+                <td align="left"><p>0.0</p></td>
+                <td align="left"><p>0.0</p></td>
+                <td align="left"><p>22.0</p></td>
+                <td align="left"><p>76.0</p></td>
+                <td align="left"><p>0.0</p></td>
+                <td align="left"><p>2.0</p></td>
+                <td align="left"><p>0.0</p></td>
+                <td align="left"><p>100.0</p></td>
               </tr>
               <tr>
-                <td><p>Pm</p></td>
-                <td><p>0.0</p></td>
-                <td><p>7.7</p></td>
-                <td><p>15.4</p></td>
-                <td><p>0.0</p></td>
-                <td><p>0.0</p></td>
-                <td><p>76.9</p></td>
-                <td><p>0.0</p></td>
-                <td><p>0.0</p></td>
-                <td><p>100.0</p></td>
+                <td align="left"><p>Pm</p></td>
+                <td align="left"><p>0.0</p></td>
+                <td align="left"><p>7.7</p></td>
+                <td align="left"><p>15.4</p></td>
+                <td align="left"><p>0.0</p></td>
+                <td align="left"><p>0.0</p></td>
+                <td align="left"><p>76.9</p></td>
+                <td align="left"><p>0.0</p></td>
+                <td align="left"><p>0.0</p></td>
+                <td align="left"><p>100.0</p></td>
               </tr>
               <tr>
-                <td><p>Pp</p></td>
-                <td><p>0.0</p></td>
-                <td><p>0.0</p></td>
-                <td><p>0.0</p></td>
-                <td><p>0.0</p></td>
-                <td><p>3.6</p></td>
-                <td><p>0.0</p></td>
-                <td><p>96.4</p></td>
-                <td><p>0.0</p></td>
-                <td><p>100.0</p></td>
+                <td align="left"><p>Pp</p></td>
+                <td align="left"><p>0.0</p></td>
+                <td align="left"><p>0.0</p></td>
+                <td align="left"><p>0.0</p></td>
+                <td align="left"><p>0.0</p></td>
+                <td align="left"><p>3.6</p></td>
+                <td align="left"><p>0.0</p></td>
+                <td align="left"><p>96.4</p></td>
+                <td align="left"><p>0.0</p></td>
+                <td align="left"><p>100.0</p></td>
               </tr>
               <tr>
-                <td><p>Pv</p></td>
-                <td><p>0.0</p></td>
-                <td><p>0.0</p></td>
-                <td><p>0.0</p></td>
-                <td><p>0.0</p></td>
-                <td><p>0.0</p></td>
-                <td><p>0.0</p></td>
-                <td><p>0.0</p></td>
-                <td><p>100.0</p></td>
-                <td><p>100.0</p></td>
+                <td align="left"><p>Pv</p></td>
+                <td align="left"><p>0.0</p></td>
+                <td align="left"><p>0.0</p></td>
+                <td align="left"><p>0.0</p></td>
+                <td align="left"><p>0.0</p></td>
+                <td align="left"><p>0.0</p></td>
+                <td align="left"><p>0.0</p></td>
+                <td align="left"><p>0.0</p></td>
+                <td align="left"><p>100.0</p></td>
+                <td align="left"><p>100.0</p></td>
               </tr>
             </tbody>
           </table>
@@ -477,7 +477,7 @@ expression: jats
           <caption>
             <p> Scatter plots of 16 morphospecies of eight small cats in the Southeast Asia based on the first two principal components (PCs). Species are <italic>Prionailurus viverrinus</italic> (Pv), <italic>P. planiceps</italic> (Pp), <italic>P. bengalensis</italic> (Pb), <italic>P. javanensis</italic> (Pj), <italic>Catopuma temminckii</italic> (Ct), <italic>Pardofelis marmorata</italic> (Pm), <italic>Felis chaus</italic> (Fc), and <italic>F. catus</italic> (Fca). Males are indicated by “M” and triangles whilst females are by “F” and circles.</p>
           </caption>
-          <inline-graphic xlink:href="41598_2025_15365_Fig2_HTML.jpg"></inline-graphic>
+          <graphic xlink:href="41598_2025_15365_Fig2_HTML.jpg"></graphic>
         </fig>
         <p>Conversely, skulls of mainland and Sunda leopard cats overlapped extensively, regardless of sex (Fig. <xref ref-type="fig" rid="Fig2">2</xref>). Domestic cat skull shapes did not overlap with those of the leopard cats as much as they did with unsexed specimens being included in this analysis (cf. Fig. <xref ref-type="fig" rid="Fig1">1</xref>). Skulls of domestic cats overlapped with those of female marbled cats, whereas male marbled cats were largely distinct from all other morphospecies (Fig. <xref ref-type="fig" rid="Fig2">2</xref>). Asian golden cats and jungle cats exhibited overlapping skull morphologies, particularly between female Asian golden cats and male jungle cats, whilst male Asian golden cats and female jungle cats showed no overlap (Fig. <xref ref-type="fig" rid="Fig2">2</xref>). Quadratic Discriminant Analysis on the 16 morphospecies (excluding bay cat) extracted two DFs explaining 92.1% of the variance, with 68.0% of skulls correctly classified (Table <xref ref-type="table" rid="Tab2">2</xref>). The classification results (Table <xref ref-type="table" rid="Tab2">2</xref>) showed that both male and female fishing cats and flat-headed cats were well separated from other morphospecies, with over 80.0% correctly classified for each group. Additionally, skulls of male Asian golden cats, female jungle cats, female Sunda leopard cats, and male marbled cats were also well differentiated (&gt; 81.3% correct classification; Table <xref ref-type="table" rid="Tab2">2</xref>). However, lower classification accuracy (&lt; 42.1%) was observed for female Asian golden cats, male jungle cats, male domestic cats, and female marbled cats (Table <xref ref-type="table" rid="Tab2">2</xref>). When considering geographical sympatry (i.e., mainland, Borneo, Sumatra, and Java), morphospecies generally overlapped only with the opposite sex of the same species (Tables S2–S5). Notable exceptions involving interspecific overlap were between female Asian golden cat and male jungle cat, female mainland leopard cat and female domestic cat, and female marbled cat and male domestic cat on the mainland, as well as female marbled cat and male domestic cat on Borneo and Sumatra (Tables S2–S5).</p>
         <table-wrap id="Tab2">
@@ -488,353 +488,353 @@ expression: jats
           <table>
             <thead>
               <tr>
-                <th rowspan="2"><p>Original</p></th>
-                <th rowspan="2" colspan="2"><p>Species/sex</p></th>
-                <th colspan="16"><p>Predicted group membership</p></th>
-                <th></th>
+                <th rowspan="2" align="left"><p>Original</p></th>
+                <th rowspan="2" colspan="2" align="left"><p>Species/sex</p></th>
+                <th colspan="16" align="left"><p>Predicted group membership</p></th>
+                <th align="left"></th>
               </tr>
               <tr>
-                <th><p>CtF</p></th>
-                <th><p>CtM</p></th>
-                <th><p>FcF</p></th>
-                <th><p>FcM</p></th>
-                <th><p>FcaF</p></th>
-                <th><p>FcaM</p></th>
-                <th><p>PbF</p></th>
-                <th><p>PbM</p></th>
-                <th><p>PjF</p></th>
-                <th><p>PjM</p></th>
-                <th><p>PmF</p></th>
-                <th><p>PmM</p></th>
-                <th><p>PpF</p></th>
-                <th><p>PpM</p></th>
-                <th><p>PvF</p></th>
-                <th><p>PvM</p></th>
-                <th><p>Total</p></th>
+                <th align="left"><p>CtF</p></th>
+                <th align="left"><p>CtM</p></th>
+                <th align="left"><p>FcF</p></th>
+                <th align="left"><p>FcM</p></th>
+                <th align="left"><p>FcaF</p></th>
+                <th align="left"><p>FcaM</p></th>
+                <th align="left"><p>PbF</p></th>
+                <th align="left"><p>PbM</p></th>
+                <th align="left"><p>PjF</p></th>
+                <th align="left"><p>PjM</p></th>
+                <th align="left"><p>PmF</p></th>
+                <th align="left"><p>PmM</p></th>
+                <th align="left"><p>PpF</p></th>
+                <th align="left"><p>PpM</p></th>
+                <th align="left"><p>PvF</p></th>
+                <th align="left"><p>PvM</p></th>
+                <th align="left"><p>Total</p></th>
               </tr>
             </thead>
             <tbody>
               <tr>
-                <td rowspan="16"></td>
-                <td rowspan="16"><p>Count</p><p>(%)</p></td>
-                <td><p><bold>CtF</bold></p></td>
-                <td><p>7</p><p>(35.0)</p></td>
-                <td><p>5</p><p>(25.0)</p></td>
-                <td><p>1</p><p>(5.0)</p></td>
-                <td><p>7</p><p>(35.0)</p></td>
-                <td><p>0</p><p>(0.0)</p></td>
-                <td><p>0</p><p>(0.0)</p></td>
-                <td><p>0</p><p>(0.0)</p></td>
-                <td><p>0</p><p>(0.0)</p></td>
-                <td><p>0</p><p>(0.0)</p></td>
-                <td><p>0</p><p>(0.0)</p></td>
-                <td><p>0</p><p>(0.0)</p></td>
-                <td><p>0</p><p>(0.0)</p></td>
-                <td><p>0</p><p>(0.0)</p></td>
-                <td><p>0</p><p>(0.0)</p></td>
-                <td><p>0</p><p>(0.0)</p></td>
-                <td><p>0</p><p>(0.0)</p></td>
-                <td><p>20</p><p>(100.0)</p></td>
+                <td rowspan="16" align="left"></td>
+                <td rowspan="16" align="left"><p>Count</p><p>(%)</p></td>
+                <td align="left"><p><bold>CtF</bold></p></td>
+                <td align="left"><p>7</p><p>(35.0)</p></td>
+                <td align="left"><p>5</p><p>(25.0)</p></td>
+                <td align="left"><p>1</p><p>(5.0)</p></td>
+                <td align="left"><p>7</p><p>(35.0)</p></td>
+                <td align="left"><p>0</p><p>(0.0)</p></td>
+                <td align="left"><p>0</p><p>(0.0)</p></td>
+                <td align="left"><p>0</p><p>(0.0)</p></td>
+                <td align="left"><p>0</p><p>(0.0)</p></td>
+                <td align="left"><p>0</p><p>(0.0)</p></td>
+                <td align="left"><p>0</p><p>(0.0)</p></td>
+                <td align="left"><p>0</p><p>(0.0)</p></td>
+                <td align="left"><p>0</p><p>(0.0)</p></td>
+                <td align="left"><p>0</p><p>(0.0)</p></td>
+                <td align="left"><p>0</p><p>(0.0)</p></td>
+                <td align="left"><p>0</p><p>(0.0)</p></td>
+                <td align="left"><p>0</p><p>(0.0)</p></td>
+                <td align="left"><p>20</p><p>(100.0)</p></td>
               </tr>
               <tr>
-                <td><p><bold>CtM</bold></p></td>
-                <td><p>3</p><p>(13.6)</p></td>
-                <td><p>18</p><p>(81.8)</p></td>
-                <td><p>0</p><p>(0.0)</p></td>
-                <td><p>1</p><p>(4.6)</p></td>
-                <td><p>0</p><p>(0.0)</p></td>
-                <td><p>0</p><p>(0.0)</p></td>
-                <td><p>0</p><p>(0.0)</p></td>
-                <td><p>0</p><p>(0.0)</p></td>
-                <td><p>0</p><p>(0.0)</p></td>
-                <td><p>0</p><p>(0.0)</p></td>
-                <td><p>0</p><p>(0.0)</p></td>
-                <td><p>0</p><p>(0.0)</p></td>
-                <td><p>0</p><p>(0.0)</p></td>
-                <td><p>0</p><p>(0.0)</p></td>
-                <td><p>0</p><p>(0.0)</p></td>
-                <td><p>0</p><p>(0.0)</p></td>
-                <td><p>22</p><p>(100.0)</p></td>
+                <td align="left"><p><bold>CtM</bold></p></td>
+                <td align="left"><p>3</p><p>(13.6)</p></td>
+                <td align="left"><p>18</p><p>(81.8)</p></td>
+                <td align="left"><p>0</p><p>(0.0)</p></td>
+                <td align="left"><p>1</p><p>(4.6)</p></td>
+                <td align="left"><p>0</p><p>(0.0)</p></td>
+                <td align="left"><p>0</p><p>(0.0)</p></td>
+                <td align="left"><p>0</p><p>(0.0)</p></td>
+                <td align="left"><p>0</p><p>(0.0)</p></td>
+                <td align="left"><p>0</p><p>(0.0)</p></td>
+                <td align="left"><p>0</p><p>(0.0)</p></td>
+                <td align="left"><p>0</p><p>(0.0)</p></td>
+                <td align="left"><p>0</p><p>(0.0)</p></td>
+                <td align="left"><p>0</p><p>(0.0)</p></td>
+                <td align="left"><p>0</p><p>(0.0)</p></td>
+                <td align="left"><p>0</p><p>(0.0)</p></td>
+                <td align="left"><p>0</p><p>(0.0)</p></td>
+                <td align="left"><p>22</p><p>(100.0)</p></td>
               </tr>
               <tr>
-                <td><p><bold>FcF</bold></p></td>
-                <td><p>0</p><p>(0.0)</p></td>
-                <td><p>0</p><p>(0.0)</p></td>
-                <td><p>13</p><p>(81.3)</p></td>
-                <td><p>2</p><p>(12.5)</p></td>
-                <td><p>0</p><p>(0.0)</p></td>
-                <td><p>0</p><p>(0.0)</p></td>
-                <td><p>0</p><p>(0.0)</p></td>
-                <td><p>0</p><p>(0.0)</p></td>
-                <td><p>0</p><p>(0.0)</p></td>
-                <td><p>0</p><p>(0.0)</p></td>
-                <td><p>1</p><p>(6.2)</p></td>
-                <td><p>0</p><p>(0.0)</p></td>
-                <td><p>0</p><p>(0.0)</p></td>
-                <td><p>0</p><p>(0.0)</p></td>
-                <td><p>0</p><p>(0.0)</p></td>
-                <td><p>0</p><p>(0.0)</p></td>
-                <td><p>16</p><p>(100.0)</p></td>
+                <td align="left"><p><bold>FcF</bold></p></td>
+                <td align="left"><p>0</p><p>(0.0)</p></td>
+                <td align="left"><p>0</p><p>(0.0)</p></td>
+                <td align="left"><p>13</p><p>(81.3)</p></td>
+                <td align="left"><p>2</p><p>(12.5)</p></td>
+                <td align="left"><p>0</p><p>(0.0)</p></td>
+                <td align="left"><p>0</p><p>(0.0)</p></td>
+                <td align="left"><p>0</p><p>(0.0)</p></td>
+                <td align="left"><p>0</p><p>(0.0)</p></td>
+                <td align="left"><p>0</p><p>(0.0)</p></td>
+                <td align="left"><p>0</p><p>(0.0)</p></td>
+                <td align="left"><p>1</p><p>(6.2)</p></td>
+                <td align="left"><p>0</p><p>(0.0)</p></td>
+                <td align="left"><p>0</p><p>(0.0)</p></td>
+                <td align="left"><p>0</p><p>(0.0)</p></td>
+                <td align="left"><p>0</p><p>(0.0)</p></td>
+                <td align="left"><p>0</p><p>(0.0)</p></td>
+                <td align="left"><p>16</p><p>(100.0)</p></td>
               </tr>
               <tr>
-                <td><p><bold>FcM</bold></p></td>
-                <td><p>5</p><p>(26.3)</p></td>
-                <td><p>2</p><p>(10.5)</p></td>
-                <td><p>4</p><p>(21.1)</p></td>
-                <td><p>8</p><p>(42.1)</p></td>
-                <td><p>0</p><p>(0.0)</p></td>
-                <td><p>0</p><p>(0.0)</p></td>
-                <td><p>0</p><p>(0.0)</p></td>
-                <td><p>0</p><p>(0.0)</p></td>
-                <td><p>0</p><p>(0.0)</p></td>
-                <td><p>0</p><p>(0.0)</p></td>
-                <td><p>0</p><p>(0.0)</p></td>
-                <td><p>0</p><p>(0.0)</p></td>
-                <td><p>0</p><p>(0.0)</p></td>
-                <td><p>0</p><p>(0.0)</p></td>
-                <td><p>0</p><p>(0.0)</p></td>
-                <td><p>0</p><p>(0.0)</p></td>
-                <td><p>19</p><p>(100.0)</p></td>
+                <td align="left"><p><bold>FcM</bold></p></td>
+                <td align="left"><p>5</p><p>(26.3)</p></td>
+                <td align="left"><p>2</p><p>(10.5)</p></td>
+                <td align="left"><p>4</p><p>(21.1)</p></td>
+                <td align="left"><p>8</p><p>(42.1)</p></td>
+                <td align="left"><p>0</p><p>(0.0)</p></td>
+                <td align="left"><p>0</p><p>(0.0)</p></td>
+                <td align="left"><p>0</p><p>(0.0)</p></td>
+                <td align="left"><p>0</p><p>(0.0)</p></td>
+                <td align="left"><p>0</p><p>(0.0)</p></td>
+                <td align="left"><p>0</p><p>(0.0)</p></td>
+                <td align="left"><p>0</p><p>(0.0)</p></td>
+                <td align="left"><p>0</p><p>(0.0)</p></td>
+                <td align="left"><p>0</p><p>(0.0)</p></td>
+                <td align="left"><p>0</p><p>(0.0)</p></td>
+                <td align="left"><p>0</p><p>(0.0)</p></td>
+                <td align="left"><p>0</p><p>(0.0)</p></td>
+                <td align="left"><p>19</p><p>(100.0)</p></td>
               </tr>
               <tr>
-                <td><p><bold>FcaF</bold></p></td>
-                <td><p>0</p><p>(0.0)</p></td>
-                <td><p>0</p><p>(0.0)</p></td>
-                <td><p>0</p><p>(0.0)</p></td>
-                <td><p>0</p><p>(0.0)</p></td>
-                <td><p>7</p><p>(58.4)</p></td>
-                <td><p>1</p><p>(8.3)</p></td>
-                <td><p>3</p><p>(25.0)</p></td>
-                <td><p>0</p><p>(0.0)</p></td>
-                <td><p>0</p><p>(0.0)</p></td>
-                <td><p>0</p><p>(0.0)</p></td>
-                <td><p>1</p><p>(8.3)</p></td>
-                <td><p>0</p><p>(0.0)</p></td>
-                <td><p>0</p><p>(0.0)</p></td>
-                <td><p>0</p><p>(0.0)</p></td>
-                <td><p>0</p><p>(0.0)</p></td>
-                <td><p>0</p><p>(0.0)</p></td>
-                <td><p>12</p><p>(100.0)</p></td>
+                <td align="left"><p><bold>FcaF</bold></p></td>
+                <td align="left"><p>0</p><p>(0.0)</p></td>
+                <td align="left"><p>0</p><p>(0.0)</p></td>
+                <td align="left"><p>0</p><p>(0.0)</p></td>
+                <td align="left"><p>0</p><p>(0.0)</p></td>
+                <td align="left"><p>7</p><p>(58.4)</p></td>
+                <td align="left"><p>1</p><p>(8.3)</p></td>
+                <td align="left"><p>3</p><p>(25.0)</p></td>
+                <td align="left"><p>0</p><p>(0.0)</p></td>
+                <td align="left"><p>0</p><p>(0.0)</p></td>
+                <td align="left"><p>0</p><p>(0.0)</p></td>
+                <td align="left"><p>1</p><p>(8.3)</p></td>
+                <td align="left"><p>0</p><p>(0.0)</p></td>
+                <td align="left"><p>0</p><p>(0.0)</p></td>
+                <td align="left"><p>0</p><p>(0.0)</p></td>
+                <td align="left"><p>0</p><p>(0.0)</p></td>
+                <td align="left"><p>0</p><p>(0.0)</p></td>
+                <td align="left"><p>12</p><p>(100.0)</p></td>
               </tr>
               <tr>
-                <td><p><bold>FcaM</bold></p></td>
-                <td><p>0</p><p>(0.0)</p></td>
-                <td><p>0</p><p>(0.0)</p></td>
-                <td><p>1</p><p>(10.0)</p></td>
-                <td><p>0</p><p>(0.0)</p></td>
-                <td><p>3</p><p>(30.0)</p></td>
-                <td><p>4</p><p>(40.0)</p></td>
-                <td><p>0</p><p>(0.0)</p></td>
-                <td><p>1</p><p>(10.0)</p></td>
-                <td><p>0</p><p>(0.0)</p></td>
-                <td><p>0</p><p>(0.0)</p></td>
-                <td><p>0</p><p>(0.0)</p></td>
-                <td><p>1</p><p>(10.0)</p></td>
-                <td><p>0</p><p>(0.0)</p></td>
-                <td><p>0</p><p>(0.0)</p></td>
-                <td><p>0</p><p>(0.0)</p></td>
-                <td><p>0</p><p>(0.0)</p></td>
-                <td><p>10</p><p>(100.0)</p></td>
+                <td align="left"><p><bold>FcaM</bold></p></td>
+                <td align="left"><p>0</p><p>(0.0)</p></td>
+                <td align="left"><p>0</p><p>(0.0)</p></td>
+                <td align="left"><p>1</p><p>(10.0)</p></td>
+                <td align="left"><p>0</p><p>(0.0)</p></td>
+                <td align="left"><p>3</p><p>(30.0)</p></td>
+                <td align="left"><p>4</p><p>(40.0)</p></td>
+                <td align="left"><p>0</p><p>(0.0)</p></td>
+                <td align="left"><p>1</p><p>(10.0)</p></td>
+                <td align="left"><p>0</p><p>(0.0)</p></td>
+                <td align="left"><p>0</p><p>(0.0)</p></td>
+                <td align="left"><p>0</p><p>(0.0)</p></td>
+                <td align="left"><p>1</p><p>(10.0)</p></td>
+                <td align="left"><p>0</p><p>(0.0)</p></td>
+                <td align="left"><p>0</p><p>(0.0)</p></td>
+                <td align="left"><p>0</p><p>(0.0)</p></td>
+                <td align="left"><p>0</p><p>(0.0)</p></td>
+                <td align="left"><p>10</p><p>(100.0)</p></td>
               </tr>
               <tr>
-                <td><p><bold>PbF</bold></p></td>
-                <td><p>0</p><p>(0.0)</p></td>
-                <td><p>0</p><p>(0.0)</p></td>
-                <td><p>0</p><p>(0.0)</p></td>
-                <td><p>0</p><p>(0.0)</p></td>
-                <td><p>1</p><p>(3.3)</p></td>
-                <td><p>0</p><p>(0.0)</p></td>
-                <td><p>15</p><p>(50.0)</p></td>
-                <td><p>4</p><p>(13.3)</p></td>
-                <td><p>5</p><p>(16.7)</p></td>
-                <td><p>5</p><p>(16.7)</p></td>
-                <td><p>0</p><p>(0.0)</p></td>
-                <td><p>0</p><p>(0.0)</p></td>
-                <td><p>0</p><p>(0.0)</p></td>
-                <td><p>0</p><p>(0.0)</p></td>
-                <td><p>0</p><p>(0.0)</p></td>
-                <td><p>0</p><p>(0.0)</p></td>
-                <td><p>30</p><p>(100.0)</p></td>
+                <td align="left"><p><bold>PbF</bold></p></td>
+                <td align="left"><p>0</p><p>(0.0)</p></td>
+                <td align="left"><p>0</p><p>(0.0)</p></td>
+                <td align="left"><p>0</p><p>(0.0)</p></td>
+                <td align="left"><p>0</p><p>(0.0)</p></td>
+                <td align="left"><p>1</p><p>(3.3)</p></td>
+                <td align="left"><p>0</p><p>(0.0)</p></td>
+                <td align="left"><p>15</p><p>(50.0)</p></td>
+                <td align="left"><p>4</p><p>(13.3)</p></td>
+                <td align="left"><p>5</p><p>(16.7)</p></td>
+                <td align="left"><p>5</p><p>(16.7)</p></td>
+                <td align="left"><p>0</p><p>(0.0)</p></td>
+                <td align="left"><p>0</p><p>(0.0)</p></td>
+                <td align="left"><p>0</p><p>(0.0)</p></td>
+                <td align="left"><p>0</p><p>(0.0)</p></td>
+                <td align="left"><p>0</p><p>(0.0)</p></td>
+                <td align="left"><p>0</p><p>(0.0)</p></td>
+                <td align="left"><p>30</p><p>(100.0)</p></td>
               </tr>
               <tr>
-                <td><p><bold>PbM</bold></p></td>
-                <td><p>0</p><p>(0.0)</p></td>
-                <td><p>0</p><p>(0.0)</p></td>
-                <td><p>0</p><p>(0.0)</p></td>
-                <td><p>0</p><p>(0.0)</p></td>
-                <td><p>1</p><p>(3.1)</p></td>
-                <td><p>0</p><p>(0.0)</p></td>
-                <td><p>4</p><p>(12.5)</p></td>
-                <td><p>22</p><p>(68.8)</p></td>
-                <td><p>1</p><p>(3.1)</p></td>
-                <td><p>4</p><p>(12.5)</p></td>
-                <td><p>0</p><p>(0.0)</p></td>
-                <td><p>0</p><p>(0.0)</p></td>
-                <td><p>0</p><p>(0.0)</p></td>
-                <td><p>0</p><p>(0.0)</p></td>
-                <td><p>0</p><p>(0.0)</p></td>
-                <td><p>0</p><p>(0.0)</p></td>
-                <td><p>32</p><p>(100.0)</p></td>
+                <td align="left"><p><bold>PbM</bold></p></td>
+                <td align="left"><p>0</p><p>(0.0)</p></td>
+                <td align="left"><p>0</p><p>(0.0)</p></td>
+                <td align="left"><p>0</p><p>(0.0)</p></td>
+                <td align="left"><p>0</p><p>(0.0)</p></td>
+                <td align="left"><p>1</p><p>(3.1)</p></td>
+                <td align="left"><p>0</p><p>(0.0)</p></td>
+                <td align="left"><p>4</p><p>(12.5)</p></td>
+                <td align="left"><p>22</p><p>(68.8)</p></td>
+                <td align="left"><p>1</p><p>(3.1)</p></td>
+                <td align="left"><p>4</p><p>(12.5)</p></td>
+                <td align="left"><p>0</p><p>(0.0)</p></td>
+                <td align="left"><p>0</p><p>(0.0)</p></td>
+                <td align="left"><p>0</p><p>(0.0)</p></td>
+                <td align="left"><p>0</p><p>(0.0)</p></td>
+                <td align="left"><p>0</p><p>(0.0)</p></td>
+                <td align="left"><p>0</p><p>(0.0)</p></td>
+                <td align="left"><p>32</p><p>(100.0)</p></td>
               </tr>
               <tr>
-                <td><p><bold>PjF</bold></p></td>
-                <td><p>0</p><p>(0.0)</p></td>
-                <td><p>0</p><p>(0.0)</p></td>
-                <td><p>0</p><p>(0.0)</p></td>
-                <td><p>0</p><p>(0.0)</p></td>
-                <td><p>0</p><p>(0.0)</p></td>
-                <td><p>0</p><p>(0.0)</p></td>
-                <td><p>3</p><p>(15.8)</p></td>
-                <td><p>0</p><p>(0.0)</p></td>
-                <td><p>16</p><p>(84.2)</p></td>
-                <td><p>0</p><p>(0.0)</p></td>
-                <td><p>0</p><p>(0.0)</p></td>
-                <td><p>0</p><p>(0.0)</p></td>
-                <td><p>0</p><p>(0.0)</p></td>
-                <td><p>0</p><p>(0.0)</p></td>
-                <td><p>0</p><p>(0.0)</p></td>
-                <td><p>0</p><p>(0.0)</p></td>
-                <td><p>19</p><p>(100.0)</p></td>
+                <td align="left"><p><bold>PjF</bold></p></td>
+                <td align="left"><p>0</p><p>(0.0)</p></td>
+                <td align="left"><p>0</p><p>(0.0)</p></td>
+                <td align="left"><p>0</p><p>(0.0)</p></td>
+                <td align="left"><p>0</p><p>(0.0)</p></td>
+                <td align="left"><p>0</p><p>(0.0)</p></td>
+                <td align="left"><p>0</p><p>(0.0)</p></td>
+                <td align="left"><p>3</p><p>(15.8)</p></td>
+                <td align="left"><p>0</p><p>(0.0)</p></td>
+                <td align="left"><p>16</p><p>(84.2)</p></td>
+                <td align="left"><p>0</p><p>(0.0)</p></td>
+                <td align="left"><p>0</p><p>(0.0)</p></td>
+                <td align="left"><p>0</p><p>(0.0)</p></td>
+                <td align="left"><p>0</p><p>(0.0)</p></td>
+                <td align="left"><p>0</p><p>(0.0)</p></td>
+                <td align="left"><p>0</p><p>(0.0)</p></td>
+                <td align="left"><p>0</p><p>(0.0)</p></td>
+                <td align="left"><p>19</p><p>(100.0)</p></td>
               </tr>
               <tr>
-                <td><p><bold>PjM</bold></p></td>
-                <td><p>0</p><p>(0.0)</p></td>
-                <td><p>0</p><p>(0.0)</p></td>
-                <td><p>0</p><p>(0.0)</p></td>
-                <td><p>0</p><p>(0.0)</p></td>
-                <td><p>0</p><p>(0.0)</p></td>
-                <td><p>0</p><p>(0.0)</p></td>
-                <td><p>7</p><p>(26.9)</p></td>
-                <td><p>1</p><p>(3.9)</p></td>
-                <td><p>3</p><p>(11.5)</p></td>
-                <td><p>14</p><p>(53.8)</p></td>
-                <td><p>0</p><p>(0.0)</p></td>
-                <td><p>0</p><p>(0.0)</p></td>
-                <td><p>1</p><p>(3.9)</p></td>
-                <td><p>0</p><p>(0.0)</p></td>
-                <td><p>0</p><p>(0.0)</p></td>
-                <td><p>0</p><p>(0.0)</p></td>
-                <td><p>26</p><p>(100.0)</p></td>
+                <td align="left"><p><bold>PjM</bold></p></td>
+                <td align="left"><p>0</p><p>(0.0)</p></td>
+                <td align="left"><p>0</p><p>(0.0)</p></td>
+                <td align="left"><p>0</p><p>(0.0)</p></td>
+                <td align="left"><p>0</p><p>(0.0)</p></td>
+                <td align="left"><p>0</p><p>(0.0)</p></td>
+                <td align="left"><p>0</p><p>(0.0)</p></td>
+                <td align="left"><p>7</p><p>(26.9)</p></td>
+                <td align="left"><p>1</p><p>(3.9)</p></td>
+                <td align="left"><p>3</p><p>(11.5)</p></td>
+                <td align="left"><p>14</p><p>(53.8)</p></td>
+                <td align="left"><p>0</p><p>(0.0)</p></td>
+                <td align="left"><p>0</p><p>(0.0)</p></td>
+                <td align="left"><p>1</p><p>(3.9)</p></td>
+                <td align="left"><p>0</p><p>(0.0)</p></td>
+                <td align="left"><p>0</p><p>(0.0)</p></td>
+                <td align="left"><p>0</p><p>(0.0)</p></td>
+                <td align="left"><p>26</p><p>(100.0)</p></td>
               </tr>
               <tr>
-                <td><p><bold>PmF</bold></p></td>
-                <td><p>0</p><p>(0.0)</p></td>
-                <td><p>0</p><p>(0.0)</p></td>
-                <td><p>1</p><p>(12.5)</p></td>
-                <td><p>0</p><p>(0.0)</p></td>
-                <td><p>1</p><p>(12.5)</p></td>
-                <td><p>2</p><p>(25.0)</p></td>
-                <td><p>0</p><p>(0.0)</p></td>
-                <td><p>0</p><p>(0.0)</p></td>
-                <td><p>0</p><p>(0.0)</p></td>
-                <td><p>0</p><p>(0.0)</p></td>
-                <td><p>2</p><p>(25.0)</p></td>
-                <td><p>2</p><p>(25.0)</p></td>
-                <td><p>0</p><p>(0.0)</p></td>
-                <td><p>0</p><p>(0.0)</p></td>
-                <td><p>0</p><p>(0.0)</p></td>
-                <td><p>0</p><p>(0.0)</p></td>
-                <td><p>8</p><p>(100.0)</p></td>
+                <td align="left"><p><bold>PmF</bold></p></td>
+                <td align="left"><p>0</p><p>(0.0)</p></td>
+                <td align="left"><p>0</p><p>(0.0)</p></td>
+                <td align="left"><p>1</p><p>(12.5)</p></td>
+                <td align="left"><p>0</p><p>(0.0)</p></td>
+                <td align="left"><p>1</p><p>(12.5)</p></td>
+                <td align="left"><p>2</p><p>(25.0)</p></td>
+                <td align="left"><p>0</p><p>(0.0)</p></td>
+                <td align="left"><p>0</p><p>(0.0)</p></td>
+                <td align="left"><p>0</p><p>(0.0)</p></td>
+                <td align="left"><p>0</p><p>(0.0)</p></td>
+                <td align="left"><p>2</p><p>(25.0)</p></td>
+                <td align="left"><p>2</p><p>(25.0)</p></td>
+                <td align="left"><p>0</p><p>(0.0)</p></td>
+                <td align="left"><p>0</p><p>(0.0)</p></td>
+                <td align="left"><p>0</p><p>(0.0)</p></td>
+                <td align="left"><p>0</p><p>(0.0)</p></td>
+                <td align="left"><p>8</p><p>(100.0)</p></td>
               </tr>
               <tr>
-                <td><p><bold>PmM</bold></p></td>
-                <td><p>0</p><p>(0.0)</p></td>
-                <td><p>0</p><p>(0.0)</p></td>
-                <td><p>0</p><p>(0.0)</p></td>
-                <td><p>0</p><p>(0.0)</p></td>
-                <td><p>0</p><p>(0.0)</p></td>
-                <td><p>1</p><p>(6.7)</p></td>
-                <td><p>0</p><p>(0.0)</p></td>
-                <td><p>0</p><p>(0.0)</p></td>
-                <td><p>0</p><p>(0.0)</p></td>
-                <td><p>0</p><p>(0.0)</p></td>
-                <td><p>0</p><p>(0.0)</p></td>
-                <td><p>14</p><p>(93.3)</p></td>
-                <td><p>0</p><p>(0.0)</p></td>
-                <td><p>0</p><p>(0.0)</p></td>
-                <td><p>0</p><p>(0.0)</p></td>
-                <td><p>0</p><p>(0.0)</p></td>
-                <td><p>15</p><p>(100.0)</p></td>
+                <td align="left"><p><bold>PmM</bold></p></td>
+                <td align="left"><p>0</p><p>(0.0)</p></td>
+                <td align="left"><p>0</p><p>(0.0)</p></td>
+                <td align="left"><p>0</p><p>(0.0)</p></td>
+                <td align="left"><p>0</p><p>(0.0)</p></td>
+                <td align="left"><p>0</p><p>(0.0)</p></td>
+                <td align="left"><p>1</p><p>(6.7)</p></td>
+                <td align="left"><p>0</p><p>(0.0)</p></td>
+                <td align="left"><p>0</p><p>(0.0)</p></td>
+                <td align="left"><p>0</p><p>(0.0)</p></td>
+                <td align="left"><p>0</p><p>(0.0)</p></td>
+                <td align="left"><p>0</p><p>(0.0)</p></td>
+                <td align="left"><p>14</p><p>(93.3)</p></td>
+                <td align="left"><p>0</p><p>(0.0)</p></td>
+                <td align="left"><p>0</p><p>(0.0)</p></td>
+                <td align="left"><p>0</p><p>(0.0)</p></td>
+                <td align="left"><p>0</p><p>(0.0)</p></td>
+                <td align="left"><p>15</p><p>(100.0)</p></td>
               </tr>
               <tr>
-                <td><p><bold>PpF</bold></p></td>
-                <td><p>0</p><p>(0.0)</p></td>
-                <td><p>0</p><p>(0.0)</p></td>
-                <td><p>0</p><p>(0.0)</p></td>
-                <td><p>0</p><p>(0.0)</p></td>
-                <td><p>0</p><p>(0.0)</p></td>
-                <td><p>0</p><p>(0.0)</p></td>
-                <td><p>0</p><p>(0.0)</p></td>
-                <td><p>0</p><p>(0.0)</p></td>
-                <td><p>0</p><p>(0.0)</p></td>
-                <td><p>1</p><p>(5.6)</p></td>
-                <td><p>0</p><p>(0.0)</p></td>
-                <td><p>0</p><p>(0.0)</p></td>
-                <td><p>15</p><p>(83.3)</p></td>
-                <td><p>2</p><p>(11.1)</p></td>
-                <td><p>0</p><p>(0.0)</p></td>
-                <td><p>0</p><p>(0.0)</p></td>
-                <td><p>18</p><p>(100.0)</p></td>
+                <td align="left"><p><bold>PpF</bold></p></td>
+                <td align="left"><p>0</p><p>(0.0)</p></td>
+                <td align="left"><p>0</p><p>(0.0)</p></td>
+                <td align="left"><p>0</p><p>(0.0)</p></td>
+                <td align="left"><p>0</p><p>(0.0)</p></td>
+                <td align="left"><p>0</p><p>(0.0)</p></td>
+                <td align="left"><p>0</p><p>(0.0)</p></td>
+                <td align="left"><p>0</p><p>(0.0)</p></td>
+                <td align="left"><p>0</p><p>(0.0)</p></td>
+                <td align="left"><p>0</p><p>(0.0)</p></td>
+                <td align="left"><p>1</p><p>(5.6)</p></td>
+                <td align="left"><p>0</p><p>(0.0)</p></td>
+                <td align="left"><p>0</p><p>(0.0)</p></td>
+                <td align="left"><p>15</p><p>(83.3)</p></td>
+                <td align="left"><p>2</p><p>(11.1)</p></td>
+                <td align="left"><p>0</p><p>(0.0)</p></td>
+                <td align="left"><p>0</p><p>(0.0)</p></td>
+                <td align="left"><p>18</p><p>(100.0)</p></td>
               </tr>
               <tr>
-                <td><p><bold>PpM</bold></p></td>
-                <td><p>0</p><p>(0.0)</p></td>
-                <td><p>0</p><p>(0.0)</p></td>
-                <td><p>0</p><p>(0.0)</p></td>
-                <td><p>0</p><p>(0.0)</p></td>
-                <td><p>0</p><p>(0.0)</p></td>
-                <td><p>0</p><p>(0.0)</p></td>
-                <td><p>0</p><p>(0.0)</p></td>
-                <td><p>0</p><p>(0.0)</p></td>
-                <td><p>0</p><p>(0.0)</p></td>
-                <td><p>1</p><p>(3.3)</p></td>
-                <td><p>0</p><p>(0.0)</p></td>
-                <td><p>0</p><p>(0.0)</p></td>
-                <td><p>5</p><p>(16.7)</p></td>
-                <td><p>24</p><p>(80.0)</p></td>
-                <td><p>0</p><p>(0.0)</p></td>
-                <td><p>0</p><p>(0.0)</p></td>
-                <td><p>30</p><p>(100.0)</p></td>
+                <td align="left"><p><bold>PpM</bold></p></td>
+                <td align="left"><p>0</p><p>(0.0)</p></td>
+                <td align="left"><p>0</p><p>(0.0)</p></td>
+                <td align="left"><p>0</p><p>(0.0)</p></td>
+                <td align="left"><p>0</p><p>(0.0)</p></td>
+                <td align="left"><p>0</p><p>(0.0)</p></td>
+                <td align="left"><p>0</p><p>(0.0)</p></td>
+                <td align="left"><p>0</p><p>(0.0)</p></td>
+                <td align="left"><p>0</p><p>(0.0)</p></td>
+                <td align="left"><p>0</p><p>(0.0)</p></td>
+                <td align="left"><p>1</p><p>(3.3)</p></td>
+                <td align="left"><p>0</p><p>(0.0)</p></td>
+                <td align="left"><p>0</p><p>(0.0)</p></td>
+                <td align="left"><p>5</p><p>(16.7)</p></td>
+                <td align="left"><p>24</p><p>(80.0)</p></td>
+                <td align="left"><p>0</p><p>(0.0)</p></td>
+                <td align="left"><p>0</p><p>(0.0)</p></td>
+                <td align="left"><p>30</p><p>(100.0)</p></td>
               </tr>
               <tr>
-                <td><p><bold>PvF</bold></p></td>
-                <td><p>0</p><p>(0.0)</p></td>
-                <td><p>0</p><p>(0.0)</p></td>
-                <td><p>0</p><p>(0.0)</p></td>
-                <td><p>0</p><p>(0.0)</p></td>
-                <td><p>0</p><p>(0.0)</p></td>
-                <td><p>0</p><p>(0.0)</p></td>
-                <td><p>0</p><p>(0.0)</p></td>
-                <td><p>1</p><p>(4.3)</p></td>
-                <td><p>0</p><p>(0.0)</p></td>
-                <td><p>0</p><p>(0.0)</p></td>
-                <td><p>0</p><p>(0.0)</p></td>
-                <td><p>0</p><p>(0.0)</p></td>
-                <td><p>0</p><p>(0.0)</p></td>
-                <td><p>0</p><p>(0.0)</p></td>
-                <td><p>19</p><p>(82.6)</p></td>
-                <td><p>3</p><p>(13.0)</p></td>
-                <td><p>23</p><p>(100.0)</p></td>
+                <td align="left"><p><bold>PvF</bold></p></td>
+                <td align="left"><p>0</p><p>(0.0)</p></td>
+                <td align="left"><p>0</p><p>(0.0)</p></td>
+                <td align="left"><p>0</p><p>(0.0)</p></td>
+                <td align="left"><p>0</p><p>(0.0)</p></td>
+                <td align="left"><p>0</p><p>(0.0)</p></td>
+                <td align="left"><p>0</p><p>(0.0)</p></td>
+                <td align="left"><p>0</p><p>(0.0)</p></td>
+                <td align="left"><p>1</p><p>(4.3)</p></td>
+                <td align="left"><p>0</p><p>(0.0)</p></td>
+                <td align="left"><p>0</p><p>(0.0)</p></td>
+                <td align="left"><p>0</p><p>(0.0)</p></td>
+                <td align="left"><p>0</p><p>(0.0)</p></td>
+                <td align="left"><p>0</p><p>(0.0)</p></td>
+                <td align="left"><p>0</p><p>(0.0)</p></td>
+                <td align="left"><p>19</p><p>(82.6)</p></td>
+                <td align="left"><p>3</p><p>(13.0)</p></td>
+                <td align="left"><p>23</p><p>(100.0)</p></td>
               </tr>
               <tr>
-                <td><p><bold>PvM</bold></p></td>
-                <td><p>0</p><p>(0.0)</p></td>
-                <td><p>0</p><p>(0.0)</p></td>
-                <td><p>0</p><p>(0.0)</p></td>
-                <td><p>0</p><p>(0.0)</p></td>
-                <td><p>0</p><p>(0.0)</p></td>
-                <td><p>0</p><p>(0.0)</p></td>
-                <td><p>0</p><p>(0.0)</p></td>
-                <td><p>0</p><p>(0.0)</p></td>
-                <td><p>0</p><p>(0.0)</p></td>
-                <td><p>0</p><p>(0.0)</p></td>
-                <td><p>0</p><p>(0.0)</p></td>
-                <td><p>0</p><p>(0.0)</p></td>
-                <td><p>0</p><p>(0.0)</p></td>
-                <td><p>0</p><p>(0.0)</p></td>
-                <td><p>4</p><p>(12.9)</p></td>
-                <td><p>27</p><p>(87.1)</p></td>
-                <td><p>31</p><p>(100.0)</p></td>
+                <td align="left"><p><bold>PvM</bold></p></td>
+                <td align="left"><p>0</p><p>(0.0)</p></td>
+                <td align="left"><p>0</p><p>(0.0)</p></td>
+                <td align="left"><p>0</p><p>(0.0)</p></td>
+                <td align="left"><p>0</p><p>(0.0)</p></td>
+                <td align="left"><p>0</p><p>(0.0)</p></td>
+                <td align="left"><p>0</p><p>(0.0)</p></td>
+                <td align="left"><p>0</p><p>(0.0)</p></td>
+                <td align="left"><p>0</p><p>(0.0)</p></td>
+                <td align="left"><p>0</p><p>(0.0)</p></td>
+                <td align="left"><p>0</p><p>(0.0)</p></td>
+                <td align="left"><p>0</p><p>(0.0)</p></td>
+                <td align="left"><p>0</p><p>(0.0)</p></td>
+                <td align="left"><p>0</p><p>(0.0)</p></td>
+                <td align="left"><p>0</p><p>(0.0)</p></td>
+                <td align="left"><p>4</p><p>(12.9)</p></td>
+                <td align="left"><p>27</p><p>(87.1)</p></td>
+                <td align="left"><p>31</p><p>(100.0)</p></td>
               </tr>
             </tbody>
           </table>
@@ -874,10 +874,11 @@ expression: jats
     <sec id="Sec14" sec-type="SupplementaryMaterials">
       <title level="1">Supplementary Information</title>
       <p>Below is the link to the electronic supplementary material.</p>
-      <supplementary-material id="MOESM1" href="41598_2025_15365_MOESM1_ESM.zip">
+      <supplementary-material id="MOESM1">
         <caption>
           <p>Supplementary Material 1</p>
         </caption>
+        <media xlink:href="41598_2025_15365_MOESM1_ESM.zip"></media>
       </supplementary-material>
     </sec>
     <p><fn fn-type="custom" custom-type="Footnote"><p>&#10;            <bold>Publisher’s note</bold>&#10;          </p><p>Springer Nature remains neutral with regard to jurisdictional claims in published maps and institutional affiliations.</p></fn></p>

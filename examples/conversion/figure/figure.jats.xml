@@ -6,21 +6,21 @@
   </front>
   <body>
     <fig>
-      <inline-graphic xlink:href="https://example.org/cat.jpg"></inline-graphic>
+      <graphic xlink:href="https://example.org/cat.jpg"></graphic>
     </fig>
     <fig>
       <label>2</label>
       <caption>
         <p>A dog.</p>
       </caption>
-      <inline-graphic xlink:href="https://example.org/dog.jpg"></inline-graphic>
+      <graphic xlink:href="https://example.org/dog.jpg"></graphic>
     </fig>
     <sec>
       <fig>
         <caption>
           <p>A figure of a mouse inside a section.</p>
         </caption>
-        <inline-graphic xlink:href="https://example.org/mouse.jpg"></inline-graphic>
+        <graphic xlink:href="https://example.org/mouse.jpg"></graphic>
       </fig>
     </sec>
   </body>
