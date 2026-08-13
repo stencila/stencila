@@ -5,15 +5,32 @@ expression: jats
 <article dtd-version="1.4" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:mml="http://www.w3.org/1998/Math/MathML">
   <front>
     <journal-meta>
+      <journal-id journal-id-type="doi">10.1111/(ISSN)1461-0248</journal-id>
+      <journal-id journal-id-type="nlm-ta">Ecol Lett</journal-id>
+      <journal-id journal-id-type="iso-abbrev">Ecol. Lett</journal-id>
+      <journal-id journal-id-type="publisher-id">ELE</journal-id>
       <journal-title-group>
         <journal-title>Ecology Letters</journal-title>
       </journal-title-group>
+      <issn pub-type="ppub">1461-023X</issn>
+      <issn pub-type="epub">1461-0248</issn>
       <publisher>
         <publisher-name>John Wiley and Sons Inc.</publisher-name>
       </publisher>
     </journal-meta>
     <article-meta>
       <article-id pub-id-type="doi">10.1111/ele.13210</article-id>
+      <article-id pub-id-type="pmid">30609108</article-id>
+      <article-id pub-id-type="pmc">6849754</article-id>
+      <article-id pub-id-type="publisher-id">ELE13210</article-id>
+      <article-categories>
+        <subj-group subj-group-type="overline">
+          <subject>Letter</subject>
+        </subj-group>
+        <subj-group subj-group-type="heading">
+          <subject>Letters</subject>
+        </subj-group>
+      </article-categories>
       <title-group>
         <article-title>Global photosynthetic capacity is optimized to the environment</article-title>
       </title-group>
@@ -319,19 +336,30 @@ expression: jats
           <addr-line>Hawke&apos;s, Bay, New Zealand</addr-line>
         </aff>
       </contrib-group>
-      <pub-date iso-8601-date="2019-3">
+      <pub-date pub-type="epub" iso-8601-date="2019-01-04">
         <year>2019</year>
-        <month>3</month>
+        <month>01</month>
+        <day>04</day>
+      </pub-date>
+      <pub-date pub-type="ppub" iso-8601-date="2019-03">
+        <year>2019</year>
+        <month>03</month>
       </pub-date>
       <volume>22</volume>
       <issue>3</issue>
+      <issue-id pub-id-type="doi">10.1111/ele.2019.22.issue-3</issue-id>
       <fpage>506</fpage>
       <lpage>517</lpage>
       <history>
-        <date date-type="received" iso-8601-date="2018-9-06">
+        <date date-type="received" iso-8601-date="2018-09-06">
           <year>2018</year>
-          <month>9</month>
+          <month>09</month>
           <day>06</day>
+        </date>
+        <date date-type="rev-recd" iso-8601-date="2018-10-07">
+          <year>2018</year>
+          <month>10</month>
+          <day>07</day>
         </date>
         <date date-type="accepted" iso-8601-date="2018-11-07">
           <year>2018</year>
@@ -339,6 +367,13 @@ expression: jats
           <day>07</day>
         </date>
       </history>
+      <permissions>
+        <copyright-statement>© 2019 The Authors. Ecology Letters published by CNRS and John Wiley &amp; Sons Ltd</copyright-statement>
+        <license xlink:href="http://creativecommons.org/licenses/by/4.0/">
+          <license-p>This is an open access article under the terms of the http://creativecommons.org/licenses/by/4.0/ License, which permits use, distribution and reproduction in any medium, provided the original work is properly cited.</license-p>
+        </license>
+      </permissions>
+      <self-uri content-type="pdf" xlink:href="file:ELE-22-506.pdf"></self-uri>
       <abstract>
         <p>Earth system models (<styled-content style="fixed-case">ESM</styled-content>s) use photosynthetic capacity, indexed by the maximum&#10;          Rubisco carboxylation rate (<italic>V</italic>&#10;<sub>cmax</sub>), to simulate carbon&#10;          assimilation and typically rely on empirical estimates, including an assumed dependence on&#10;          leaf nitrogen determined from soil fertility. In contrast, new theory, based on&#10;          biochemical coordination and co‐optimization of carboxylation and water costs for&#10;          photosynthesis, suggests that optimal <italic>V</italic>&#10;<sub>cmax</sub> can be predicted&#10;          from climate alone, irrespective of soil fertility. Here, we develop this theory and find&#10;          it captures 64% of observed variability in a global, field‐measured <italic>V</italic>&#10;<sub>&#10;          cmax</sub> dataset for C<sub>3</sub> plants. Soil fertility indices explained&#10;          substantially less variation (32%). These results indicate that environmentally regulated&#10;          biophysical constraints and light availability are the first‐order drivers of&#10;          global photosynthetic capacity. Through acclimation and adaptation, plants efficiently&#10;          utilize resources at the leaf level, thus maximizing potential resource use for growth and&#10;          reproduction. Our theory offers a robust strategy for dynamically predicting&#10;          photosynthetic capacity in <styled-content style="fixed-case">ESM</styled-content>s.</p>
       </abstract>

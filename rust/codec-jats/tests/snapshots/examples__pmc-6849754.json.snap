@@ -582,7 +582,7 @@ expression: article
   ],
   "datePublished": {
     "type": "DateTime",
-    "value": "2019-3"
+    "value": "2019-01-04"
   },
   "references": [
     {
@@ -20906,7 +20906,7 @@ expression: article
   ],
   "dateReceived": {
     "type": "DateTime",
-    "value": "2018-9-06"
+    "value": "2018-09-06"
   },
   "dateAccepted": {
     "type": "DateTime",
@@ -20958,21 +20958,89 @@ expression: article
   ],
   "isPartOf": {
     "type": "PublicationIssue",
+    "doi": "10.1111/ele.2019.22.issue-3",
     "isPartOf": {
       "type": "PublicationVolume",
       "isPartOf": {
         "type": "Periodical",
-        "name": "Ecology Letters"
+        "name": "Ecology Letters",
+        "doi": "10.1111/(ISSN)1461-0248",
+        "identifiers": [
+          {
+            "type": "PropertyValue",
+            "propertyId": "nlm-ta",
+            "value": "Ecol Lett"
+          },
+          {
+            "type": "PropertyValue",
+            "propertyId": "iso-abbrev",
+            "value": "Ecol. Lett"
+          },
+          {
+            "type": "PropertyValue",
+            "propertyId": "publisher-id",
+            "value": "ELE"
+          },
+          {
+            "type": "PropertyValue",
+            "propertyId": "issn-ppub",
+            "value": "1461-023X"
+          },
+          {
+            "type": "PropertyValue",
+            "propertyId": "issn-epub",
+            "value": "1461-0248"
+          }
+        ],
+        "issns": [
+          "1461-023X",
+          "1461-0248"
+        ]
       },
       "volumeNumber": 22
     },
     "issueNumber": 3
   },
+  "licenses": [
+    "http://creativecommons.org/licenses/by/4.0/"
+  ],
   "publisher": {
     "type": "Organization",
     "name": "John Wiley and Sons Inc.",
     "address": "Hoboken"
   },
   "pageStart": 506,
-  "pageEnd": 517
+  "pageEnd": 517,
+  "publicationDates": [
+    {
+      "type": "epub",
+      "date": "2019-01-04"
+    },
+    {
+      "type": "ppub",
+      "date": "2019-03"
+    }
+  ],
+  "historyDates": [
+    {
+      "type": "received",
+      "date": "2018-09-06"
+    },
+    {
+      "type": "rev-recd",
+      "date": "2018-10-07"
+    },
+    {
+      "type": "accepted",
+      "date": "2018-11-07"
+    }
+  ],
+  "resources": [
+    {
+      "type": "pdf",
+      "url": "file:ELE-22-506.pdf"
+    }
+  ],
+  "copyrightStatement": "© 2019 The Authors. Ecology Letters published by CNRS and John Wiley & Sons Ltd",
+  "licenseText": "This is an open access article under the terms of the http://creativecommons.org/licenses/by/4.0/ License, which permits use, distribution and reproduction in any medium, provided the original work is properly cited."
 }

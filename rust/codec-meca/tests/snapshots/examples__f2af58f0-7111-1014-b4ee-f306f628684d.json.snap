@@ -2776,6 +2776,13 @@ expression: article
       ]
     }
   ],
+  "identifiers": [
+    {
+      "type": "PropertyValue",
+      "propertyId": "elocation-id",
+      "value": "2025.06.09.658655"
+    }
+  ],
   "about": [
     {
       "type": "PropertyValue",
@@ -2795,11 +2802,11 @@ expression: article
   ],
   "dateReceived": {
     "type": "DateTime",
-    "value": "2025-6-09"
+    "value": "2025-06-09"
   },
   "dateAccepted": {
     "type": "DateTime",
-    "value": "2025-6-11"
+    "value": "2025-06-11"
   },
   "funders": [
     {
@@ -2809,11 +2816,51 @@ expression: article
   ],
   "isPartOf": {
     "type": "Periodical",
-    "name": "bioRxiv"
+    "name": "bioRxiv",
+    "identifiers": [
+      {
+        "type": "PropertyValue",
+        "propertyId": "publisher-id",
+        "value": "BIORXIV"
+      }
+    ]
   },
+  "licenses": [
+    "http://creativecommons.org/licenses/by/4.0/"
+  ],
   "publisher": {
     "type": "Organization",
     "name": "Cold Spring Harbor Laboratory"
   },
-  "version": "1.1"
+  "version": "1.1",
+  "publicationDates": [
+    {
+      "type": "epub",
+      "date": "2025"
+    }
+  ],
+  "historyDates": [
+    {
+      "type": "received",
+      "date": "2025-06-09"
+    },
+    {
+      "type": "rev-recd",
+      "date": "2025-06-09"
+    },
+    {
+      "type": "accepted",
+      "date": "2025-06-11"
+    }
+  ],
+  "resources": [
+    {
+      "type": "pdf",
+      "role": "full-text",
+      "url": "658655.pdf"
+    }
+  ],
+  "copyrightStatement": "© 2025, Posted by Cold Spring Harbor Laboratory",
+  "copyrightYear": "2025",
+  "licenseText": "This pre-print is available under a Creative Commons License (Attribution 4.0 International), CC BY 4.0, as described at http://creativecommons.org/licenses/by/4.0/"
 }

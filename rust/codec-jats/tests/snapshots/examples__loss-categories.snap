@@ -4,80 +4,69 @@ expression: categories
 ---
 biorxiv-465267 decode:
   content: 20
-  link-or-identifier: 749
-  metadata: 39
-  presentation: 1443
+  link-or-identifier: 747
+  metadata: 37
+  presentation: 1445
 biorxiv-465267 encode:
-  link-or-identifier: 1
-  metadata: 134
+  metadata: 132
 biorxiv-573522 decode:
   content: 1
-  link-or-identifier: 451
-  metadata: 33
+  link-or-identifier: 449
+  metadata: 31
   presentation: 770
 biorxiv-573522 encode:
-  link-or-identifier: 1
-  metadata: 51
+  metadata: 49
 biorxiv-630838 decode:
   content: 210
-  link-or-identifier: 888
-  metadata: 80
+  link-or-identifier: 886
+  metadata: 78
   presentation: 1224
 biorxiv-630838 encode:
-  link-or-identifier: 1
-  metadata: 95
+  metadata: 93
 elife-94334-v1 decode:
   content: 21
-  link-or-identifier: 139
-  metadata: 66
-  presentation: 276
+  link-or-identifier: 133
+  metadata: 65
+  presentation: 275
 elife-94334-v1 encode:
-  link-or-identifier: 1
-  metadata: 146
+  metadata: 144
 pmc-11518443 decode:
-  link-or-identifier: 15
-  metadata: 8
-  presentation: 4
-pmc-11518443 encode:
-  link-or-identifier: 1
-  metadata: 2
+  link-or-identifier: 4
+  metadata: 20
+  presentation: 2
+pmc-11518443 encode: {}
 pmc-12354728 decode:
   content: 2
-  link-or-identifier: 120
-  metadata: 85
-  presentation: 204
+  link-or-identifier: 112
+  metadata: 99
+  presentation: 202
 pmc-12354728 encode:
-  link-or-identifier: 1
-  metadata: 45
+  metadata: 43
 pmc-12431436 decode:
   content: 1
-  link-or-identifier: 82
-  metadata: 119
-  presentation: 246
+  link-or-identifier: 72
+  metadata: 116
+  presentation: 244
 pmc-12431436 encode:
-  link-or-identifier: 1
-  metadata: 51
+  metadata: 49
 pmc-6849754 decode:
   content: 301
-  link-or-identifier: 175
-  metadata: 64
-  presentation: 117
+  link-or-identifier: 167
+  metadata: 68
+  presentation: 115
 pmc-6849754 encode:
-  link-or-identifier: 1
-  metadata: 67
+  metadata: 66
 pmc-8438044 decode:
   content: 1
-  link-or-identifier: 189
-  metadata: 35
-  presentation: 640
+  link-or-identifier: 181
+  metadata: 50
+  presentation: 638
 pmc-8438044 encode:
-  link-or-identifier: 1
-  metadata: 93
+  metadata: 91
 pmc-9786276 decode:
   content: 3
-  link-or-identifier: 144
-  metadata: 29
-  presentation: 759
+  link-or-identifier: 133
+  metadata: 50
+  presentation: 757
 pmc-9786276 encode:
-  link-or-identifier: 1
-  metadata: 74
+  metadata: 72

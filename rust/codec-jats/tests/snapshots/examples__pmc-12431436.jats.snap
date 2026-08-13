@@ -5,15 +5,234 @@ expression: jats
 <article dtd-version="1.4" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:mml="http://www.w3.org/1998/Math/MathML">
   <front>
     <journal-meta>
+      <journal-id journal-id-type="nlm-ta">PLoS One</journal-id>
+      <journal-id journal-id-type="iso-abbrev">PLoS One</journal-id>
+      <journal-id journal-id-type="pmc-domain-id">440</journal-id>
+      <journal-id journal-id-type="pmc-domain">plosone</journal-id>
+      <journal-id journal-id-type="publisher-id">plos</journal-id>
       <journal-title-group>
         <journal-title>PLOS One</journal-title>
       </journal-title-group>
+      <issn pub-type="epub">1932-6203</issn>
       <publisher>
         <publisher-name>PLOS</publisher-name>
       </publisher>
     </journal-meta>
     <article-meta>
       <article-id pub-id-type="doi">10.1371/journal.pone.0332245</article-id>
+      <article-id pub-id-type="pmcid">PMC12431436</article-id>
+      <article-id pub-id-type="pmcid-ver">PMC12431436.1</article-id>
+      <article-id pub-id-type="pmcaid">12431436</article-id>
+      <article-id pub-id-type="pmcaiid">12431436</article-id>
+      <article-id pub-id-type="pmid">40938858</article-id>
+      <article-id pub-id-type="publisher-id">PONE-D-25-22831</article-id>
+      <article-version>1</article-version>
+      <article-categories>
+        <subj-group subj-group-type="heading">
+          <subject>Research Article</subject>
+        </subj-group>
+        <subj-group subj-group-type="Discipline-v3">
+          <subject>Medicine and Health Sciences</subject>
+          <subj-group>
+            <subject>Medical Conditions</subject>
+            <subj-group>
+              <subject>Infectious Diseases</subject>
+              <subj-group>
+                <subject>Disease Vectors</subject>
+                <subj-group>
+                  <subject>Insect Vectors</subject>
+                  <subj-group>
+                    <subject>Mosquitoes</subject>
+                    <subj-group>
+                      <subject>Aedes Aegypti</subject>
+                    </subj-group>
+                  </subj-group>
+                </subj-group>
+              </subj-group>
+              <subj-group>
+                <subject>Viral Diseases</subject>
+                <subj-group>
+                  <subject>Arboviral Infections</subject>
+                </subj-group>
+              </subj-group>
+            </subj-group>
+          </subj-group>
+          <subj-group>
+            <subject>Pathology and Laboratory Medicine</subject>
+            <subj-group>
+              <subject>Pathogens</subject>
+              <subj-group>
+                <subject>Microbial Pathogens</subject>
+                <subj-group>
+                  <subject>Viral Pathogens</subject>
+                  <subj-group>
+                    <subject>Flaviviruses</subject>
+                    <subj-group>
+                      <subject>Dengue Virus</subject>
+                    </subj-group>
+                  </subj-group>
+                </subj-group>
+              </subj-group>
+            </subj-group>
+          </subj-group>
+        </subj-group>
+        <subj-group subj-group-type="Discipline-v3">
+          <subject>Biology and Life Sciences</subject>
+          <subj-group>
+            <subject>Species Interactions</subject>
+            <subj-group>
+              <subject>Disease Vectors</subject>
+              <subj-group>
+                <subject>Insect Vectors</subject>
+                <subj-group>
+                  <subject>Mosquitoes</subject>
+                  <subj-group>
+                    <subject>Aedes Aegypti</subject>
+                  </subj-group>
+                </subj-group>
+              </subj-group>
+            </subj-group>
+          </subj-group>
+          <subj-group>
+            <subject>Zoology</subject>
+            <subj-group>
+              <subject>Entomology</subject>
+              <subj-group>
+                <subject>Insects</subject>
+                <subj-group>
+                  <subject>Mosquitoes</subject>
+                  <subj-group>
+                    <subject>Aedes Aegypti</subject>
+                  </subj-group>
+                </subj-group>
+              </subj-group>
+            </subj-group>
+            <subj-group>
+              <subject>Animals</subject>
+              <subj-group>
+                <subject>Invertebrates</subject>
+                <subj-group>
+                  <subject>Arthropoda</subject>
+                  <subj-group>
+                    <subject>Insects</subject>
+                    <subj-group>
+                      <subject>Mosquitoes</subject>
+                      <subj-group>
+                        <subject>Aedes Aegypti</subject>
+                      </subj-group>
+                    </subj-group>
+                  </subj-group>
+                </subj-group>
+              </subj-group>
+            </subj-group>
+          </subj-group>
+          <subj-group>
+            <subject>Organisms</subject>
+            <subj-group>
+              <subject>Eukaryota</subject>
+              <subj-group>
+                <subject>Animals</subject>
+                <subj-group>
+                  <subject>Invertebrates</subject>
+                  <subj-group>
+                    <subject>Arthropoda</subject>
+                    <subj-group>
+                      <subject>Insects</subject>
+                      <subj-group>
+                        <subject>Mosquitoes</subject>
+                        <subj-group>
+                          <subject>Aedes Aegypti</subject>
+                        </subj-group>
+                      </subj-group>
+                    </subj-group>
+                  </subj-group>
+                </subj-group>
+              </subj-group>
+            </subj-group>
+            <subj-group>
+              <subject>Viruses</subject>
+              <subj-group>
+                <subject>Viral Pathogens</subject>
+                <subj-group>
+                  <subject>Flaviviruses</subject>
+                  <subj-group>
+                    <subject>Dengue Virus</subject>
+                  </subj-group>
+                </subj-group>
+              </subj-group>
+            </subj-group>
+          </subj-group>
+          <subj-group>
+            <subject>Microbiology</subject>
+            <subj-group>
+              <subject>Medical Microbiology</subject>
+              <subj-group>
+                <subject>Microbial Pathogens</subject>
+                <subj-group>
+                  <subject>Viral Pathogens</subject>
+                  <subj-group>
+                    <subject>Flaviviruses</subject>
+                    <subj-group>
+                      <subject>Dengue Virus</subject>
+                    </subj-group>
+                  </subj-group>
+                </subj-group>
+              </subj-group>
+            </subj-group>
+          </subj-group>
+          <subj-group>
+            <subject>Genetics</subject>
+            <subj-group>
+              <subject>Genomics</subject>
+            </subj-group>
+          </subj-group>
+        </subj-group>
+        <subj-group subj-group-type="Discipline-v3">
+          <subject>Biology and life sciences</subject>
+          <subj-group>
+            <subject>Organisms</subject>
+            <subj-group>
+              <subject>Viruses</subject>
+              <subj-group>
+                <subject>RNA viruses</subject>
+                <subj-group>
+                  <subject>Flaviviruses</subject>
+                  <subj-group>
+                    <subject>Dengue Virus</subject>
+                  </subj-group>
+                </subj-group>
+              </subj-group>
+            </subj-group>
+          </subj-group>
+        </subj-group>
+        <subj-group subj-group-type="Discipline-v3">
+          <subject>Research and analysis methods</subject>
+          <subj-group>
+            <subject>Extraction techniques</subject>
+            <subj-group>
+              <subject>DNA extraction</subject>
+            </subj-group>
+          </subj-group>
+        </subj-group>
+        <subj-group subj-group-type="Discipline-v3">
+          <subject>Research and Analysis Methods</subject>
+          <subj-group>
+            <subject>Biological Cultures</subject>
+            <subj-group>
+              <subject>Cell Cultures</subject>
+            </subj-group>
+          </subj-group>
+          <subj-group>
+            <subject>Electrophoretic Techniques</subject>
+            <subj-group>
+              <subject>Gel Electrophoresis</subject>
+              <subj-group>
+                <subject>Agarose Gel Electrophoresis</subject>
+              </subj-group>
+            </subj-group>
+          </subj-group>
+        </subj-group>
+      </article-categories>
       <title-group>
         <article-title>Dissecting the dynamics of virus-derived DNA of dengue virus 2 (DENV-2) in <italic>Aedes</italic> mosquitoes</article-title>
       </title-group>
@@ -164,23 +383,63 @@ expression: jats
           </institution-wrap>
         </aff>
       </contrib-group>
-      <pub-date iso-8601-date="2025">
+      <pub-date pub-type="epub" iso-8601-date="2025-09-12">
+        <year>2025</year>
+        <month>09</month>
+        <day>12</day>
+      </pub-date>
+      <pub-date pub-type="collection" iso-8601-date="2025">
         <year>2025</year>
       </pub-date>
       <volume>20</volume>
       <issue>9</issue>
+      <issue-id pub-id-type="pmc-issue-id">496058</issue-id>
+      <elocation-id>e0332245</elocation-id>
       <history>
-        <date date-type="received" iso-8601-date="2025-5-8">
+        <date date-type="received" iso-8601-date="2025-05-08">
           <year>2025</year>
-          <month>5</month>
-          <day>8</day>
+          <month>05</month>
+          <day>08</day>
         </date>
-        <date date-type="accepted" iso-8601-date="2025-8-27">
+        <date date-type="accepted" iso-8601-date="2025-08-27">
           <year>2025</year>
-          <month>8</month>
+          <month>08</month>
           <day>27</day>
         </date>
       </history>
+      <pub-history>
+        <event event-type="pmc-release">
+          <date iso-8601-date="2025-09-12">
+            <year>2025</year>
+            <month>09</month>
+            <day>12</day>
+          </date>
+        </event>
+        <event event-type="pmc-live">
+          <date iso-8601-date="2025-09-13">
+            <year>2025</year>
+            <month>09</month>
+            <day>13</day>
+          </date>
+        </event>
+        <event event-type="pmc-last-change">
+          <date iso-8601-date="2025-09-13">
+            <year>2025</year>
+            <month>09</month>
+            <day>13</day>
+          </date>
+        </event>
+      </pub-history>
+      <permissions>
+        <copyright-statement>© 2025 Aonuma et al</copyright-statement>
+        <copyright-year>2025</copyright-year>
+        <copyright-holder>Aonuma et al</copyright-holder>
+        <license xlink:href="https://creativecommons.org/licenses/by/4.0/">
+          <license-p>This is an open access article distributed under the terms of the Creative Commons Attribution License, which permits unrestricted use, distribution, and reproduction in any medium, provided the original author and source are credited.</license-p>
+        </license>
+      </permissions>
+      <self-uri content-type="pmc-pdf" xlink:href="pone.0332245.pdf"></self-uri>
+      <self-uri content-type="pdf" xlink:href="pone.0332245.pdf"></self-uri>
       <abstract>
         <p>Dengue is one of the neglected tropical diseases (NTDs) transmitted by <italic>Aedes</italic> mosquitoes and continues to spread globally. When mosquitoes are infected with dengue virus (DENV), virus-derived DNA (vDNA) is generated in mosquitoes, which subsequently contributes to their immune response. We traced the generation and presence of dengue virus type 2 (DENV-2) vDNA in experimentally infected cultured mosquito cells and <italic>Aedes</italic> mosquitoes, and notably, in wild mosquitoes collected in Burkina Faso. Detection of vDNA was achieved using a method incorporating loop-mediated isothermal amplification (LAMP), specifically, a LAMP-based vDNA detection method (vDNA-LAMP). The LAMP reaction, using primers targeting a segment of the NS5 region of DENV-2, detected vDNA from crude DNA extracted from experimentally infected cultured cells and <italic>Aedes</italic> mosquitoes. Detection revealed that the amount of DENV-2 vDNA generated in infected cells was relatively low; nevertheless, vDNA-LAMP enabled successful detection. The timing and quantity of vDNA generation in cultured cells were associated with the initial number of viral particles introduced during infection. Furthermore, vDNA-LAMP was applied to detect dengue virus vDNA in wild mosquitoes in dengue-endemic regions. This resulted in the successful detection of DENV-2 vDNA in field-collected mosquitoes, indicating that a proportion of wild mosquitoes in Burkina Faso harbored DENV-2 vDNA. Mapping these vDNA-positive mosquitoes allowed the identification of areas where infected mosquitoes and/or their progeny were likely present. These findings provide insights into the dynamics of DENV-2 vDNA in natural environments and underscore the potential of vDNA-LAMP as a tool for tracing vDNA in wild mosquitoes, which are responsible for transmitting viral infections.</p>
       </abstract>

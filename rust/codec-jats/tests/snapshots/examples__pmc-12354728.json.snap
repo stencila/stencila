@@ -195,7 +195,7 @@ expression: article
   ],
   "datePublished": {
     "type": "DateTime",
-    "value": "2025"
+    "value": "2025-08-14"
   },
   "references": [
     {
@@ -18169,6 +18169,11 @@ expression: article
       "type": "PropertyValue",
       "propertyId": "publisher-id",
       "value": "15365"
+    },
+    {
+      "type": "PropertyValue",
+      "propertyId": "elocation-id",
+      "value": "29845"
     }
   ],
   "about": [
@@ -18180,11 +18185,11 @@ expression: article
   ],
   "dateReceived": {
     "type": "DateTime",
-    "value": "2025-5-15"
+    "value": "2025-05-15"
   },
   "dateAccepted": {
     "type": "DateTime",
-    "value": "2025-8-7"
+    "value": "2025-08-07"
   },
   "keywords": [
     "Competition",
@@ -18198,16 +18203,92 @@ expression: article
     "Conservation biology"
   ],
   "isPartOf": {
-    "type": "PublicationVolume",
+    "type": "PublicationIssue",
     "isPartOf": {
-      "type": "Periodical",
-      "name": "Scientific Reports"
+      "type": "PublicationVolume",
+      "isPartOf": {
+        "type": "Periodical",
+        "name": "Scientific Reports",
+        "identifiers": [
+          {
+            "type": "PropertyValue",
+            "propertyId": "nlm-ta",
+            "value": "Sci Rep"
+          },
+          {
+            "type": "PropertyValue",
+            "propertyId": "iso-abbrev",
+            "value": "Sci Rep"
+          },
+          {
+            "type": "PropertyValue",
+            "propertyId": "pmc-domain-id",
+            "value": "1579"
+          },
+          {
+            "type": "PropertyValue",
+            "propertyId": "pmc-domain",
+            "value": "scirep"
+          },
+          {
+            "type": "PropertyValue",
+            "propertyId": "issn-epub",
+            "value": "2045-2322"
+          }
+        ],
+        "issns": [
+          "2045-2322"
+        ]
+      },
+      "volumeNumber": 15
     },
-    "volumeNumber": 15
+    "identifiers": [
+      {
+        "type": "PropertyValue",
+        "propertyId": "pmc-issue-id",
+        "value": "478255"
+      }
+    ]
   },
+  "licenses": [
+    "https://creativecommons.org/licenses/by-nc-nd/4.0/"
+  ],
   "publisher": {
     "type": "Organization",
     "name": "Nature Publishing Group"
   },
-  "version": "1"
+  "version": "1",
+  "publicationDates": [
+    {
+      "type": "epub",
+      "date": "2025-08-14"
+    },
+    {
+      "type": "collection",
+      "date": "2025"
+    }
+  ],
+  "publicationHistory": [
+    {
+      "eventType": "pmc-release",
+      "date": "2025-08-14"
+    },
+    {
+      "eventType": "pmc-live",
+      "date": "2025-08-16"
+    },
+    {
+      "eventType": "pmc-last-change",
+      "date": "2025-08-16"
+    }
+  ],
+  "resources": [
+    {
+      "type": "pmc-pdf",
+      "url": "41598_2025_Article_15365.pdf"
+    }
+  ],
+  "copyrightStatement": "© The Author(s) 2025",
+  "copyrightYear": "2025",
+  "licenseText": "Open Access This article is licensed under a Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License, which permits any non-commercial use, sharing, distribution and reproduction in any medium or format, as long as you give appropriate credit to the original author(s) and the source, provide a link to the Creative Commons licence, and indicate if you modified the licensed material. You do not have permission under this licence to share adapted material derived from this article or parts of it. The images or other third party material in this article are included in the article’s Creative Commons licence, unless indicated otherwise in a credit line to the material. If material is not included in the article’s Creative Commons licence and your intended use is not permitted by statutory regulation or exceeds the permitted use, you will need to obtain permission directly from the copyright holder. To view a copy of this licence, visit http://creativecommons.org/licenses/by-nc-nd/4.0/."
 }

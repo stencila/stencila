@@ -5,15 +5,29 @@ expression: jats
 <article dtd-version="1.4" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:mml="http://www.w3.org/1998/Math/MathML">
   <front>
     <journal-meta>
+      <journal-id journal-id-type="nlm-ta">elife</journal-id>
+      <journal-id journal-id-type="publisher-id">eLife</journal-id>
       <journal-title-group>
         <journal-title>eLife</journal-title>
       </journal-title-group>
+      <issn pub-type="epub">2050-084X</issn>
       <publisher>
         <publisher-name>eLife Sciences Publications, Ltd</publisher-name>
       </publisher>
     </journal-meta>
     <article-meta>
-      <article-id pub-id-type="doi">10.7554/eLife.94334.3</article-id>
+      <article-id pub-id-type="doi">10.7554/eLife.94334</article-id>
+      <article-id pub-id-type="publisher-id">94334</article-id>
+      <article-id pub-id-type="doi" specific-use="version">10.7554/eLife.94334.3</article-id>
+      <article-version>version of record</article-version>
+      <article-categories>
+        <subj-group subj-group-type="display-channel">
+          <subject>Research Article</subject>
+        </subj-group>
+        <subj-group subj-group-type="heading">
+          <subject>Chromosomes and Gene Expression</subject>
+        </subj-group>
+      </article-categories>
       <title-group>
         <article-title>Prolonged cell cycle arrest in response to DNA damage in yeast requires the maintenance of DNA damage signaling and the spindle assembly checkpoint</article-title>
       </title-group>
@@ -86,12 +100,59 @@ expression: jats
           <addr-line>United States</addr-line>
         </aff>
       </contrib-group>
-      <pub-date iso-8601-date="2024-12-10">
+      <pub-date pub-type="publication" iso-8601-date="2024-12-10">
         <year>2024</year>
         <month>12</month>
         <day>10</day>
       </pub-date>
       <volume>13</volume>
+      <elocation-id>RP94334</elocation-id>
+      <history>
+        <date date-type="sent-for-review" iso-8601-date="2023-11-18">
+          <year>2023</year>
+          <month>11</month>
+          <day>18</day>
+        </date>
+      </history>
+      <pub-history>
+        <event>
+          <event-desc>This manuscript was published as a preprint.</event-desc>
+          <date date-type="preprint" iso-8601-date="2023-11-14">
+            <year>2023</year>
+            <month>11</month>
+            <day>14</day>
+          </date>
+          <self-uri xlink:href="https://doi.org/10.1101/2023.05.15.540538"></self-uri>
+        </event>
+        <event>
+          <event-desc>This manuscript was published as a reviewed preprint.</event-desc>
+          <date date-type="reviewed-preprint" iso-8601-date="2024-01-30">
+            <year>2024</year>
+            <month>01</month>
+            <day>30</day>
+          </date>
+          <self-uri xlink:href="https://doi.org/10.7554/eLife.94334.1"></self-uri>
+        </event>
+        <event>
+          <event-desc>The reviewed preprint was revised.</event-desc>
+          <date date-type="reviewed-preprint" iso-8601-date="2024-10-18">
+            <year>2024</year>
+            <month>10</month>
+            <day>18</day>
+          </date>
+          <self-uri xlink:href="https://doi.org/10.7554/eLife.94334.2"></self-uri>
+        </event>
+      </pub-history>
+      <permissions>
+        <copyright-statement>© 2024, Zhou, Waterman et al</copyright-statement>
+        <copyright-year>2024</copyright-year>
+        <copyright-holder>Zhou, Waterman et al</copyright-holder>
+        <license xlink:href="http://creativecommons.org/licenses/by/4.0/">
+          <license-p>This article is distributed under the terms of the Creative Commons Attribution License, which permits unrestricted use and redistribution provided that the original author and source are credited.</license-p>
+        </license>
+      </permissions>
+      <self-uri content-type="pdf" xlink:href="elife-94334-v1.pdf"></self-uri>
+      <self-uri content-type="figures-pdf" xlink:href="elife-94334-figures-v1.pdf"></self-uri>
       <abstract>
         <p>Cells evoke the DNA damage checkpoint (DDC) to inhibit mitosis in the presence of DNA double-strand breaks (DSBs) to allow more time for DNA repair. In budding yeast, a single irreparable DSB is sufficient to activate the DDC and induce cell cycle arrest prior to anaphase for about 12–15 hr, after which cells ‘adapt’ to the damage by extinguishing the DDC and resuming the cell cycle. While activation of the DNA damage-dependent cell cycle arrest is well understood, how it is maintained remains unclear. To address this, we conditionally depleted key DDC proteins after the DDC was fully activated and monitored changes in the maintenance of cell cycle arrest. Degradation of Ddc2<sup>ATRIP</sup>, Rad9, Rad24, or Rad53<sup>CHK2</sup> results in premature resumption of the cell cycle, indicating that these DDC factors are required both to establish and maintain the arrest. Dun1 is required for the establishment, but not the maintenance, of arrest, whereas Chk1 is required for prolonged maintenance but not for initial establishment of the mitotic arrest. When the cells are challenged with two persistent DSBs, they remain permanently arrested. This permanent arrest is initially dependent on the continuous presence of Ddc2, Rad9, and Rad53; however, after 15 hr these proteins become dispensable. Instead, the continued mitotic arrest is sustained by spindle assembly checkpoint (SAC) proteins Mad1, Mad2, and Bub2 but not by Bub2’s binding partner Bfa1. These data suggest that prolonged cell cycle arrest in response to 2 DSBs is achieved by a handoff from the DDC to specific components of the SAC. Furthermore, the establishment and maintenance of DNA damage-induced cell cycle arrest require overlapping but different sets of factors.</p>
       </abstract>

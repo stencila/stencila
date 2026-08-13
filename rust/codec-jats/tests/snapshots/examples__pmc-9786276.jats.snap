@@ -5,12 +5,34 @@ expression: jats
 <article dtd-version="1.4" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:mml="http://www.w3.org/1998/Math/MathML">
   <front>
     <journal-meta>
+      <journal-id journal-id-type="nlm-ta">Integr Zool</journal-id>
+      <journal-id journal-id-type="iso-abbrev">Integr Zool</journal-id>
+      <journal-id journal-id-type="pmc-domain-id">379</journal-id>
+      <journal-id journal-id-type="pmc-domain">blackwellopen</journal-id>
+      <journal-id journal-id-type="publisher-id">INZ2</journal-id>
       <journal-title-group>
         <journal-title>Integrative Zoology</journal-title>
       </journal-title-group>
+      <issn pub-type="ppub">1749-4869</issn>
+      <issn pub-type="epub">1749-4877</issn>
     </journal-meta>
     <article-meta>
       <article-id pub-id-type="doi">10.1111/1749-4877.12599</article-id>
+      <article-id pub-id-type="pmcid">PMC9786276</article-id>
+      <article-id pub-id-type="pmcid-ver">PMC9786276.1</article-id>
+      <article-id pub-id-type="pmcaid">9786276</article-id>
+      <article-id pub-id-type="pmcaiid">9786276</article-id>
+      <article-id pub-id-type="pmid">34599557</article-id>
+      <article-id pub-id-type="publisher-id">INZ212599</article-id>
+      <article-version>1</article-version>
+      <article-categories>
+        <subj-group subj-group-type="overline">
+          <subject>Original Article</subject>
+        </subj-group>
+        <subj-group subj-group-type="heading">
+          <subject>Special subsection: Ecology and evolution</subject>
+        </subj-group>
+      </article-categories>
       <title-group>
         <article-title>How big can a walking fish be? A theoretical inference based on observations on four land‐dwelling fish genera of South Vietnam</article-title>
       </title-group>
@@ -29,14 +51,52 @@ expression: jats
           <addr-line>Moscow, Russia</addr-line>
         </aff>
       </contrib-group>
-      <pub-date iso-8601-date="2022-9">
+      <pub-date pub-type="epub" iso-8601-date="2021-11-10">
+        <year>2021</year>
+        <month>11</month>
+        <day>10</day>
+      </pub-date>
+      <pub-date pub-type="ppub" iso-8601-date="2022-09">
         <year>2022</year>
-        <month>9</month>
+        <month>09</month>
       </pub-date>
       <volume>17</volume>
       <issue>5</issue>
+      <issue-id pub-id-type="doi">10.1111/inz2.v17.5</issue-id>
+      <issue-id pub-id-type="pmc-issue-id">424390</issue-id>
       <fpage>849</fpage>
       <lpage>878</lpage>
+      <pub-history>
+        <event event-type="pmc-release">
+          <date iso-8601-date="2022-12-23">
+            <year>2022</year>
+            <month>12</month>
+            <day>23</day>
+          </date>
+        </event>
+        <event event-type="pmc-live">
+          <date iso-8601-date="2022-12-27">
+            <year>2022</year>
+            <month>12</month>
+            <day>27</day>
+          </date>
+        </event>
+        <event event-type="pmc-last-change">
+          <date iso-8601-date="2024-09-08">
+            <year>2024</year>
+            <month>09</month>
+            <day>08</day>
+          </date>
+        </event>
+      </pub-history>
+      <permissions>
+        <copyright-statement>© 2021 The Authors. Integrative Zoology published by International Society of Zoological Sciences, Institute of Zoology/Chinese Academy of Sciences and John Wiley &amp; Sons Australia, Ltd.</copyright-statement>
+        <license xlink:href="https://creativecommons.org/licenses/by-nc/4.0/">
+          <license-p>This is an open access article under the terms of the http://creativecommons.org/licenses/by-nc/4.0/ License, which permits use, distribution and reproduction in any medium, provided the original work is properly cited and is not used for commercial purposes.</license-p>
+        </license>
+      </permissions>
+      <self-uri content-type="pmc-pdf" xlink:href="INZ2-17-849.pdf"></self-uri>
+      <self-uri content-type="pdf" xlink:href="file:INZ2-17-849.pdf"></self-uri>
       <abstract>
         <p>Comparative study of terrestrial locomotion of 4 fish genera including <italic>Anabas</italic>, <italic>Channa, Clarias</italic>, and <italic>Monopterus</italic>, was performed in experimental setting with the substrate surface of wet clay. No special adaptations for terrestrial locomotion were found. Every fish uses for propulsion on land what it already has. Eel‐shaped <italic>Monopterus</italic> crawls by body undulations in a serpentine or sidewinding technique, the latter of which was not previously observed beyond snakes. The other 3 fish genera walk by body oscillations using stiff appendages as propulsors. When they are located anteriorly, as the serrate operculum in <italic>Anabas</italic> and the preaxial spine of the pectoral fin in <italic>Clarias</italic>, the propulsion is termed prolocomotor, when posteriorly, as the spiny anal fin in <italic>Channa</italic>—metalocomotor. <italic>Channa</italic> is the heaviest fish walking out of water in our days, quite comparable in size with first Devonian tetrapods <italic>Acanthostega</italic> and <italic>Tulerpeton</italic>. A theoretical calculation is suggested for the upper size limit of a fish capable of terrestrial walking without special locomotor adaptations. It should be roughly 20 cm in the vertical dimension of the trunk, which is just a little above the known size of Devonian tetrapodomorph fishes <italic>Panderichthys</italic> and <italic>Elpistostege</italic>. The metalocomotor walking technique of <italic>Channa</italic> is suggested as the closest extant model for terrestrial locomotion at the fish‐tetrapod transition. The major difference is that the metalocomotor propulsor in <italic>Channa</italic> is represented by the anal fin, while in tetrapodomorphs by the pelvic fins. The sprawled pelvic fins were advantageous in respect of reduced requirement for side‐to‐side tail swinging.</p>
       </abstract>

@@ -144,7 +144,7 @@ expression: article
   ],
   "datePublished": {
     "type": "DateTime",
-    "value": "2024-1-1"
+    "value": "2024-01-01"
   },
   "references": [
     {
@@ -7977,26 +7977,36 @@ expression: article
     {
       "type": "PropertyValue",
       "propertyId": "other",
-      "value": "biorxiv;2023.12.31.573522v1"
+      "value": "biorxiv;2023.12.31.573522v1",
+      "name": "pisa"
     },
     {
       "type": "PropertyValue",
       "propertyId": "other",
-      "value": "biorxiv;2023.12.31.573522"
+      "value": "biorxiv;2023.12.31.573522",
+      "name": "pisa-master"
     },
     {
       "type": "PropertyValue",
       "propertyId": "other",
-      "value": "2023.12.31.573522"
+      "value": "2023.12.31.573522",
+      "name": "slug"
     },
     {
       "type": "PropertyValue",
       "propertyId": "other",
-      "value": "2023.12.31.573522"
+      "value": "2023.12.31.573522",
+      "name": "atom-slug"
     },
     {
       "type": "PropertyValue",
       "propertyId": "other",
+      "value": "2023.12.31.573522",
+      "name": "tag"
+    },
+    {
+      "type": "PropertyValue",
+      "propertyId": "elocation-id",
       "value": "2023.12.31.573522"
     }
   ],
@@ -8023,15 +8033,81 @@ expression: article
   },
   "dateAccepted": {
     "type": "DateTime",
-    "value": "2024-1-01"
+    "value": "2024-01-01"
   },
   "isPartOf": {
     "type": "Periodical",
-    "name": "bioRxiv"
+    "name": "bioRxiv",
+    "identifiers": [
+      {
+        "type": "PropertyValue",
+        "propertyId": "hwp",
+        "value": "biorxiv"
+      },
+      {
+        "type": "PropertyValue",
+        "propertyId": "publisher-id",
+        "value": "BIORXIV"
+      }
+    ]
   },
+  "licenses": [
+    "http://creativecommons.org/licenses/by-nc/4.0/"
+  ],
   "publisher": {
     "type": "Organization",
     "name": "Cold Spring Harbor Laboratory"
   },
-  "version": "1.1"
+  "version": "1.1",
+  "publicationDates": [
+    {
+      "type": "epub-original",
+      "date": "2024"
+    },
+    {
+      "type": "hwp-created",
+      "date": "2024-01-01"
+    },
+    {
+      "type": "hwp-received",
+      "date": "2024-01-01"
+    },
+    {
+      "type": "epub",
+      "date": "2024-01-01"
+    },
+    {
+      "type": "epub-version",
+      "date": "2024-01-01"
+    }
+  ],
+  "historyDates": [
+    {
+      "type": "received",
+      "date": "2023-12-31"
+    },
+    {
+      "type": "rev-recd",
+      "date": "2023-12-31"
+    },
+    {
+      "type": "accepted",
+      "date": "2024-01-01"
+    }
+  ],
+  "resources": [
+    {
+      "type": "pdf",
+      "role": "full-text",
+      "url": "573522.pdf"
+    },
+    {
+      "type": "xml",
+      "role": "original",
+      "url": "573522.xml"
+    }
+  ],
+  "copyrightStatement": "© 2024, Posted by Cold Spring Harbor Laboratory",
+  "copyrightYear": "2024",
+  "licenseText": "This pre-print is available under a Creative Commons License (Attribution-NonCommercial 4.0 International), CC BY-NC 4.0, as described at http://creativecommons.org/licenses/by-nc/4.0/"
 }

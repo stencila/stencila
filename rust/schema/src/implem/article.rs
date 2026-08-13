@@ -1,9 +1,10 @@
 use std::collections::BTreeMap;
 
 use crate::{
-    Article, Author, AuthorRoleAuthor, Block, CreativeWorkType, CreativeWorkVariant, DateTime,
-    Heading, Inline, Organization, Person, PersonOrOrganization, PostalAddressOrString, RawBlock,
-    Reference, SectionType, Text,
+    Article, Author, AuthorRoleAuthor, Block, CreativeWorkType, CreativeWorkVariant,
+    CreativeWorkVariantOrString, DateTime, Heading, Inline, Organization, Periodical, Person,
+    PersonOrOrganization, PostalAddressOrString, Primitive, PropertyValueOrString,
+    PublicationIssue, RawBlock, Reference, SectionType, Text, ThingVariant,
     prelude::*,
     replicate,
     shortcuts::{h1, t},
@@ -395,6 +396,7 @@ fn encode_date_parts(context: &mut JatsEncodeContext, value: &str) {
 fn encode_article_date(
     context: &mut JatsEncodeContext,
     element: &str,
+    date_type_attr: Option<&str>,
     date_type: Option<&str>,
     date_time: &DateTime,
     loss: &str,
@@ -405,25 +407,40 @@ fn encode_article_date(
     };
 
     context.enter_elem(element);
-    if let Some(date_type) = date_type {
-        context.push_attr("date-type", date_type);
+    if let (Some(attr), Some(date_type)) = (date_type_attr, date_type) {
+        context.push_attr(attr, date_type);
     }
     context.push_attr("iso-8601-date", value);
     encode_date_parts(context, value);
     context.exit_elem();
 }
 
+/// The publication that an article is part of, flattened from the chain of
+/// works in `Article.isPartOf`
 #[derive(Default)]
 struct JournalMetadata<'a> {
-    title: Option<&'a str>,
+    periodical: Option<&'a Periodical>,
     volume: Option<String>,
     issue: Option<String>,
+    issue_work: Option<&'a PublicationIssue>,
+}
+
+impl JournalMetadata<'_> {
+    /// Whether anything at all will be emitted from `Article.isPartOf`
+    fn encoded(&self) -> bool {
+        self.periodical.is_some()
+            || self.volume.is_some()
+            || self.issue.is_some()
+            || self
+                .issue_work
+                .is_some_and(|issue| issue.doi.is_some() || issue.options.title.is_some())
+    }
 }
 
 fn collect_journal_metadata<'a>(work: &'a CreativeWorkVariant, metadata: &mut JournalMetadata<'a>) {
     match work {
         CreativeWorkVariant::Periodical(periodical) => {
-            metadata.title = periodical.name.as_deref();
+            metadata.periodical = Some(periodical);
         }
         CreativeWorkVariant::PublicationVolume(volume) => {
             metadata.volume = volume.volume_number.as_ref().map(TextCodec::to_text);
@@ -433,11 +450,570 @@ fn collect_journal_metadata<'a>(work: &'a CreativeWorkVariant, metadata: &mut Jo
         }
         CreativeWorkVariant::PublicationIssue(issue) => {
             metadata.issue = issue.issue_number.as_ref().map(TextCodec::to_text);
+            metadata.issue_work = Some(issue);
             if let Some(parent) = &issue.is_part_of {
                 collect_journal_metadata(parent, metadata);
             }
         }
         _ => {}
+    }
+}
+
+/// The text of a primitive value that can be the value of an identifier
+fn primitive_text(value: &Primitive) -> Option<String> {
+    match value {
+        Primitive::String(value) => {
+            let value = value.trim();
+            (!value.is_empty()).then(|| value.to_string())
+        }
+        Primitive::Integer(value) => Some(value.to_string()),
+        Primitive::UnsignedInteger(value) => Some(value.to_string()),
+        Primitive::Number(value) => Some(value.to_string()),
+        _ => None,
+    }
+}
+
+/// An identifier flattened into the parts that JATS represents
+struct Identifier<'a> {
+    /// The kind of identifier, e.g. `pmid`, from `PropertyValue.propertyId`
+    property_id: Option<&'a str>,
+    /// A qualifier distinguishing identifiers of the same kind, from `PropertyValue.name`
+    name: Option<&'a str>,
+    /// The identifier itself
+    value: String,
+}
+
+/// Flatten identifiers, reporting any whose value can not be represented as text
+fn identifiers<'a>(
+    identifiers: Option<&'a Vec<PropertyValueOrString>>,
+    loss: &str,
+    context: &mut JatsEncodeContext,
+) -> Vec<Identifier<'a>> {
+    let mut flattened = Vec::new();
+    for identifier in identifiers.into_iter().flatten() {
+        match identifier {
+            PropertyValueOrString::String(value) => {
+                let value = value.trim();
+                if value.is_empty() {
+                    continue;
+                }
+                flattened.push(Identifier {
+                    property_id: None,
+                    name: None,
+                    value: value.to_string(),
+                });
+            }
+            PropertyValueOrString::PropertyValue(property_value) => {
+                match primitive_text(&property_value.value) {
+                    Some(value) => flattened.push(Identifier {
+                        property_id: property_value.property_id.as_deref(),
+                        name: property_value.options.name.as_deref(),
+                        value,
+                    }),
+                    None => {
+                        context.add_loss(loss);
+                    }
+                }
+            }
+        }
+    }
+    flattened
+}
+
+/// Emit a `<journal-meta>` element
+fn encode_journal_meta(
+    journal: &JournalMetadata,
+    publisher: Option<&PersonOrOrganization>,
+    context: &mut JatsEncodeContext,
+) {
+    let periodical = journal.periodical;
+    let title = periodical.and_then(|periodical| periodical.name.as_deref());
+    let identifiers = identifiers(
+        periodical.and_then(|periodical| periodical.options.identifiers.as_ref()),
+        "Periodical.identifiers",
+        context,
+    );
+
+    // An ISSN's publication format is kept as a typed identifier alongside the
+    // ISSN itself, and a linking ISSN only as an identifier; see `decode_issn`
+    fn issn_format<'a>(identifier: &&Identifier<'a>) -> Option<&'a str> {
+        identifier
+            .property_id
+            .filter(|id| *id != "issn-l")
+            .and_then(|id| id.strip_prefix("issn-"))
+    }
+    let issn_formats = identifiers
+        .iter()
+        .filter(|identifier| issn_format(identifier).is_some())
+        .collect_vec();
+    let issn_l = identifiers
+        .iter()
+        .filter(|identifier| identifier.property_id == Some("issn-l"))
+        .collect_vec();
+    let journal_ids = identifiers
+        .iter()
+        .filter(|identifier| {
+            issn_format(identifier).is_none() && identifier.property_id != Some("issn-l")
+        })
+        .collect_vec();
+
+    if periodical.is_none() && publisher.is_none() {
+        return;
+    }
+
+    context.enter_elem("journal-meta");
+
+    if let Some(doi) = periodical
+        .and_then(|periodical| periodical.doi.as_deref())
+        .map(normalize_doi)
+        .filter(|doi| !doi.is_empty())
+    {
+        context
+            .enter_elem("journal-id")
+            .push_attr("journal-id-type", "doi")
+            .push_text(doi)
+            .exit_elem();
+    }
+    for identifier in &journal_ids {
+        context.enter_elem("journal-id");
+        if let Some(property_id) = identifier.property_id {
+            context.push_attr("journal-id-type", property_id);
+        }
+        context.push_text(&identifier.value).exit_elem();
+    }
+
+    let alternate_names = periodical
+        .and_then(|periodical| periodical.options.alternate_names.as_ref())
+        .map(Vec::as_slice)
+        .unwrap_or_default();
+    if title.is_some() || !alternate_names.is_empty() {
+        context.enter_elem("journal-title-group");
+        if let Some(title) = title {
+            encode_text_element(context, "journal-title", title);
+        }
+        for name in alternate_names {
+            encode_text_element(context, "abbrev-journal-title", name);
+        }
+        context.exit_elem_omit_empty();
+    }
+
+    for issn in periodical
+        .and_then(|periodical| periodical.options.issns.as_ref())
+        .into_iter()
+        .flatten()
+        .map(|issn| issn.trim())
+        .filter(|issn| !issn.is_empty())
+    {
+        context.enter_elem("issn");
+        if let Some(format) = issn_formats
+            .iter()
+            .find(|identifier| identifier.value == issn)
+            .and_then(issn_format)
+        {
+            context.push_attr("pub-type", format);
+        }
+        context.push_text(issn).exit_elem();
+    }
+    for identifier in &issn_l {
+        encode_text_element(context, "issn-l", &identifier.value);
+    }
+
+    if let Some(publisher) = publisher {
+        encode_publisher(publisher, context);
+    }
+
+    // Any other periodical metadata is not part of a JATS `<journal-meta>`
+    if let Some(periodical) = periodical {
+        context.merge_losses(lost_options_of!(
+            "Periodical",
+            periodical.options,
+            description,
+            url,
+            about,
+            r#abstract,
+            authors,
+            contributors,
+            editors,
+            date_start,
+            date_end,
+            date_published,
+            keywords,
+            licenses,
+            parts,
+            publisher,
+            references,
+            title
+        ));
+    }
+
+    context.exit_elem_omit_empty();
+}
+
+/// A path through a hierarchical subject taxonomy
+struct SubjectTree {
+    subject: String,
+    children: Vec<SubjectTree>,
+}
+
+impl SubjectTree {
+    /// Add the remainder of a subject path below this subject
+    fn insert(&mut self, path: &[String]) {
+        let Some((subject, rest)) = path.split_first() else {
+            return;
+        };
+
+        let index = match self
+            .children
+            .iter()
+            .position(|child| &child.subject == subject)
+        {
+            Some(index) => index,
+            None => {
+                self.children.push(SubjectTree {
+                    subject: subject.clone(),
+                    children: Vec::new(),
+                });
+                self.children.len() - 1
+            }
+        };
+
+        self.children[index].insert(rest);
+    }
+}
+
+/// Rebuild the subject hierarchies that `Article.about` was decoded from
+///
+/// Each entry is one path through a taxonomy. Paths that share a group type and
+/// a broadest subject belong to the same `<subj-group>`; paths that do not are
+/// kept separate so that their broadest subjects are not conflated.
+fn subject_trees(
+    article: &Article,
+    context: &mut JatsEncodeContext,
+) -> Vec<(Option<String>, SubjectTree)> {
+    let mut groups: Vec<(Option<String>, SubjectTree)> = Vec::new();
+
+    for thing in article.options.about.iter().flatten() {
+        let ThingVariant::PropertyValue(property_value) = thing else {
+            context.add_loss("Article.about");
+            continue;
+        };
+
+        let path = match &property_value.value {
+            Primitive::Array(values) => values.iter().filter_map(primitive_text).collect_vec(),
+            value => primitive_text(value).into_iter().collect_vec(),
+        };
+        let Some((subject, rest)) = path.split_first() else {
+            context.add_loss("Article.about");
+            continue;
+        };
+
+        let property_id = property_value.property_id.clone();
+        match groups
+            .iter_mut()
+            .find(|(id, tree)| id == &property_id && &tree.subject == subject)
+        {
+            Some((.., tree)) => tree.insert(rest),
+            None => {
+                let mut tree = SubjectTree {
+                    subject: subject.clone(),
+                    children: Vec::new(),
+                };
+                tree.insert(rest);
+                groups.push((property_id, tree));
+            }
+        }
+    }
+
+    groups
+}
+
+/// Emit a `<subj-group>` element and the nested groups of its narrower subjects
+fn encode_subj_group(
+    tree: &SubjectTree,
+    group_type: Option<&str>,
+    context: &mut JatsEncodeContext,
+) {
+    context.enter_elem("subj-group");
+    if let Some(group_type) = group_type {
+        context.push_attr("subj-group-type", group_type);
+    }
+    encode_text_element(context, "subject", &tree.subject);
+    for child in &tree.children {
+        encode_subj_group(child, None, context);
+    }
+    context.exit_elem();
+}
+
+/// Publication metadata retained in `Article.extra` by the JATS decoder
+///
+/// See `ArticleMetaExtra` in the `stencila-codec-jats` crate for how each of
+/// these is decoded.
+#[derive(Default)]
+struct ArticleExtra<'a> {
+    publication_dates: Vec<(Option<&'a str>, &'a str)>,
+    history_dates: Vec<(Option<&'a str>, &'a str)>,
+    publication_history: Vec<PubHistoryEvent<'a>>,
+    resources: Vec<(Option<&'a str>, Option<&'a str>, &'a str)>,
+    copyright_statement: Option<&'a str>,
+    copyright_year: Option<&'a str>,
+    copyright_holder: Option<&'a str>,
+    license_text: Option<&'a str>,
+}
+
+/// An event in the publication history of an article
+#[derive(Default)]
+struct PubHistoryEvent<'a> {
+    event_type: Option<&'a str>,
+    date_type: Option<&'a str>,
+    description: Option<&'a str>,
+    date: &'a str,
+    url: Option<&'a str>,
+}
+
+/// Read the retained publication metadata, reporting anything else as lost
+fn article_extra<'a>(article: &'a Article, context: &mut JatsEncodeContext) -> ArticleExtra<'a> {
+    let mut extra = ArticleExtra::default();
+
+    let string = |value: &'a Primitive| match value {
+        Primitive::String(value) => Some(value.as_str()),
+        _ => None,
+    };
+
+    let typed_dates = |value: &'a Primitive| -> Vec<(Option<&'a str>, &'a str)> {
+        let Primitive::Array(values) = value else {
+            return Vec::new();
+        };
+        values
+            .iter()
+            .filter_map(|value| {
+                let Primitive::Object(object) = value else {
+                    return None;
+                };
+                let date = object.get("date").and_then(string)?;
+                Some((object.get("type").and_then(string), date))
+            })
+            .collect()
+    };
+
+    for (name, value) in article.options.extra.iter().flat_map(|extra| extra.iter()) {
+        match name.as_str() {
+            "publicationDates" => extra.publication_dates = typed_dates(value),
+            "historyDates" => extra.history_dates = typed_dates(value),
+            "publicationHistory" => {
+                if let Primitive::Array(values) = value {
+                    for value in values.iter() {
+                        let Primitive::Object(object) = value else {
+                            continue;
+                        };
+                        if let Some(date) = object.get("date").and_then(string) {
+                            extra.publication_history.push(PubHistoryEvent {
+                                event_type: object.get("eventType").and_then(string),
+                                date_type: object.get("dateType").and_then(string),
+                                description: object.get("description").and_then(string),
+                                date,
+                                url: object.get("url").and_then(string),
+                            });
+                        }
+                    }
+                }
+            }
+            "resources" => {
+                if let Primitive::Array(values) = value {
+                    for value in values.iter() {
+                        let Primitive::Object(object) = value else {
+                            continue;
+                        };
+                        if let Some(url) = object.get("url").and_then(string) {
+                            extra.resources.push((
+                                object.get("type").and_then(string),
+                                object.get("role").and_then(string),
+                                url,
+                            ));
+                        }
+                    }
+                }
+            }
+            "copyrightStatement" => extra.copyright_statement = string(value),
+            "copyrightYear" => extra.copyright_year = string(value),
+            "copyrightHolder" => extra.copyright_holder = string(value),
+            "licenseText" => extra.license_text = string(value),
+            _ => {
+                context.add_loss("Article.extra");
+            }
+        }
+    }
+
+    extra
+}
+
+/// Emit the `<pub-date>` elements of an article
+///
+/// A JATS article usually has several publication dates, of which
+/// `datePublished` is the most specific. The others, and the kind of each date,
+/// are only available when they were retained by the decoder.
+fn encode_pub_dates(article: &Article, extra: &ArticleExtra, context: &mut JatsEncodeContext) {
+    if extra.publication_dates.is_empty() {
+        if let Some(date) = &article.date_published {
+            encode_article_date(
+                context,
+                "pub-date",
+                None,
+                None,
+                date,
+                "Article.datePublished",
+            );
+        }
+        return;
+    }
+
+    for (pub_type, date) in &extra.publication_dates {
+        encode_article_date(
+            context,
+            "pub-date",
+            Some("pub-type"),
+            *pub_type,
+            &DateTime::new(date.to_string()),
+            "Article.datePublished",
+        );
+    }
+}
+
+/// Emit the `<history>` of an article
+fn encode_history(article: &Article, extra: &ArticleExtra, context: &mut JatsEncodeContext) {
+    if !extra.history_dates.is_empty() {
+        context.enter_elem("history");
+        for (date_type, date) in &extra.history_dates {
+            encode_article_date(
+                context,
+                "date",
+                Some("date-type"),
+                *date_type,
+                &DateTime::new(date.to_string()),
+                "Article.dateReceived",
+            );
+        }
+        context.exit_elem_omit_empty();
+        return;
+    }
+
+    if article.options.date_received.is_none() && article.options.date_accepted.is_none() {
+        return;
+    }
+
+    context.enter_elem("history");
+    if let Some(date) = &article.options.date_received {
+        encode_article_date(
+            context,
+            "date",
+            Some("date-type"),
+            Some("received"),
+            date,
+            "Article.dateReceived",
+        );
+    }
+    if let Some(date) = &article.options.date_accepted {
+        encode_article_date(
+            context,
+            "date",
+            Some("date-type"),
+            Some("accepted"),
+            date,
+            "Article.dateAccepted",
+        );
+    }
+    context.exit_elem_omit_empty();
+}
+
+/// Emit the `<pub-history>` of an article
+fn encode_pub_history(extra: &ArticleExtra, context: &mut JatsEncodeContext) {
+    if extra.publication_history.is_empty() {
+        return;
+    }
+
+    context.enter_elem("pub-history");
+    for event in &extra.publication_history {
+        context.enter_elem("event");
+        if let Some(event_type) = event.event_type {
+            context.push_attr("event-type", event_type);
+        }
+        if let Some(description) = event.description {
+            encode_text_element(context, "event-desc", description);
+        }
+        encode_article_date(
+            context,
+            "date",
+            Some("date-type"),
+            event.date_type,
+            &DateTime::new(event.date.to_string()),
+            "Article.extra",
+        );
+        if let Some(url) = event.url {
+            context
+                .enter_elem("self-uri")
+                .push_attr("xlink:href", url)
+                .exit_elem();
+        }
+        context.exit_elem();
+    }
+    context.exit_elem_omit_empty();
+}
+
+/// Emit the `<permissions>` of an article
+fn encode_permissions(article: &Article, extra: &ArticleExtra, context: &mut JatsEncodeContext) {
+    let licenses = article.options.licenses.iter().flatten().collect_vec();
+    if licenses.is_empty()
+        && extra.copyright_statement.is_none()
+        && extra.copyright_year.is_none()
+        && extra.copyright_holder.is_none()
+        && extra.license_text.is_none()
+    {
+        return;
+    }
+
+    context.enter_elem("permissions");
+    for (element, value) in [
+        ("copyright-statement", extra.copyright_statement),
+        ("copyright-year", extra.copyright_year),
+        ("copyright-holder", extra.copyright_holder),
+    ] {
+        if let Some(value) = value {
+            encode_text_element(context, element, value);
+        }
+    }
+
+    // Any license prose belongs to the first license, which is where the
+    // decoder takes it from
+    let mut license_text = extra.license_text;
+
+    for license in licenses {
+        match license {
+            CreativeWorkVariantOrString::String(url) => {
+                context.enter_elem("license").push_attr("xlink:href", url);
+                encode_license_text(&mut license_text, context);
+                context.exit_elem();
+            }
+            _ => {
+                context.add_loss("Article.licenses");
+            }
+        }
+    }
+    if license_text.is_some() {
+        context.enter_elem("license");
+        encode_license_text(&mut license_text, context);
+        context.exit_elem_omit_empty();
+    }
+
+    context.exit_elem_omit_empty();
+}
+
+/// Emit the prose of a license, once, as `<license-p>` paragraphs
+fn encode_license_text(text: &mut Option<&str>, context: &mut JatsEncodeContext) {
+    let Some(text) = text.take() else {
+        return;
+    };
+
+    for paragraph in text.split("\n\n").filter(|para| !para.trim().is_empty()) {
+        encode_text_element(context, "license-p", paragraph);
     }
 }
 
@@ -759,11 +1335,14 @@ fn encode_sub_article(article: &Article, context: &mut JatsEncodeContext) {
 ///
 /// `journal_encoded` indicates whether anything was emitted from `is_part_of`,
 /// and `genre_encoded` whether the genre was emitted, which it is for a nested
-/// work but not for a top level article.
+/// work but not for a top level article. `full` indicates whether the article
+/// is emitted with a complete `<article-meta>`; a nested work has only the
+/// subset of metadata that a `<front-stub>` or an `<abstract>` can carry.
 fn add_article_losses(
     article: &Article,
     journal_encoded: bool,
     genre_encoded: bool,
+    full: bool,
     context: &mut JatsEncodeContext,
 ) {
     context
@@ -778,11 +1357,9 @@ fn add_article_losses(
             article.options,
             alternate_names,
             description,
-            identifiers,
             images,
             name,
             url,
-            about,
             contributors,
             editors,
             maintainers,
@@ -791,18 +1368,27 @@ fn add_article_losses(
             date_modified,
             funders,
             funded_by,
-            licenses,
             bibliography,
             text,
             repository,
             path,
             commit,
             worktree_status,
-            version,
             headings,
-            archive,
+            archive
+        ));
+
+    if !full {
+        context.merge_losses(lost_options_of!(
+            "Article",
+            article.options,
+            identifiers,
+            about,
+            licenses,
+            version,
             extra
         ));
+    }
 
     if article.options.is_part_of.is_some() && !journal_encoded {
         context.add_loss("Article.isPartOf");
@@ -842,24 +1428,12 @@ impl JatsCodec for Article {
         if let Some(work) = &self.options.is_part_of {
             collect_journal_metadata(work, &mut journal);
         }
-        let journal_encoded =
-            journal.title.is_some() || journal.volume.is_some() || journal.issue.is_some();
-        add_article_losses(self, journal_encoded, false, context);
+        add_article_losses(self, journal.encoded(), false, true, context);
 
         let parts = article_parts(self, context);
+        let extra = article_extra(self, context);
 
-        if journal.title.is_some() || self.options.publisher.is_some() {
-            context.enter_elem("journal-meta");
-            if let Some(title) = journal.title {
-                context.enter_elem("journal-title-group");
-                encode_text_element(context, "journal-title", title);
-                context.exit_elem();
-            }
-            if let Some(publisher) = &self.options.publisher {
-                encode_publisher(publisher, context);
-            }
-            context.exit_elem_omit_empty();
-        }
+        encode_journal_meta(&journal, self.options.publisher.as_ref(), context);
 
         context.enter_elem("article-meta");
         if let Some(doi) = self
@@ -874,6 +1448,41 @@ impl JatsCodec for Article {
                 .push_text(doi)
                 .exit_elem();
         }
+
+        // An electronic location identifier is emitted with the pagination it
+        // stands in for, not with the other identifiers
+        let article_identifiers = identifiers(
+            self.options.identifiers.as_ref(),
+            "Article.identifiers",
+            context,
+        );
+        let (elocation_ids, article_ids): (Vec<_>, Vec<_>) = article_identifiers
+            .iter()
+            .partition(|identifier| identifier.property_id == Some("elocation-id"));
+        for identifier in &article_ids {
+            context.enter_elem("article-id");
+            if let Some(property_id) = identifier.property_id {
+                context.push_attr("pub-id-type", property_id);
+            }
+            if let Some(name) = identifier.name {
+                context.push_attr("specific-use", name);
+            }
+            context.push_text(&identifier.value).exit_elem();
+        }
+
+        if let Some(version) = &self.options.version {
+            encode_text_element(context, "article-version", &version.to_text());
+        }
+
+        let subjects = subject_trees(self, context);
+        if !subjects.is_empty() {
+            context.enter_elem("article-categories");
+            for (group_type, tree) in &subjects {
+                encode_subj_group(tree, group_type.as_deref(), context);
+            }
+            context.exit_elem_omit_empty();
+        }
+
         if let Some(title) = self.title.as_ref().filter(|title| !title.is_empty()) {
             context
                 .enter_elem("title-group")
@@ -886,15 +1495,51 @@ impl JatsCodec for Article {
             encode_contrib_group(authors, context);
         }
 
-        if let Some(date) = &self.date_published {
-            encode_article_date(context, "pub-date", None, date, "Article.datePublished");
-        }
+        encode_pub_dates(self, &extra, context);
+
         if let Some(volume) = journal.volume.as_deref() {
             encode_text_element(context, "volume", volume);
         }
         if let Some(issue) = journal.issue.as_deref() {
             encode_text_element(context, "issue", issue);
         }
+        if let Some(issue_work) = journal.issue_work {
+            if let Some(doi) = issue_work
+                .doi
+                .as_deref()
+                .map(normalize_doi)
+                .filter(|doi| !doi.is_empty())
+            {
+                context
+                    .enter_elem("issue-id")
+                    .push_attr("pub-id-type", "doi")
+                    .push_text(doi)
+                    .exit_elem();
+            }
+            for identifier in &identifiers(
+                issue_work.options.identifiers.as_ref(),
+                "PublicationIssue.identifiers",
+                context,
+            ) {
+                context.enter_elem("issue-id");
+                if let Some(property_id) = identifier.property_id {
+                    context.push_attr("pub-id-type", property_id);
+                }
+                context.push_text(&identifier.value).exit_elem();
+            }
+            if let Some(title) = issue_work
+                .options
+                .title
+                .as_ref()
+                .filter(|title| !title.is_empty())
+            {
+                context.enter_elem("issue-title");
+                title.to_jats(context);
+                context.exit_elem_omit_empty();
+            }
+        }
+
+        let mut paginated = false;
         for (name, value) in [
             (
                 "fpage",
@@ -907,32 +1552,34 @@ impl JatsCodec for Article {
             ("page-range", self.options.pagination.clone()),
         ] {
             if let Some(value) = value {
+                paginated = true;
                 encode_text_element(context, name, &value);
             }
         }
-
-        if self.options.date_received.is_some() || self.options.date_accepted.is_some() {
-            context.enter_elem("history");
-            if let Some(date) = &self.options.date_received {
-                encode_article_date(
-                    context,
-                    "date",
-                    Some("received"),
-                    date,
-                    "Article.dateReceived",
-                );
+        // JATS allows either pagination or an electronic location, not both
+        if !paginated {
+            for identifier in &elocation_ids {
+                encode_text_element(context, "elocation-id", &identifier.value);
             }
-            if let Some(date) = &self.options.date_accepted {
-                encode_article_date(
-                    context,
-                    "date",
-                    Some("accepted"),
-                    date,
-                    "Article.dateAccepted",
-                );
-            }
-            context.exit_elem_omit_empty();
+        } else if !elocation_ids.is_empty() {
+            context.add_loss("Article.identifiers");
         }
+
+        encode_history(self, &extra, context);
+        encode_pub_history(&extra, context);
+        encode_permissions(self, &extra, context);
+
+        for (content_type, role, url) in &extra.resources {
+            context.enter_elem("self-uri");
+            if let Some(content_type) = content_type {
+                context.push_attr("content-type", content_type);
+            }
+            if let Some(role) = role {
+                context.push_attr("xlink:role", role);
+            }
+            context.push_attr("xlink:href", url).exit_elem();
+        }
+
         if let Some(abstract_content) = self
             .r#abstract
             .as_ref()
@@ -944,7 +1591,7 @@ impl JatsCodec for Article {
         }
         for part in &parts {
             if let ArticlePart::Abstract(article) = part {
-                add_article_losses(article, false, true, context);
+                add_article_losses(article, false, true, false, context);
                 encode_extra_abstract(article, context);
             }
         }
@@ -1018,7 +1665,7 @@ impl JatsCodec for Article {
 
         for part in &parts {
             if let ArticlePart::SubArticle(article) = part {
-                add_article_losses(article, false, true, context);
+                add_article_losses(article, false, true, false, context);
                 encode_sub_article(article, context);
             }
         }

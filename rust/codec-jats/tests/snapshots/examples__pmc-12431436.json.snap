@@ -331,7 +331,7 @@ expression: article
   ],
   "datePublished": {
     "type": "DateTime",
-    "value": "2025"
+    "value": "2025-09-12"
   },
   "references": [
     {
@@ -9452,6 +9452,11 @@ expression: article
       "type": "PropertyValue",
       "propertyId": "publisher-id",
       "value": "PONE-D-25-22831"
+    },
+    {
+      "type": "PropertyValue",
+      "propertyId": "elocation-id",
+      "value": "e0332245"
     }
   ],
   "about": [
@@ -9463,97 +9468,227 @@ expression: article
     {
       "type": "PropertyValue",
       "propertyId": "Discipline-v3",
-      "value": "Medicine and Health Sciences"
+      "value": [
+        "Medicine and Health Sciences",
+        "Medical Conditions",
+        "Infectious Diseases",
+        "Disease Vectors",
+        "Insect Vectors",
+        "Mosquitoes"
+      ]
     },
     {
       "type": "PropertyValue",
       "propertyId": "Discipline-v3",
-      "value": "Biology and Life Sciences"
+      "value": [
+        "Biology and Life Sciences",
+        "Species Interactions",
+        "Disease Vectors",
+        "Insect Vectors",
+        "Mosquitoes"
+      ]
     },
     {
       "type": "PropertyValue",
       "propertyId": "Discipline-v3",
-      "value": "Biology and Life Sciences"
+      "value": [
+        "Biology and Life Sciences",
+        "Zoology",
+        "Entomology",
+        "Insects",
+        "Mosquitoes"
+      ]
     },
     {
       "type": "PropertyValue",
       "propertyId": "Discipline-v3",
-      "value": "Biology and Life Sciences"
+      "value": [
+        "Biology and Life Sciences",
+        "Organisms",
+        "Eukaryota",
+        "Animals",
+        "Invertebrates",
+        "Arthropoda",
+        "Insects",
+        "Mosquitoes"
+      ]
     },
     {
       "type": "PropertyValue",
       "propertyId": "Discipline-v3",
-      "value": "Biology and Life Sciences"
+      "value": [
+        "Biology and Life Sciences",
+        "Zoology",
+        "Animals",
+        "Invertebrates",
+        "Arthropoda",
+        "Insects",
+        "Mosquitoes"
+      ]
     },
     {
       "type": "PropertyValue",
       "propertyId": "Discipline-v3",
-      "value": "Biology and life sciences"
+      "value": [
+        "Biology and life sciences",
+        "Organisms",
+        "Viruses",
+        "RNA viruses",
+        "Flaviviruses",
+        "Dengue Virus"
+      ]
     },
     {
       "type": "PropertyValue",
       "propertyId": "Discipline-v3",
-      "value": "Biology and Life Sciences"
+      "value": [
+        "Biology and Life Sciences",
+        "Microbiology",
+        "Medical Microbiology",
+        "Microbial Pathogens",
+        "Viral Pathogens",
+        "Flaviviruses",
+        "Dengue Virus"
+      ]
     },
     {
       "type": "PropertyValue",
       "propertyId": "Discipline-v3",
-      "value": "Medicine and Health Sciences"
+      "value": [
+        "Medicine and Health Sciences",
+        "Pathology and Laboratory Medicine",
+        "Pathogens",
+        "Microbial Pathogens",
+        "Viral Pathogens",
+        "Flaviviruses",
+        "Dengue Virus"
+      ]
     },
     {
       "type": "PropertyValue",
       "propertyId": "Discipline-v3",
-      "value": "Biology and Life Sciences"
+      "value": [
+        "Biology and Life Sciences",
+        "Organisms",
+        "Viruses",
+        "Viral Pathogens",
+        "Flaviviruses",
+        "Dengue Virus"
+      ]
     },
     {
       "type": "PropertyValue",
       "propertyId": "Discipline-v3",
-      "value": "Research and analysis methods"
+      "value": [
+        "Research and analysis methods",
+        "Extraction techniques",
+        "DNA extraction"
+      ]
     },
     {
       "type": "PropertyValue",
       "propertyId": "Discipline-v3",
-      "value": "Medicine and Health Sciences"
+      "value": [
+        "Medicine and Health Sciences",
+        "Medical Conditions",
+        "Infectious Diseases",
+        "Viral Diseases",
+        "Arboviral Infections"
+      ]
     },
     {
       "type": "PropertyValue",
       "propertyId": "Discipline-v3",
-      "value": "Biology and Life Sciences"
+      "value": [
+        "Biology and Life Sciences",
+        "Genetics",
+        "Genomics"
+      ]
     },
     {
       "type": "PropertyValue",
       "propertyId": "Discipline-v3",
-      "value": "Research and Analysis Methods"
+      "value": [
+        "Research and Analysis Methods",
+        "Biological Cultures",
+        "Cell Cultures"
+      ]
     },
     {
       "type": "PropertyValue",
       "propertyId": "Discipline-v3",
-      "value": "Research and Analysis Methods"
+      "value": [
+        "Research and Analysis Methods",
+        "Electrophoretic Techniques",
+        "Gel Electrophoresis",
+        "Agarose Gel Electrophoresis"
+      ]
     },
     {
       "type": "PropertyValue",
       "propertyId": "Discipline-v3",
-      "value": "Medicine and Health Sciences"
+      "value": [
+        "Medicine and Health Sciences",
+        "Medical Conditions",
+        "Infectious Diseases",
+        "Disease Vectors",
+        "Insect Vectors",
+        "Mosquitoes",
+        "Aedes Aegypti"
+      ]
     },
     {
       "type": "PropertyValue",
       "propertyId": "Discipline-v3",
-      "value": "Biology and Life Sciences"
+      "value": [
+        "Biology and Life Sciences",
+        "Species Interactions",
+        "Disease Vectors",
+        "Insect Vectors",
+        "Mosquitoes",
+        "Aedes Aegypti"
+      ]
     },
     {
       "type": "PropertyValue",
       "propertyId": "Discipline-v3",
-      "value": "Biology and Life Sciences"
+      "value": [
+        "Biology and Life Sciences",
+        "Zoology",
+        "Entomology",
+        "Insects",
+        "Mosquitoes",
+        "Aedes Aegypti"
+      ]
     },
     {
       "type": "PropertyValue",
       "propertyId": "Discipline-v3",
-      "value": "Biology and Life Sciences"
+      "value": [
+        "Biology and Life Sciences",
+        "Organisms",
+        "Eukaryota",
+        "Animals",
+        "Invertebrates",
+        "Arthropoda",
+        "Insects",
+        "Mosquitoes",
+        "Aedes Aegypti"
+      ]
     },
     {
       "type": "PropertyValue",
       "propertyId": "Discipline-v3",
-      "value": "Biology and Life Sciences"
+      "value": [
+        "Biology and Life Sciences",
+        "Zoology",
+        "Animals",
+        "Invertebrates",
+        "Arthropoda",
+        "Insects",
+        "Mosquitoes",
+        "Aedes Aegypti"
+      ]
     }
   ],
   "editors": [
@@ -9575,11 +9710,11 @@ expression: article
   ],
   "dateReceived": {
     "type": "DateTime",
-    "value": "2025-5-8"
+    "value": "2025-05-08"
   },
   "dateAccepted": {
     "type": "DateTime",
-    "value": "2025-8-27"
+    "value": "2025-08-27"
   },
   "funders": [
     {
@@ -9612,15 +9747,98 @@ expression: article
       "type": "PublicationVolume",
       "isPartOf": {
         "type": "Periodical",
-        "name": "PLOS One"
+        "name": "PLOS One",
+        "identifiers": [
+          {
+            "type": "PropertyValue",
+            "propertyId": "nlm-ta",
+            "value": "PLoS One"
+          },
+          {
+            "type": "PropertyValue",
+            "propertyId": "iso-abbrev",
+            "value": "PLoS One"
+          },
+          {
+            "type": "PropertyValue",
+            "propertyId": "pmc-domain-id",
+            "value": "440"
+          },
+          {
+            "type": "PropertyValue",
+            "propertyId": "pmc-domain",
+            "value": "plosone"
+          },
+          {
+            "type": "PropertyValue",
+            "propertyId": "publisher-id",
+            "value": "plos"
+          },
+          {
+            "type": "PropertyValue",
+            "propertyId": "issn-epub",
+            "value": "1932-6203"
+          }
+        ],
+        "issns": [
+          "1932-6203"
+        ]
       },
       "volumeNumber": 20
     },
-    "issueNumber": 9
+    "issueNumber": 9,
+    "identifiers": [
+      {
+        "type": "PropertyValue",
+        "propertyId": "pmc-issue-id",
+        "value": "496058"
+      }
+    ]
   },
+  "licenses": [
+    "https://creativecommons.org/licenses/by/4.0/"
+  ],
   "publisher": {
     "type": "Organization",
     "name": "PLOS"
   },
-  "version": "1"
+  "version": "1",
+  "publicationDates": [
+    {
+      "type": "epub",
+      "date": "2025-09-12"
+    },
+    {
+      "type": "collection",
+      "date": "2025"
+    }
+  ],
+  "publicationHistory": [
+    {
+      "eventType": "pmc-release",
+      "date": "2025-09-12"
+    },
+    {
+      "eventType": "pmc-live",
+      "date": "2025-09-13"
+    },
+    {
+      "eventType": "pmc-last-change",
+      "date": "2025-09-13"
+    }
+  ],
+  "resources": [
+    {
+      "type": "pmc-pdf",
+      "url": "pone.0332245.pdf"
+    },
+    {
+      "type": "pdf",
+      "url": "pone.0332245.pdf"
+    }
+  ],
+  "copyrightStatement": "© 2025 Aonuma et al",
+  "copyrightYear": "2025",
+  "copyrightHolder": "Aonuma et al",
+  "licenseText": "This is an open access article distributed under the terms of the Creative Commons Attribution License, which permits unrestricted use, distribution, and reproduction in any medium, provided the original author and source are credited."
 }

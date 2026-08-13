@@ -22,9 +22,7 @@ use stencila_codec_text_trait::to_text;
 
 use crate::encode::serialize_node;
 
-use super::utilities::{extend_path, record_attrs_lost, record_node_lost};
-
-const XLINK: &str = "http://www.w3.org/1999/xlink";
+use super::utilities::{XLINK, extend_path, record_attrs_lost, record_node_lost};
 
 /// Whether a JATS element is decoded by [`decode_blocks`] into block content
 ///

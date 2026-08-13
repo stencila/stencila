@@ -5,15 +5,45 @@ expression: jats
 <article dtd-version="1.4" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:mml="http://www.w3.org/1998/Math/MathML">
   <front>
     <journal-meta>
+      <journal-id journal-id-type="nlm-ta">Eur J Public Health</journal-id>
+      <journal-id journal-id-type="iso-abbrev">Eur J Public Health</journal-id>
+      <journal-id journal-id-type="pmc-domain-id">733</journal-id>
+      <journal-id journal-id-type="pmc-domain">eurpub</journal-id>
+      <journal-id journal-id-type="publisher-id">eurpub</journal-id>
       <journal-title-group>
         <journal-title>The European Journal of Public Health</journal-title>
       </journal-title-group>
+      <issn pub-type="ppub">1101-1262</issn>
+      <issn pub-type="epub">1464-360X</issn>
       <publisher>
         <publisher-name>Oxford University Press</publisher-name>
       </publisher>
     </journal-meta>
     <article-meta>
       <article-id pub-id-type="doi">10.1093/eurpub/ckae144.662</article-id>
+      <article-id pub-id-type="pmcid">PMC11518443</article-id>
+      <article-id pub-id-type="pmcid-ver">PMC11518443.1</article-id>
+      <article-id pub-id-type="pmcaid">11518443</article-id>
+      <article-id pub-id-type="pmcaiid">11518443</article-id>
+      <article-id pub-id-type="publisher-id">ckae144.662</article-id>
+      <article-version>1</article-version>
+      <article-categories>
+        <subj-group subj-group-type="heading">
+          <subject>Parallel Programme</subject>
+          <subj-group>
+            <subject>10.N. Scientific session: Gender and parenthood: short and long-term income, career, and health inequities</subject>
+          </subj-group>
+        </subj-group>
+        <subj-group subj-group-type="category-taxonomy-collection">
+          <subject>AcademicSubjects/MED00860</subject>
+        </subj-group>
+        <subj-group subj-group-type="category-taxonomy-collection">
+          <subject>AcademicSubjects/SOC01210</subject>
+        </subj-group>
+        <subj-group subj-group-type="category-taxonomy-collection">
+          <subject>AcademicSubjects/SOC02610</subject>
+        </subj-group>
+      </article-categories>
       <title-group>
         <article-title>Differences in the work-family experience of mothers and fathers of a southern European country</article-title>
       </title-group>
@@ -152,13 +182,52 @@ expression: jats
           <addr-line>Porto, Portugal</addr-line>
         </aff>
       </contrib-group>
-      <pub-date iso-8601-date="2024-10-28">
+      <pub-date pub-type="collection" iso-8601-date="2024-11">
+        <year>2024</year>
+        <month>11</month>
+      </pub-date>
+      <pub-date pub-type="epub" iso-8601-date="2024-10-28">
         <year>2024</year>
         <month>10</month>
         <day>28</day>
       </pub-date>
       <volume>34</volume>
       <issue>Suppl 3</issue>
+      <issue-id pub-id-type="pmc-issue-id">473787</issue-id>
+      <issue-title>17th European Public Health Conference 2024 Sailing the Waves of European Public Health: Exploring a Sea of Innovation Lisbon, Portugal 12–15 November 2024</issue-title>
+      <elocation-id>ckae144.662</elocation-id>
+      <pub-history>
+        <event event-type="pmc-release">
+          <date iso-8601-date="2024-10-28">
+            <year>2024</year>
+            <month>10</month>
+            <day>28</day>
+          </date>
+        </event>
+        <event event-type="pmc-live">
+          <date iso-8601-date="2024-10-29">
+            <year>2024</year>
+            <month>10</month>
+            <day>29</day>
+          </date>
+        </event>
+        <event event-type="pmc-last-change">
+          <date iso-8601-date="2024-10-29">
+            <year>2024</year>
+            <month>10</month>
+            <day>29</day>
+          </date>
+        </event>
+      </pub-history>
+      <permissions>
+        <copyright-statement>© The Author(s) 2024. Published by Oxford University Press on behalf of the European Public Health Association.</copyright-statement>
+        <copyright-year>2024</copyright-year>
+        <license xlink:href="https://creativecommons.org/licenses/by-nc/4.0/">
+          <license-p>This is an Open Access article distributed under the terms of the Creative Commons Attribution-NonCommercial License (https://creativecommons.org/licenses/by-nc/4.0/), which permits non-commercial re-use, distribution, and reproduction in any medium, provided the original work is properly cited. For commercial re-use, please contact journals.permissions@oup.com</license-p>
+        </license>
+      </permissions>
+      <self-uri content-type="pmc-pdf" xlink:href="ckae144.662.pdf"></self-uri>
+      <self-uri xlink:href="ckae144.662.pdf"></self-uri>
       <abstract>
         <sec sec-type="Background">
           <title level="2">Background</title>

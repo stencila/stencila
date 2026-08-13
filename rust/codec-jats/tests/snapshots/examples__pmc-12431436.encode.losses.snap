@@ -2,10 +2,7 @@
 source: rust/codec-jats/tests/examples.rs
 expression: info.losses
 ---
-Article.about: 1
 Article.editors: 1
 Article.funders: 1
-Article.identifiers: 1
-Article.version: 1
 Reference.isPartOf.issueNumber: 18
 Reference.isPartOf.volumeNumber: 29

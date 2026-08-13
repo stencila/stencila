@@ -3,6 +3,9 @@ use roxmltree::Node;
 
 use stencila_codec::Losses;
 
+/// The XLink namespace, used for `xlink:href` and related attributes
+pub(super) const XLINK: &str = "http://www.w3.org/1999/xlink";
+
 /// Extend a path with a new child tag name
 pub(super) fn extend_path(path: &str, tag: &str) -> String {
     [path, "/", tag].concat()

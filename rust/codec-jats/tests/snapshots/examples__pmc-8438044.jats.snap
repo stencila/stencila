@@ -5,15 +5,32 @@ expression: jats
 <article dtd-version="1.4" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:mml="http://www.w3.org/1998/Math/MathML">
   <front>
     <journal-meta>
+      <journal-id journal-id-type="nlm-ta">Sci Rep</journal-id>
+      <journal-id journal-id-type="iso-abbrev">Sci Rep</journal-id>
+      <journal-id journal-id-type="pmc-domain-id">1579</journal-id>
+      <journal-id journal-id-type="pmc-domain">scirep</journal-id>
       <journal-title-group>
         <journal-title>Scientific Reports</journal-title>
       </journal-title-group>
+      <issn pub-type="epub">2045-2322</issn>
       <publisher>
         <publisher-name>Nature Publishing Group</publisher-name>
       </publisher>
     </journal-meta>
     <article-meta>
       <article-id pub-id-type="doi">10.1038/s41598-021-97128-3</article-id>
+      <article-id pub-id-type="pmcid">PMC8438044</article-id>
+      <article-id pub-id-type="pmcid-ver">PMC8438044.1</article-id>
+      <article-id pub-id-type="pmcaid">8438044</article-id>
+      <article-id pub-id-type="pmcaiid">8438044</article-id>
+      <article-id pub-id-type="pmid">34518574</article-id>
+      <article-id pub-id-type="publisher-id">97128</article-id>
+      <article-version>1</article-version>
+      <article-categories>
+        <subj-group subj-group-type="heading">
+          <subject>Article</subject>
+        </subj-group>
+      </article-categories>
       <title-group>
         <article-title>The critical role of natural history museums in advancing eDNA for biodiversity studies: a case study with Amazonian fishes</article-title>
       </title-group>
@@ -163,22 +180,59 @@ expression: jats
           <addr-line>Chuo-ku, Chiba, 260-8682 Japan</addr-line>
         </aff>
       </contrib-group>
-      <pub-date iso-8601-date="2021">
+      <pub-date pub-type="epub" iso-8601-date="2021-09-13">
+        <year>2021</year>
+        <month>09</month>
+        <day>13</day>
+      </pub-date>
+      <pub-date pub-type="collection" iso-8601-date="2021">
         <year>2021</year>
       </pub-date>
       <volume>11</volume>
+      <issue-id pub-id-type="pmc-issue-id">372026</issue-id>
+      <elocation-id>18159</elocation-id>
       <history>
-        <date date-type="received" iso-8601-date="2021-4-23">
+        <date date-type="received" iso-8601-date="2021-04-23">
           <year>2021</year>
-          <month>4</month>
+          <month>04</month>
           <day>23</day>
         </date>
-        <date date-type="accepted" iso-8601-date="2021-8-12">
+        <date date-type="accepted" iso-8601-date="2021-08-12">
           <year>2021</year>
-          <month>8</month>
+          <month>08</month>
           <day>12</day>
         </date>
       </history>
+      <pub-history>
+        <event event-type="pmc-release">
+          <date iso-8601-date="2021-09-13">
+            <year>2021</year>
+            <month>09</month>
+            <day>13</day>
+          </date>
+        </event>
+        <event event-type="pmc-live">
+          <date iso-8601-date="2021-09-15">
+            <year>2021</year>
+            <month>09</month>
+            <day>15</day>
+          </date>
+        </event>
+        <event event-type="pmc-last-change">
+          <date iso-8601-date="2025-08-16">
+            <year>2025</year>
+            <month>08</month>
+            <day>16</day>
+          </date>
+        </event>
+      </pub-history>
+      <permissions>
+        <copyright-statement>© The Author(s) 2021</copyright-statement>
+        <license xlink:href="https://creativecommons.org/licenses/by/4.0/">
+          <license-p>Open Access This article is licensed under a Creative Commons Attribution 4.0 International License, which permits use, sharing, adaptation, distribution and reproduction in any medium or format, as long as you give appropriate credit to the original author(s) and the source, provide a link to the Creative Commons licence, and indicate if changes were made. The images or other third party material in this article are included in the article&apos;s Creative Commons licence, unless indicated otherwise in a credit line to the material. If material is not included in the article&apos;s Creative Commons licence and your intended use is not permitted by statutory regulation or exceeds the permitted use, you will need to obtain permission directly from the copyright holder. To view a copy of this licence, visit http://creativecommons.org/licenses/by/4.0/.</license-p>
+        </license>
+      </permissions>
+      <self-uri content-type="pmc-pdf" xlink:href="41598_2021_Article_97128.pdf"></self-uri>
       <abstract>
         <p>Ichthyological surveys have traditionally been conducted using whole-specimen, capture-based sampling with varied but conventional fishing gear. Recently, environmental DNA (eDNA) metabarcoding has emerged as a complementary, and possible alternative, approach to whole-specimen methodologies. In the tropics, where much of the diversity remains undescribed, vast reaches continue unexplored, and anthropogenic activities are constant threats; there have been few eDNA attempts for ichthyological inventories. We tested the discriminatory power of eDNA using MiFish primers with existing public reference libraries and compared this with capture-based methods in two distinct ecosystems in the megadiverse Amazon basin. In our study, eDNA provided an accurate snapshot of the fishes at higher taxonomic levels and corroborated its effectiveness to detect specialized fish assemblages. Some flaws in fish metabarcoding studies are routine issues addressed in natural history museums. Thus, by expanding their archives and adopting a series of initiatives linking collection-based research, training and outreach, natural history museums can enable the effective use of eDNA to survey Earth’s hotspots of biodiversity before taxa go extinct. Our project surveying poorly explored rivers and using DNA vouchered archives to build metabarcoding libraries for Neotropical fishes can serve as a model of this protocol.</p>
       </abstract>

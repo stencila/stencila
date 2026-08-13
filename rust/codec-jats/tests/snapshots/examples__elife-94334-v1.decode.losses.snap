@@ -39,24 +39,16 @@ expression: info.losses
 //article/body/sec/sec/table-wrap/table-wrap-foot/fn/label: 2
 //article/body/sec/sec/table-wrap/table/tbody/tr/td/@char: 61
 //article/body/sec/sec/table-wrap/table/thead/tr/th/xref: 2
-//article/front/article-meta/article-id/@specific-use: 1
 //article/front/article-meta/article-version/@article-version-type: 1
 //article/front/article-meta/author-notes: 1
 //article/front/article-meta/contrib-group/@content-type: 1
 //article/front/article-meta/contrib-group/@equal-contrib: 2
 //article/front/article-meta/contrib-group/role: 2
 //article/front/article-meta/contrib-group/xref: 25
-//article/front/article-meta/custom-meta-group: 1
-//article/front/article-meta/elocation-id: 1
-//article/front/article-meta/history/@iso-8601-date: 1
+"//article/front/article-meta/custom-meta-group/custom-meta[meta-name='Author impact statement']": 1
+"//article/front/article-meta/custom-meta-group/custom-meta[meta-name='publishing-route']": 1
 //article/front/article-meta/kwd-group/@kwd-group-type: 2
-//article/front/article-meta/permissions: 1
-//article/front/article-meta/pub-date/@date-type: 1
-//article/front/article-meta/pub-date/@publication-format: 1
-//article/front/article-meta/pub-history: 1
-//article/front/article-meta/self-uri: 2
-//article/front/journal-meta/issn: 1
-//article/front/journal-meta/journal-id: 2
+//article/front/article-meta/pub-history/event/self-uri/@content-type: 3
 //article/sub-article/body/disp-quote/@content-type: 28
 //article/sub-article/front-stub/contrib-group/anonymous: 3
 //article/sub-article/front-stub/contrib-group/role: 11

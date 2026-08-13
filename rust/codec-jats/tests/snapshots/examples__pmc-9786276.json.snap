@@ -277,7 +277,7 @@ expression: article
   ],
   "datePublished": {
     "type": "DateTime",
-    "value": "2022-9"
+    "value": "2021-11-10"
   },
   "references": [
     {
@@ -20006,16 +20006,68 @@ expression: article
   ],
   "isPartOf": {
     "type": "PublicationIssue",
+    "doi": "10.1111/inz2.v17.5",
     "isPartOf": {
       "type": "PublicationVolume",
       "isPartOf": {
         "type": "Periodical",
-        "name": "Integrative Zoology"
+        "name": "Integrative Zoology",
+        "identifiers": [
+          {
+            "type": "PropertyValue",
+            "propertyId": "nlm-ta",
+            "value": "Integr Zool"
+          },
+          {
+            "type": "PropertyValue",
+            "propertyId": "iso-abbrev",
+            "value": "Integr Zool"
+          },
+          {
+            "type": "PropertyValue",
+            "propertyId": "pmc-domain-id",
+            "value": "379"
+          },
+          {
+            "type": "PropertyValue",
+            "propertyId": "pmc-domain",
+            "value": "blackwellopen"
+          },
+          {
+            "type": "PropertyValue",
+            "propertyId": "publisher-id",
+            "value": "INZ2"
+          },
+          {
+            "type": "PropertyValue",
+            "propertyId": "issn-ppub",
+            "value": "1749-4869"
+          },
+          {
+            "type": "PropertyValue",
+            "propertyId": "issn-epub",
+            "value": "1749-4877"
+          }
+        ],
+        "issns": [
+          "1749-4869",
+          "1749-4877"
+        ]
       },
       "volumeNumber": 17
     },
-    "issueNumber": 5
+    "issueNumber": 5,
+    "identifiers": [
+      {
+        "type": "PropertyValue",
+        "propertyId": "pmc-issue-id",
+        "value": "424390"
+      }
+    ]
   },
+  "licenses": [
+    "https://creativecommons.org/licenses/by-nc/4.0/"
+  ],
   "parts": [
     {
       "type": "Article",
@@ -20051,5 +20103,41 @@ expression: article
   ],
   "version": "1",
   "pageStart": 849,
-  "pageEnd": 878
+  "pageEnd": 878,
+  "publicationDates": [
+    {
+      "type": "epub",
+      "date": "2021-11-10"
+    },
+    {
+      "type": "ppub",
+      "date": "2022-09"
+    }
+  ],
+  "publicationHistory": [
+    {
+      "eventType": "pmc-release",
+      "date": "2022-12-23"
+    },
+    {
+      "eventType": "pmc-live",
+      "date": "2022-12-27"
+    },
+    {
+      "eventType": "pmc-last-change",
+      "date": "2024-09-08"
+    }
+  ],
+  "resources": [
+    {
+      "type": "pmc-pdf",
+      "url": "INZ2-17-849.pdf"
+    },
+    {
+      "type": "pdf",
+      "url": "file:INZ2-17-849.pdf"
+    }
+  ],
+  "copyrightStatement": "© 2021 The Authors. Integrative Zoology published by International Society of Zoological Sciences, Institute of Zoology/Chinese Academy of Sciences and John Wiley & Sons Australia, Ltd.",
+  "licenseText": "This is an open access article under the terms of the http://creativecommons.org/licenses/by-nc/4.0/ License, which permits use, distribution and reproduction in any medium, provided the original work is properly cited and is not used for commercial purposes."
 }

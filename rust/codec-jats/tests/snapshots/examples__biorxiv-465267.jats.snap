@@ -5,6 +5,8 @@ expression: jats
 <article dtd-version="1.4" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:mml="http://www.w3.org/1998/Math/MathML">
   <front>
     <journal-meta>
+      <journal-id journal-id-type="hwp">biorxiv</journal-id>
+      <journal-id journal-id-type="publisher-id">BIORXIV</journal-id>
       <journal-title-group>
         <journal-title>bioRxiv</journal-title>
       </journal-title-group>
@@ -14,6 +16,23 @@ expression: jats
     </journal-meta>
     <article-meta>
       <article-id pub-id-type="doi">10.1101/2021.10.21.465267</article-id>
+      <article-id pub-id-type="other" specific-use="pisa">biorxiv;2021.10.21.465267v1</article-id>
+      <article-id pub-id-type="other" specific-use="pisa-master">biorxiv;2021.10.21.465267</article-id>
+      <article-id pub-id-type="other" specific-use="slug">2021.10.21.465267</article-id>
+      <article-id pub-id-type="other" specific-use="atom-slug">2021.10.21.465267</article-id>
+      <article-id pub-id-type="other" specific-use="tag">2021.10.21.465267</article-id>
+      <article-version>1.1</article-version>
+      <article-categories>
+        <subj-group subj-group-type="author-type">
+          <subject>Regular Article</subject>
+        </subj-group>
+        <subj-group subj-group-type="heading">
+          <subject>New Results</subject>
+        </subj-group>
+        <subj-group subj-group-type="hwp-journal-coll">
+          <subject>Ecology</subject>
+        </subj-group>
+      </article-categories>
       <title-group>
         <article-title>A comprehensive benchmark for structural assessment in bipartite networks</article-title>
       </title-group>
@@ -71,13 +90,37 @@ expression: jats
           <addr-line>Zurich, Switzerland</addr-line>
         </aff>
       </contrib-group>
-      <pub-date iso-8601-date="2021-10-22">
+      <pub-date pub-type="epub-original" iso-8601-date="2021">
+        <year>2021</year>
+      </pub-date>
+      <pub-date pub-type="hwp-created" iso-8601-date="2021-10-22">
         <year>2021</year>
         <month>10</month>
         <day>22</day>
       </pub-date>
+      <pub-date pub-type="hwp-received" iso-8601-date="2021-10-22">
+        <year>2021</year>
+        <month>10</month>
+        <day>22</day>
+      </pub-date>
+      <pub-date pub-type="epub" iso-8601-date="2021-10-22">
+        <year>2021</year>
+        <month>10</month>
+        <day>22</day>
+      </pub-date>
+      <pub-date pub-type="epub-version" iso-8601-date="2021-10-22">
+        <year>2021</year>
+        <month>10</month>
+        <day>22</day>
+      </pub-date>
+      <elocation-id>2021.10.21.465267</elocation-id>
       <history>
         <date date-type="received" iso-8601-date="2021-10-21">
+          <year>2021</year>
+          <month>10</month>
+          <day>21</day>
+        </date>
+        <date date-type="rev-recd" iso-8601-date="2021-10-21">
           <year>2021</year>
           <month>10</month>
           <day>21</day>
@@ -88,6 +131,15 @@ expression: jats
           <day>22</day>
         </date>
       </history>
+      <permissions>
+        <copyright-statement>© 2021, Posted by Cold Spring Harbor Laboratory</copyright-statement>
+        <copyright-year>2021</copyright-year>
+        <license xlink:href="http://creativecommons.org/licenses/by-nc-nd/4.0/">
+          <license-p>This pre-print is available under a Creative Commons License (Attribution-NonCommercial-NoDerivs 4.0 International), CC BY-NC-ND 4.0, as described at http://creativecommons.org/licenses/by-nc-nd/4.0/</license-p>
+        </license>
+      </permissions>
+      <self-uri content-type="pdf" xlink:role="full-text" xlink:href="465267.pdf"></self-uri>
+      <self-uri content-type="xml" xlink:role="original" xlink:href="465267.xml"></self-uri>
       <abstract>
         <p>The use of null models has been a cornerstone to assess the emergence of many network properties at different levels of organization (micro-, meso- and macroscale). Notwithstanding, the debate around which is the most appropriate randomization procedure for a given problem is far from being over. Within the ecological community, for example, the discussion around whether nestedness is –or is not– a frequent pattern in natural systems, and under which assumptions, remains open. For this particular problem, efforts have been devoted to exploring to what extent current models are vulnerable to statistical errors, or to introduce new models that employ different randomization procedures. However, few or no attention has been devoted to the performance of those null models against other architectures. Here, we show that assessing alternative structures under a single null model may produce ambiguous results, which difficult the comparison regarding the joint emergence of different arrangements within a single network. To this aim, we analyze the statistical significance –in terms of <italic>z</italic>-scores– of nestedness, modularity, and in-block nestedness scores, employing five different null models on a benchmark of ∼ 2.5 × 10<sup>4</sup> synthetic bipartite networks with prescribed levels of the mentioned patterns. We show that some null models systematically over- or underestimate the presence of one or another structural pattern. In light of these ambiguities, we introduce an alternative model (termed Corrected Probabilistic model) that reduces the observed biases towards under- and overestimation, and highlight the need for the development of new frameworks that take into account those biases.</p>
       </abstract>

@@ -540,10 +540,7 @@ async fn citation_losses_use_citation_paths() -> Result<()> {
 #[tokio::test]
 async fn encoding_reports_unsupported_article_properties() -> Result<()> {
     let mut article = Article::new(vec![p([t("Body")])]);
-    article.options.identifiers = Some(vec![PropertyValueOrString::String("pmid:12345678".into())]);
-    article.options.licenses = Some(vec![CreativeWorkVariantOrString::String(
-        "https://creativecommons.org/licenses/by/4.0/".into(),
-    )]);
+    article.options.url = Some("https://example.org/article".into());
     article.options.date_modified = Some(DateTime::new("2025-06-07".into()));
     article.options.editors = Some(vec![Person {
         family_names: Some(vec!["Roe".into()]),
@@ -568,8 +565,7 @@ async fn encoding_reports_unsupported_article_properties() -> Result<()> {
         .map(|(label, ..)| label)
         .collect::<Vec<_>>();
     for expected in [
-        "Article.identifiers",
-        "Article.licenses",
+        "Article.url",
         "Article.dateModified",
         "Article.editors",
         "Article.genre",
@@ -832,6 +828,158 @@ async fn sub_articles_are_preserved() -> Result<()> {
         bail!("expected an article")
     };
     assert_eq!(article.options.parts.iter().flatten().count(), 1);
+
+    Ok(())
+}
+
+/// Article, journal, issue, license and resource metadata should survive a
+/// round trip
+#[tokio::test]
+async fn publication_metadata_roundtrip() -> Result<()> {
+    let jats = r#"
+        <article>
+          <front>
+            <journal-meta>
+              <journal-id journal-id-type="nlm-ta">Example J</journal-id>
+              <journal-id journal-id-type="doi">10.1111/(ISSN)1234-5678</journal-id>
+              <journal-title-group>
+                <journal-title>The Example Journal</journal-title>
+                <abbrev-journal-title abbrev-type="publisher">Example J</abbrev-journal-title>
+              </journal-title-group>
+              <issn pub-type="ppub">1234-5678</issn>
+              <issn publication-format="electronic">8765-4321</issn>
+            </journal-meta>
+            <article-meta>
+              <article-id pub-id-type="doi">10.1234/example</article-id>
+              <article-id pub-id-type="pmid">12345678</article-id>
+              <article-id pub-id-type="other" specific-use="slug">example</article-id>
+              <article-categories>
+                <subj-group subj-group-type="Discipline">
+                  <subject>Biology</subject>
+                  <subj-group>
+                    <subject>Genetics</subject>
+                  </subj-group>
+                </subj-group>
+              </article-categories>
+              <title-group><article-title>An example</article-title></title-group>
+              <pub-date pub-type="collection"><year>2025</year></pub-date>
+              <pub-date pub-type="epub"><day>4</day><month>3</month><year>2025</year></pub-date>
+              <volume>12</volume>
+              <issue>3</issue>
+              <issue-id pub-id-type="doi">10.1234/example.issue-3</issue-id>
+              <issue-title>A special issue</issue-title>
+              <elocation-id>e0012345</elocation-id>
+              <permissions>
+                <copyright-statement>© 2025 The Authors</copyright-statement>
+                <copyright-year>2025</copyright-year>
+                <license xlink:href="https://creativecommons.org/licenses/by/4.0/"
+                         xmlns:xlink="http://www.w3.org/1999/xlink">
+                  <license-p>Reuse is permitted with attribution.</license-p>
+                </license>
+              </permissions>
+              <self-uri content-type="pdf" xlink:href="example.pdf"
+                        xmlns:xlink="http://www.w3.org/1999/xlink" />
+            </article-meta>
+          </front>
+        </article>
+    "#;
+
+    let (node, ..) = JatsCodec.from_str(jats, None).await?;
+    let Node::Article(article) = &node else {
+        bail!("expected an article")
+    };
+
+    // The most specific publication date wins, rather than the last one
+    assert_eq!(
+        article
+            .date_published
+            .as_ref()
+            .map(|date| date.value.clone()),
+        Some("2025-03-04".to_string())
+    );
+    assert_eq!(article.doi.as_deref(), Some("10.1234/example"));
+    assert_eq!(
+        article.options.licenses,
+        Some(vec![CreativeWorkVariantOrString::String(
+            "https://creativecommons.org/licenses/by/4.0/".into()
+        )])
+    );
+
+    let (jats, ..) = JatsCodec
+        .to_string(
+            &node,
+            Some(EncodeOptions {
+                compact: Some(true),
+                ..Default::default()
+            }),
+        )
+        .await?;
+
+    for expected in [
+        r#"<journal-id journal-id-type="doi">10.1111/(ISSN)1234-5678</journal-id>"#,
+        r#"<journal-id journal-id-type="nlm-ta">Example J</journal-id>"#,
+        "<journal-title>The Example Journal</journal-title>",
+        r#"<abbrev-journal-title>Example J</abbrev-journal-title>"#,
+        r#"<issn pub-type="ppub">1234-5678</issn>"#,
+        r#"<issn pub-type="epub">8765-4321</issn>"#,
+        r#"<article-id pub-id-type="pmid">12345678</article-id>"#,
+        r#"<article-id pub-id-type="other" specific-use="slug">example</article-id>"#,
+        // The subject hierarchy is preserved, not flattened
+        r#"<subj-group subj-group-type="Discipline"><subject>Biology</subject><subj-group><subject>Genetics</subject></subj-group></subj-group>"#,
+        r#"<pub-date pub-type="collection" iso-8601-date="2025">"#,
+        r#"<pub-date pub-type="epub" iso-8601-date="2025-03-04">"#,
+        r#"<issue-id pub-id-type="doi">10.1234/example.issue-3</issue-id>"#,
+        "<issue-title>A special issue</issue-title>",
+        // An electronic location is not confused with a page range
+        "<elocation-id>e0012345</elocation-id>",
+        "<copyright-statement>© 2025 The Authors</copyright-statement>",
+        r#"<license xlink:href="https://creativecommons.org/licenses/by/4.0/">"#,
+        "<license-p>Reuse is permitted with attribution.</license-p>",
+        r#"<self-uri content-type="pdf" xlink:href="example.pdf">"#,
+    ] {
+        assert!(jats.contains(expected), "missing {expected} in {jats}");
+    }
+
+    Ok(())
+}
+
+/// Links into a publishing system's own file system are not portable, so
+/// should be filtered out and reported
+#[tokio::test]
+async fn non_portable_self_uris_are_filtered() -> Result<()> {
+    let jats = r#"
+        <article xmlns:xlink="http://www.w3.org/1999/xlink">
+          <front>
+            <article-meta>
+              <self-uri content-type="pdf" xlink:href="example.pdf" />
+              <self-uri content-type="pdf" xlink:href="file:/content/journal/vol1/example.pdf" />
+            </article-meta>
+          </front>
+        </article>
+    "#;
+
+    let (node, info) = JatsCodec.from_str(jats, None).await?;
+    let labels = info
+        .losses
+        .iter()
+        .map(|(label, ..)| label)
+        .collect::<Vec<_>>();
+    assert!(
+        labels.contains(&"//article/front/article-meta/self-uri/@href"),
+        "{labels:?}"
+    );
+
+    let (jats, ..) = JatsCodec
+        .to_string(
+            &node,
+            Some(EncodeOptions {
+                compact: Some(true),
+                ..Default::default()
+            }),
+        )
+        .await?;
+    assert!(jats.contains("example.pdf"), "{jats}");
+    assert!(!jats.contains("file:/content"), "{jats}");
 
     Ok(())
 }

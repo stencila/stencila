@@ -1,4 +1,8 @@
-use std::{collections::BTreeMap, fs::read_to_string, path::PathBuf};
+use std::{
+    collections::{BTreeMap, BTreeSet},
+    fs::read_to_string,
+    path::PathBuf,
+};
 
 use glob::glob;
 
@@ -77,6 +81,54 @@ fn examples() -> Result<()> {
             semantic_summary(&jats_again)?.structures,
             semantic_summary(&jats)?.structures,
             "another decode and encode cycle changed the structures of {name}"
+        );
+
+        // Publication metadata that the schema can represent must survive the
+        // round trip. Subsets are compared because encoding also recovers
+        // metadata that is only implicit in the original, such as a license URL
+        // that the source states only within its license prose.
+        let original_metadata = metadata_summary(&original)?;
+        let roundtrip_metadata = metadata_summary(&jats)?;
+        assert_subset(
+            "article identifiers",
+            &name,
+            &original_metadata.article_identifiers,
+            &roundtrip_metadata.article_identifiers,
+        );
+        assert_subset(
+            "journal identifiers",
+            &name,
+            &original_metadata.journal_identifiers,
+            &roundtrip_metadata.journal_identifiers,
+        );
+        assert_subset(
+            "dates",
+            &name,
+            &original_metadata.dates,
+            &roundtrip_metadata.dates,
+        );
+        assert_subset(
+            "licenses",
+            &name,
+            &original_metadata.licenses,
+            &roundtrip_metadata.licenses,
+        );
+        assert_subset(
+            "portable resources",
+            &name,
+            &original_metadata.resources,
+            &roundtrip_metadata.resources,
+        );
+
+        // Links into a publishing system's own file system are deliberately
+        // filtered out; see `decode_self_uri`
+        let unfiltered = roundtrip_metadata
+            .resources
+            .intersection(&original_metadata.internal_resources)
+            .collect::<Vec<_>>();
+        assert!(
+            unfiltered.is_empty(),
+            "non-portable resources retained for {name}: {unfiltered:?}"
         );
 
         assert_snapshot!(format!("{name}.jats"), jats);
@@ -160,6 +212,189 @@ fn semantic_summary(jats: &str) -> Result<SemanticSummary> {
     .collect();
 
     Ok(SemanticSummary { prose, structures })
+}
+
+/// Assert that none of the metadata of an original fixture was dropped.
+fn assert_subset<T: Ord + std::fmt::Debug>(
+    what: &str,
+    name: &str,
+    original: &BTreeSet<T>,
+    roundtrip: &BTreeSet<T>,
+) {
+    let missing = original.difference(roundtrip).collect::<Vec<_>>();
+    assert!(
+        missing.is_empty(),
+        "{what} dropped when round-tripping {name}: {missing:?}"
+    );
+}
+
+/// Publication metadata of an article, independent of how JATS spells it.
+#[derive(Debug, Default)]
+struct MetadataSummary {
+    /// `(pub-id-type, value)` pairs from `<article-id>` and `<elocation-id>`
+    article_identifiers: BTreeSet<(String, String)>,
+    /// `(kind, value)` pairs from `<journal-id>`, `<issn>` and `<journal-title>`
+    journal_identifiers: BTreeSet<(String, String)>,
+    /// `(role, ISO 8601 date)` pairs from every kind of date element
+    dates: BTreeSet<(String, String)>,
+    /// License URLs
+    licenses: BTreeSet<String>,
+    /// Links to representations of the article that are usable elsewhere
+    resources: BTreeSet<String>,
+    /// Links to representations of the article within a publishing system
+    internal_resources: BTreeSet<String>,
+}
+
+const XLINK: &str = "http://www.w3.org/1999/xlink";
+
+/// Extract the publication metadata of the `<front>` of the outermost `<article>`.
+fn metadata_summary(jats: &str) -> Result<MetadataSummary> {
+    let document = roxmltree::Document::parse_with_options(
+        jats,
+        roxmltree::ParsingOptions {
+            allow_dtd: true,
+            ..Default::default()
+        },
+    )?;
+
+    let mut summary = MetadataSummary::default();
+
+    let Some(front) = document
+        .descendants()
+        .find(|node| node.has_tag_name("article"))
+        .and_then(|article| {
+            article
+                .children()
+                .find(|child| child.has_tag_name("front") || child.has_tag_name("front-stub"))
+        })
+    else {
+        return Ok(summary);
+    };
+
+    for node in front.descendants().filter(|node| node.is_element()) {
+        let text = || {
+            let text = node
+                .descendants()
+                .filter(roxmltree::Node::is_text)
+                .filter_map(|node| node.text())
+                .collect::<String>();
+            text.split_whitespace().collect::<Vec<_>>().join(" ")
+        };
+
+        match node.tag_name().name() {
+            "article-id" => {
+                summary.article_identifiers.insert((
+                    node.attribute("pub-id-type")
+                        .unwrap_or_default()
+                        .to_string(),
+                    text(),
+                ));
+            }
+            "elocation-id" => {
+                summary
+                    .article_identifiers
+                    .insert(("elocation-id".to_string(), text()));
+            }
+            "journal-id" => {
+                summary.journal_identifiers.insert((
+                    node.attribute("journal-id-type")
+                        .unwrap_or_default()
+                        .to_string(),
+                    text(),
+                ));
+            }
+            "issn" => {
+                summary.journal_identifiers.insert((
+                    ["issn-", &publication_format(&node).unwrap_or_default()].concat(),
+                    text(),
+                ));
+            }
+            "pub-date" | "date" => {
+                if let Some(date) = iso_date(&node) {
+                    summary.dates.insert((date_role(&node), date));
+                }
+            }
+            "license" => {
+                if let Some(url) = node.attribute((XLINK, "href")) {
+                    summary.licenses.insert(url.to_string());
+                }
+            }
+            "license_ref" => {
+                summary.licenses.insert(text());
+            }
+            "self-uri" => {
+                if let Some(url) = node.attribute((XLINK, "href")) {
+                    if url.starts_with("file:/") || url.starts_with('/') {
+                        summary.internal_resources.insert(url.to_string());
+                    } else {
+                        summary.resources.insert(url.to_string());
+                    }
+                }
+            }
+            _ => {}
+        }
+    }
+
+    Ok(summary)
+}
+
+/// Normalize the two ways that JATS spells a publication format.
+fn publication_format(node: &roxmltree::Node) -> Option<String> {
+    let format = node
+        .attribute("pub-type")
+        .or_else(|| node.attribute("publication-format"))?;
+
+    Some(
+        match format {
+            "electronic" => "epub",
+            "print" => "ppub",
+            format => format,
+        }
+        .to_string(),
+    )
+}
+
+/// The kind of date that a date element represents.
+fn date_role(node: &roxmltree::Node) -> String {
+    node.attribute("pub-type")
+        .or_else(|| node.attribute("date-type"))
+        .map(String::from)
+        .or_else(|| publication_format(node))
+        .or_else(|| {
+            node.parent()
+                .and_then(|parent| parent.attribute("event-type"))
+                .map(String::from)
+        })
+        .unwrap_or_default()
+}
+
+/// The date that a date element represents, zero padded so that dates written
+/// differently still compare equal.
+fn iso_date(node: &roxmltree::Node) -> Option<String> {
+    let part = |name: &str| {
+        node.children()
+            .find(|child| child.has_tag_name(name))
+            .and_then(|child| child.text())
+            .map(str::trim)
+            .map(String::from)
+    };
+
+    let year = part("year")?;
+    if year.len() != 4 {
+        return None;
+    }
+
+    let mut date = year;
+    let Some(month) = part("month").and_then(|month| month.parse::<u32>().ok()) else {
+        return Some(date);
+    };
+    date.push_str(&format!("-{month:02}"));
+
+    if let Some(day) = part("day").and_then(|day| day.parse::<u32>().ok()) {
+        date.push_str(&format!("-{day:02}"));
+    }
+
+    Some(date)
 }
 
 /// Normalize layout whitespace without adding boundaries absent from parsed text.

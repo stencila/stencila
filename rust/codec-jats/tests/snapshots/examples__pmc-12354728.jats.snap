@@ -5,15 +5,32 @@ expression: jats
 <article dtd-version="1.4" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:mml="http://www.w3.org/1998/Math/MathML">
   <front>
     <journal-meta>
+      <journal-id journal-id-type="nlm-ta">Sci Rep</journal-id>
+      <journal-id journal-id-type="iso-abbrev">Sci Rep</journal-id>
+      <journal-id journal-id-type="pmc-domain-id">1579</journal-id>
+      <journal-id journal-id-type="pmc-domain">scirep</journal-id>
       <journal-title-group>
         <journal-title>Scientific Reports</journal-title>
       </journal-title-group>
+      <issn pub-type="epub">2045-2322</issn>
       <publisher>
         <publisher-name>Nature Publishing Group</publisher-name>
       </publisher>
     </journal-meta>
     <article-meta>
       <article-id pub-id-type="doi">10.1038/s41598-025-15365-2</article-id>
+      <article-id pub-id-type="pmcid">PMC12354728</article-id>
+      <article-id pub-id-type="pmcid-ver">PMC12354728.1</article-id>
+      <article-id pub-id-type="pmcaid">12354728</article-id>
+      <article-id pub-id-type="pmcaiid">12354728</article-id>
+      <article-id pub-id-type="pmid">40813597</article-id>
+      <article-id pub-id-type="publisher-id">15365</article-id>
+      <article-version>1</article-version>
+      <article-categories>
+        <subj-group subj-group-type="heading">
+          <subject>Article</subject>
+        </subj-group>
+      </article-categories>
       <title-group>
         <article-title>Craniological differentiation amongst Southeast Asian small cats</article-title>
       </title-group>
@@ -112,22 +129,60 @@ expression: jats
           </institution-wrap>
         </aff>
       </contrib-group>
-      <pub-date iso-8601-date="2025">
+      <pub-date pub-type="epub" iso-8601-date="2025-08-14">
+        <year>2025</year>
+        <month>08</month>
+        <day>14</day>
+      </pub-date>
+      <pub-date pub-type="collection" iso-8601-date="2025">
         <year>2025</year>
       </pub-date>
       <volume>15</volume>
+      <issue-id pub-id-type="pmc-issue-id">478255</issue-id>
+      <elocation-id>29845</elocation-id>
       <history>
-        <date date-type="received" iso-8601-date="2025-5-15">
+        <date date-type="received" iso-8601-date="2025-05-15">
           <year>2025</year>
-          <month>5</month>
+          <month>05</month>
           <day>15</day>
         </date>
-        <date date-type="accepted" iso-8601-date="2025-8-7">
+        <date date-type="accepted" iso-8601-date="2025-08-07">
           <year>2025</year>
-          <month>8</month>
-          <day>7</day>
+          <month>08</month>
+          <day>07</day>
         </date>
       </history>
+      <pub-history>
+        <event event-type="pmc-release">
+          <date iso-8601-date="2025-08-14">
+            <year>2025</year>
+            <month>08</month>
+            <day>14</day>
+          </date>
+        </event>
+        <event event-type="pmc-live">
+          <date iso-8601-date="2025-08-16">
+            <year>2025</year>
+            <month>08</month>
+            <day>16</day>
+          </date>
+        </event>
+        <event event-type="pmc-last-change">
+          <date iso-8601-date="2025-08-16">
+            <year>2025</year>
+            <month>08</month>
+            <day>16</day>
+          </date>
+        </event>
+      </pub-history>
+      <permissions>
+        <copyright-statement>© The Author(s) 2025</copyright-statement>
+        <copyright-year>2025</copyright-year>
+        <license xlink:href="https://creativecommons.org/licenses/by-nc-nd/4.0/">
+          <license-p>Open Access This article is licensed under a Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License, which permits any non-commercial use, sharing, distribution and reproduction in any medium or format, as long as you give appropriate credit to the original author(s) and the source, provide a link to the Creative Commons licence, and indicate if you modified the licensed material. You do not have permission under this licence to share adapted material derived from this article or parts of it. The images or other third party material in this article are included in the article’s Creative Commons licence, unless indicated otherwise in a credit line to the material. If material is not included in the article’s Creative Commons licence and your intended use is not permitted by statutory regulation or exceeds the permitted use, you will need to obtain permission directly from the copyright holder. To view a copy of this licence, visit http://creativecommons.org/licenses/by-nc-nd/4.0/.</license-p>
+        </license>
+      </permissions>
+      <self-uri content-type="pmc-pdf" xlink:href="41598_2025_Article_15365.pdf"></self-uri>
       <abstract>
         <p>Nine small felid species, including the introduced domestic cat, inhabit Southeast Asia. We analysed their skull morphology, using 36 selected morphometric measurements of up to 465 specimens. Of the species examined, the fishing cat and the Asian golden cat were the largest, whilst the mainland and Sunda leopard cats were the smallest. However, there was substantial overlap in size amongst these species. Principal Component Analysis and Quadratic Discriminant Analysis revealed that the skulls of fishing cats and flat-headed cats were clearly distinguishable from those of the other species. Additionally, the skulls of male Asian golden cats, female jungle cats, female Sunda leopard cats, and male marbled cats were well differentiated. In contrast, those of female Asian golden cats, male jungle cats, male domestic cats, and female marbled cats showed considerable morphological overlap with other morphospecies. When analysing only sympatric assemblages (i.e., on the continental mainland, Borneo, Sumatra, and Java), each morphospecies was generally well differentiated from the others although conspecific males and females were not clearly differentiated. Notable exceptions were female Asian golden cats and male jungle cats, female mainland leopard cats and female domestic cats, and female marbled cats and male domestic cats on the mainland, and female marbled cats and male domestic cats on Borneo and Sumatra. More detailed research is necessary to understand the impacts of introduced domestic cats on indigenous small wild felids in Southeast Asia through niche overlap and competition.</p>
         <sec sec-type="SupplementaryMaterials">

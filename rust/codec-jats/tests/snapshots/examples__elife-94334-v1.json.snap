@@ -4,7 +4,7 @@ expression: article
 ---
 {
   "type": "Article",
-  "doi": "10.7554/eLife.94334.3",
+  "doi": "10.7554/eLife.94334",
   "abstract": [
     {
       "type": "Paragraph",
@@ -31463,6 +31463,17 @@ expression: article
       "type": "PropertyValue",
       "propertyId": "publisher-id",
       "value": "94334"
+    },
+    {
+      "type": "PropertyValue",
+      "propertyId": "doi",
+      "value": "10.7554/eLife.94334.3",
+      "name": "version"
+    },
+    {
+      "type": "PropertyValue",
+      "propertyId": "elocation-id",
+      "value": "RP94334"
     }
   ],
   "about": [
@@ -31557,10 +31568,33 @@ expression: article
     "type": "PublicationVolume",
     "isPartOf": {
       "type": "Periodical",
-      "name": "eLife"
+      "name": "eLife",
+      "identifiers": [
+        {
+          "type": "PropertyValue",
+          "propertyId": "nlm-ta",
+          "value": "elife"
+        },
+        {
+          "type": "PropertyValue",
+          "propertyId": "publisher-id",
+          "value": "eLife"
+        },
+        {
+          "type": "PropertyValue",
+          "propertyId": "issn-epub",
+          "value": "2050-084X"
+        }
+      ],
+      "issns": [
+        "2050-084X"
+      ]
     },
     "volumeNumber": 13
   },
+  "licenses": [
+    "http://creativecommons.org/licenses/by/4.0/"
+  ],
   "parts": [
     {
       "type": "Article",
@@ -33136,5 +33170,51 @@ expression: article
     "type": "Organization",
     "name": "eLife Sciences Publications, Ltd"
   },
-  "version": "version of record"
+  "version": "version of record",
+  "publicationDates": [
+    {
+      "type": "publication",
+      "date": "2024-12-10"
+    }
+  ],
+  "historyDates": [
+    {
+      "type": "sent-for-review",
+      "date": "2023-11-18"
+    }
+  ],
+  "publicationHistory": [
+    {
+      "dateType": "preprint",
+      "description": "This manuscript was published as a preprint.",
+      "date": "2023-11-14",
+      "url": "https://doi.org/10.1101/2023.05.15.540538"
+    },
+    {
+      "dateType": "reviewed-preprint",
+      "description": "This manuscript was published as a reviewed preprint.",
+      "date": "2024-01-30",
+      "url": "https://doi.org/10.7554/eLife.94334.1"
+    },
+    {
+      "dateType": "reviewed-preprint",
+      "description": "The reviewed preprint was revised.",
+      "date": "2024-10-18",
+      "url": "https://doi.org/10.7554/eLife.94334.2"
+    }
+  ],
+  "resources": [
+    {
+      "type": "pdf",
+      "url": "elife-94334-v1.pdf"
+    },
+    {
+      "type": "figures-pdf",
+      "url": "elife-94334-figures-v1.pdf"
+    }
+  ],
+  "copyrightStatement": "© 2024, Zhou, Waterman et al",
+  "copyrightYear": "2024",
+  "copyrightHolder": "Zhou, Waterman et al",
+  "licenseText": "This article is distributed under the terms of the Creative Commons Attribution License, which permits unrestricted use and redistribution provided that the original author and source are credited."
 }

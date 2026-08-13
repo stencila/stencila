@@ -236,7 +236,7 @@ expression: article
   ],
   "datePublished": {
     "type": "DateTime",
-    "value": "2021"
+    "value": "2021-09-13"
   },
   "references": [
     {
@@ -21314,6 +21314,11 @@ expression: article
       "type": "PropertyValue",
       "propertyId": "publisher-id",
       "value": "97128"
+    },
+    {
+      "type": "PropertyValue",
+      "propertyId": "elocation-id",
+      "value": "18159"
     }
   ],
   "about": [
@@ -21325,11 +21330,11 @@ expression: article
   ],
   "dateReceived": {
     "type": "DateTime",
-    "value": "2021-4-23"
+    "value": "2021-04-23"
   },
   "dateAccepted": {
     "type": "DateTime",
-    "value": "2021-8-12"
+    "value": "2021-08-12"
   },
   "funders": [
     {
@@ -21342,16 +21347,91 @@ expression: article
     "Biodiversity"
   ],
   "isPartOf": {
-    "type": "PublicationVolume",
+    "type": "PublicationIssue",
     "isPartOf": {
-      "type": "Periodical",
-      "name": "Scientific Reports"
+      "type": "PublicationVolume",
+      "isPartOf": {
+        "type": "Periodical",
+        "name": "Scientific Reports",
+        "identifiers": [
+          {
+            "type": "PropertyValue",
+            "propertyId": "nlm-ta",
+            "value": "Sci Rep"
+          },
+          {
+            "type": "PropertyValue",
+            "propertyId": "iso-abbrev",
+            "value": "Sci Rep"
+          },
+          {
+            "type": "PropertyValue",
+            "propertyId": "pmc-domain-id",
+            "value": "1579"
+          },
+          {
+            "type": "PropertyValue",
+            "propertyId": "pmc-domain",
+            "value": "scirep"
+          },
+          {
+            "type": "PropertyValue",
+            "propertyId": "issn-epub",
+            "value": "2045-2322"
+          }
+        ],
+        "issns": [
+          "2045-2322"
+        ]
+      },
+      "volumeNumber": 11
     },
-    "volumeNumber": 11
+    "identifiers": [
+      {
+        "type": "PropertyValue",
+        "propertyId": "pmc-issue-id",
+        "value": "372026"
+      }
+    ]
   },
+  "licenses": [
+    "https://creativecommons.org/licenses/by/4.0/"
+  ],
   "publisher": {
     "type": "Organization",
     "name": "Nature Publishing Group"
   },
-  "version": "1"
+  "version": "1",
+  "publicationDates": [
+    {
+      "type": "epub",
+      "date": "2021-09-13"
+    },
+    {
+      "type": "collection",
+      "date": "2021"
+    }
+  ],
+  "publicationHistory": [
+    {
+      "eventType": "pmc-release",
+      "date": "2021-09-13"
+    },
+    {
+      "eventType": "pmc-live",
+      "date": "2021-09-15"
+    },
+    {
+      "eventType": "pmc-last-change",
+      "date": "2025-08-16"
+    }
+  ],
+  "resources": [
+    {
+      "type": "pmc-pdf",
+      "url": "41598_2021_Article_97128.pdf"
+    }
+  ],
+  "copyrightStatement": "© The Author(s) 2021",
+  "licenseText": "Open Access This article is licensed under a Creative Commons Attribution 4.0 International License, which permits use, sharing, adaptation, distribution and reproduction in any medium or format, as long as you give appropriate credit to the original author(s) and the source, provide a link to the Creative Commons licence, and indicate if changes were made. The images or other third party material in this article are included in the article's Creative Commons licence, unless indicated otherwise in a credit line to the material. If material is not included in the article's Creative Commons licence and your intended use is not permitted by statutory regulation or exceeds the permitted use, you will need to obtain permission directly from the copyright holder. To view a copy of this licence, visit http://creativecommons.org/licenses/by/4.0/."
 }

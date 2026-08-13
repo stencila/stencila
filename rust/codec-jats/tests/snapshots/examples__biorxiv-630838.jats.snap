@@ -5,6 +5,8 @@ expression: jats
 <article dtd-version="1.4" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:mml="http://www.w3.org/1998/Math/MathML">
   <front>
     <journal-meta>
+      <journal-id journal-id-type="hwp">biorxiv</journal-id>
+      <journal-id journal-id-type="publisher-id">BIORXIV</journal-id>
       <journal-title-group>
         <journal-title>bioRxiv</journal-title>
       </journal-title-group>
@@ -14,6 +16,23 @@ expression: jats
     </journal-meta>
     <article-meta>
       <article-id pub-id-type="doi">10.1101/2024.12.31.630838</article-id>
+      <article-id pub-id-type="other" specific-use="pisa">biorxiv;2024.12.31.630838v1</article-id>
+      <article-id pub-id-type="other" specific-use="pisa-master">biorxiv;2024.12.31.630838</article-id>
+      <article-id pub-id-type="other" specific-use="slug">2024.12.31.630838</article-id>
+      <article-id pub-id-type="other" specific-use="atom-slug">2024.12.31.630838</article-id>
+      <article-id pub-id-type="other" specific-use="tag">2024.12.31.630838</article-id>
+      <article-version>1.1</article-version>
+      <article-categories>
+        <subj-group subj-group-type="author-type">
+          <subject>Regular Article</subject>
+        </subj-group>
+        <subj-group subj-group-type="heading">
+          <subject>New Results</subject>
+        </subj-group>
+        <subj-group subj-group-type="hwp-journal-coll">
+          <subject>Cell Biology</subject>
+        </subj-group>
+      </article-categories>
       <title-group>
         <article-title>CD44 and Ezrin restrict EGF receptor mobility to generate a novel spatial arrangement of cytoskeletal signaling modules driving bleb-based migration</article-title>
       </title-group>
@@ -101,23 +120,56 @@ expression: jats
           <addr-line>Princeton, United States</addr-line>
         </aff>
       </contrib-group>
-      <pub-date iso-8601-date="2025-1-1">
+      <pub-date pub-type="epub-original" iso-8601-date="2025">
         <year>2025</year>
-        <month>1</month>
-        <day>1</day>
       </pub-date>
+      <pub-date pub-type="hwp-created" iso-8601-date="2025-01-01">
+        <year>2025</year>
+        <month>01</month>
+        <day>01</day>
+      </pub-date>
+      <pub-date pub-type="hwp-received" iso-8601-date="2025-01-01">
+        <year>2025</year>
+        <month>01</month>
+        <day>01</day>
+      </pub-date>
+      <pub-date pub-type="epub" iso-8601-date="2025-01-01">
+        <year>2025</year>
+        <month>01</month>
+        <day>01</day>
+      </pub-date>
+      <pub-date pub-type="epub-version" iso-8601-date="2025-01-01">
+        <year>2025</year>
+        <month>01</month>
+        <day>01</day>
+      </pub-date>
+      <elocation-id>2024.12.31.630838</elocation-id>
       <history>
         <date date-type="received" iso-8601-date="2024-12-31">
           <year>2024</year>
           <month>12</month>
           <day>31</day>
         </date>
-        <date date-type="accepted" iso-8601-date="2025-1-01">
+        <date date-type="rev-recd" iso-8601-date="2024-12-31">
+          <year>2024</year>
+          <month>12</month>
+          <day>31</day>
+        </date>
+        <date date-type="accepted" iso-8601-date="2025-01-01">
           <year>2025</year>
-          <month>1</month>
+          <month>01</month>
           <day>01</day>
         </date>
       </history>
+      <permissions>
+        <copyright-statement>© 2025, Posted by Cold Spring Harbor Laboratory</copyright-statement>
+        <copyright-year>2025</copyright-year>
+        <license xlink:href="http://creativecommons.org/licenses/by-nc-nd/4.0/">
+          <license-p>This pre-print is available under a Creative Commons License (Attribution-NonCommercial-NoDerivs 4.0 International), CC BY-NC-ND 4.0, as described at http://creativecommons.org/licenses/by-nc-nd/4.0/</license-p>
+        </license>
+      </permissions>
+      <self-uri content-type="pdf" xlink:role="full-text" xlink:href="630838.pdf"></self-uri>
+      <self-uri content-type="xml" xlink:role="original" xlink:href="630838.xml"></self-uri>
       <abstract>
         <p>Cells under high confinement form highly polarized hydrostatic pressure-driven, stable leader blebs that enable efficient migration in low adhesion, environments. Here we investigated the basis of the polarized bleb morphology of metastatic melanoma cells migrating in non-adhesive confinement. Using high-resolution time-lapse imaging and specific molecular perturbations, we found that EGF signaling via PI3K stabilizes and maintains a polarized leader bleb. Protein activity biosensors revealed a unique EGFR/PI3K activity gradient decreasing from rear-to-front, promoting PIP3 and Rac1-GTP accumulation at the bleb rear, with its antagonists PIP2 and RhoA-GTP concentrated at the bleb tip, opposite to the front-to-rear organization of these signaling modules in integrin-mediated mesenchymal migration. Optogenetic experiments showed that disrupting this gradient caused bleb retraction, underscoring the role of this signaling gradient in bleb stability. Mathematical modeling and experiments identified a mechanism where, as the bleb initiates, CD44 and ERM proteins restrict EGFR mobility in a membrane-apposed cortical actin meshwork in the bleb rear, establishing a rear-to-front EGFR-PI3K-Rac activity gradient. Thus, our study reveals the biophysical and molecular underpinnings of cell polarity in bleb-based migration of metastatic cells in non-adhesive confinement, and underscores how alternative spatial arrangements of migration signaling modules can mediate different migration modes according to the local microenvironment.</p>
       </abstract>
