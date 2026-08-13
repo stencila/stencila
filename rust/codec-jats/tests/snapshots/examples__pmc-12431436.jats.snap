@@ -907,9 +907,13 @@ expression: jats
           <article-title>Comparative Susceptibility of Aedes albopictus and Aedes aegypti to Dengue Virus Infection After Feeding on Blood of Viremic Humans: Implications for Public Health</article-title>
           <source>J Infect Dis</source>
           <year>2015</year>
+          <volume>212</volume>
+          <issue>8</issue>
           <fpage>1182</fpage>
           <lpage>90</lpage>
           <pub-id pub-id-type="doi">10.1093/infdis/jiv173</pub-id>
+          <pub-id pub-id-type="pmid">25784733</pub-id>
+          <pub-id pub-id-type="pmcid">PMC4577038</pub-id>
         </element-citation>
       </ref>
       <ref id="pone.0332245.ref006">
@@ -943,9 +947,13 @@ expression: jats
           <article-title>Epidemiology of dengue reported in the World Health Organization’s Western Pacific Region, 2013-2019</article-title>
           <source>Western Pac Surveill Response J</source>
           <year>2023</year>
+          <volume>14</volume>
+          <issue>1</issue>
           <fpage>1</fpage>
           <lpage>16</lpage>
           <pub-id pub-id-type="doi">10.5365/wpsar.2023.14.1.973</pub-id>
+          <pub-id pub-id-type="pmid">37064541</pub-id>
+          <pub-id pub-id-type="pmcid">PMC10090032</pub-id>
         </element-citation>
       </ref>
       <ref id="pone.0332245.ref007">
@@ -979,7 +987,11 @@ expression: jats
           <article-title>Refining the global spatial limits of dengue virus transmission by evidence-based consensus</article-title>
           <source>PLoS Negl Trop Dis</source>
           <year>2012</year>
+          <volume>6</volume>
+          <issue>8</issue>
           <pub-id pub-id-type="doi">10.1371/journal.pntd.0001760</pub-id>
+          <pub-id pub-id-type="pmid">22880140</pub-id>
+          <pub-id pub-id-type="pmcid">PMC3413714</pub-id>
         </element-citation>
       </ref>
       <ref id="pone.0332245.ref008">
@@ -1005,8 +1017,11 @@ expression: jats
           <article-title>Global landmark: 2023 marks the worst year for dengue cases with millions infected and thousands of deaths reported</article-title>
           <source>IJID Reg</source>
           <year>2024</year>
+          <volume>13</volume>
           <fpage>100459</fpage>
           <pub-id pub-id-type="doi">10.1016/j.ijregi.2024.100459</pub-id>
+          <pub-id pub-id-type="pmid">39497753</pub-id>
+          <pub-id pub-id-type="pmcid">PMC11532885</pub-id>
         </element-citation>
       </ref>
       <ref id="pone.0332245.ref009">
@@ -1040,9 +1055,12 @@ expression: jats
           <article-title>RNA-mediated interference and reverse transcription control the persistence of RNA viruses in the insect model Drosophila</article-title>
           <source>Nat Immunol</source>
           <year>2013</year>
+          <volume>14</volume>
+          <issue>4</issue>
           <fpage>396</fpage>
           <lpage>403</lpage>
           <pub-id pub-id-type="doi">10.1038/ni.2542</pub-id>
+          <pub-id pub-id-type="pmid">23435119</pub-id>
         </element-citation>
       </ref>
       <ref id="pone.0332245.ref010">
@@ -1064,9 +1082,11 @@ expression: jats
           <article-title>DNA forms of arboviral RNA genomes are generated following infection in mosquito cell cultures</article-title>
           <source>Virology</source>
           <year>2016</year>
+          <volume>498</volume>
           <fpage>164</fpage>
           <lpage>71</lpage>
           <pub-id pub-id-type="doi">10.1016/j.virol.2016.08.022</pub-id>
+          <pub-id pub-id-type="pmid">27588377</pub-id>
         </element-citation>
       </ref>
       <ref id="pone.0332245.ref011">
@@ -1084,9 +1104,12 @@ expression: jats
           <article-title>Patchy DNA forms of the Zika virus RNA genome are generated following infection in mosquito cell cultures and in mosquitoes</article-title>
           <source>J Gen Virol</source>
           <year>2017</year>
+          <volume>98</volume>
+          <issue>11</issue>
           <fpage>2731</fpage>
           <lpage>7</lpage>
           <pub-id pub-id-type="doi">10.1099/jgv.0.000945</pub-id>
+          <pub-id pub-id-type="pmid">29039731</pub-id>
         </element-citation>
       </ref>
       <ref id="pone.0332245.ref012">
@@ -1120,8 +1143,11 @@ expression: jats
           <article-title>Virus-derived DNA drives mosquito vector tolerance to arboviral infection</article-title>
           <source>Nat Commun</source>
           <year>2016</year>
+          <volume>7</volume>
           <fpage>12410</fpage>
           <pub-id pub-id-type="doi">10.1038/ncomms12410</pub-id>
+          <pub-id pub-id-type="pmid">27580708</pub-id>
+          <pub-id pub-id-type="pmcid">PMC5025746</pub-id>
         </element-citation>
       </ref>
       <ref id="pone.0332245.ref013">
@@ -1147,8 +1173,12 @@ expression: jats
           <article-title>Mosquito transgenerational antiviral immunity is mediated by vertical transfer of virus DNA sequences and RNAi</article-title>
           <source>iScience</source>
           <year>2023</year>
+          <volume>27</volume>
+          <issue>1</issue>
           <fpage>108598</fpage>
           <pub-id pub-id-type="doi">10.1016/j.isci.2023.108598</pub-id>
+          <pub-id pub-id-type="pmid">38155780</pub-id>
+          <pub-id pub-id-type="pmcid">PMC10753076</pub-id>
         </element-citation>
       </ref>
       <ref id="pone.0332245.ref014">
@@ -1166,8 +1196,12 @@ expression: jats
           <article-title>Impact of Point-of-Care Testing on Diagnosis, Treatment, and Surveillance of Vaccine-Preventable Viral Infections</article-title>
           <source>Diagnostics (Basel)</source>
           <year>2025</year>
+          <volume>15</volume>
+          <issue>2</issue>
           <fpage>123</fpage>
           <pub-id pub-id-type="doi">10.3390/diagnostics15020123</pub-id>
+          <pub-id pub-id-type="pmid">39857007</pub-id>
+          <pub-id pub-id-type="pmcid">PMC11763637</pub-id>
         </element-citation>
       </ref>
       <ref id="pone.0332245.ref015">
@@ -1189,8 +1223,12 @@ expression: jats
           <article-title>Loop-Mediated Isothermal Amplification (LAMP): The Better Sibling of PCR?</article-title>
           <source>Cells</source>
           <year>2021</year>
+          <volume>10</volume>
+          <issue>8</issue>
           <fpage>1931</fpage>
           <pub-id pub-id-type="doi">10.3390/cells10081931</pub-id>
+          <pub-id pub-id-type="pmid">34440699</pub-id>
+          <pub-id pub-id-type="pmcid">PMC8393631</pub-id>
         </element-citation>
       </ref>
       <ref id="pone.0332245.ref016">
@@ -1224,7 +1262,11 @@ expression: jats
           <article-title>Loop-mediated isothermal amplification of DNA</article-title>
           <source>Nucleic Acids Res</source>
           <year>2000</year>
+          <volume>28</volume>
+          <issue>12</issue>
           <pub-id pub-id-type="doi">10.1093/nar/28.12.e63</pub-id>
+          <pub-id pub-id-type="pmid">10871386</pub-id>
+          <pub-id pub-id-type="pmcid">PMC102748</pub-id>
         </element-citation>
       </ref>
       <ref id="pone.0332245.ref017">
@@ -1258,8 +1300,11 @@ expression: jats
           <article-title>Development of reverse-transcription loop-mediated isothermal amplification assay for rapid detection and differentiation of dengue virus serotypes 1-4</article-title>
           <source>BMC Microbiol</source>
           <year>2015</year>
+          <volume>15</volume>
           <fpage>265</fpage>
           <pub-id pub-id-type="doi">10.1186/s12866-015-0595-1</pub-id>
+          <pub-id pub-id-type="pmid">26572227</pub-id>
+          <pub-id pub-id-type="pmcid">PMC4647581</pub-id>
         </element-citation>
       </ref>
       <ref id="pone.0332245.ref018">
@@ -1281,8 +1326,11 @@ expression: jats
           <article-title>Recent advances in loop-mediated isothermal amplification (LAMP) for rapid and efficient detection of pathogens</article-title>
           <source>Curr Res Microb Sci</source>
           <year>2022</year>
+          <volume>3</volume>
           <fpage>100120</fpage>
           <pub-id pub-id-type="doi">10.1016/j.crmicr.2022.100120</pub-id>
+          <pub-id pub-id-type="pmid">35909594</pub-id>
+          <pub-id pub-id-type="pmcid">PMC9325740</pub-id>
         </element-citation>
       </ref>
       <ref id="pone.0332245.ref019">
@@ -1312,8 +1360,11 @@ expression: jats
           <article-title>Advancements and applications of loop-mediated isothermal amplification technology: a comprehensive overview</article-title>
           <source>Front Microbiol</source>
           <year>2024</year>
+          <volume>15</volume>
           <fpage>1406632</fpage>
           <pub-id pub-id-type="doi">10.3389/fmicb.2024.1406632</pub-id>
+          <pub-id pub-id-type="pmid">39091309</pub-id>
+          <pub-id pub-id-type="pmcid">PMC11292733</pub-id>
         </element-citation>
       </ref>
       <ref id="pone.0332245.ref020">
@@ -1335,9 +1386,12 @@ expression: jats
           <article-title>Advances in RT-LAMP for COVID-19 testing and diagnosis</article-title>
           <source>Expert Rev Mol Diagn</source>
           <year>2023</year>
+          <volume>23</volume>
+          <issue>1</issue>
           <fpage>9</fpage>
           <lpage>28</lpage>
           <pub-id pub-id-type="doi">10.1080/14737159.2023.2169071</pub-id>
+          <pub-id pub-id-type="pmid">36695788</pub-id>
         </element-citation>
       </ref>
       <ref id="pone.0332245.ref021">
@@ -1371,9 +1425,12 @@ expression: jats
           <article-title>Rapid identification of Plasmodium-carrying mosquitoes using loop-mediated isothermal amplification</article-title>
           <source>Biochem Biophys Res Commun</source>
           <year>2008</year>
+          <volume>376</volume>
+          <issue>4</issue>
           <fpage>671</fpage>
           <lpage>6</lpage>
           <pub-id pub-id-type="doi">10.1016/j.bbrc.2008.09.061</pub-id>
+          <pub-id pub-id-type="pmid">18809384</pub-id>
         </element-citation>
       </ref>
       <ref id="pone.0332245.ref022">
@@ -1407,8 +1464,12 @@ expression: jats
           <article-title>Loop-mediated isothermal amplification applied to filarial parasites detection in the mosquito vectors: Dirofilaria immitis as a study model</article-title>
           <source>Parasit Vectors</source>
           <year>2009</year>
+          <volume>2</volume>
+          <issue>1</issue>
           <fpage>15</fpage>
           <pub-id pub-id-type="doi">10.1186/1756-3305-2-15</pub-id>
+          <pub-id pub-id-type="pmid">19284882</pub-id>
+          <pub-id pub-id-type="pmcid">PMC2670822</pub-id>
         </element-citation>
       </ref>
       <ref id="pone.0332245.ref023">
@@ -1442,6 +1503,7 @@ expression: jats
           <article-title>LAMP Detection of Virus-Derived DNA of Zika Virus in Vector Mosquito</article-title>
           <source>Front Trop Dis</source>
           <year>2022</year>
+          <volume>3</volume>
           <pub-id pub-id-type="doi">10.3389/fitd.2022.759375</pub-id>
         </element-citation>
       </ref>
@@ -1476,15 +1538,40 @@ expression: jats
           <article-title>Development of real time PCR for detection and quantitation of Dengue Viruses</article-title>
           <source>Virol J</source>
           <year>2009</year>
+          <volume>6</volume>
           <fpage>10</fpage>
           <pub-id pub-id-type="doi">10.1186/1743-422X-6-10</pub-id>
+          <pub-id pub-id-type="pmid">19166574</pub-id>
+          <pub-id pub-id-type="pmcid">PMC2651855</pub-id>
         </element-citation>
       </ref>
       <ref id="pone.0332245.ref025">
-        <mixed-citation publication-type="website">Volodymyr Agafonkin. Leaflet 1.7.1. 2020. Available from: https://leafletjs.com<person-group person-group-type="author"><name><surname>Agafonkin</surname><given-names>Volodymyr</given-names></name></person-group><year>2020</year><ext-link ext-link-type="uri" xlink:href="https://leafletjs.com">https://leafletjs.com</ext-link></mixed-citation>
+        <citation-alternatives>
+          <element-citation publication-type="website">
+            <person-group person-group-type="author">
+              <name>
+                <surname>Agafonkin</surname>
+                <given-names>Volodymyr</given-names>
+              </name>
+            </person-group>
+            <year>2020</year>
+            <ext-link ext-link-type="uri" xlink:href="https://leafletjs.com">https://leafletjs.com</ext-link>
+          </element-citation>
+          <mixed-citation publication-type="website">Volodymyr Agafonkin. Leaflet 1.7.1. 2020. Available from: https://leafletjs.com</mixed-citation>
+        </citation-alternatives>
       </ref>
       <ref id="pone.0332245.ref026">
-        <mixed-citation>Biggerstaff, Brad J . PooledInfRate, Version 4.0: a Microsoft® Office Excel© Add-In to compute prevalence estimates from pooled samples. Centers for Disease Control and Prevention , Fort Collins, CO, U.S.A ., 2009 .<person-group person-group-type="author"><name><surname>Biggerstaff</surname><given-names>Brad J</given-names></name></person-group><year>2009</year></mixed-citation>
+        <citation-alternatives>
+          <element-citation publication-type="book">
+            <person-group person-group-type="author">
+              <collab>Biggerstaff, Brad J</collab>
+            </person-group>
+            <publisher-loc>Fort Collins, CO, U.S.A</publisher-loc>
+            <publisher-name>Centers for Disease Control and Prevention</publisher-name>
+            <year>2009</year>
+          </element-citation>
+          <mixed-citation publication-type="book">Biggerstaff, Brad J . PooledInfRate, Version 4.0: a Microsoft® Office Excel© Add-In to compute prevalence estimates from pooled samples. Centers for Disease Control and Prevention , Fort Collins, CO, U.S.A ., 2009 .</mixed-citation>
+        </citation-alternatives>
       </ref>
       <ref id="pone.0332245.ref027">
         <element-citation publication-type="journal">
@@ -1494,6 +1581,7 @@ expression: jats
           <article-title>Dengue fever-Burkina Faso</article-title>
           <source>WHO</source>
           <year>2017</year>
+          <volume>Available</volume>
           <fpage>from</fpage>
           <ext-link ext-link-type="uri" xlink:href="https://www.who.int/emergencies/disease-outbreak-news/item/6-november-2017-dengue-burkina-faso-en">https://www.who.int/emergencies/disease-outbreak-news/item/6-november-2017-dengue-burkina-faso-en</ext-link>
         </element-citation>
@@ -1529,7 +1617,11 @@ expression: jats
           <article-title>First comprehensive analysis of Aedes aegypti bionomics during an arbovirus outbreak in west Africa: Dengue in Ouagadougou, Burkina Faso, 2016-2017</article-title>
           <source>PLoS Negl Trop Dis</source>
           <year>2022</year>
+          <volume>16</volume>
+          <issue>7</issue>
           <pub-id pub-id-type="doi">10.1371/journal.pntd.0010059</pub-id>
+          <pub-id pub-id-type="pmid">35793379</pub-id>
+          <pub-id pub-id-type="pmcid">PMC9321428</pub-id>
         </element-citation>
       </ref>
       <ref id="pone.0332245.ref029">
@@ -1563,8 +1655,12 @@ expression: jats
           <article-title>Evidence For Long-Lasting Transgenerational Antiviral Immunity in Insects</article-title>
           <source>Cell Rep</source>
           <year>2020</year>
+          <volume>33</volume>
+          <issue>11</issue>
           <fpage>108506</fpage>
           <pub-id pub-id-type="doi">10.1016/j.celrep.2020.108506</pub-id>
+          <pub-id pub-id-type="pmid">33326778</pub-id>
+          <pub-id pub-id-type="pmcid">PMC7758158</pub-id>
         </element-citation>
       </ref>
       <ref id="pone.0332245.ref030">
@@ -1598,8 +1694,11 @@ expression: jats
           <article-title>A Mismatch-Tolerant Reverse Transcription Loop-Mediated Isothermal Amplification Method and Its Application on Simultaneous Detection of All Four Serotype of Dengue Viruses</article-title>
           <source>Front Microbiol</source>
           <year>2019</year>
+          <volume>10</volume>
           <fpage>1056</fpage>
           <pub-id pub-id-type="doi">10.3389/fmicb.2019.01056</pub-id>
+          <pub-id pub-id-type="pmid">31139171</pub-id>
+          <pub-id pub-id-type="pmcid">PMC6518337</pub-id>
         </element-citation>
       </ref>
       <ref id="pone.0332245.ref031">
@@ -1621,9 +1720,12 @@ expression: jats
           <article-title>Effects of single and multiple nucleotide mutations on loop-mediated isothermal amplification</article-title>
           <source>Analyst</source>
           <year>2024</year>
+          <volume>149</volume>
+          <issue>6</issue>
           <fpage>1701</fpage>
           <lpage>8</lpage>
           <pub-id pub-id-type="doi">10.1039/d3an01927f</pub-id>
+          <pub-id pub-id-type="pmid">38426313</pub-id>
         </element-citation>
       </ref>
       <ref id="pone.0332245.ref032">
@@ -1645,7 +1747,11 @@ expression: jats
           <article-title>Profiling RT-LAMP tolerance of sequence variation for SARS-CoV-2 RNA detection</article-title>
           <source>PLoS One</source>
           <year>2022</year>
+          <volume>17</volume>
+          <issue>3</issue>
           <pub-id pub-id-type="doi">10.1371/journal.pone.0259610</pub-id>
+          <pub-id pub-id-type="pmid">35324900</pub-id>
+          <pub-id pub-id-type="pmcid">PMC8947081</pub-id>
         </element-citation>
       </ref>
       <ref id="pone.0332245.ref033">
@@ -1679,6 +1785,7 @@ expression: jats
           <article-title>Chikungunya (Togaviridae) and dengue 2 (Flaviviridae) viruses detected from Aedes aegypti mosquitoes in Burkina Faso by qRT-PCR technique: Preliminary results and perspective for molecular characterization of arbovirus circulation in vector populations</article-title>
           <source>Front Trop Dis</source>
           <year>2022</year>
+          <volume>3</volume>
           <pub-id pub-id-type="doi">10.3389/fitd.2022.920224</pub-id>
         </element-citation>
       </ref>
@@ -1713,8 +1820,12 @@ expression: jats
           <article-title>DENV-2 Circulation and Host Preference Among Highly Anthropophilic, Outdoor-Biting Aedes aegypti in Dar es Salaam, Tanzania</article-title>
           <source>Viruses</source>
           <year>2025</year>
+          <volume>17</volume>
+          <issue>6</issue>
           <fpage>818</fpage>
           <pub-id pub-id-type="doi">10.3390/v17060818</pub-id>
+          <pub-id pub-id-type="pmid">40573409</pub-id>
+          <pub-id pub-id-type="pmcid">PMC12197569</pub-id>
         </element-citation>
       </ref>
       <ref id="pone.0332245.ref035">
@@ -1748,9 +1859,13 @@ expression: jats
           <article-title>Detection of Dengue and Chikungunya Viruses in Mosquitoes from Nepal</article-title>
           <source>Am J Trop Med Hyg</source>
           <year>2025</year>
+          <volume>113</volume>
+          <issue>2</issue>
           <fpage>378</fpage>
           <lpage>81</lpage>
           <pub-id pub-id-type="doi">10.4269/ajtmh.24-0685</pub-id>
+          <pub-id pub-id-type="pmid">40425005</pub-id>
+          <pub-id pub-id-type="pmcid">PMC12360123</pub-id>
         </element-citation>
       </ref>
     </ref-list>

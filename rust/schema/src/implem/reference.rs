@@ -2,8 +2,11 @@ use stencila_codec_info::{lost_options, lost_options_of};
 
 use crate::{
     Article, Author, AuthorRoleAuthor, CreativeWork, CreativeWorkType, CreativeWorkVariant, Date,
-    Organization, Person, PersonOrOrganization, Reference, ReferenceOptions, prelude::*, replicate,
+    Organization, Person, PersonOrOrganization, PostalAddressOrString, Reference, ReferenceOptions,
+    prelude::*, replicate,
 };
+
+use super::article::{encode_text_element, identifiers};
 
 pub(super) fn normalize_doi(doi: &str) -> &str {
     doi.trim()
@@ -190,6 +193,54 @@ fn publication_type(work_type: Option<CreativeWorkType>) -> Option<&'static str>
     }
 }
 
+/// Whether the title of a reference with no container is the title of a whole
+/// work, which JATS names with `<source>`, rather than of a part of one, which
+/// it names with `<article-title>`
+///
+/// An untyped reference is treated as a whole work because a part is almost
+/// always cited with the work that contains it.
+fn is_whole_work(work_type: Option<CreativeWorkType>) -> bool {
+    use CreativeWorkType::*;
+    matches!(
+        work_type,
+        None | Some(
+            Book | Collection
+                | Dataset
+                | Legislation
+                | Periodical
+                | Report
+                | SoftwareApplication
+                | SoftwareRepository
+                | SoftwareSourceCode
+                | Thesis
+        )
+    )
+}
+
+/// The year of a citation
+///
+/// A bibliographic year can carry a disambiguating suffix, as in "2017a", that
+/// is not part of a date but which distinguishes the reference from others by
+/// the same authors in the same year, so is kept.
+fn citation_year(date: &Date) -> Option<String> {
+    let value = date.value.trim();
+    let year = value.split('-').next()?;
+    let digits = year
+        .chars()
+        .take_while(char::is_ascii_digit)
+        .collect::<String>();
+    if digits.len() != 4 {
+        return None;
+    }
+
+    // Only a year on its own can carry a suffix
+    Some(if value == year {
+        year.to_string()
+    } else {
+        digits
+    })
+}
+
 fn has_structured_content(reference: &Reference) -> bool {
     reference
         .authors
@@ -212,6 +263,12 @@ fn has_structured_content(reference: &Reference) -> bool {
         || reference.options.page_end.is_some()
         || reference.options.pagination.is_some()
         || reference.options.publisher.is_some()
+        || reference.options.version.is_some()
+        || reference
+            .options
+            .identifiers
+            .as_ref()
+            .is_some_and(|items| !items.is_empty())
         || reference
             .doi
             .as_deref()
@@ -222,18 +279,64 @@ fn has_structured_content(reference: &Reference) -> bool {
             .is_some_and(|url| !url.trim().is_empty())
 }
 
+/// The name and location of a publisher, as JATS spells them
+fn publisher_parts(publisher: &PersonOrOrganization) -> (Option<String>, Option<String>) {
+    match publisher {
+        PersonOrOrganization::Person(person) => {
+            let name = person.name();
+            ((!name.trim().is_empty()).then_some(name), None)
+        }
+        PersonOrOrganization::Organization(organization) => {
+            let location = match organization.options.address.as_ref() {
+                Some(PostalAddressOrString::String(address)) => {
+                    let address = address.trim();
+                    (!address.is_empty()).then(|| address.to_string())
+                }
+                Some(PostalAddressOrString::PostalAddress(address)) => address
+                    .address_locality
+                    .as_deref()
+                    .map(str::trim)
+                    .filter(|locality| !locality.is_empty())
+                    .map(String::from),
+                None => None,
+            };
+            (
+                organization_name(organization).map(str::to_string),
+                location,
+            )
+        }
+    }
+}
+
+/// Emit the `<person-group>` for the authors or editors of a citation
+///
+/// Returns whether any name was emitted so that an empty group, which is
+/// invalid JATS, can be dropped and reported instead.
+fn encode_person_group<T>(
+    group_type: &str,
+    people: &[T],
+    context: &mut JatsEncodeContext,
+    mut encode: impl FnMut(&T, &mut JatsEncodeContext) -> bool,
+) -> bool {
+    context
+        .enter_elem("person-group")
+        .push_attr("person-group-type", group_type);
+    let mut encoded = false;
+    for person in people {
+        encoded |= encode(person, context);
+    }
+    if encoded {
+        context.exit_elem();
+    } else {
+        context.exit_elem_omit_empty();
+    }
+    encoded
+}
+
 impl Reference {
     pub(super) fn to_jats_with_id(&self, id: &str, context: &mut JatsEncodeContext) {
         context.enter_elem("ref").push_attr("id", id);
 
-        // Identifiers other than the DOI have no JATS `<pub-id>` mapping yet,
-        // and `version` has no element in a citation
-        context.merge_losses(lost_options_of!(
-            "Reference",
-            self.options,
-            identifiers,
-            version
-        ));
         if self.work_type.is_some() && publication_type(self.work_type).is_none() {
             context.add_loss("Reference.workType");
         }
@@ -250,59 +353,66 @@ impl Reference {
             .as_ref()
             .filter(|content| !content.is_empty());
 
-        if has_structured_content(self) {
-            context.enter_elem(if text.is_some() || content.is_some() {
-                "mixed-citation"
-            } else {
-                "element-citation"
-            });
+        // A citation is either a structured one, a rendering of the reference as
+        // text, or, when the reference has both, the two as alternatives to each
+        // other. The alternatives keep the raw text of a citation whose fields
+        // could not all be decoded without duplicating those that could.
+        let structured = has_structured_content(self);
+        let raw = text.is_some() || content.is_some();
+        if structured && raw {
+            context.enter_elem("citation-alternatives");
+        }
+
+        if structured {
+            context.enter_elem("element-citation");
             if let Some(publication_type) = publication_type(self.work_type) {
                 context.push_attr("publication-type", publication_type);
             }
-            if let Some(text) = text {
-                context.push_text(text);
-            } else if let Some(content) = content {
-                content.to_jats(context);
-            }
 
             if let Some(authors) = &self.authors {
-                context
-                    .enter_elem("person-group")
-                    .push_attr("person-group-type", "author");
-                let mut encoded = false;
-                for author in authors {
-                    encoded |= encode_reference_author(author, context);
-                }
-                if encoded {
-                    context.exit_elem();
-                } else {
-                    context.exit_elem_omit_empty();
+                if !encode_person_group("author", authors, context, encode_reference_author) {
                     context.add_loss("Reference.authors");
                 }
             }
 
-            if let Some(editors) = &self.options.editors {
-                context
-                    .enter_elem("person-group")
-                    .push_attr("person-group-type", "editor");
-                let mut encoded = false;
-                for editor in editors {
-                    add_person_losses(editor, false, context);
-                    encoded |= encode_person_name(editor, context);
-                }
-                if encoded {
-                    context.exit_elem();
-                } else {
-                    context.exit_elem_omit_empty();
+            let container = self.is_part_of.as_deref();
+            let container_editors =
+                container.and_then(|container| container.options.editors.as_deref());
+            let editors_belong_to_container =
+                container.is_some() && matches!(self.work_type, Some(CreativeWorkType::Chapter));
+            let editors = if editors_belong_to_container {
+                if self.options.editors.is_some() {
                     context.add_loss("Reference.editors");
                 }
+                container_editors.or(self.options.editors.as_deref())
+            } else {
+                if container_editors.is_some() {
+                    context.add_loss("Reference.isPartOf.editors");
+                }
+                self.options.editors.as_deref().or(container_editors)
+            };
+            if let Some(editors) = editors
+                && !encode_person_group("editor", editors, context, |editor, context| {
+                    add_person_losses(editor, false, context);
+                    encode_person_name(editor, context)
+                })
+            {
+                context.add_loss(if editors_belong_to_container {
+                    "Reference.isPartOf.editors"
+                } else {
+                    "Reference.editors"
+                });
             }
 
             if let Some(title) = &self.title
                 && !title.is_empty()
             {
+                // JATS names the title of a work that is not part of another
+                // one, such as a whole book, with <source>
                 let element = if matches!(self.work_type, Some(CreativeWorkType::Chapter)) {
                     "chapter-title"
+                } else if container.is_none() && is_whole_work(self.work_type) {
+                    "source"
                 } else {
                     "article-title"
                 };
@@ -311,7 +421,7 @@ impl Reference {
                 context.exit_elem();
             }
 
-            if let Some(container) = &self.is_part_of {
+            if let Some(container) = container {
                 let title = container.title.as_ref().filter(|title| !title.is_empty());
                 if let Some(title) = title {
                     context.enter_elem("source");
@@ -319,19 +429,15 @@ impl Reference {
                     context.exit_elem();
                 }
 
-                // Only the container title is emitted. Report the rest against
-                // the container so it is not confused with the same property on
-                // the reference itself.
+                // Report the container properties that are not emitted here or
+                // with the reference's own, against the container, so that they
+                // are not confused with the same property on the reference
                 for (name, populated) in [
                     ("title", title.is_none()),
                     ("doi", container.doi.is_some()),
                     ("url", container.url.is_some()),
                     ("authors", container.authors.is_some()),
                     ("date", container.date.is_some()),
-                    ("editors", container.options.editors.is_some()),
-                    ("publisher", container.options.publisher.is_some()),
-                    ("volumeNumber", container.options.volume_number.is_some()),
-                    ("issueNumber", container.options.issue_number.is_some()),
                     ("pageStart", container.options.page_start.is_some()),
                     ("pageEnd", container.options.page_end.is_some()),
                     ("pagination", container.options.pagination.is_some()),
@@ -343,21 +449,67 @@ impl Reference {
                 }
             }
 
-            if let Some(year) = self.date.as_ref().and_then(Date::year) {
-                context
-                    .enter_elem("year")
-                    .push_text(year.to_string())
-                    .exit_elem();
+            if let Some(version) = &self.options.version {
+                encode_text_element(context, "edition", &version.to_text());
             }
 
+            // A flat JATS citation has one publisher, volume and issue. When
+            // there is a container, decoding necessarily places them there, so
+            // prefer that level and report any reference-level values that can
+            // not be reconstructed.
+            let container_publisher =
+                container.and_then(|container| container.options.publisher.as_ref());
+            if container.is_some() && self.options.publisher.is_some() {
+                context.add_loss("Reference.publisher");
+            }
+            let publisher = if container.is_some() {
+                container_publisher.or(self.options.publisher.as_ref())
+            } else {
+                self.options.publisher.as_ref()
+            };
+            if let Some(publisher) = publisher {
+                let (name, location) = publisher_parts(publisher);
+                if let Some(location) = &location {
+                    encode_text_element(context, "publisher-loc", location);
+                }
+                if let Some(name) = &name {
+                    encode_text_element(context, "publisher-name", name);
+                } else if location.is_none() {
+                    context.add_loss(if container.is_some() {
+                        "Reference.isPartOf.publisher"
+                    } else {
+                        "Reference.publisher"
+                    });
+                }
+            }
+
+            if let Some(year) = self.date.as_ref().and_then(citation_year) {
+                context.enter_elem("year").push_text(year).exit_elem();
+            }
+
+            // The volume and issue of a serial are of the container, when there
+            // is one, but a citation of a whole serial has them on the
+            // reference itself; see `assemble_reference` in the JATS decoder
+            let mut citation_option = |name: &str, get: fn(&ReferenceOptions) -> Option<String>| {
+                if container.is_some() && get(&self.options).is_some() {
+                    context.add_loss(format!("Reference.{name}"));
+                }
+                container
+                    .and_then(|container| get(&container.options))
+                    .or_else(|| get(&self.options))
+            };
             for (name, value) in [
                 (
                     "volume",
-                    self.options.volume_number.as_ref().map(TextCodec::to_text),
+                    citation_option("volumeNumber", |options| {
+                        options.volume_number.as_ref().map(TextCodec::to_text)
+                    }),
                 ),
                 (
                     "issue",
-                    self.options.issue_number.as_ref().map(TextCodec::to_text),
+                    citation_option("issueNumber", |options| {
+                        options.issue_number.as_ref().map(TextCodec::to_text)
+                    }),
                 ),
                 (
                     "fpage",
@@ -374,6 +526,20 @@ impl Reference {
                 }
             }
 
+            // An electronic location identifier stands in for a page range so
+            // is emitted with the pagination rather than the identifiers
+            let identifiers = identifiers(
+                self.options.identifiers.as_deref(),
+                "Reference.identifiers",
+                context,
+            );
+            let (elocation_ids, pub_ids): (Vec<_>, Vec<_>) = identifiers
+                .iter()
+                .partition(|identifier| identifier.property_id == Some("elocation-id"));
+            for identifier in &elocation_ids {
+                encode_text_element(context, "elocation-id", &identifier.value);
+            }
+
             if let Some(doi) = self
                 .doi
                 .as_deref()
@@ -386,6 +552,17 @@ impl Reference {
                     .push_text(doi)
                     .exit_elem();
             }
+            for identifier in &pub_ids {
+                context.enter_elem("pub-id");
+                if let Some(property_id) = identifier.property_id {
+                    context.push_attr("pub-id-type", property_id);
+                }
+                if let Some(name) = identifier.name {
+                    context.push_attr("specific-use", name);
+                }
+                context.push_text(&identifier.value).exit_elem();
+            }
+
             if let Some(url) = self
                 .url
                 .as_deref()
@@ -400,42 +577,26 @@ impl Reference {
                     .exit_elem();
             }
 
-            if let Some(publisher) = &self.options.publisher {
-                let name = match publisher {
-                    PersonOrOrganization::Person(person) => {
-                        let name = person.name();
-                        (!name.trim().is_empty()).then_some(name)
-                    }
-                    PersonOrOrganization::Organization(organization) => {
-                        organization_name(organization).map(str::to_string)
-                    }
-                };
-                if let Some(name) = name {
-                    context
-                        .enter_elem("publisher-name")
-                        .push_text(name)
-                        .exit_elem();
-                } else {
-                    context.add_loss("Reference.publisher");
-                }
-            }
-
             context.exit_elem_omit_empty();
-        } else {
-            if text.is_some() || content.is_some() {
-                context.enter_elem("mixed-citation");
-                if let Some(publication_type) = publication_type(self.work_type) {
-                    context.push_attr("publication-type", publication_type);
-                }
-                if let Some(text) = text {
-                    context.push_text(text);
-                } else if let Some(content) = content {
-                    content.to_jats(context);
-                }
-                context.exit_elem_omit_empty();
-            } else {
-                context.add_loss("Reference");
+        }
+
+        if raw {
+            context.enter_elem("mixed-citation");
+            if let Some(publication_type) = publication_type(self.work_type) {
+                context.push_attr("publication-type", publication_type);
             }
+            if let Some(text) = text {
+                context.push_text(text);
+            } else if let Some(content) = content {
+                content.to_jats(context);
+            }
+            context.exit_elem_omit_empty();
+        } else if !structured {
+            context.add_loss("Reference");
+        }
+
+        if structured && raw {
+            context.exit_elem_omit_empty();
         }
 
         context.exit_elem_omit_empty();

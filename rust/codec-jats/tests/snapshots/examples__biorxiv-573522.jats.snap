@@ -321,6 +321,7 @@ expression: jats
           <article-title>Amplification and linearization of distal synaptic input to cortical pyramidal cells</article-title>
           <source>Journal of Neurophysiology</source>
           <year>1994</year>
+          <volume>72</volume>
           <fpage>2743</fpage>
           <lpage>2753</lpage>
         </element-citation>
@@ -352,6 +353,7 @@ expression: jats
           <article-title>Millisecond-timescale, genetically targeted optical control of neural activity</article-title>
           <source>Nat Neurosci</source>
           <year>2005</year>
+          <volume>8</volume>
           <fpage>1263</fpage>
           <lpage>1268</lpage>
         </element-citation>
@@ -367,6 +369,7 @@ expression: jats
           <article-title>Olfactory relationships of the telencephlaon and diencephalon in the rabbit. 1. An autoradiographic study of the efferent connections of the main and accessory olfactory bulbs</article-title>
           <source>Journal of Comparative Neurology</source>
           <year>1975</year>
+          <volume>163</volume>
           <fpage>329</fpage>
           <lpage>345</lpage>
         </element-citation>
@@ -386,6 +389,7 @@ expression: jats
           <article-title>Intrinsic firing patterns of diverse neocortical neurons</article-title>
           <source>Trends in Neurosciences</source>
           <year>1990</year>
+          <volume>13</volume>
           <fpage>99</fpage>
           <lpage>104</lpage>
         </element-citation>
@@ -402,7 +406,8 @@ expression: jats
               <given-names>H N</given-names>
             </name>
           </person-group>
-          <article-title>Comparative correlative neuroanatomy of the vertebrate telencephalon</article-title>
+          <chapter-title>Comparative correlative neuroanatomy of the vertebrate telencephalon</chapter-title>
+          <publisher-name>Macmillan Pub Co</publisher-name>
           <year>1982</year>
         </element-citation>
       </ref>
@@ -428,6 +433,7 @@ expression: jats
           </person-group>
           <article-title>Glutamatergic neuron types in the amygdala of the urodele amphibian Pleurodeles waltl</article-title>
           <year>2022</year>
+          <ext-link ext-link-type="uri" xlink:href="https://www.biorxiv.org/content/10.1101/2022.06.15.496313v1">https://www.biorxiv.org/content/10.1101/2022.06.15.496313v1</ext-link>
         </element-citation>
       </ref>
       <ref id="c7">
@@ -449,6 +455,7 @@ expression: jats
           <article-title>A Role for Synaptic Inputs at Distal Dendrites: Instructive Signals for Hippocampal Long-Term Plasticity</article-title>
           <source>Neuron</source>
           <year>2007</year>
+          <volume>56</volume>
           <fpage>866</fpage>
           <lpage>879</lpage>
         </element-citation>
@@ -472,6 +479,7 @@ expression: jats
           <article-title>Morphological and Electrophysiological Properties of Principal Neurons in the Rat Lateral Amygdala In Vitro</article-title>
           <source>Journal of Neurophysiology</source>
           <year>2001</year>
+          <volume>85</volume>
           <fpage>714</fpage>
           <lpage>723</lpage>
         </element-citation>
@@ -491,6 +499,7 @@ expression: jats
           <article-title>Physiological Role of Calcium-Activated Potassium Currents in the Rat Lateral Amygdala</article-title>
           <source>J Neurosci</source>
           <year>2002</year>
+          <volume>22</volume>
           <fpage>1618</fpage>
           <lpage>1628</lpage>
         </element-citation>
@@ -510,6 +519,7 @@ expression: jats
           <article-title>Synapse-Specific Downregulation of NMDA Receptors by Early Experience: A Critical Period for Plasticity of Sensory Input to Olfactory Cortex</article-title>
           <source>Neuron</source>
           <year>2005</year>
+          <volume>47</volume>
           <fpage>101</fpage>
           <lpage>114</lpage>
         </element-citation>
@@ -529,6 +539,7 @@ expression: jats
           <article-title>Strong Single-Fiber Sensory Inputs to Olfactory Cortex: Implications for Olfactory Coding</article-title>
           <source>Neuron</source>
           <year>2006</year>
+          <volume>49</volume>
           <fpage>357</fpage>
           <lpage>363</lpage>
         </element-citation>
@@ -556,6 +567,7 @@ expression: jats
           <article-title>The Olfactory Tubercle Encodes Odor Valence in Behaving Mice</article-title>
           <source>J Neurosci</source>
           <year>2015</year>
+          <volume>35</volume>
           <fpage>4515</fpage>
           <lpage>4527</lpage>
         </element-citation>
@@ -611,6 +623,7 @@ expression: jats
           <article-title>A gene expression atlas of the central nervous system based on bacterial artificial chromosomes</article-title>
           <source>Nature</source>
           <year>2003</year>
+          <volume>425</volume>
           <fpage>917</fpage>
           <lpage>925</lpage>
         </element-citation>
@@ -646,6 +659,7 @@ expression: jats
           <article-title>Olfactory cortical neurons read out a relative time code in the olfactory bulb</article-title>
           <source>Nat Neurosci</source>
           <year>2013</year>
+          <volume>16</volume>
           <fpage>949</fpage>
           <lpage>957</lpage>
         </element-citation>
@@ -661,6 +675,7 @@ expression: jats
           <article-title>Synaptic function: Dendritic democracy</article-title>
           <source>Current Biology</source>
           <year>2001</year>
+          <volume>11</volume>
           <fpage>R10</fpage>
           <lpage>R12</lpage>
         </element-citation>
@@ -692,6 +707,7 @@ expression: jats
           <article-title>Nucleus of the lateral olfactory tract: A hub linking the water homeostasis-associated supraoptic nucleus-arginine vasopressin circuit and neocortical regions to promote social behavior under osmotic challenge</article-title>
           <source>Journal of Neuroendocrinology n/a:e</source>
           <year>2022</year>
+          <volume>13202</volume>
         </element-citation>
       </ref>
       <ref id="c17">
@@ -705,6 +721,7 @@ expression: jats
           <article-title>Odor-associative Learning and Emotion: Effects on Perception and Behavior</article-title>
           <source>Chemical Senses</source>
           <year>2005</year>
+          <volume>30</volume>
           <fpage>i250</fpage>
           <lpage>i251</lpage>
         </element-citation>
@@ -748,7 +765,8 @@ expression: jats
           <article-title>A Novel Birthdate-Labeling Method Reveals Segregated Parallel Projections of Mitral and External Tufted Cells in the Main Olfactory System</article-title>
           <source>eNeuro</source>
           <year>2019</year>
-          <fpage>234</fpage>
+          <volume>6</volume>
+          <fpage>0234</fpage>
           <lpage>19</lpage>
         </element-citation>
       </ref>
@@ -818,6 +836,7 @@ expression: jats
           <article-title>Bursting</article-title>
           <source>Scholarpedia</source>
           <year>2006</year>
+          <volume>1</volume>
           <fpage>1300</fpage>
         </element-citation>
       </ref>
@@ -832,6 +851,8 @@ expression: jats
           <article-title>Effects of odor on emotion, with implications</article-title>
           <source>Frontiers in Systems Neuroscience</source>
           <year>2013</year>
+          <volume>7</volume>
+          <ext-link ext-link-type="uri" xlink:href="https://www.frontiersin.org/articles/10.3389/fnsys.2013.00066">https://www.frontiersin.org/articles/10.3389/fnsys.2013.00066</ext-link>
         </element-citation>
       </ref>
       <ref id="c22">
@@ -861,6 +882,7 @@ expression: jats
           <article-title>Dendritic Organization of Olfactory Inputs to Medial Amygdala Neurons</article-title>
           <source>J Neurosci</source>
           <year>2015</year>
+          <volume>35</volume>
           <fpage>13020</fpage>
           <lpage>13028</lpage>
         </element-citation>
@@ -884,6 +906,8 @@ expression: jats
           <article-title>Behavioral and Neurobiological Convergence of Odor, Mood and Emotion: A Review</article-title>
           <source>Frontiers in Behavioral Neuroscience</source>
           <year>2020</year>
+          <volume>14</volume>
+          <ext-link ext-link-type="uri" xlink:href="https://www.frontiersin.org/articles/10.3389/fnbeh.2020.00035">https://www.frontiersin.org/articles/10.3389/fnbeh.2020.00035</ext-link>
         </element-citation>
       </ref>
       <ref id="c24">
@@ -945,6 +969,7 @@ expression: jats
           <article-title>Adaptive disinhibitory gating by VIP interneurons permits associative learning</article-title>
           <source>Nat Neurosci</source>
           <year>2019</year>
+          <volume>22</volume>
           <fpage>1834</fpage>
           <lpage>1843</lpage>
         </element-citation>
@@ -964,6 +989,7 @@ expression: jats
           <article-title>A description of the amygdaloid complex in the rat and cat with observations on intra-amygdaloid axonal connections</article-title>
           <source>Journal of Comparative Neurology</source>
           <year>1978</year>
+          <volume>178</volume>
           <fpage>255</fpage>
           <lpage>279</lpage>
         </element-citation>
@@ -987,6 +1013,7 @@ expression: jats
           <article-title>A new cellular mechanism for coupling inputs arriving at different cortical layers</article-title>
           <source>Nature</source>
           <year>1999</year>
+          <volume>398</volume>
           <fpage>338</fpage>
           <lpage>341</lpage>
         </element-citation>
@@ -1030,6 +1057,7 @@ expression: jats
           <article-title>Adaptive olfactory circuitry restores function despite severe olfactory bulb degeneration</article-title>
           <source>Current Biology</source>
           <year>2023</year>
+          <volume>33</volume>
           <fpage>4857</fpage>
           <lpage>4868</lpage>
         </element-citation>
@@ -1045,6 +1073,7 @@ expression: jats
           <article-title>Bursts as a unit of neural information: making unreliable synapses reliable</article-title>
           <source>Trends in Neurosciences</source>
           <year>1997</year>
+          <volume>20</volume>
           <fpage>38</fpage>
           <lpage>43</lpage>
         </element-citation>
@@ -1064,6 +1093,7 @@ expression: jats
           <article-title>Firing Properties and Connectivity of Neurons in the Rat Lateral Central Nucleus of the Amygdala</article-title>
           <source>Journal of Neurophysiology</source>
           <year>2004</year>
+          <volume>92</volume>
           <fpage>1285</fpage>
           <lpage>1294</lpage>
         </element-citation>
@@ -1083,6 +1113,7 @@ expression: jats
           <article-title>The topographic organization of associational fibers of the olfactory system in the rat, including centrifugal fibers to the olfactory bulb</article-title>
           <source>J Comp Neurol</source>
           <year>1983</year>
+          <volume>216</volume>
           <fpage>264</fpage>
           <lpage>291</lpage>
         </element-citation>
@@ -1098,6 +1129,7 @@ expression: jats
           <article-title>A toolbox of Cre-dependent optogenetic transgenic mice for light-induced activation and silencing</article-title>
           <source>Nat Neurosci</source>
           <year>2012</year>
+          <volume>15</volume>
           <fpage>793</fpage>
           <lpage>802</lpage>
         </element-citation>
@@ -1133,6 +1165,7 @@ expression: jats
           <article-title>Interneurons of the neocortical inhibitory system</article-title>
           <source>Nat Rev Neurosci</source>
           <year>2004</year>
+          <volume>5</volume>
           <fpage>793</fpage>
           <lpage>807</lpage>
         </element-citation>
@@ -1148,6 +1181,7 @@ expression: jats
           <article-title>Cytoarchitecture of the nucleus of the lateral olfactory tract: A Golgi study in the rat</article-title>
           <source>Brain Research Bulletin</source>
           <year>1983</year>
+          <volume>10</volume>
           <fpage>497</fpage>
           <lpage>503</lpage>
         </element-citation>
@@ -1183,6 +1217,8 @@ expression: jats
           <article-title>Distinct Subdivisions in the Transition Between Telencephalon and Hypothalamus Produce Otp and Sim1 Cells for the Extended Amygdala in Sauropsids</article-title>
           <source>Frontiers in Neuroanatomy</source>
           <year>2022</year>
+          <volume>16</volume>
+          <ext-link ext-link-type="uri" xlink:href="https://www.frontiersin.org/articles/10.3389/fnana.2022.883537">https://www.frontiersin.org/articles/10.3389/fnana.2022.883537</ext-link>
         </element-citation>
       </ref>
       <ref id="c35">
@@ -1200,6 +1236,7 @@ expression: jats
           <article-title>The structure of the nucleus of the lateral olfactory tract</article-title>
           <source>Journal of Comparative Neurology</source>
           <year>1985</year>
+          <volume>233</volume>
           <fpage>517</fpage>
           <lpage>552</lpage>
         </element-citation>
@@ -1219,6 +1256,7 @@ expression: jats
           <article-title>Rapid Learning of Odor–Value Association in the Olfactory Striatum</article-title>
           <source>J Neurosci</source>
           <year>2020</year>
+          <volume>40</volume>
           <fpage>4335</fpage>
           <lpage>4347</lpage>
         </element-citation>
@@ -1254,6 +1292,7 @@ expression: jats
           <article-title>Dissecting Local Circuits: Parvalbumin Interneurons Underlie Broad Feedback Control of Olfactory Bulb Output</article-title>
           <source>Neuron</source>
           <year>2013</year>
+          <volume>80</volume>
           <fpage>1232</fpage>
           <lpage>1245</lpage>
         </element-citation>
@@ -1301,6 +1340,7 @@ expression: jats
           <article-title>Extensive and spatially variable within-cell-type heterogeneity across the basolateral amygdala</article-title>
           <source>eLife</source>
           <year>2020</year>
+          <volume>9</volume>
           <fpage>e59003</fpage>
         </element-citation>
       </ref>
@@ -1315,6 +1355,7 @@ expression: jats
           <article-title>An autoradiographic study of complementary laminar patterns of termination of afferent fibers to the olfactory cortex</article-title>
           <source>Journal of Comparative Neurology</source>
           <year>1973</year>
+          <volume>150</volume>
           <fpage>87</fpage>
           <lpage>108</lpage>
         </element-citation>
@@ -1338,6 +1379,7 @@ expression: jats
           <article-title>Intracellular recordings from morphologically identified neurons of the basolateral amygdala</article-title>
           <source>Journal of Neurophysiology</source>
           <year>1993</year>
+          <volume>69</volume>
           <fpage>1350</fpage>
           <lpage>1362</lpage>
         </element-citation>
@@ -1357,6 +1399,7 @@ expression: jats
           <article-title>Can transsynaptic viral strategies be used to reveal functional aspects of neural circuitry?</article-title>
           <source>Journal of Neuroscience Methods</source>
           <year>2021</year>
+          <volume>348</volume>
           <fpage>109005</fpage>
         </element-citation>
       </ref>
@@ -1375,6 +1418,7 @@ expression: jats
           <article-title>Efferent connections of the nucleus of the lateral olfactory tract in the rat</article-title>
           <source>Journal of Comparative Neurology</source>
           <year>2004</year>
+          <volume>471</volume>
           <fpage>314</fpage>
           <lpage>332</lpage>
         </element-citation>
@@ -1394,6 +1438,7 @@ expression: jats
           <article-title>The differential projections of the olfactory bulb and accessory olfactory bulb in mammals</article-title>
           <source>Journal of Comparative Neurology</source>
           <year>1975</year>
+          <volume>161</volume>
           <fpage>31</fpage>
           <lpage>55</lpage>
         </element-citation>
@@ -1425,6 +1470,7 @@ expression: jats
           <article-title>Olfactory system and emotion: Common substrates. European Annals of Otorhinolaryngology</article-title>
           <source>Head and Neck Diseases</source>
           <year>2011</year>
+          <volume>128</volume>
           <fpage>18</fpage>
           <lpage>23</lpage>
         </element-citation>
@@ -1443,6 +1489,7 @@ expression: jats
           </person-group>
           <article-title>A quantitative description of the mouse piriform cortex</article-title>
           <year>2017</year>
+          <ext-link ext-link-type="uri" xlink:href="https://www.biorxiv.org/content/10.1101/099002v1">https://www.biorxiv.org/content/10.1101/099002v1</ext-link>
         </element-citation>
       </ref>
       <ref id="c46">
@@ -1472,6 +1519,7 @@ expression: jats
           <article-title>Bi-directional encoding of context-based odors and behavioral states by the nucleus of the lateral olfactory tract</article-title>
           <source>iScience</source>
           <year>2021</year>
+          <volume>24</volume>
           <fpage>102381</fpage>
         </element-citation>
       </ref>
@@ -1494,6 +1542,7 @@ expression: jats
           <article-title>The locus and cytoarchitecture of the projection areas of the olfactory bulb in Macaca mulatta</article-title>
           <source>Journal of Comparative Neurology</source>
           <year>1978</year>
+          <volume>177</volume>
           <fpage>381</fpage>
           <lpage>396</lpage>
         </element-citation>
@@ -1525,6 +1574,7 @@ expression: jats
           <article-title>The integrity of the nucleus of the lateral olfactory tract is essential for the normal functioning of the olfactory system</article-title>
           <source>Brain Struct Funct</source>
           <year>2017</year>
+          <volume>222</volume>
           <fpage>3615</fpage>
           <lpage>3637</lpage>
         </element-citation>
@@ -1548,6 +1598,7 @@ expression: jats
           <article-title>Age effects on the nucleus of the lateral olfactory tract of the rat</article-title>
           <source>Journal of Comparative Neurology</source>
           <year>2016</year>
+          <volume>524</volume>
           <fpage>759</fpage>
           <lpage>771</lpage>
         </element-citation>
@@ -1583,6 +1634,7 @@ expression: jats
           <article-title>Complementary Sensory and Associative Microcircuitry in Primary Olfactory Cortex</article-title>
           <source>J Neurosci</source>
           <year>2011</year>
+          <volume>31</volume>
           <fpage>12149</fpage>
           <lpage>12158</lpage>
         </element-citation>

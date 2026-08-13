@@ -9,14 +9,9 @@ expression: info.losses
 //article/back/ref-list/ref/element-citation/person-group/etal: 18
 //article/back/ref-list/ref/element-citation/person-group/name/@name-style: 89
 //article/back/ref-list/ref/element-citation/pub-id/@assigning-authority: 18
-"//article/back/ref-list/ref/element-citation/pub-id[@pub-id-type='pmcid']": 12
-"//article/back/ref-list/ref/element-citation/pub-id[@pub-id-type='pmid']": 18
-//article/back/ref-list/ref/mixed-citation: 43
 //article/back/ref-list/ref/mixed-citation/bold: 4
 //article/back/ref-list/ref/mixed-citation/italic: 15
 //article/back/ref-list/ref/mixed-citation/pub-id/@assigning-authority: 2
-"//article/back/ref-list/ref/mixed-citation/pub-id[@pub-id-type='pmcid']": 1
-"//article/back/ref-list/ref/mixed-citation/pub-id[@pub-id-type='pmid']": 2
 //article/back/ref-list/title: 1
 //article/body/sec/@id: 5
 //article/body/sec/p/@id: 4

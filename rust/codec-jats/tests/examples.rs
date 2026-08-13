@@ -131,6 +131,53 @@ fn examples() -> Result<()> {
             "non-portable resources retained for {name}: {unfiltered:?}"
         );
 
+        // Every bibliographic field that the schema can represent must survive
+        // the round trip, field by field and reference by reference
+        let original_references = references_summary(&original)?;
+        let roundtrip_references = references_summary(&jats)?;
+        assert_eq!(
+            original_references.keys().collect::<Vec<_>>(),
+            roundtrip_references.keys().collect::<Vec<_>>(),
+            "reference ids changed when round-tripping {name}"
+        );
+        for (reference_id, original_reference) in &original_references {
+            let roundtrip_reference = &roundtrip_references[reference_id];
+            for (field, original_value) in &original_reference.fields {
+                let roundtrip_value = roundtrip_reference.fields.get(field);
+                assert_eq!(
+                    Some(original_value),
+                    roundtrip_value,
+                    "{field} of reference {reference_id} changed when round-tripping {name}"
+                );
+            }
+            assert_subset(
+                "reference titles",
+                &name,
+                &original_reference.titles,
+                &roundtrip_reference.titles,
+            );
+            assert_subset(
+                "reference identifiers",
+                &name,
+                &original_reference.identifiers,
+                &roundtrip_reference.identifiers,
+            );
+            assert_subset(
+                "reference authors",
+                &name,
+                &original_reference.authors,
+                &roundtrip_reference.authors,
+            );
+        }
+
+        // Citations can only be resolved by a reader if they point at a
+        // reference that is still in the document
+        let unresolved = unresolved_citation_targets(&jats)?;
+        assert!(
+            unresolved.is_empty(),
+            "unresolved bibliographic citation targets in {name}: {unresolved:?}"
+        );
+
         assert_snapshot!(format!("{name}.jats"), jats);
         assert_yaml_snapshot!(format!("{name}.encode.losses"), info.losses);
         categories.insert(format!("{name} encode"), losses_by_category(&info.losses));
@@ -336,6 +383,129 @@ fn metadata_summary(jats: &str) -> Result<MetadataSummary> {
     }
 
     Ok(summary)
+}
+
+/// The bibliographic fields of one `<ref>`, independent of how JATS spells them.
+#[derive(Debug, Default)]
+struct ReferenceSummary {
+    /// The title of the referenced work and of any work containing it
+    ///
+    /// JATS names the title of a whole work `<source>` and that of a part of
+    /// one `<article-title>`, a distinction that the schema does not record, so
+    /// the titles are compared as a set rather than by which element they were
+    /// spelt with.
+    titles: BTreeSet<String>,
+    /// Single valued fields such as the year and volume
+    fields: BTreeMap<&'static str, String>,
+    /// `(pub-id-type, value)` pairs, including the electronic location
+    identifiers: BTreeSet<(String, String)>,
+    /// Author and editor surnames
+    authors: BTreeSet<String>,
+}
+
+/// Extract the bibliographic fields of every reference, keyed by its ID.
+///
+/// A `<ref>` may hold a structured citation, a citation rendered as text, or
+/// both as alternatives to each other, so the fields of all of them are
+/// combined; the point of comparison is what a reader can still recover, not
+/// which element it came from.
+fn references_summary(jats: &str) -> Result<BTreeMap<String, ReferenceSummary>> {
+    let document = roxmltree::Document::parse_with_options(
+        jats,
+        roxmltree::ParsingOptions {
+            allow_dtd: true,
+            ..Default::default()
+        },
+    )?;
+
+    let mut summaries = BTreeMap::new();
+    for reference in document
+        .descendants()
+        .filter(|node| node.has_tag_name("ref"))
+    {
+        let Some(id) = reference.attribute("id") else {
+            continue;
+        };
+
+        let mut summary = ReferenceSummary::default();
+        for node in reference.descendants().filter(|node| node.is_element()) {
+            let text = || {
+                let text = node
+                    .descendants()
+                    .filter(roxmltree::Node::is_text)
+                    .filter_map(|node| node.text())
+                    .collect::<String>();
+                normalize_prose(&text)
+            };
+
+            let field = match node.tag_name().name() {
+                "article-title" | "chapter-title" | "part-title" | "data-title" | "source" => {
+                    let text = text();
+                    if !text.is_empty() {
+                        summary.titles.insert(text);
+                    }
+                    continue;
+                }
+                "year" => "year",
+                "volume" => "volume",
+                "issue" => "issue",
+                "fpage" => "fpage",
+                "lpage" => "lpage",
+                "page-range" => "page-range",
+                "edition" => "edition",
+                "publisher-name" => "publisher-name",
+                "publisher-loc" => "publisher-loc",
+                "surname" => {
+                    summary.authors.insert(text());
+                    continue;
+                }
+                "pub-id" => {
+                    summary.identifiers.insert((
+                        node.attribute("pub-id-type")
+                            .unwrap_or_default()
+                            .to_string(),
+                        text().trim_start_matches("https://doi.org/").to_string(),
+                    ));
+                    continue;
+                }
+                "elocation-id" => {
+                    summary
+                        .identifiers
+                        .insert(("elocation-id".to_string(), text()));
+                    continue;
+                }
+                _ => continue,
+            };
+
+            let text = text();
+            if !text.is_empty() {
+                summary.fields.entry(field).or_insert(text);
+            }
+        }
+
+        summaries.insert(id.to_string(), summary);
+    }
+
+    Ok(summaries)
+}
+
+/// Find the targets of bibliographic citations that no longer resolve.
+fn unresolved_citation_targets(jats: &str) -> Result<BTreeSet<String>> {
+    let document = roxmltree::Document::parse(jats)?;
+
+    let ids = document
+        .descendants()
+        .filter_map(|node| node.attribute("id"))
+        .collect::<BTreeSet<_>>();
+
+    Ok(document
+        .descendants()
+        .filter(|node| node.has_tag_name("xref") && node.attribute("ref-type") == Some("bibr"))
+        .filter_map(|node| node.attribute("rid"))
+        .flat_map(str::split_whitespace)
+        .filter(|target| !ids.contains(target))
+        .map(String::from)
+        .collect())
 }
 
 /// Normalize the two ways that JATS spells a publication format.

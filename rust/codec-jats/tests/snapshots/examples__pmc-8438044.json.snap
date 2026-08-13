@@ -367,7 +367,14 @@ expression: article
         "volumeNumber": 15
       },
       "pageStart": 618,
-      "pageEnd": 627
+      "pageEnd": 627,
+      "identifiers": [
+        {
+          "type": "PropertyValue",
+          "propertyId": "pmid",
+          "value": "17069392"
+        }
+      ]
     },
     {
       "type": "Reference",
@@ -501,7 +508,19 @@ expression: article
         ],
         "volumeNumber": 2
       },
-      "pageStart": 150088
+      "pageStart": 150088,
+      "identifiers": [
+        {
+          "type": "PropertyValue",
+          "propertyId": "pmid",
+          "value": "26587265"
+        },
+        {
+          "type": "PropertyValue",
+          "propertyId": "pmcid",
+          "value": "PMC4632578"
+        }
+      ]
     },
     {
       "type": "Reference",
@@ -612,7 +631,19 @@ expression: article
         ],
         "volumeNumber": 10
       },
-      "pageStart": 192
+      "pageStart": 192,
+      "identifiers": [
+        {
+          "type": "PropertyValue",
+          "propertyId": "pmcid",
+          "value": "PMC6470983"
+        },
+        {
+          "type": "PropertyValue",
+          "propertyId": "pmid",
+          "value": "30832286"
+        }
+      ]
     },
     {
       "type": "Reference",
@@ -683,7 +714,14 @@ expression: article
         "volumeNumber": 20
       },
       "pageStart": 1323,
-      "pageEnd": 1332
+      "pageEnd": 1332,
+      "identifiers": [
+        {
+          "type": "PropertyValue",
+          "propertyId": "pmid",
+          "value": "32452621"
+        }
+      ]
     },
     {
       "type": "Reference",
@@ -842,7 +880,19 @@ expression: article
         ],
         "volumeNumber": 7
       },
-      "pageStart": 96
+      "pageStart": 96,
+      "identifiers": [
+        {
+          "type": "PropertyValue",
+          "propertyId": "pmid",
+          "value": "32193422"
+        },
+        {
+          "type": "PropertyValue",
+          "propertyId": "pmcid",
+          "value": "PMC7081286"
+        }
+      ]
     },
     {
       "type": "Reference",
@@ -946,7 +996,19 @@ expression: article
         ],
         "volumeNumber": 4
       },
-      "pageStart": 170141
+      "pageStart": 170141,
+      "identifiers": [
+        {
+          "type": "PropertyValue",
+          "propertyId": "pmid",
+          "value": "28972575"
+        },
+        {
+          "type": "PropertyValue",
+          "propertyId": "pmcid",
+          "value": "PMC5625552"
+        }
+      ]
     },
     {
       "type": "Reference",
@@ -1040,7 +1102,11 @@ expression: article
             "string": "Ecological Studies in Tropical Fish Communities"
           }
         }
-      ]
+      ],
+      "publisher": {
+        "type": "Organization",
+        "name": "Cambridge University Press"
+      }
     },
     {
       "type": "Reference",
@@ -1139,7 +1205,19 @@ expression: article
         ],
         "volumeNumber": 10
       },
-      "pageStart": 4000
+      "pageStart": 4000,
+      "identifiers": [
+        {
+          "type": "PropertyValue",
+          "propertyId": "pmid",
+          "value": "31506444"
+        },
+        {
+          "type": "PropertyValue",
+          "propertyId": "pmcid",
+          "value": "PMC6736962"
+        }
+      ]
     },
     {
       "type": "Reference",
@@ -1279,7 +1357,19 @@ expression: article
         ],
         "volumeNumber": 13
       },
-      "pageStart": "e0202024"
+      "pageStart": "e0202024",
+      "identifiers": [
+        {
+          "type": "PropertyValue",
+          "propertyId": "pmid",
+          "value": "30102742"
+        },
+        {
+          "type": "PropertyValue",
+          "propertyId": "pmcid",
+          "value": "PMC6089427"
+        }
+      ]
     },
     {
       "type": "Reference",
@@ -1354,7 +1444,19 @@ expression: article
         "volumeNumber": 270
       },
       "pageStart": 313,
-      "pageEnd": 321
+      "pageEnd": 321,
+      "identifiers": [
+        {
+          "type": "PropertyValue",
+          "propertyId": "pmcid",
+          "value": "PMC1691236"
+        },
+        {
+          "type": "PropertyValue",
+          "propertyId": "pmid",
+          "value": "12614582"
+        }
+      ]
     },
     {
       "type": "Reference",
@@ -1480,7 +1582,19 @@ expression: article
         "volumeNumber": 79
       },
       "pageStart": 21,
-      "pageEnd": 27
+      "pageEnd": 27,
+      "identifiers": [
+        {
+          "type": "PropertyValue",
+          "propertyId": "pmcid",
+          "value": "PMC3088046"
+        },
+        {
+          "type": "PropertyValue",
+          "propertyId": "pmid",
+          "value": "21594143"
+        }
+      ]
     },
     {
       "type": "Reference",
@@ -1602,7 +1716,14 @@ expression: article
         "volumeNumber": 4348
       },
       "pageStart": 1,
-      "pageEnd": 125
+      "pageEnd": 125,
+      "identifiers": [
+        {
+          "type": "PropertyValue",
+          "propertyId": "pmid",
+          "value": "29245577"
+        }
+      ]
     },
     {
       "type": "Reference",
@@ -1694,7 +1815,19 @@ expression: article
         ],
         "volumeNumber": 7
       },
-      "pageStart": "e41059"
+      "pageStart": "e41059",
+      "identifiers": [
+        {
+          "type": "PropertyValue",
+          "propertyId": "pmid",
+          "value": "22815912"
+        },
+        {
+          "type": "PropertyValue",
+          "propertyId": "pmcid",
+          "value": "PMC3398874"
+        }
+      ]
     },
     {
       "type": "Reference",
@@ -1803,7 +1936,19 @@ expression: article
         "volumeNumber": 118
       },
       "pageStart": 393,
-      "pageEnd": 399
+      "pageEnd": 399,
+      "identifiers": [
+        {
+          "type": "PropertyValue",
+          "propertyId": "pmid",
+          "value": "27328683"
+        },
+        {
+          "type": "PropertyValue",
+          "propertyId": "pmcid",
+          "value": "PMC4998982"
+        }
+      ]
     },
     {
       "type": "Reference",
@@ -1936,7 +2081,19 @@ expression: article
             }
           }
         ]
-      }
+      },
+      "identifiers": [
+        {
+          "type": "PropertyValue",
+          "propertyId": "pmid",
+          "value": "27694206"
+        },
+        {
+          "type": "PropertyValue",
+          "propertyId": "pmcid",
+          "value": "PMC5045859"
+        }
+      ]
     },
     {
       "type": "Reference",
@@ -2116,7 +2273,19 @@ expression: article
         "volumeNumber": 116
       },
       "pageStart": 22651,
-      "pageEnd": 22656
+      "pageEnd": 22656,
+      "identifiers": [
+        {
+          "type": "PropertyValue",
+          "propertyId": "pmid",
+          "value": "31636175"
+        },
+        {
+          "type": "PropertyValue",
+          "propertyId": "pmcid",
+          "value": "PMC6842603"
+        }
+      ]
     },
     {
       "type": "Reference",
@@ -2282,7 +2451,19 @@ expression: article
         "volumeNumber": 117
       },
       "pageStart": 32211,
-      "pageEnd": 32212
+      "pageEnd": 32212,
+      "identifiers": [
+        {
+          "type": "PropertyValue",
+          "propertyId": "pmid",
+          "value": "33234565"
+        },
+        {
+          "type": "PropertyValue",
+          "propertyId": "pmcid",
+          "value": "PMC7768753"
+        }
+      ]
     },
     {
       "type": "Reference",
@@ -2347,7 +2528,14 @@ expression: article
         "volumeNumber": 19
       },
       "pageStart": 19,
-      "pageEnd": 22
+      "pageEnd": 22,
+      "identifiers": [
+        {
+          "type": "PropertyValue",
+          "propertyId": "pmid",
+          "value": "30701707"
+        }
+      ]
     },
     {
       "type": "Reference",
@@ -2578,7 +2766,14 @@ expression: article
         "volumeNumber": 19
       },
       "pageStart": 27,
-      "pageEnd": 46
+      "pageEnd": 46,
+      "identifiers": [
+        {
+          "type": "PropertyValue",
+          "propertyId": "pmid",
+          "value": "29768738"
+        }
+      ]
     },
     {
       "type": "Reference",
@@ -2739,7 +2934,14 @@ expression: article
         "volumeNumber": 25
       },
       "pageStart": 929,
-      "pageEnd": 942
+      "pageEnd": 942,
+      "identifiers": [
+        {
+          "type": "PropertyValue",
+          "propertyId": "pmid",
+          "value": "26479867"
+        }
+      ]
     },
     {
       "type": "Reference",
@@ -2811,7 +3013,11 @@ expression: article
             "string": "Freshwater Biodiversity: Status"
           }
         }
-      ]
+      ],
+      "publisher": {
+        "type": "Organization",
+        "name": "Cambridge University Press"
+      }
     },
     {
       "type": "Reference",
@@ -2920,7 +3126,19 @@ expression: article
         ],
         "volumeNumber": 10
       },
-      "pageStart": 17966
+      "pageStart": 17966,
+      "identifiers": [
+        {
+          "type": "PropertyValue",
+          "propertyId": "pmid",
+          "value": "33087755"
+        },
+        {
+          "type": "PropertyValue",
+          "propertyId": "pmcid",
+          "value": "PMC7578065"
+        }
+      ]
     },
     {
       "type": "Reference",
@@ -3001,7 +3219,19 @@ expression: article
         ],
         "volumeNumber": 10
       },
-      "pageStart": 20140562
+      "pageStart": 20140562,
+      "identifiers": [
+        {
+          "type": "PropertyValue",
+          "propertyId": "pmid",
+          "value": "25209199"
+        },
+        {
+          "type": "PropertyValue",
+          "propertyId": "pmcid",
+          "value": "PMC4190964"
+        }
+      ]
     },
     {
       "type": "Reference",
@@ -3156,7 +3386,19 @@ expression: article
         ],
         "volumeNumber": 22
       },
-      "pageStart": 177
+      "pageStart": 177,
+      "identifiers": [
+        {
+          "type": "PropertyValue",
+          "propertyId": "pmcid",
+          "value": "PMC8020537"
+        },
+        {
+          "type": "PropertyValue",
+          "propertyId": "pmid",
+          "value": "33820526"
+        }
+      ]
     },
     {
       "type": "Reference",
@@ -3247,7 +3489,19 @@ expression: article
         ],
         "volumeNumber": 13
       },
-      "pageStart": "e0204114"
+      "pageStart": "e0204114",
+      "identifiers": [
+        {
+          "type": "PropertyValue",
+          "propertyId": "pmid",
+          "value": "30231064"
+        },
+        {
+          "type": "PropertyValue",
+          "propertyId": "pmcid",
+          "value": "PMC6145546"
+        }
+      ]
     },
     {
       "type": "Reference",
@@ -3691,7 +3945,14 @@ expression: article
         "volumeNumber": 305
       },
       "pageStart": 1960,
-      "pageEnd": 1962
+      "pageEnd": 1962,
+      "identifiers": [
+        {
+          "type": "PropertyValue",
+          "propertyId": "pmid",
+          "value": "15448270"
+        }
+      ]
     },
     {
       "type": "Reference",
@@ -4342,7 +4603,19 @@ expression: article
         ],
         "volumeNumber": 10
       },
-      "pageStart": "e0135569"
+      "pageStart": "e0135569",
+      "identifiers": [
+        {
+          "type": "PropertyValue",
+          "propertyId": "pmid",
+          "value": "26275041"
+        },
+        {
+          "type": "PropertyValue",
+          "propertyId": "pmcid",
+          "value": "PMC4537159"
+        }
+      ]
     },
     {
       "type": "Reference",
@@ -4483,7 +4756,19 @@ expression: article
         ],
         "volumeNumber": 8
       },
-      "pageStart": 149
+      "pageStart": 149,
+      "identifiers": [
+        {
+          "type": "PropertyValue",
+          "propertyId": "pmid",
+          "value": "29075287"
+        },
+        {
+          "type": "PropertyValue",
+          "propertyId": "pmcid",
+          "value": "PMC5643504"
+        }
+      ]
     },
     {
       "type": "Reference",
@@ -4620,7 +4905,14 @@ expression: article
         "volumeNumber": 5
       },
       "pageStart": 1435,
-      "pageEnd": 1437
+      "pageEnd": 1437,
+      "identifiers": [
+        {
+          "type": "PropertyValue",
+          "propertyId": "pmid",
+          "value": "35701979"
+        }
+      ]
     },
     {
       "type": "Reference",
@@ -4708,7 +5000,14 @@ expression: article
         "volumeNumber": 302
       },
       "pageStart": 1175,
-      "pageEnd": 1177
+      "pageEnd": 1177,
+      "identifiers": [
+        {
+          "type": "PropertyValue",
+          "propertyId": "pmid",
+          "value": "14615529"
+        }
+      ]
     },
     {
       "type": "Reference",
@@ -4849,7 +5148,14 @@ expression: article
         "volumeNumber": 467
       },
       "pageStart": 555,
-      "pageEnd": 561
+      "pageEnd": 561,
+      "identifiers": [
+        {
+          "type": "PropertyValue",
+          "propertyId": "pmid",
+          "value": "20882010"
+        }
+      ]
     },
     {
       "type": "Reference",
@@ -4894,7 +5200,19 @@ expression: article
         "volumeNumber": 50
       },
       "pageStart": 85,
-      "pageEnd": 94
+      "pageEnd": 94,
+      "identifiers": [
+        {
+          "type": "PropertyValue",
+          "propertyId": "pmid",
+          "value": "32040746"
+        },
+        {
+          "type": "PropertyValue",
+          "propertyId": "pmcid",
+          "value": "PMC7708569"
+        }
+      ]
     },
     {
       "type": "Reference",
@@ -4996,7 +5314,19 @@ expression: article
         ],
         "volumeNumber": 2
       },
-      "pageStart": "e537"
+      "pageStart": "e537",
+      "identifiers": [
+        {
+          "type": "PropertyValue",
+          "propertyId": "pmid",
+          "value": "17579711"
+        },
+        {
+          "type": "PropertyValue",
+          "propertyId": "pmcid",
+          "value": "PMC1888728"
+        }
+      ]
     },
     {
       "type": "Reference",
@@ -5028,6 +5358,13 @@ expression: article
         "type": "Date",
         "value": "2012"
       },
+      "identifiers": [
+        {
+          "type": "PropertyValue",
+          "propertyId": "pmid",
+          "value": "22237525"
+        }
+      ],
       "text": "Campos, P. F. & Gilbert, T. M. DNA extraction from formalin-fixed material. In Ancient DNA 81–85 (Humana Press, 2012). 10.1007/978-1-61779-516-9_11 22237525"
     },
     {
@@ -5091,7 +5428,19 @@ expression: article
         ],
         "volumeNumber": 10
       },
-      "pageStart": "e0141579"
+      "pageStart": "e0141579",
+      "identifiers": [
+        {
+          "type": "PropertyValue",
+          "propertyId": "pmid",
+          "value": "26505622"
+        },
+        {
+          "type": "PropertyValue",
+          "propertyId": "pmcid",
+          "value": "PMC4623518"
+        }
+      ]
     },
     {
       "type": "Reference",
@@ -5194,7 +5543,19 @@ expression: article
         ],
         "volumeNumber": 8
       },
-      "pageStart": 6149
+      "pageStart": 6149,
+      "identifiers": [
+        {
+          "type": "PropertyValue",
+          "propertyId": "pmid",
+          "value": "29670253"
+        },
+        {
+          "type": "PropertyValue",
+          "propertyId": "pmcid",
+          "value": "PMC5906666"
+        }
+      ]
     },
     {
       "type": "Reference",
@@ -5232,7 +5593,11 @@ expression: article
             "string": "Historical Biogeography of Neotropical Freshwater Fishes"
           }
         }
-      ]
+      ],
+      "publisher": {
+        "type": "Organization",
+        "name": "University of California Press"
+      }
     },
     {
       "type": "Reference",
@@ -5321,7 +5686,14 @@ expression: article
         "volumeNumber": 578
       },
       "pageStart": 505,
-      "pageEnd": 507
+      "pageEnd": 507,
+      "identifiers": [
+        {
+          "type": "PropertyValue",
+          "propertyId": "pmid",
+          "value": "32099130"
+        }
+      ]
     },
     {
       "type": "Reference",
@@ -5419,7 +5791,19 @@ expression: article
         ],
         "volumeNumber": 7
       },
-      "pageStart": 37518
+      "pageStart": 37518,
+      "identifiers": [
+        {
+          "type": "PropertyValue",
+          "propertyId": "pmcid",
+          "value": "PMC6751219"
+        },
+        {
+          "type": "PropertyValue",
+          "propertyId": "pmid",
+          "value": "31592221"
+        }
+      ]
     },
     {
       "type": "Reference",
@@ -5464,7 +5848,14 @@ expression: article
         "volumeNumber": 95
       },
       "pageStart": 679,
-      "pageEnd": 682
+      "pageEnd": 682,
+      "identifiers": [
+        {
+          "type": "PropertyValue",
+          "propertyId": "pmid",
+          "value": "31183856"
+        }
+      ]
     },
     {
       "type": "Reference",
@@ -5672,7 +6063,14 @@ expression: article
         "volumeNumber": 90
       },
       "pageStart": 1279,
-      "pageEnd": 1284
+      "pageEnd": 1284,
+      "identifiers": [
+        {
+          "type": "PropertyValue",
+          "propertyId": "pmid",
+          "value": "29898095"
+        }
+      ]
     },
     {
       "type": "Reference",
@@ -5775,7 +6173,19 @@ expression: article
         "volumeNumber": 68
       },
       "pageStart": 11,
-      "pageEnd": 12
+      "pageEnd": 12,
+      "identifiers": [
+        {
+          "type": "PropertyValue",
+          "propertyId": "pmid",
+          "value": "29599546"
+        },
+        {
+          "type": "PropertyValue",
+          "propertyId": "pmcid",
+          "value": "PMC5862352"
+        }
+      ]
     },
     {
       "type": "Reference",
@@ -5881,7 +6291,19 @@ expression: article
         ],
         "volumeNumber": 117
       },
-      "pageStart": 54741
+      "pageStart": 54741,
+      "identifiers": [
+        {
+          "type": "PropertyValue",
+          "propertyId": "pmcid",
+          "value": "PMC5226294"
+        },
+        {
+          "type": "PropertyValue",
+          "propertyId": "pmid",
+          "value": "27911387"
+        }
+      ]
     },
     {
       "type": "Reference",
@@ -5926,7 +6348,14 @@ expression: article
         "volumeNumber": 26
       },
       "pageStart": 2460,
-      "pageEnd": 2461
+      "pageEnd": 2461,
+      "identifiers": [
+        {
+          "type": "PropertyValue",
+          "propertyId": "pmid",
+          "value": "20709691"
+        }
+      ]
     },
     {
       "type": "Reference",
@@ -5991,7 +6420,19 @@ expression: article
         "volumeNumber": 11
       },
       "pageStart": 2639,
-      "pageEnd": 2643
+      "pageEnd": 2643,
+      "identifiers": [
+        {
+          "type": "PropertyValue",
+          "propertyId": "pmid",
+          "value": "28731476"
+        },
+        {
+          "type": "PropertyValue",
+          "propertyId": "pmcid",
+          "value": "PMC5702726"
+        }
+      ]
     },
     {
       "type": "Reference",
@@ -6045,7 +6486,19 @@ expression: article
         "volumeNumber": 30
       },
       "pageStart": 772,
-      "pageEnd": 780
+      "pageEnd": 780,
+      "identifiers": [
+        {
+          "type": "PropertyValue",
+          "propertyId": "pmid",
+          "value": "23329690"
+        },
+        {
+          "type": "PropertyValue",
+          "propertyId": "pmcid",
+          "value": "PMC3603318"
+        }
+      ]
     },
     {
       "type": "Reference",
@@ -6107,7 +6560,19 @@ expression: article
         "volumeNumber": 33
       },
       "pageStart": 1870,
-      "pageEnd": 1874
+      "pageEnd": 1874,
+      "identifiers": [
+        {
+          "type": "PropertyValue",
+          "propertyId": "pmid",
+          "value": "27004904"
+        },
+        {
+          "type": "PropertyValue",
+          "propertyId": "pmcid",
+          "value": "PMC8210823"
+        }
+      ]
     },
     {
       "type": "Reference",
@@ -6151,7 +6616,14 @@ expression: article
         "volumeNumber": 16
       },
       "pageStart": 111,
-      "pageEnd": 120
+      "pageEnd": 120,
+      "identifiers": [
+        {
+          "type": "PropertyValue",
+          "propertyId": "pmid",
+          "value": "7463489"
+        }
+      ]
     },
     {
       "type": "Reference",
@@ -6222,7 +6694,19 @@ expression: article
         ],
         "volumeNumber": 9
       },
-      "pageStart": 772
+      "pageStart": 772,
+      "identifiers": [
+        {
+          "type": "PropertyValue",
+          "propertyId": "pmid",
+          "value": "22847109"
+        },
+        {
+          "type": "PropertyValue",
+          "propertyId": "pmcid",
+          "value": "PMC4594756"
+        }
+      ]
     },
     {
       "type": "Reference",
@@ -6350,7 +6834,19 @@ expression: article
         "volumeNumber": 61
       },
       "pageStart": 539,
-      "pageEnd": 542
+      "pageEnd": 542,
+      "identifiers": [
+        {
+          "type": "PropertyValue",
+          "propertyId": "pmcid",
+          "value": "PMC3329765"
+        },
+        {
+          "type": "PropertyValue",
+          "propertyId": "pmid",
+          "value": "22357727"
+        }
+      ]
     },
     {
       "type": "Reference",
@@ -6395,7 +6891,19 @@ expression: article
         "volumeNumber": 11
       },
       "pageStart": 43,
-      "pageEnd": 48
+      "pageEnd": 48,
+      "identifiers": [
+        {
+          "type": "PropertyValue",
+          "propertyId": "pmcid",
+          "value": "PMC4362911"
+        },
+        {
+          "type": "PropertyValue",
+          "propertyId": "pmid",
+          "value": "25861210"
+        }
+      ]
     },
     {
       "type": "Reference",
@@ -6486,7 +6994,14 @@ expression: article
         "volumeNumber": 311
       },
       "pageStart": 1283,
-      "pageEnd": 1287
+      "pageEnd": 1287,
+      "identifiers": [
+        {
+          "type": "PropertyValue",
+          "propertyId": "pmid",
+          "value": "16513982"
+        }
+      ]
     },
     {
       "type": "Reference",
@@ -6537,7 +7052,11 @@ expression: article
             "string": "Ggplot2: Elegant graphics for data analysis"
           }
         }
-      ]
+      ],
+      "publisher": {
+        "type": "Organization",
+        "name": "Springer"
+      }
     },
     {
       "type": "Reference",
@@ -6612,7 +7131,12 @@ expression: article
             "string": "An R Companion to Applied Regression"
           }
         }
-      ]
+      ],
+      "publisher": {
+        "type": "Organization",
+        "name": "Sage"
+      },
+      "version": "3"
     },
     {
       "type": "Reference",
@@ -6696,7 +7220,14 @@ expression: article
         "volumeNumber": 30
       },
       "pageStart": 2811,
-      "pageEnd": 2812
+      "pageEnd": 2812,
+      "identifiers": [
+        {
+          "type": "PropertyValue",
+          "propertyId": "pmid",
+          "value": "24930139"
+        }
+      ]
     },
     {
       "type": "Reference",
@@ -7057,7 +7588,19 @@ expression: article
         "volumeNumber": 6
       },
       "pageStart": 4214,
-      "pageEnd": 4226
+      "pageEnd": 4226,
+      "identifiers": [
+        {
+          "type": "PropertyValue",
+          "propertyId": "pmid",
+          "value": "27516876"
+        },
+        {
+          "type": "PropertyValue",
+          "propertyId": "pmcid",
+          "value": "PMC4972244"
+        }
+      ]
     },
     {
       "type": "Reference",

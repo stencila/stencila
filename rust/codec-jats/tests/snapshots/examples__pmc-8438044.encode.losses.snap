@@ -3,5 +3,4 @@ source: rust/codec-jats/tests/examples.rs
 expression: info.losses
 ---
 Article.funders: 1
-Reference.isPartOf.volumeNumber: 80
 Supplement.work_type: 10

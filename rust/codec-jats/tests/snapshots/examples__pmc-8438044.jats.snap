@@ -1114,6 +1114,7 @@ expression: jats
           <article-title>So many fishes, so little time: An overview of recent ichthyological discovery in continental waters</article-title>
           <source>Ann. Mo. Bot. Gard.</source>
           <year>2000</year>
+          <volume>87</volume>
           <fpage>26</fpage>
           <lpage>62</lpage>
           <pub-id pub-id-type="doi">10.2307/2666207</pub-id>
@@ -1130,9 +1131,11 @@ expression: jats
           <article-title>The impact of insecticides and herbicides on the biodiversity and productivity of aquatic communities</article-title>
           <source>Ecol. Appl.</source>
           <year>2005</year>
+          <volume>15</volume>
           <fpage>618</fpage>
           <lpage>627</lpage>
           <pub-id pub-id-type="doi">10.1890/03-5342</pub-id>
+          <pub-id pub-id-type="pmid">17069392</pub-id>
         </element-citation>
       </ref>
       <ref id="CR3">
@@ -1186,8 +1189,11 @@ expression: jats
           <article-title>MiFish, a set of universal PCR primers for metabarcoding environmental DNA from fishes: Detection of more than 230 subtropical marine species</article-title>
           <source>R. Soc. Open Sci.</source>
           <year>2015</year>
+          <volume>2</volume>
           <fpage>150088</fpage>
           <pub-id pub-id-type="doi">10.1098/rsos.150088</pub-id>
+          <pub-id pub-id-type="pmid">26587265</pub-id>
+          <pub-id pub-id-type="pmcid">PMC4632578</pub-id>
         </element-citation>
       </ref>
       <ref id="CR4">
@@ -1229,8 +1235,11 @@ expression: jats
           <article-title>Beyond biodiversity: Can environmental DNA (eDNA) cut it as a population genetics tool?</article-title>
           <source>Genes</source>
           <year>2019</year>
+          <volume>10</volume>
           <fpage>192</fpage>
           <pub-id pub-id-type="doi">10.3390/genes10030192</pub-id>
+          <pub-id pub-id-type="pmcid">PMC6470983</pub-id>
+          <pub-id pub-id-type="pmid">30832286</pub-id>
         </element-citation>
       </ref>
       <ref id="CR5">
@@ -1256,9 +1265,11 @@ expression: jats
           <article-title>Quantitative evaluation of intraspecific genetic diversity in a natural fish population using environmental DNA</article-title>
           <source>Mol. Ecol. Resour.</source>
           <year>2020</year>
+          <volume>20</volume>
           <fpage>1323</fpage>
           <lpage>1332</lpage>
           <pub-id pub-id-type="doi">10.1111/1755-0998.13200</pub-id>
+          <pub-id pub-id-type="pmid">32452621</pub-id>
         </element-citation>
       </ref>
       <ref id="CR6">
@@ -1280,13 +1291,29 @@ expression: jats
           <article-title>MiFish metabarcoding: A high-throughput approach for simultaneous detection of multiple fish species from environmental DNA and other samples</article-title>
           <source>Fish. Sci.</source>
           <year>2020</year>
+          <volume>86</volume>
           <fpage>939</fpage>
           <lpage>970</lpage>
           <pub-id pub-id-type="doi">10.1007/s12562-020-01461-x</pub-id>
         </element-citation>
       </ref>
       <ref id="CR7">
-        <mixed-citation>Dagosta F. C. P. &amp; de Pinna, M. C. C. The fishes of the Amazon: Distribution and biogeographical patterns, with a comprehensive list of species. Bull. Am. Mus. Nat. Hist, 431 , 1–163 (2019).<person-group person-group-type="author"><name><surname>Dagosta</surname><given-names>F C P</given-names></name><name><surname>de Pinna</surname><given-names>M C C</given-names></name></person-group><year>2019</year></mixed-citation>
+        <citation-alternatives>
+          <element-citation>
+            <person-group person-group-type="author">
+              <name>
+                <surname>Dagosta</surname>
+                <given-names>F C P</given-names>
+              </name>
+              <name>
+                <surname>de Pinna</surname>
+                <given-names>M C C</given-names>
+              </name>
+            </person-group>
+            <year>2019</year>
+          </element-citation>
+          <mixed-citation>Dagosta F. C. P. &amp; de Pinna, M. C. C. The fishes of the Amazon: Distribution and biogeographical patterns, with a comprehensive list of species. Bull. Am. Mus. Nat. Hist, 431 , 1–163 (2019).</mixed-citation>
+        </citation-alternatives>
       </ref>
       <ref id="CR8">
         <element-citation publication-type="journal">
@@ -1307,8 +1334,11 @@ expression: jats
           <article-title>A database of freshwater fish species of the Amazon Basin</article-title>
           <source>Sci. Data</source>
           <year>2020</year>
+          <volume>7</volume>
           <fpage>96</fpage>
           <pub-id pub-id-type="doi">10.1038/s41597-020-0436-4</pub-id>
+          <pub-id pub-id-type="pmid">32193422</pub-id>
+          <pub-id pub-id-type="pmcid">PMC7081286</pub-id>
         </element-citation>
       </ref>
       <ref id="CR9">
@@ -1343,8 +1373,11 @@ expression: jats
           <article-title>A global database on freshwater fish species occurrence in drainage basins</article-title>
           <source>Sci. Data</source>
           <year>2017</year>
+          <volume>4</volume>
           <fpage>170141</fpage>
           <pub-id pub-id-type="doi">10.1038/sdata.2017.141</pub-id>
+          <pub-id pub-id-type="pmid">28972575</pub-id>
+          <pub-id pub-id-type="pmcid">PMC5625552</pub-id>
         </element-citation>
       </ref>
       <ref id="CR11">
@@ -1366,6 +1399,7 @@ expression: jats
           <article-title>Origine et diversification de líchthyofaune Neotropical: Une revue</article-title>
           <source>Cybium</source>
           <year>2007</year>
+          <volume>31</volume>
           <fpage>139</fpage>
           <lpage>153</lpage>
         </element-citation>
@@ -1378,7 +1412,8 @@ expression: jats
               <given-names>R H</given-names>
             </name>
           </person-group>
-          <article-title>Ecological Studies in Tropical Fish Communities</article-title>
+          <source>Ecological Studies in Tropical Fish Communities</source>
+          <publisher-name>Cambridge University Press</publisher-name>
           <year>1987</year>
         </element-citation>
       </ref>
@@ -1397,6 +1432,7 @@ expression: jats
           <article-title>On the origins of marine derived fishes in South America</article-title>
           <source>J. Biogeogr.</source>
           <year>2017</year>
+          <volume>44</volume>
           <fpage>1927</fpage>
           <lpage>1938</lpage>
           <pub-id pub-id-type="doi">10.1111/jbi.12954</pub-id>
@@ -1413,12 +1449,34 @@ expression: jats
           <article-title>Unexpected species diversity in electric eels with a description of the strongest living bioelectricity generator</article-title>
           <source>Nat. Commun.</source>
           <year>2019</year>
+          <volume>10</volume>
           <fpage>4000</fpage>
           <pub-id pub-id-type="doi">10.1038/s41467-019-11690-z</pub-id>
+          <pub-id pub-id-type="pmid">31506444</pub-id>
+          <pub-id pub-id-type="pmcid">PMC6736962</pub-id>
         </element-citation>
       </ref>
       <ref id="CR15">
-        <mixed-citation>Carvalho, L. N., Zuanon, J. &amp; Sazima, I. Natural history of Amazon fishes. In Tropical Biology and Natural Resources Theme (ed. Del-Claro, K.), K. Del-Claro &amp; R. J. Marquis (Session Eds. the Natural History Session), Encyclopedia of Life Support Systems (EOLSS) (Eolss Publishers, 2007).<person-group person-group-type="author"><name><surname>Carvalho</surname><given-names>L N</given-names></name><name><surname>Zuanon</surname><given-names>J</given-names></name><name><surname>Sazima</surname><given-names>I</given-names></name></person-group><year>2007</year></mixed-citation>
+        <citation-alternatives>
+          <element-citation>
+            <person-group person-group-type="author">
+              <name>
+                <surname>Carvalho</surname>
+                <given-names>L N</given-names>
+              </name>
+              <name>
+                <surname>Zuanon</surname>
+                <given-names>J</given-names>
+              </name>
+              <name>
+                <surname>Sazima</surname>
+                <given-names>I</given-names>
+              </name>
+            </person-group>
+            <year>2007</year>
+          </element-citation>
+          <mixed-citation>Carvalho, L. N., Zuanon, J. &amp; Sazima, I. Natural history of Amazon fishes. In Tropical Biology and Natural Resources Theme (ed. Del-Claro, K.), K. Del-Claro &amp; R. J. Marquis (Session Eds. the Natural History Session), Encyclopedia of Life Support Systems (EOLSS) (Eolss Publishers, 2007).</mixed-citation>
+        </citation-alternatives>
       </ref>
       <ref id="CR16">
         <element-citation publication-type="journal">
@@ -1451,8 +1509,11 @@ expression: jats
           <article-title>A continental-wide molecular approach unraveling mtDNA diversity and geographic distribution of the Neotropical genus <italic>Hoplias</italic></article-title>
           <source>PLoS ONE</source>
           <year>2018</year>
+          <volume>13</volume>
           <fpage>e0202024</fpage>
           <pub-id pub-id-type="doi">10.1371/journal.pone.0202024</pub-id>
+          <pub-id pub-id-type="pmid">30102742</pub-id>
+          <pub-id pub-id-type="pmcid">PMC6089427</pub-id>
         </element-citation>
       </ref>
       <ref id="CR17">
@@ -1478,9 +1539,12 @@ expression: jats
           <article-title>Biological identifications through DNA barcodes</article-title>
           <source>Proc. R. Soc. Lond. Ser. B Biol. Sci.</source>
           <year>2003</year>
+          <volume>270</volume>
           <fpage>313</fpage>
           <lpage>321</lpage>
           <pub-id pub-id-type="doi">10.1098/rspb.2002.2218</pub-id>
+          <pub-id pub-id-type="pmcid">PMC1691236</pub-id>
+          <pub-id pub-id-type="pmid">12614582</pub-id>
         </element-citation>
       </ref>
       <ref id="CR18">
@@ -1506,9 +1570,12 @@ expression: jats
           <article-title>Seven new species within western Atlantic <italic>Starksia atlantica</italic>, <italic>S. lepicoelia</italic>, and <italic>S. sluiteri</italic> (Teleostei, Labrisomidae), with comments on congruence of DNA barcodes and species</article-title>
           <source>ZooKeys</source>
           <year>2011</year>
+          <volume>79</volume>
           <fpage>21</fpage>
           <lpage>27</lpage>
           <pub-id pub-id-type="doi">10.3897/zookeys.79.1045</pub-id>
+          <pub-id pub-id-type="pmcid">PMC3088046</pub-id>
+          <pub-id pub-id-type="pmid">21594143</pub-id>
         </element-citation>
       </ref>
       <ref id="CR19">
@@ -1554,9 +1621,11 @@ expression: jats
           <article-title>Deep-water bony fishes collected by the B/O Miguel Oliver on the shelf edge of Pacific Central America: An annotated, illustrated and DNA-barcoded checklist</article-title>
           <source>Zootaxa</source>
           <year>2017</year>
+          <volume>4348</volume>
           <fpage>1</fpage>
           <lpage>125</lpage>
           <pub-id pub-id-type="doi">10.11646/zootaxa.4348.1.1</pub-id>
+          <pub-id pub-id-type="pmid">29245577</pub-id>
         </element-citation>
       </ref>
       <ref id="CR20">
@@ -1590,8 +1659,11 @@ expression: jats
           <article-title>Using DNA barcoding to assess Caribbean reef fish biodiversity: Expanding taxonomic and geographic coverage</article-title>
           <source>PLoS ONE</source>
           <year>2012</year>
+          <volume>7</volume>
           <fpage>e41059</fpage>
           <pub-id pub-id-type="doi">10.1371/journal.pone.0041059</pub-id>
+          <pub-id pub-id-type="pmid">22815912</pub-id>
+          <pub-id pub-id-type="pmcid">PMC3398874</pub-id>
         </element-citation>
       </ref>
       <ref id="CR21">
@@ -1633,9 +1705,12 @@ expression: jats
           <article-title>Global genome biodiversity network: Saving a blueprint of the tree of life—a botanical perspective</article-title>
           <source>Ann. Bot.</source>
           <year>2016</year>
+          <volume>118</volume>
           <fpage>393</fpage>
           <lpage>399</lpage>
           <pub-id pub-id-type="doi">10.1093/aob/mcw121</pub-id>
+          <pub-id pub-id-type="pmid">27328683</pub-id>
+          <pub-id pub-id-type="pmcid">PMC4998982</pub-id>
         </element-citation>
       </ref>
       <ref id="CR22">
@@ -1669,6 +1744,7 @@ expression: jats
           <article-title>Fishes collected during the 2017 MarineGEO assessment of Kāne‘ohe Bay, O‘ahu, Hawai‘i</article-title>
           <source>J. Mar. Biol. Assoc. UK</source>
           <year>2020</year>
+          <volume>100</volume>
           <fpage>607</fpage>
           <lpage>637</lpage>
           <pub-id pub-id-type="doi">10.1017/S0025315420000417</pub-id>
@@ -1686,6 +1762,8 @@ expression: jats
           <source>Database</source>
           <year>2016</year>
           <pub-id pub-id-type="doi">10.1093/database/baw125</pub-id>
+          <pub-id pub-id-type="pmid">27694206</pub-id>
+          <pub-id pub-id-type="pmcid">PMC5045859</pub-id>
         </element-citation>
       </ref>
       <ref id="CR24">
@@ -1723,6 +1801,7 @@ expression: jats
           <article-title>Blind assessment of vertebrate taxonomic diversity across spatial scales by clustering environmental DNA metabarcoding sequences</article-title>
           <source>Ecography</source>
           <year>2020</year>
+          <volume>43</volume>
           <fpage>1779</fpage>
           <lpage>1790</lpage>
           <pub-id pub-id-type="doi">10.1111/ecog.05049</pub-id>
@@ -1755,9 +1834,12 @@ expression: jats
           <article-title>GenBank is a reliable resource for 21st biodiversity research</article-title>
           <source>Proc. Natl. Acad. Sci. U.S.A.</source>
           <year>2019</year>
+          <volume>116</volume>
           <fpage>22651</fpage>
           <lpage>22656</lpage>
           <pub-id pub-id-type="doi">10.1073/pnas.1911714116</pub-id>
+          <pub-id pub-id-type="pmid">31636175</pub-id>
+          <pub-id pub-id-type="pmcid">PMC6842603</pub-id>
         </element-citation>
       </ref>
       <ref id="CR26">
@@ -1791,6 +1873,7 @@ expression: jats
           <article-title>Forensic investigations into a GenBank anomaly: endangered taxa and the importance of voucher specimens in molecular studies</article-title>
           <source>J. Appl. Ichthyol.</source>
           <year>2014</year>
+          <volume>30</volume>
           <fpage>1300</fpage>
           <lpage>1309</lpage>
           <pub-id pub-id-type="doi">10.1111/jai.12568</pub-id>
@@ -1819,9 +1902,12 @@ expression: jats
           <article-title>GenBank’s reliability is uncertain for biodiversity researchers seeking species-level assignment for eDNA</article-title>
           <source>Proc. Natl. Acad. Sci. U.S.A.</source>
           <year>2020</year>
+          <volume>117</volume>
           <fpage>32211</fpage>
           <lpage>32212</lpage>
           <pub-id pub-id-type="doi">10.1073/pnas.2007421117</pub-id>
+          <pub-id pub-id-type="pmid">33234565</pub-id>
+          <pub-id pub-id-type="pmcid">PMC7768753</pub-id>
         </element-citation>
       </ref>
       <ref id="CR28">
@@ -1843,9 +1929,11 @@ expression: jats
           <article-title>Measuring global fish species richness with eDNA metabarcoding</article-title>
           <source>Mol. Ecol. Resour.</source>
           <year>2019</year>
+          <volume>19</volume>
           <fpage>19</fpage>
           <lpage>22</lpage>
           <pub-id pub-id-type="doi">10.1111/1755-0998.12929</pub-id>
+          <pub-id pub-id-type="pmid">30701707</pub-id>
         </element-citation>
       </ref>
       <ref id="CR29">
@@ -1891,6 +1979,7 @@ expression: jats
           <article-title>DNA metabarcoding of Neotropical ichthyoplankton: Enabling high accuracy with lower cost</article-title>
           <source>Metabarcoding Metagenom.</source>
           <year>2019</year>
+          <volume>3</volume>
           <fpage>35060</fpage>
           <pub-id pub-id-type="doi">10.3897/mbmg.3.35060</pub-id>
         </element-citation>
@@ -1934,9 +2023,11 @@ expression: jats
           <article-title>Unlocking biodiversity and conservation studies in high diversity environments using environmental DNA (eDNA): A text with Guianese freshwater fishes</article-title>
           <source>Mol. Ecol. Resour.</source>
           <year>2019</year>
+          <volume>19</volume>
           <fpage>27</fpage>
           <lpage>46</lpage>
           <pub-id pub-id-type="doi">10.1111/1755-0998.12900</pub-id>
+          <pub-id pub-id-type="pmid">29768738</pub-id>
         </element-citation>
       </ref>
       <ref id="CR31">
@@ -1962,6 +2053,7 @@ expression: jats
           <article-title>Influence of preservation methods, sample medium and sampling time on eDNA recovery in a neotropical river</article-title>
           <source>Environ. DNA</source>
           <year>2019</year>
+          <volume>1</volume>
           <fpage>119</fpage>
           <lpage>130</lpage>
           <pub-id pub-id-type="doi">10.1002/edn3.14</pub-id>
@@ -1992,9 +2084,11 @@ expression: jats
           <article-title>Next-generation monitoring of aquatic biodiversity using environmental DNA metabarcoding</article-title>
           <source>Mol. Ecol.</source>
           <year>2016</year>
+          <volume>25</volume>
           <fpage>929</fpage>
           <lpage>942</lpage>
           <pub-id pub-id-type="doi">10.1111/mec.13428</pub-id>
+          <pub-id pub-id-type="pmid">26479867</pub-id>
         </element-citation>
       </ref>
       <ref id="CR34">
@@ -2008,6 +2102,7 @@ expression: jats
           <article-title>Calibrating environmental DNA metabarcoding to conventional surveys for measuring fish species richness</article-title>
           <source>Front. Ecol. Evol.</source>
           <year>2020</year>
+          <volume>8</volume>
           <fpage>276</fpage>
           <pub-id pub-id-type="doi">10.3389/fevo.2020.00276</pub-id>
         </element-citation>
@@ -2020,7 +2115,8 @@ expression: jats
               <given-names>D</given-names>
             </name>
           </person-group>
-          <article-title>Freshwater Biodiversity: Status</article-title>
+          <source>Freshwater Biodiversity: Status</source>
+          <publisher-name>Cambridge University Press</publisher-name>
           <year>2020</year>
         </element-citation>
       </ref>
@@ -2035,6 +2131,7 @@ expression: jats
           <article-title>Non-parametric multivariate analyses of changes in community structure</article-title>
           <source>Austral Ecol.</source>
           <year>1993</year>
+          <volume>18</volume>
           <fpage>117</fpage>
           <lpage>143</lpage>
           <pub-id pub-id-type="doi">10.1111/j.1442-9993.1993.tb00438.x</pub-id>
@@ -2059,8 +2156,11 @@ expression: jats
           <article-title>New 12S metabarcoding primers for enhanced Neotropical freshwater fish biodiversity assessment</article-title>
           <source>Sci. Rep.</source>
           <year>2020</year>
+          <volume>10</volume>
           <fpage>17966</fpage>
           <pub-id pub-id-type="doi">10.1038/s41598-020-74902-3</pub-id>
+          <pub-id pub-id-type="pmid">33087755</pub-id>
+          <pub-id pub-id-type="pmcid">PMC7578065</pub-id>
         </element-citation>
       </ref>
       <ref id="CR38">
@@ -2090,8 +2190,11 @@ expression: jats
           <article-title>DNA metabarcoding and the cytochrome c oxidase subunit I marker: Not a perfect match</article-title>
           <source>Biol. Lett.</source>
           <year>2014</year>
+          <volume>10</volume>
           <fpage>20140562</fpage>
           <pub-id pub-id-type="doi">10.1098/rsbl.2014.0562</pub-id>
+          <pub-id pub-id-type="pmid">25209199</pub-id>
+          <pub-id pub-id-type="pmcid">PMC4190964</pub-id>
         </element-citation>
       </ref>
       <ref id="CR39">
@@ -2133,6 +2236,7 @@ expression: jats
           <article-title>Non-specific amplification compromises environmental DNA metabarcoding with COI</article-title>
           <source>Methods Ecol. Evol.</source>
           <year>2019</year>
+          <volume>10</volume>
           <fpage>1985</fpage>
           <lpage>2001</lpage>
           <pub-id pub-id-type="doi">10.1111/2041-210X.13276</pub-id>
@@ -2149,8 +2253,11 @@ expression: jats
           <article-title>To denoise or to cluster, that is not the question: optimizing pipelines for COI metabarcoding and metaphylogeography</article-title>
           <source>BMC Bioinf.</source>
           <year>2021</year>
+          <volume>22</volume>
           <fpage>177</fpage>
           <pub-id pub-id-type="doi">10.1186/s12859-021-04115-6</pub-id>
+          <pub-id pub-id-type="pmcid">PMC8020537</pub-id>
+          <pub-id pub-id-type="pmid">33820526</pub-id>
         </element-citation>
       </ref>
       <ref id="CR41">
@@ -2184,8 +2291,11 @@ expression: jats
           <article-title>A multiple hypothesis approach to explain species richness patterns in neotropical stream-dweller fish communities</article-title>
           <source>PLoS ONE</source>
           <year>2018</year>
+          <volume>13</volume>
           <fpage>e0204114</fpage>
           <pub-id pub-id-type="doi">10.1371/journal.pone.0204114</pub-id>
+          <pub-id pub-id-type="pmid">30231064</pub-id>
+          <pub-id pub-id-type="pmcid">PMC6145546</pub-id>
         </element-citation>
       </ref>
       <ref id="CR42">
@@ -2207,6 +2317,7 @@ expression: jats
           <article-title>A remarkable sand-dwelling fish assemblage from central Amazonia, with comments on the evolution of psammophily in South American freshwater fishes</article-title>
           <source>Neotrop. Ichthyol.</source>
           <year>2006</year>
+          <volume>4</volume>
           <fpage>107</fpage>
           <lpage>118</lpage>
           <pub-id pub-id-type="doi">10.1590/S1679-62252006000100012</pub-id>
@@ -2235,6 +2346,7 @@ expression: jats
           <article-title>Fallen leaves on the water-bed: Diurnal camouflage of three night-active fish species in an Amazonian streamlet</article-title>
           <source>Neotrop. Ichthyol.</source>
           <year>2006</year>
+          <volume>4</volume>
           <fpage>119</fpage>
           <lpage>122</lpage>
           <pub-id pub-id-type="doi">10.1590/S1679-62252006000100013</pub-id>
@@ -2255,6 +2367,7 @@ expression: jats
           <article-title>Temporary pools provide stability to fish assemblages in Amazon headwater streams</article-title>
           <source>Ecol. Freshw. Fish</source>
           <year>2017</year>
+          <volume>26</volume>
           <fpage>475</fpage>
           <lpage>483</lpage>
           <pub-id pub-id-type="doi">10.1111/eff.12292</pub-id>
@@ -2283,6 +2396,7 @@ expression: jats
           <article-title>A new family of neotropical freshwater fishes from deep fossorial Amazonian habitat, with a reappraisal of morphological characiform phylogeny (Teleostei: Ostariophysi)</article-title>
           <source>Zool. J. Linn. Soc.</source>
           <year>2018</year>
+          <volume>182</volume>
           <fpage>76</fpage>
           <lpage>106</lpage>
           <pub-id pub-id-type="doi">10.1093/zoolinnean/zlx028</pub-id>
@@ -2307,6 +2421,7 @@ expression: jats
           <article-title>Design and operation of a small trawling apparatus for use with dugout canoes</article-title>
           <source>North Am. J. Fish. Manag.</source>
           <year>1984</year>
+          <volume>4</volume>
           <fpage>331</fpage>
           <lpage>334</lpage>
           <pub-id pub-id-type="doi">10.1577/1548-8659(1984)4&amp;#x0003c;331:DAOOAS&amp;#x0003e;2.0.CO;2</pub-id>
@@ -2327,6 +2442,7 @@ expression: jats
           <article-title>Notas sobre la historia natural y la distribution de los peces Gymnotiformes in la cuenca del Rio Apure y otros rios de la Orinoquia</article-title>
           <source>Biollania</source>
           <year>1991</year>
+          <volume>8</volume>
           <fpage>123</fpage>
           <lpage>142</lpage>
         </element-citation>
@@ -2350,9 +2466,11 @@ expression: jats
           <article-title>Amazonian Ecology: Tributaries enhance the diversity of electric fishes</article-title>
           <source>Science</source>
           <year>2004</year>
+          <volume>305</volume>
           <fpage>1960</fpage>
           <lpage>1962</lpage>
           <pub-id pub-id-type="doi">10.1126/science.1101240</pub-id>
+          <pub-id pub-id-type="pmid">15448270</pub-id>
         </element-citation>
       </ref>
       <ref id="CR49">
@@ -2374,6 +2492,7 @@ expression: jats
           <article-title>The electric. Glassknife fishes of the <italic>Eigenmannia trilineata</italic> group (Gymnotiformes: Sternopygidae): monophyly and description of seven new species</article-title>
           <source>Zool. J. Linn. Soc.</source>
           <year>2015</year>
+          <volume>175</volume>
           <fpage>384</fpage>
           <lpage>414</lpage>
           <pub-id pub-id-type="doi">10.1111/zoj.12274</pub-id>
@@ -2394,13 +2513,25 @@ expression: jats
           <article-title>Electric fishes of the genus <italic>Sternarchorhynchus</italic> (Teleostei, Ostariophysi, Gymnotiformes); phylogenetic and revisionary studies</article-title>
           <source>Zool. J. Linn. Soc.</source>
           <year>2010</year>
+          <volume>159</volume>
           <fpage>223</fpage>
           <lpage>371</lpage>
           <pub-id pub-id-type="doi">10.1111/j.1096-3642.2009.00588.x</pub-id>
         </element-citation>
       </ref>
       <ref id="CR51">
-        <mixed-citation>Castro, R. M. C. Evolução da ictiofauna de riachos sul-americanos: Padrões gerais e possíveis processos causais. In Ecologia de peixes de riachos (eds Caramaschi, E. P., Mazzoni, R., &amp; Peres-Neto, P. R.) Série Oecologia Brasiliensis volume VI, PPGE-UFRJ, Rio de Janeiro, 139–155 (1999).<person-group person-group-type="author"><name><surname>Castro</surname><given-names>R M C</given-names></name></person-group><year>1999</year></mixed-citation>
+        <citation-alternatives>
+          <element-citation>
+            <person-group person-group-type="author">
+              <name>
+                <surname>Castro</surname>
+                <given-names>R M C</given-names>
+              </name>
+            </person-group>
+            <year>1999</year>
+          </element-citation>
+          <mixed-citation>Castro, R. M. C. Evolução da ictiofauna de riachos sul-americanos: Padrões gerais e possíveis processos causais. In Ecologia de peixes de riachos (eds Caramaschi, E. P., Mazzoni, R., &amp; Peres-Neto, P. R.) Série Oecologia Brasiliensis volume VI, PPGE-UFRJ, Rio de Janeiro, 139–155 (1999).</mixed-citation>
+        </citation-alternatives>
       </ref>
       <ref id="CR52">
         <element-citation publication-type="journal">
@@ -2421,6 +2552,7 @@ expression: jats
           <article-title>High temporal species turnover enhances the complexity of fish assemblages in Amazonian Terra firme streams</article-title>
           <source>Ecol. Freshw. Fish</source>
           <year>2009</year>
+          <volume>18</volume>
           <fpage>518</fpage>
           <lpage>526</lpage>
           <pub-id pub-id-type="doi">10.1111/j.1600-0633.2009.00382.x</pub-id>
@@ -2453,13 +2585,37 @@ expression: jats
           <article-title>Fish fauna of small streams of the Catua-Ipixuna Extractive Reserve, State of Amazonas, Brazil</article-title>
           <source>Check List</source>
           <year>2009</year>
+          <volume>5</volume>
           <fpage>154</fpage>
           <lpage>172</lpage>
           <pub-id pub-id-type="doi">10.15560/5.2.154</pub-id>
         </element-citation>
       </ref>
       <ref id="CR54">
-        <mixed-citation>Caramaschi E., Mazzoni, P. R., Bizerril, C. R. S. F. &amp; Peres-Neto, P. R. Ecologia de Peixes de Riachos: Estado Atual e Perspectivas. Oecologia Brasiliensis, v. VI, Rio de Janeiro (1999).<person-group person-group-type="author"><name><surname>Caramaschi</surname><given-names>E</given-names></name><name><surname>Mazzoni</surname><given-names>P R</given-names></name><name><surname>Bizerril</surname><given-names>C R S F</given-names></name><name><surname>Peres-Neto</surname><given-names>P R</given-names></name></person-group><year>1999</year></mixed-citation>
+        <citation-alternatives>
+          <element-citation>
+            <person-group person-group-type="author">
+              <name>
+                <surname>Caramaschi</surname>
+                <given-names>E</given-names>
+              </name>
+              <name>
+                <surname>Mazzoni</surname>
+                <given-names>P R</given-names>
+              </name>
+              <name>
+                <surname>Bizerril</surname>
+                <given-names>C R S F</given-names>
+              </name>
+              <name>
+                <surname>Peres-Neto</surname>
+                <given-names>P R</given-names>
+              </name>
+            </person-group>
+            <year>1999</year>
+          </element-citation>
+          <mixed-citation>Caramaschi E., Mazzoni, P. R., Bizerril, C. R. S. F. &amp; Peres-Neto, P. R. Ecologia de Peixes de Riachos: Estado Atual e Perspectivas. Oecologia Brasiliensis, v. VI, Rio de Janeiro (1999).</mixed-citation>
+        </citation-alternatives>
       </ref>
       <ref id="CR55">
         <element-citation publication-type="journal">
@@ -2476,6 +2632,7 @@ expression: jats
           <article-title>Sampling effort and fish species richness in small Terra firme forest streams of central Amazonia, Brazil</article-title>
           <source>Neotrop. Ichthyol.</source>
           <year>2007</year>
+          <volume>5</volume>
           <fpage>45</fpage>
           <lpage>52</lpage>
           <pub-id pub-id-type="doi">10.1590/S1679-62252007000100006</pub-id>
@@ -2500,6 +2657,7 @@ expression: jats
           <article-title>Quantifying fish species richness and abundance in Amazonian streams: Assessment of a multiple gear method suitable for Terra firme stream fish assemblages</article-title>
           <source>Fish. Manag. Ecol.</source>
           <year>2014</year>
+          <volume>21</volume>
           <fpage>220</fpage>
           <lpage>233</lpage>
           <pub-id pub-id-type="doi">10.1111/fme.12067</pub-id>
@@ -2536,6 +2694,7 @@ expression: jats
           <article-title>The fish fauna of streams in the Madeira-Purus interfluvial region, Brazilian Amazon</article-title>
           <source>Check List</source>
           <year>2011</year>
+          <volume>7</volume>
           <fpage>768</fpage>
           <lpage>773</lpage>
           <pub-id pub-id-type="doi">10.15560/11022</pub-id>
@@ -2560,8 +2719,11 @@ expression: jats
           <article-title>Discovering hidden diversity of characins (Teleostei: Characiformes) in Ecuador&apos;s Yasuní National Park</article-title>
           <source>PLoS ONE</source>
           <year>2015</year>
+          <volume>10</volume>
           <fpage>e0135569</fpage>
           <pub-id pub-id-type="doi">10.1371/journal.pone.0135569</pub-id>
+          <pub-id pub-id-type="pmid">26275041</pub-id>
+          <pub-id pub-id-type="pmcid">PMC4537159</pub-id>
         </element-citation>
       </ref>
       <ref id="CR59">
@@ -2607,8 +2769,11 @@ expression: jats
           <article-title>Revealing hidden diversity of the underestimated neotropical ichthyofauna: DNA barcoding in the recently described genus <italic>Megaleporinus</italic> (Characiformes: Anostomidae)</article-title>
           <source>Front. Genet.</source>
           <year>2017</year>
+          <volume>8</volume>
           <fpage>149</fpage>
           <pub-id pub-id-type="doi">10.3389/fgene.2017.00149</pub-id>
+          <pub-id pub-id-type="pmid">29075287</pub-id>
+          <pub-id pub-id-type="pmcid">PMC5643504</pub-id>
         </element-citation>
       </ref>
       <ref id="CR60">
@@ -2634,6 +2799,7 @@ expression: jats
           <article-title>The Neotropical electric fish genus <italic>Brachyhypopomus</italic> (Ostariophysi: Gymnotiformes: Hypopomidae): taxonomy and biology, with descriptions of 15 new species</article-title>
           <source>Neotrop. Ichthyol.</source>
           <year>2016</year>
+          <volume>14</volume>
           <fpage>639</fpage>
           <lpage>790</lpage>
           <pub-id pub-id-type="doi">10.1590/1982-0224-20150146</pub-id>
@@ -2650,9 +2816,11 @@ expression: jats
           <article-title>Conservation biology for the biodiversity crisis: A freshwater follow-up</article-title>
           <source>Conserv. Biol.</source>
           <year>2002</year>
+          <volume>5</volume>
           <fpage>1435</fpage>
           <lpage>1437</lpage>
           <pub-id pub-id-type="doi">10.1046/j.1523-1739.2002.01532.x</pub-id>
+          <pub-id pub-id-type="pmid">35701979</pub-id>
         </element-citation>
       </ref>
       <ref id="CR62">
@@ -2666,6 +2834,7 @@ expression: jats
           <article-title>Prospects for sustaining freshwater biodiversity in the 21st century: Linking ecosystem structure and function</article-title>
           <source>Curr. Opin. Environ. Sustain.</source>
           <year>2010</year>
+          <volume>5</volume>
           <fpage>422</fpage>
           <lpage>430</lpage>
           <pub-id pub-id-type="doi">10.1016/j.cosust.2010.09.001</pub-id>
@@ -2682,9 +2851,11 @@ expression: jats
           <article-title>Prospects for biodiversity</article-title>
           <source>Science</source>
           <year>2003</year>
+          <volume>302</volume>
           <fpage>1175</fpage>
           <lpage>1177</lpage>
           <pub-id pub-id-type="doi">10.1126/science.1088666</pub-id>
+          <pub-id pub-id-type="pmid">14615529</pub-id>
         </element-citation>
       </ref>
       <ref id="CR64">
@@ -2738,9 +2909,11 @@ expression: jats
           <article-title>Global threats to human water security and river biodiversity</article-title>
           <source>Nature</source>
           <year>2010</year>
+          <volume>467</volume>
           <fpage>555</fpage>
           <lpage>561</lpage>
           <pub-id pub-id-type="doi">10.1038/nature09440</pub-id>
+          <pub-id pub-id-type="pmid">20882010</pub-id>
         </element-citation>
       </ref>
       <ref id="CR65">
@@ -2754,9 +2927,12 @@ expression: jats
           <article-title>Scientists’ warning to humanity on the freshwater biodiversity crisis</article-title>
           <source>Ambio</source>
           <year>2020</year>
+          <volume>50</volume>
           <fpage>85</fpage>
           <lpage>94</lpage>
           <pub-id pub-id-type="doi">10.1007/s13280-020-01318-8</pub-id>
+          <pub-id pub-id-type="pmid">32040746</pub-id>
+          <pub-id pub-id-type="pmcid">PMC7708569</pub-id>
         </element-citation>
       </ref>
       <ref id="CR66">
@@ -2794,12 +2970,32 @@ expression: jats
           <article-title>The isolation of nucleic acids from fixed, paraffin-embedded tissues–which methods are useful when?</article-title>
           <source>PLoS ONE</source>
           <year>2007</year>
+          <volume>2</volume>
           <fpage>e537</fpage>
           <pub-id pub-id-type="doi">10.1371/journal.pone.0000537</pub-id>
+          <pub-id pub-id-type="pmid">17579711</pub-id>
+          <pub-id pub-id-type="pmcid">PMC1888728</pub-id>
         </element-citation>
       </ref>
       <ref id="CR67">
-        <mixed-citation>Campos, P. F. &amp; Gilbert, T. M. DNA extraction from formalin-fixed material. In Ancient DNA 81–85 (Humana Press, 2012). 10.1007/978-1-61779-516-9_11 22237525<person-group person-group-type="author"><name><surname>Campos</surname><given-names>P F</given-names></name><name><surname>Gilbert</surname><given-names>T M</given-names></name></person-group><year>2012</year><pub-id pub-id-type="doi">10.1007/978-1-61779-516-9_11</pub-id></mixed-citation>
+        <citation-alternatives>
+          <element-citation>
+            <person-group person-group-type="author">
+              <name>
+                <surname>Campos</surname>
+                <given-names>P F</given-names>
+              </name>
+              <name>
+                <surname>Gilbert</surname>
+                <given-names>T M</given-names>
+              </name>
+            </person-group>
+            <year>2012</year>
+            <pub-id pub-id-type="doi">10.1007/978-1-61779-516-9_11</pub-id>
+            <pub-id pub-id-type="pmid">22237525</pub-id>
+          </element-citation>
+          <mixed-citation>Campos, P. F. &amp; Gilbert, T. M. DNA extraction from formalin-fixed material. In Ancient DNA 81–85 (Humana Press, 2012). 10.1007/978-1-61779-516-9_11 22237525</mixed-citation>
+        </citation-alternatives>
       </ref>
       <ref id="CR68">
         <element-citation publication-type="journal">
@@ -2820,8 +3016,11 @@ expression: jats
           <article-title>Fixing formalin: a method to recover genomic-scale DNA sequence data from formalin-fixed museum specimens using high-throughput sequencing</article-title>
           <source>PLoS ONE</source>
           <year>2015</year>
+          <volume>10</volume>
           <fpage>e0141579</fpage>
           <pub-id pub-id-type="doi">10.1371/journal.pone.0141579</pub-id>
+          <pub-id pub-id-type="pmid">26505622</pub-id>
+          <pub-id pub-id-type="pmcid">PMC4623518</pub-id>
         </element-citation>
       </ref>
       <ref id="CR69">
@@ -2859,8 +3058,11 @@ expression: jats
           <article-title>Cryopreservation of fish spermatogonial cells: the future of natural history collections</article-title>
           <source>Sci. Rep.</source>
           <year>2018</year>
+          <volume>8</volume>
           <fpage>6149</fpage>
           <pub-id pub-id-type="doi">10.1038/s41598-018-24269-3</pub-id>
+          <pub-id pub-id-type="pmid">29670253</pub-id>
+          <pub-id pub-id-type="pmcid">PMC5906666</pub-id>
         </element-citation>
       </ref>
       <ref id="CR70">
@@ -2875,7 +3077,8 @@ expression: jats
               <given-names>R E</given-names>
             </name>
           </person-group>
-          <article-title>Historical Biogeography of Neotropical Freshwater Fishes</article-title>
+          <source>Historical Biogeography of Neotropical Freshwater Fishes</source>
+          <publisher-name>University of California Press</publisher-name>
           <year>2011</year>
         </element-citation>
       </ref>
@@ -2890,6 +3093,7 @@ expression: jats
           <article-title>Where the Xingu bends and will soon break</article-title>
           <source>Am. Sci.</source>
           <year>2015</year>
+          <volume>103</volume>
           <fpage>395</fpage>
           <lpage>403</lpage>
           <pub-id pub-id-type="doi">10.1511/2015.117.395</pub-id>
@@ -2906,9 +3110,11 @@ expression: jats
           <article-title>When will the Amazon hit a tipping point?</article-title>
           <source>Nature</source>
           <year>2020</year>
+          <volume>578</volume>
           <fpage>505</fpage>
           <lpage>507</lpage>
           <pub-id pub-id-type="doi">10.1038/d41586-020-00508-4</pub-id>
+          <pub-id pub-id-type="pmid">32099130</pub-id>
         </element-citation>
       </ref>
       <ref id="CR73">
@@ -2946,8 +3152,11 @@ expression: jats
           <article-title>Aquatic DNA for monitoring French Guiana biodiversity</article-title>
           <source>Biodivers. Data J.</source>
           <year>2019</year>
+          <volume>7</volume>
           <fpage>37518</fpage>
           <pub-id pub-id-type="doi">10.3897/BDJ.7.e37518</pub-id>
+          <pub-id pub-id-type="pmcid">PMC6751219</pub-id>
+          <pub-id pub-id-type="pmid">31592221</pub-id>
         </element-citation>
       </ref>
       <ref id="CR74">
@@ -2961,9 +3170,11 @@ expression: jats
           <article-title>Environmental DNA metabarcoding as an effective and rapid tool for fish monitoring in canals</article-title>
           <source>J. Fish Biol.</source>
           <year>2019</year>
+          <volume>95</volume>
           <fpage>679</fpage>
           <lpage>682</lpage>
           <pub-id pub-id-type="doi">10.1111/jfb.14053</pub-id>
+          <pub-id pub-id-type="pmid">31183856</pub-id>
         </element-citation>
       </ref>
       <ref id="CR75">
@@ -3001,6 +3212,7 @@ expression: jats
           <article-title>Dismantling Brazil&apos;s science threatens global biodiversity heritage</article-title>
           <source>Perspect. Ecol. Conserv.</source>
           <year>2017</year>
+          <volume>15</volume>
           <fpage>239</fpage>
           <lpage>243</lpage>
         </element-citation>
@@ -3040,9 +3252,11 @@ expression: jats
           <article-title>Brazilian legislation on genetic heritage harms Biodiversity Convention goals and threatens basic biology research and education</article-title>
           <source>An. Acad. Bras. Ciênc.</source>
           <year>2018</year>
+          <volume>90</volume>
           <fpage>1279</fpage>
           <lpage>1284</lpage>
           <pub-id pub-id-type="doi">10.1590/0001-3765201820180460</pub-id>
+          <pub-id pub-id-type="pmid">29898095</pub-id>
         </element-citation>
       </ref>
       <ref id="CR77">
@@ -3080,9 +3294,12 @@ expression: jats
           <article-title>Global biodiversity threatened by science budget cuts in Brazil</article-title>
           <source>Bioscience</source>
           <year>2018</year>
+          <volume>68</volume>
           <fpage>11</fpage>
           <lpage>12</lpage>
           <pub-id pub-id-type="doi">10.1093/biosci/bix130</pub-id>
+          <pub-id pub-id-type="pmid">29599546</pub-id>
+          <pub-id pub-id-type="pmcid">PMC5862352</pub-id>
         </element-citation>
       </ref>
       <ref id="CR78">
@@ -3124,8 +3341,11 @@ expression: jats
           <article-title>Use of a filter cartridge for filtration of water samples and extraction of environmental DNA</article-title>
           <source>J. Vis. Exp.</source>
           <year>2016</year>
+          <volume>117</volume>
           <fpage>54741</fpage>
           <pub-id pub-id-type="doi">10.3791/54741</pub-id>
+          <pub-id pub-id-type="pmcid">PMC5226294</pub-id>
+          <pub-id pub-id-type="pmid">27911387</pub-id>
         </element-citation>
       </ref>
       <ref id="CR79">
@@ -3139,9 +3359,11 @@ expression: jats
           <article-title>Search and clustering orders of magnitude faster than BLAST</article-title>
           <source>Bioinformatics</source>
           <year>2010</year>
+          <volume>26</volume>
           <fpage>2460</fpage>
           <lpage>2461</lpage>
           <pub-id pub-id-type="doi">10.1093/bioinformatics/btq461</pub-id>
+          <pub-id pub-id-type="pmid">20709691</pub-id>
         </element-citation>
       </ref>
       <ref id="CR80">
@@ -3163,9 +3385,12 @@ expression: jats
           <article-title>Exact sequence variants should replace operational taxonomic units in marker-gene data analysis</article-title>
           <source>ISME J.</source>
           <year>2017</year>
+          <volume>11</volume>
           <fpage>2639</fpage>
           <lpage>2643</lpage>
           <pub-id pub-id-type="doi">10.1038/ismej.2017.119</pub-id>
+          <pub-id pub-id-type="pmid">28731476</pub-id>
+          <pub-id pub-id-type="pmcid">PMC5702726</pub-id>
         </element-citation>
       </ref>
       <ref id="CR81">
@@ -3183,9 +3408,12 @@ expression: jats
           <article-title>MAFFT multiple sequence alignment software version 7: Improvements in performance and usability</article-title>
           <source>Mol. Biol. Evol.</source>
           <year>2013</year>
+          <volume>30</volume>
           <fpage>772</fpage>
           <lpage>780</lpage>
           <pub-id pub-id-type="doi">10.1093/molbev/mst010</pub-id>
+          <pub-id pub-id-type="pmid">23329690</pub-id>
+          <pub-id pub-id-type="pmcid">PMC3603318</pub-id>
         </element-citation>
       </ref>
       <ref id="CR82">
@@ -3207,9 +3435,12 @@ expression: jats
           <article-title>MEGA7: Molecular evolutionary genetics analysis version 7.0 for bigger datasets</article-title>
           <source>Mol. Biol. Evol.</source>
           <year>2016</year>
+          <volume>33</volume>
           <fpage>1870</fpage>
           <lpage>1874</lpage>
           <pub-id pub-id-type="doi">10.1093/molbev/msw054</pub-id>
+          <pub-id pub-id-type="pmid">27004904</pub-id>
+          <pub-id pub-id-type="pmcid">PMC8210823</pub-id>
         </element-citation>
       </ref>
       <ref id="CR83">
@@ -3223,9 +3454,11 @@ expression: jats
           <article-title>A simple method for estimating evolutionary rates of base substitutions through comparative studies of nucleotide sequences</article-title>
           <source>J. Mol. Evol.</source>
           <year>1980</year>
+          <volume>16</volume>
           <fpage>111</fpage>
           <lpage>120</lpage>
           <pub-id pub-id-type="doi">10.1007/BF01731581</pub-id>
+          <pub-id pub-id-type="pmid">7463489</pub-id>
         </element-citation>
       </ref>
       <ref id="CR84">
@@ -3251,8 +3484,11 @@ expression: jats
           <article-title>jModelTest 2: More models, new heuristics and parallel computing</article-title>
           <source>Nat. Methods</source>
           <year>2012</year>
+          <volume>9</volume>
           <fpage>772</fpage>
           <pub-id pub-id-type="doi">10.1038/nmeth.2109</pub-id>
+          <pub-id pub-id-type="pmid">22847109</pub-id>
+          <pub-id pub-id-type="pmcid">PMC4594756</pub-id>
         </element-citation>
       </ref>
       <ref id="CR85">
@@ -3302,9 +3538,12 @@ expression: jats
           <article-title>MrBayes 3.2: Efficient Bayesian phylogenetic inference and model choice across a large model space</article-title>
           <source>Systematics Biology</source>
           <year>2012</year>
+          <volume>61</volume>
           <fpage>539</fpage>
           <lpage>542</lpage>
           <pub-id pub-id-type="doi">10.1093/sysbio/sys029</pub-id>
+          <pub-id pub-id-type="pmcid">PMC3329765</pub-id>
+          <pub-id pub-id-type="pmid">22357727</pub-id>
         </element-citation>
       </ref>
       <ref id="CR86">
@@ -3318,9 +3557,12 @@ expression: jats
           <article-title>A RESTful API for access to phylogenetic tools via the CIPRES science gateway</article-title>
           <source>Evol. Bioinf.</source>
           <year>2015</year>
+          <volume>11</volume>
           <fpage>43</fpage>
           <lpage>48</lpage>
           <pub-id pub-id-type="doi">10.4137/EBO.S21501</pub-id>
+          <pub-id pub-id-type="pmcid">PMC4362911</pub-id>
+          <pub-id pub-id-type="pmid">25861210</pub-id>
         </element-citation>
       </ref>
       <ref id="CR87">
@@ -3354,13 +3596,27 @@ expression: jats
           <article-title>Toward automatic reconstruction of a highly resolved tree of life</article-title>
           <source>Science</source>
           <year>2006</year>
+          <volume>311</volume>
           <fpage>1283</fpage>
           <lpage>1287</lpage>
           <pub-id pub-id-type="doi">10.1126/science.1123061</pub-id>
+          <pub-id pub-id-type="pmid">16513982</pub-id>
         </element-citation>
       </ref>
       <ref id="CR88">
-        <mixed-citation publication-type="website">R Core Team. R: A Language and Environment for Statistical Computing. (R Foundation for Statistical Computing, 2020). https://www.Rproject.org/ .<person-group person-group-type="author"><name><surname>Core Team</surname><given-names>R</given-names></name></person-group><year>2020</year><ext-link ext-link-type="uri" xlink:href="https://www.Rproject.org/">https://www.Rproject.org/</ext-link></mixed-citation>
+        <citation-alternatives>
+          <element-citation publication-type="website">
+            <person-group person-group-type="author">
+              <name>
+                <surname>Core Team</surname>
+                <given-names>R</given-names>
+              </name>
+            </person-group>
+            <year>2020</year>
+            <ext-link ext-link-type="uri" xlink:href="https://www.Rproject.org/">https://www.Rproject.org/</ext-link>
+          </element-citation>
+          <mixed-citation publication-type="website">R Core Team. R: A Language and Environment for Statistical Computing. (R Foundation for Statistical Computing, 2020). https://www.Rproject.org/ .</mixed-citation>
+        </citation-alternatives>
       </ref>
       <ref id="CR89">
         <element-citation publication-type="book">
@@ -3370,12 +3626,32 @@ expression: jats
               <given-names>H</given-names>
             </name>
           </person-group>
-          <article-title>Ggplot2: Elegant graphics for data analysis</article-title>
+          <source>Ggplot2: Elegant graphics for data analysis</source>
+          <publisher-name>Springer</publisher-name>
           <year>2016</year>
         </element-citation>
       </ref>
       <ref id="CR90">
-        <mixed-citation>Oksanen, J., Kindt, R. &amp; O’Hara, B. Package VEGAN. Community Ecology Package , Version 2 (2013).<person-group person-group-type="author"><name><surname>Oksanen</surname><given-names>J</given-names></name><name><surname>Kindt</surname><given-names>R</given-names></name><name><surname>O’Hara</surname><given-names>B</given-names></name></person-group><year>2013</year></mixed-citation>
+        <citation-alternatives>
+          <element-citation>
+            <person-group person-group-type="author">
+              <name>
+                <surname>Oksanen</surname>
+                <given-names>J</given-names>
+              </name>
+              <name>
+                <surname>Kindt</surname>
+                <given-names>R</given-names>
+              </name>
+              <name>
+                <surname>O’Hara</surname>
+                <given-names>B</given-names>
+              </name>
+            </person-group>
+            <year>2013</year>
+          </element-citation>
+          <mixed-citation>Oksanen, J., Kindt, R. &amp; O’Hara, B. Package VEGAN. Community Ecology Package , Version 2 (2013).</mixed-citation>
+        </citation-alternatives>
       </ref>
       <ref id="CR91">
         <element-citation publication-type="book">
@@ -3389,12 +3665,34 @@ expression: jats
               <given-names>S</given-names>
             </name>
           </person-group>
-          <article-title>An R Companion to Applied Regression</article-title>
+          <source>An R Companion to Applied Regression</source>
+          <edition>3</edition>
+          <publisher-name>Sage</publisher-name>
           <year>2019</year>
         </element-citation>
       </ref>
       <ref id="CR92">
-        <mixed-citation publication-type="website">Adler D., Nenadic, O. &amp; Zucchini, W. rgl: 3D visualization device system (OpenGL). R package version 0.93.945. http://CRAN.R-project.org/package=rgl (2013).<person-group person-group-type="author"><name><surname>Adler</surname><given-names>D</given-names></name><name><surname>Nenadic</surname><given-names>O</given-names></name><name><surname>Zucchini</surname><given-names>W</given-names></name></person-group><year>2013</year><ext-link ext-link-type="uri" xlink:href="http://CRAN.R-project.org/package=rgl">http://CRAN.R-project.org/package=rgl</ext-link></mixed-citation>
+        <citation-alternatives>
+          <element-citation publication-type="website">
+            <person-group person-group-type="author">
+              <name>
+                <surname>Adler</surname>
+                <given-names>D</given-names>
+              </name>
+              <name>
+                <surname>Nenadic</surname>
+                <given-names>O</given-names>
+              </name>
+              <name>
+                <surname>Zucchini</surname>
+                <given-names>W</given-names>
+              </name>
+            </person-group>
+            <year>2013</year>
+            <ext-link ext-link-type="uri" xlink:href="http://CRAN.R-project.org/package=rgl">http://CRAN.R-project.org/package=rgl</ext-link>
+          </element-citation>
+          <mixed-citation publication-type="website">Adler D., Nenadic, O. &amp; Zucchini, W. rgl: 3D visualization device system (OpenGL). R package version 0.93.945. http://CRAN.R-project.org/package=rgl (2013).</mixed-citation>
+        </citation-alternatives>
       </ref>
       <ref id="CR93">
         <element-citation publication-type="journal">
@@ -3407,13 +3705,34 @@ expression: jats
           <article-title>Circlize implements and enhances circular visualization in R</article-title>
           <source>Bioinformatics</source>
           <year>2014</year>
+          <volume>30</volume>
           <fpage>2811</fpage>
           <lpage>2812</lpage>
           <pub-id pub-id-type="doi">10.1093/bioinformatics/btu393</pub-id>
+          <pub-id pub-id-type="pmid">24930139</pub-id>
         </element-citation>
       </ref>
       <ref id="CR94">
-        <mixed-citation>Schiettekatte, N. M. D., Brandl, S. J. &amp; Casey, J. M. Fishualize: Color Palettes Based On Fish Species . CRAN version 0.2.0 (2019).<person-group person-group-type="author"><name><surname>Schiettekatte</surname><given-names>N M D</given-names></name><name><surname>Brandl</surname><given-names>S J</given-names></name><name><surname>Casey</surname><given-names>J M</given-names></name></person-group><year>2019</year></mixed-citation>
+        <citation-alternatives>
+          <element-citation>
+            <person-group person-group-type="author">
+              <name>
+                <surname>Schiettekatte</surname>
+                <given-names>N M D</given-names>
+              </name>
+              <name>
+                <surname>Brandl</surname>
+                <given-names>S J</given-names>
+              </name>
+              <name>
+                <surname>Casey</surname>
+                <given-names>J M</given-names>
+              </name>
+            </person-group>
+            <year>2019</year>
+          </element-citation>
+          <mixed-citation>Schiettekatte, N. M. D., Brandl, S. J. &amp; Casey, J. M. Fishualize: Color Palettes Based On Fish Species . CRAN version 0.2.0 (2019).</mixed-citation>
+        </citation-alternatives>
       </ref>
       <ref id="CR95">
         <element-citation publication-type="journal">
@@ -3426,12 +3745,32 @@ expression: jats
           <article-title>Estimating population size for sparse data in capture-recapture experiments</article-title>
           <source>Biometrics</source>
           <year>1989</year>
+          <volume>45</volume>
           <fpage>427</fpage>
           <pub-id pub-id-type="doi">10.2307/2531487</pub-id>
         </element-citation>
       </ref>
       <ref id="CR96">
-        <mixed-citation>Hsieh T. C., Ma, K. H. &amp; Chao, A. iNEXT: Interpolation and Extrapolation for Species Diversity . R package version 2.0.20 (2020).<person-group person-group-type="author"><name><surname>Hsieh</surname><given-names>T C</given-names></name><name><surname>Ma</surname><given-names>K H</given-names></name><name><surname>Chao</surname><given-names>A</given-names></name></person-group><year>2020</year></mixed-citation>
+        <citation-alternatives>
+          <element-citation>
+            <person-group person-group-type="author">
+              <name>
+                <surname>Hsieh</surname>
+                <given-names>T C</given-names>
+              </name>
+              <name>
+                <surname>Ma</surname>
+                <given-names>K H</given-names>
+              </name>
+              <name>
+                <surname>Chao</surname>
+                <given-names>A</given-names>
+              </name>
+            </person-group>
+            <year>2020</year>
+          </element-citation>
+          <mixed-citation>Hsieh T. C., Ma, K. H. &amp; Chao, A. iNEXT: Interpolation and Extrapolation for Species Diversity . R package version 2.0.20 (2020).</mixed-citation>
+        </citation-alternatives>
       </ref>
       <ref id="CR97">
         <element-citation publication-type="journal">
@@ -3456,6 +3795,7 @@ expression: jats
           <article-title>A new statistical approach for assessing compositional similarity based on incidence and abundance data</article-title>
           <source>Ecol. Lett.</source>
           <year>2005</year>
+          <volume>8</volume>
           <fpage>148</fpage>
           <lpage>215</lpage>
           <pub-id pub-id-type="doi">10.1111/j.1461-0248.2004.00707.x</pub-id>
@@ -3520,13 +3860,40 @@ expression: jats
           <article-title>Estimating species richness using environmental DNA</article-title>
           <source>Ecol. Evol.</source>
           <year>2016</year>
+          <volume>6</volume>
           <fpage>4214</fpage>
           <lpage>4226</lpage>
           <pub-id pub-id-type="doi">10.1002/ece3.2186</pub-id>
+          <pub-id pub-id-type="pmid">27516876</pub-id>
+          <pub-id pub-id-type="pmcid">PMC4972244</pub-id>
         </element-citation>
       </ref>
       <ref id="CR99">
-        <mixed-citation publication-type="website">Chao A., Ma, K. H., Hsieh, T. C. &amp; Chiu, C. H. SpadeR (Species-richness Prediction and Diversity Estimation in R): An R package in CRAN. Program and User’s Guide also published at http://chao.stat.nthu.edu.tw/wordpress/software_download/ (2016).<person-group person-group-type="author"><name><surname>Chao</surname><given-names>A</given-names></name><name><surname>Ma</surname><given-names>K H</given-names></name><name><surname>Hsieh</surname><given-names>T C</given-names></name><name><surname>Chiu</surname><given-names>C H</given-names></name></person-group><year>2016</year><ext-link ext-link-type="uri" xlink:href="http://chao.stat.nthu.edu.tw/wordpress/software_download/">http://chao.stat.nthu.edu.tw/wordpress/software_download/</ext-link></mixed-citation>
+        <citation-alternatives>
+          <element-citation publication-type="website">
+            <person-group person-group-type="author">
+              <name>
+                <surname>Chao</surname>
+                <given-names>A</given-names>
+              </name>
+              <name>
+                <surname>Ma</surname>
+                <given-names>K H</given-names>
+              </name>
+              <name>
+                <surname>Hsieh</surname>
+                <given-names>T C</given-names>
+              </name>
+              <name>
+                <surname>Chiu</surname>
+                <given-names>C H</given-names>
+              </name>
+            </person-group>
+            <year>2016</year>
+            <ext-link ext-link-type="uri" xlink:href="http://chao.stat.nthu.edu.tw/wordpress/software_download/">http://chao.stat.nthu.edu.tw/wordpress/software_download/</ext-link>
+          </element-citation>
+          <mixed-citation publication-type="website">Chao A., Ma, K. H., Hsieh, T. C. &amp; Chiu, C. H. SpadeR (Species-richness Prediction and Diversity Estimation in R): An R package in CRAN. Program and User’s Guide also published at http://chao.stat.nthu.edu.tw/wordpress/software_download/ (2016).</mixed-citation>
+        </citation-alternatives>
       </ref>
     </ref-list>
   </back>

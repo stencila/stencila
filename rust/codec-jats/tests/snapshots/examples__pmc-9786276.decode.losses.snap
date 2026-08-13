@@ -8,15 +8,10 @@ expression: info.losses
 //article/back/ref-list/@id: 1
 //article/back/ref-list/ref/mixed-citation/@id: 65
 //article/back/ref-list/ref/mixed-citation/article-title/italic/@toggle: 27
-//article/back/ref-list/ref/mixed-citation/elocation-id: 3
 //article/back/ref-list/ref/mixed-citation/italic: 3
 //article/back/ref-list/ref/mixed-citation/part-title/italic/@toggle: 1
 //article/back/ref-list/ref/mixed-citation/person-group/string-name/@name-style: 10
 //article/back/ref-list/ref/mixed-citation/pub-id/@assigning-authority: 25
-"//article/back/ref-list/ref/mixed-citation/pub-id[@pub-id-type='pmcid']": 5
-"//article/back/ref-list/ref/mixed-citation/pub-id[@pub-id-type='pmid']": 25
-//article/back/ref-list/ref/mixed-citation/publisher-loc: 7
-//article/back/ref-list/ref/mixed-citation/publisher-name: 6
 //article/back/ref-list/ref/mixed-citation/string-name/@name-style: 132
 //article/back/ref-list/ref/mixed-citation/string-name/suffix: 3
 //article/back/ref-list/title: 1

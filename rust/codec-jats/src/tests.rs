@@ -3,7 +3,8 @@ use stencila_codec::eyre::bail;
 use stencila_codec::stencila_schema::{
     Article, Author, Block, CreativeWorkType, CreativeWorkVariant, CreativeWorkVariantOrString,
     Date, DateTime, Inline, IntegerOrString, Node, NoteType, Organization, Person,
-    PropertyValueOrString, Reference, SectionType,
+    PersonOrOrganization, Primitive, PropertyValue, PropertyValueOptions, PropertyValueOrString,
+    Reference, SectionType,
     shortcuts::{art, aud, h1, img, p, sec, sti, t, vid},
 };
 use stencila_codec_text_trait::to_text;
@@ -241,10 +242,16 @@ async fn article_front_and_back_matter() -> Result<()> {
     assert!(root.descendants().any(|node| node.has_tag_name("ack")));
     assert!(root.descendants().any(|node| node.has_tag_name("app")));
 
+    // The structured fields of the reference and its rendering as text are
+    // emitted as alternatives to each other, rather than one within the other
     let citation = root
         .descendants()
-        .find(|node| node.has_tag_name("mixed-citation"))
-        .ok_or_else(|| stencila_codec::eyre::eyre!("missing mixed-citation"))?;
+        .find(|node| node.has_tag_name("element-citation"))
+        .ok_or_else(|| stencila_codec::eyre::eyre!("missing element-citation"))?;
+    assert_eq!(
+        citation.parent().map(|parent| parent.tag_name().name()),
+        Some("citation-alternatives")
+    );
     assert_eq!(citation.attribute("publication-type"), Some("journal"));
     assert_eq!(
         citation
@@ -253,10 +260,17 @@ async fn article_front_and_back_matter() -> Result<()> {
             .and_then(|node| node.text()),
         Some("10.1234/example")
     );
+    let mixed = root
+        .descendants()
+        .find(|node| node.has_tag_name("mixed-citation"))
+        .ok_or_else(|| stencila_codec::eyre::eyre!("missing mixed-citation"))?;
+    assert_eq!(mixed.text(), Some("Doe (2024). Referenced work."));
     assert!(
-        citation
-            .text()
-            .is_some_and(|text| text.contains("Doe (2024)"))
+        !citation
+            .descendants()
+            .any(|node| node.is_text()
+                && node.text().is_some_and(|text| text.contains("Doe (2024)"))),
+        "citation text duplicated"
     );
     // A <person-group> in a citation carries only the name, so the reference
     // author's other details are reported as lost rather than silently dropped
@@ -515,14 +529,24 @@ async fn citation_losses_use_citation_paths() -> Result<()> {
     let citation = "//article/back/ref-list/ref/element-citation";
     for expected in [
         format!("{citation}/@publisher-type"),
-        format!("{citation}/publisher-name"),
         format!("{citation}/comment"),
         format!("{citation}/person-group/etal"),
-        format!("{citation}/pub-id[@pub-id-type='pmid']"),
     ] {
         assert!(
             labels.contains(&expected.as_str()),
             "missing {expected} in {labels:?}"
+        );
+    }
+
+    // The publisher and the non-DOI identifier are now preserved, so should not
+    // be reported as lost
+    for unexpected in [
+        format!("{citation}/publisher-name"),
+        format!("{citation}/pub-id[@pub-id-type='pmid']"),
+    ] {
+        assert!(
+            !labels.contains(&unexpected.as_str()),
+            "unexpected {unexpected} in {labels:?}"
         );
     }
 
@@ -590,6 +614,8 @@ async fn encoding_reports_unsupported_reference_properties() -> Result<()> {
     container.options.volume_number = Some(IntegerOrString::Integer(12));
     container.options.issue_number = Some(IntegerOrString::Integer(3));
 
+    container.doi = Some("10.1234/journal".into());
+
     let mut reference = Reference::new();
     reference.title = Some(vec![t("Referenced work")]);
     reference.date = Some(Date::new("2024".into()));
@@ -600,7 +626,7 @@ async fn encoding_reports_unsupported_reference_properties() -> Result<()> {
     let mut article = Article::new(Vec::new());
     article.references = Some(vec![reference]);
 
-    let (.., info) = JatsCodec
+    let (jats, info) = JatsCodec
         .to_string(
             &Node::Article(article),
             Some(EncodeOptions {
@@ -610,19 +636,35 @@ async fn encoding_reports_unsupported_reference_properties() -> Result<()> {
         )
         .await?;
 
+    // Volume and issue belong to the container but JATS spells them within the
+    // citation, so they are emitted rather than reported as lost
+    assert!(
+        jats.contains("<volume>12</volume>"),
+        "missing volume: {jats}"
+    );
+    assert!(jats.contains("<issue>3</issue>"), "missing issue: {jats}");
+    assert!(
+        jats.contains("<pub-id>pmid:12345678</pub-id>"),
+        "missing identifier: {jats}"
+    );
+
     let labels = info
         .losses
         .iter()
         .map(|(label, ..)| label)
         .collect::<Vec<_>>();
-    for expected in [
+    assert!(
+        labels.contains(&"Reference.isPartOf.doi"),
+        "missing Reference.isPartOf.doi in {labels:?}"
+    );
+    for unexpected in [
         "Reference.identifiers",
         "Reference.isPartOf.volumeNumber",
         "Reference.isPartOf.issueNumber",
     ] {
         assert!(
-            labels.contains(&expected),
-            "missing {expected} in {labels:?}"
+            !labels.contains(&unexpected),
+            "unexpected {unexpected} in {labels:?}"
         );
     }
 
@@ -980,6 +1022,426 @@ async fn non_portable_self_uris_are_filtered() -> Result<()> {
         .await?;
     assert!(jats.contains("example.pdf"), "{jats}");
     assert!(!jats.contains("file:/content"), "{jats}");
+
+    Ok(())
+}
+
+/// A journal article citation should round-trip its container metadata
+///
+/// The volume and issue of the journal, and the pages of the article within it,
+/// are spelt as siblings in JATS but belong to different works in the schema.
+#[tokio::test]
+async fn reference_container_metadata_roundtrip() -> Result<()> {
+    let source = r#"
+        <article xmlns:xlink="http://www.w3.org/1999/xlink">
+          <back>
+            <ref-list>
+              <ref id="ref1">
+                <element-citation publication-type="journal">
+                  <person-group person-group-type="author">
+                    <name><surname>Smith</surname><given-names>Alex</given-names></name>
+                  </person-group>
+                  <article-title>Referenced work</article-title>
+                  <source>A Journal</source>
+                  <year>2024</year>
+                  <volume>12</volume>
+                  <issue>3</issue>
+                  <fpage>100</fpage>
+                  <lpage>110</lpage>
+                  <pub-id pub-id-type="doi">10.1234/reference</pub-id>
+                  <pub-id pub-id-type="pmid">12345678</pub-id>
+                  <ext-link ext-link-type="uri" xlink:href="https://example.org/work">https://example.org/work</ext-link>
+                </element-citation>
+              </ref>
+            </ref-list>
+          </back>
+        </article>"#;
+
+    let (node, ..) = JatsCodec.from_str(source, None).await?;
+    let Node::Article(article) = &node else {
+        bail!("expected an article")
+    };
+    let Some(reference) = article.references.iter().flatten().next() else {
+        bail!("expected a reference")
+    };
+
+    assert_eq!(reference.id.as_deref(), Some("ref1"));
+    assert_eq!(reference.doi.as_deref(), Some("10.1234/reference"));
+    assert_eq!(reference.url.as_deref(), Some("https://example.org/work"));
+    assert_eq!(
+        reference.options.page_start,
+        Some(IntegerOrString::Integer(100))
+    );
+
+    // The volume and issue are of the journal, not of the article
+    let Some(container) = &reference.is_part_of else {
+        bail!("expected a container")
+    };
+    assert_eq!(container.work_type, Some(CreativeWorkType::Periodical));
+    assert_eq!(
+        container.options.volume_number,
+        Some(IntegerOrString::Integer(12))
+    );
+    assert_eq!(reference.options.volume_number, None);
+
+    let (jats, ..) = JatsCodec
+        .to_string(
+            &node,
+            Some(EncodeOptions {
+                compact: Some(true),
+                ..Default::default()
+            }),
+        )
+        .await?;
+    for expected in [
+        "<source>A Journal</source>",
+        "<volume>12</volume>",
+        "<issue>3</issue>",
+        "<fpage>100</fpage>",
+        "<lpage>110</lpage>",
+        r#"<pub-id pub-id-type="pmid">12345678</pub-id>"#,
+    ] {
+        assert!(jats.contains(expected), "missing {expected} in {jats}");
+    }
+
+    Ok(())
+}
+
+/// Text parsing should fill in missing fields without replacing decoded ones
+#[tokio::test]
+async fn reference_text_only_fills_missing_fields() -> Result<()> {
+    let source = r#"
+        <article>
+          <back>
+            <ref-list>
+              <ref id="ref1">
+                <mixed-citation publication-type="journal">Jones, B. (1999) A quite different title. Some Other Journal 5, 1-2.
+                  <article-title>The decoded title</article-title>
+                  <year>2024</year>
+                </mixed-citation>
+              </ref>
+            </ref-list>
+          </back>
+        </article>"#;
+
+    let (node, ..) = JatsCodec.from_str(source, None).await?;
+    let Node::Article(article) = &node else {
+        bail!("expected an article")
+    };
+    let Some(reference) = article.references.iter().flatten().next() else {
+        bail!("expected a reference")
+    };
+
+    // The elements win over the text they are mixed with
+    assert_eq!(
+        reference.title.as_ref().map(to_text),
+        Some("The decoded title".to_string())
+    );
+    assert_eq!(
+        reference.date.as_ref().map(|date| date.value.clone()),
+        Some("2024".into())
+    );
+
+    // The authors, which no element supplied, come from the text
+    assert_eq!(reference.authors.iter().flatten().count(), 1);
+
+    // With a title, the reference can be rendered from its fields, so the raw
+    // text is not kept as well
+    assert_eq!(reference.options.text, None);
+
+    Ok(())
+}
+
+/// A citation whose fields can not all be decoded should keep its raw text as
+/// an alternative to, not as well as, those that can
+#[tokio::test]
+async fn reference_keeps_raw_text_as_an_alternative() -> Result<()> {
+    let source = r#"
+        <article>
+          <back>
+            <ref-list>
+              <ref id="ref1">
+                <citation-alternatives>
+                  <element-citation publication-type="journal">
+                    <person-group person-group-type="author">
+                      <name><surname>Smith</surname><given-names>Alex</given-names></name>
+                    </person-group>
+                    <year>2024</year>
+                  </element-citation>
+                  <mixed-citation>Smith, A. An untitled thing worth keeping. (2024).</mixed-citation>
+                </citation-alternatives>
+              </ref>
+            </ref-list>
+          </back>
+        </article>"#;
+
+    let (node, ..) = JatsCodec.from_str(source, None).await?;
+    let Node::Article(article) = &node else {
+        bail!("expected an article")
+    };
+    let Some(reference) = article.references.iter().flatten().next() else {
+        bail!("expected a reference")
+    };
+    assert!(
+        reference
+            .options
+            .text
+            .as_deref()
+            .is_some_and(|text| text.contains("An untitled thing worth keeping")),
+        "raw citation text not kept: {:?}",
+        reference.options.text
+    );
+
+    let (jats, ..) = JatsCodec
+        .to_string(
+            &node,
+            Some(EncodeOptions {
+                compact: Some(true),
+                ..Default::default()
+            }),
+        )
+        .await?;
+    assert!(jats.contains("<citation-alternatives>"), "{jats}");
+    assert_eq!(
+        jats.matches("Smith").count(),
+        2,
+        "author duplicated between the alternatives: {jats}"
+    );
+
+    Ok(())
+}
+
+/// A book chapter citation should attach editors and the publisher to the book
+#[tokio::test]
+async fn reference_chapter_editors_and_publisher() -> Result<()> {
+    let source = r#"
+        <article>
+          <back>
+            <ref-list>
+              <ref id="ref1">
+                <element-citation publication-type="book">
+                  <person-group person-group-type="author">
+                    <name><surname>Smith</surname><given-names>Alex</given-names></name>
+                  </person-group>
+                  <person-group person-group-type="editor">
+                    <name><surname>Roe</surname><given-names>Jo</given-names></name>
+                  </person-group>
+                  <chapter-title>A chapter</chapter-title>
+                  <source>A Book</source>
+                  <edition>3</edition>
+                  <publisher-name>A Publisher</publisher-name>
+                  <publisher-loc>A Place</publisher-loc>
+                  <year>2024</year>
+                </element-citation>
+              </ref>
+            </ref-list>
+          </back>
+        </article>"#;
+
+    let (node, ..) = JatsCodec.from_str(source, None).await?;
+    let Node::Article(article) = &node else {
+        bail!("expected an article")
+    };
+    let Some(reference) = article.references.iter().flatten().next() else {
+        bail!("expected a reference")
+    };
+
+    assert_eq!(reference.work_type, Some(CreativeWorkType::Chapter));
+    let Some(container) = &reference.is_part_of else {
+        bail!("expected a container")
+    };
+    // The editors edited the book, and the publisher published it
+    assert_eq!(container.options.editors.iter().flatten().count(), 1);
+    assert_eq!(reference.options.editors, None);
+    assert!(container.options.publisher.is_some());
+
+    let (jats, ..) = JatsCodec
+        .to_string(
+            &node,
+            Some(EncodeOptions {
+                compact: Some(true),
+                ..Default::default()
+            }),
+        )
+        .await?;
+    for expected in [
+        r#"<person-group person-group-type="editor">"#,
+        "<chapter-title>A chapter</chapter-title>",
+        "<source>A Book</source>",
+        "<edition>3</edition>",
+        "<publisher-loc>A Place</publisher-loc>",
+        "<publisher-name>A Publisher</publisher-name>",
+    ] {
+        assert!(jats.contains(expected), "missing {expected} in {jats}");
+    }
+
+    Ok(())
+}
+
+/// A mixed alternative should fill every missing field that its text parser can recover
+#[tokio::test]
+async fn reference_alternative_fills_metadata_beyond_authors_and_title() -> Result<()> {
+    let source = r#"
+        <article>
+          <back>
+            <ref-list>
+              <ref id="ref1">
+                <citation-alternatives>
+                  <element-citation publication-type="journal">
+                    <person-group person-group-type="author">
+                      <name><surname>Jones</surname><given-names>Betty</given-names></name>
+                    </person-group>
+                    <article-title>A parsed title</article-title>
+                  </element-citation>
+                  <mixed-citation>Jones, B. (1999). A parsed title. A Journal, 5, 1-2. https://doi.org/10.1234/alternative</mixed-citation>
+                </citation-alternatives>
+              </ref>
+            </ref-list>
+          </back>
+        </article>"#;
+
+    let (node, ..) = JatsCodec.from_str(source, None).await?;
+    let Node::Article(article) = node else {
+        bail!("expected an article")
+    };
+    let Some(reference) = article.references.iter().flatten().next() else {
+        bail!("expected a reference")
+    };
+
+    assert_eq!(
+        reference.date.as_ref().map(|date| date.value.as_str()),
+        Some("1999")
+    );
+    assert_eq!(reference.doi.as_deref(), Some("10.1234/alternative"));
+
+    Ok(())
+}
+
+/// Identifier qualifiers should survive encoding and decoding
+#[tokio::test]
+async fn reference_identifier_qualifier_roundtrip() -> Result<()> {
+    let mut identifier = PropertyValue::new(Primitive::String("12345678".into()));
+    identifier.property_id = Some("pmid".into());
+    identifier.options = Box::new(PropertyValueOptions {
+        name: Some("versioned".into()),
+        ..Default::default()
+    });
+
+    let mut reference = Reference::new();
+    reference.title = Some(vec![t("Referenced work")]);
+    reference.options.identifiers = Some(vec![PropertyValueOrString::PropertyValue(identifier)]);
+    let mut article = Article::new(Vec::new());
+    article.references = Some(vec![reference]);
+
+    let (jats, ..) = JatsCodec
+        .to_string(
+            &Node::Article(article),
+            Some(EncodeOptions {
+                compact: Some(true),
+                ..Default::default()
+            }),
+        )
+        .await?;
+    assert!(
+        jats.contains(r#"<pub-id pub-id-type="pmid" specific-use="versioned">12345678</pub-id>"#),
+        "{jats}"
+    );
+
+    let (node, info) = JatsCodec.from_str(&jats, None).await?;
+    let losses = info.losses.iter().collect::<Vec<_>>();
+    assert!(losses.is_empty(), "{losses:?}");
+    let Node::Article(article) = node else {
+        bail!("expected an article")
+    };
+    let Some(PropertyValueOrString::PropertyValue(identifier)) = article
+        .references
+        .iter()
+        .flatten()
+        .next()
+        .and_then(|reference| reference.options.identifiers.as_ref())
+        .and_then(|identifiers| identifiers.first())
+    else {
+        bail!("expected a property-value identifier")
+    };
+    assert_eq!(identifier.options.name.as_deref(), Some("versioned"));
+
+    Ok(())
+}
+
+/// Flat citation fields should prefer the schema level that decoding reconstructs
+#[tokio::test]
+async fn reference_container_conflicts_are_reported_without_overwriting_container() -> Result<()> {
+    let mut container = Reference::new();
+    container.work_type = Some(CreativeWorkType::Book);
+    container.title = Some(vec![t("Container book")]);
+    container.options.editors = Some(vec![Person {
+        family_names: Some(vec!["ContainerEditor".into()]),
+        ..Default::default()
+    }]);
+    container.options.publisher = Some(PersonOrOrganization::Organization(Organization {
+        name: Some("Container Publisher".into()),
+        ..Default::default()
+    }));
+    container.options.volume_number = Some(IntegerOrString::Integer(2));
+    container.options.issue_number = Some(IntegerOrString::Integer(3));
+
+    let mut reference = Reference::new();
+    reference.work_type = Some(CreativeWorkType::Chapter);
+    reference.title = Some(vec![t("A chapter")]);
+    reference.is_part_of = Some(Box::new(container));
+    reference.options.editors = Some(vec![Person {
+        family_names: Some(vec!["ReferenceEditor".into()]),
+        ..Default::default()
+    }]);
+    reference.options.publisher = Some(PersonOrOrganization::Organization(Organization {
+        name: Some("Reference Publisher".into()),
+        ..Default::default()
+    }));
+    reference.options.volume_number = Some(IntegerOrString::Integer(8));
+    reference.options.issue_number = Some(IntegerOrString::Integer(9));
+
+    let mut article = Article::new(Vec::new());
+    article.references = Some(vec![reference]);
+    let (jats, info) = JatsCodec
+        .to_string(
+            &Node::Article(article),
+            Some(EncodeOptions {
+                compact: Some(true),
+                ..Default::default()
+            }),
+        )
+        .await?;
+
+    for expected in [
+        "<surname>ContainerEditor</surname>",
+        "<publisher-name>Container Publisher</publisher-name>",
+        "<volume>2</volume>",
+        "<issue>3</issue>",
+    ] {
+        assert!(jats.contains(expected), "missing {expected}: {jats}");
+    }
+    for unexpected in [
+        "ReferenceEditor",
+        "Reference Publisher",
+        "<volume>8</volume>",
+        "<issue>9</issue>",
+    ] {
+        assert!(!jats.contains(unexpected), "retained {unexpected}: {jats}");
+    }
+
+    let labels = info
+        .losses
+        .iter()
+        .map(|(label, ..)| label)
+        .collect::<Vec<_>>();
+    for expected in [
+        "Reference.editors",
+        "Reference.publisher",
+        "Reference.volumeNumber",
+        "Reference.issueNumber",
+    ] {
+        assert!(labels.contains(&expected), "missing {expected}: {labels:?}");
+    }
 
     Ok(())
 }

@@ -508,7 +508,19 @@ expression: article
         "issueNumber": 8
       },
       "pageStart": 1182,
-      "pageEnd": 90
+      "pageEnd": 90,
+      "identifiers": [
+        {
+          "type": "PropertyValue",
+          "propertyId": "pmid",
+          "value": "25784733"
+        },
+        {
+          "type": "PropertyValue",
+          "propertyId": "pmcid",
+          "value": "PMC4577038"
+        }
+      ]
     },
     {
       "type": "Reference",
@@ -598,7 +610,19 @@ expression: article
         "issueNumber": 1
       },
       "pageStart": 1,
-      "pageEnd": 16
+      "pageEnd": 16,
+      "identifiers": [
+        {
+          "type": "PropertyValue",
+          "propertyId": "pmid",
+          "value": "37064541"
+        },
+        {
+          "type": "PropertyValue",
+          "propertyId": "pmcid",
+          "value": "PMC10090032"
+        }
+      ]
     },
     {
       "type": "Reference",
@@ -691,7 +715,19 @@ expression: article
         ],
         "volumeNumber": 6,
         "issueNumber": 8
-      }
+      },
+      "identifiers": [
+        {
+          "type": "PropertyValue",
+          "propertyId": "pmid",
+          "value": "22880140"
+        },
+        {
+          "type": "PropertyValue",
+          "propertyId": "pmcid",
+          "value": "PMC3413714"
+        }
+      ]
     },
     {
       "type": "Reference",
@@ -762,7 +798,19 @@ expression: article
         ],
         "volumeNumber": 13
       },
-      "pageStart": 100459
+      "pageStart": 100459,
+      "identifiers": [
+        {
+          "type": "PropertyValue",
+          "propertyId": "pmid",
+          "value": "39497753"
+        },
+        {
+          "type": "PropertyValue",
+          "propertyId": "pmcid",
+          "value": "PMC11532885"
+        }
+      ]
     },
     {
       "type": "Reference",
@@ -853,7 +901,14 @@ expression: article
         "issueNumber": 4
       },
       "pageStart": 396,
-      "pageEnd": 403
+      "pageEnd": 403,
+      "identifiers": [
+        {
+          "type": "PropertyValue",
+          "propertyId": "pmid",
+          "value": "23435119"
+        }
+      ]
     },
     {
       "type": "Reference",
@@ -917,7 +972,14 @@ expression: article
         "volumeNumber": 498
       },
       "pageStart": 164,
-      "pageEnd": 71
+      "pageEnd": 71,
+      "identifiers": [
+        {
+          "type": "PropertyValue",
+          "propertyId": "pmid",
+          "value": "27588377"
+        }
+      ]
     },
     {
       "type": "Reference",
@@ -973,7 +1035,14 @@ expression: article
         "issueNumber": 11
       },
       "pageStart": 2731,
-      "pageEnd": 7
+      "pageEnd": 7,
+      "identifiers": [
+        {
+          "type": "PropertyValue",
+          "propertyId": "pmid",
+          "value": "29039731"
+        }
+      ]
     },
     {
       "type": "Reference",
@@ -1063,7 +1132,19 @@ expression: article
         ],
         "volumeNumber": 7
       },
-      "pageStart": 12410
+      "pageStart": 12410,
+      "identifiers": [
+        {
+          "type": "PropertyValue",
+          "propertyId": "pmid",
+          "value": "27580708"
+        },
+        {
+          "type": "PropertyValue",
+          "propertyId": "pmcid",
+          "value": "PMC5025746"
+        }
+      ]
     },
     {
       "type": "Reference",
@@ -1134,7 +1215,19 @@ expression: article
         "volumeNumber": 27,
         "issueNumber": 1
       },
-      "pageStart": 108598
+      "pageStart": 108598,
+      "identifiers": [
+        {
+          "type": "PropertyValue",
+          "propertyId": "pmid",
+          "value": "38155780"
+        },
+        {
+          "type": "PropertyValue",
+          "propertyId": "pmcid",
+          "value": "PMC10753076"
+        }
+      ]
     },
     {
       "type": "Reference",
@@ -1188,7 +1281,19 @@ expression: article
         "volumeNumber": 15,
         "issueNumber": 2
       },
-      "pageStart": 123
+      "pageStart": 123,
+      "identifiers": [
+        {
+          "type": "PropertyValue",
+          "propertyId": "pmid",
+          "value": "39857007"
+        },
+        {
+          "type": "PropertyValue",
+          "propertyId": "pmcid",
+          "value": "PMC11763637"
+        }
+      ]
     },
     {
       "type": "Reference",
@@ -1250,7 +1355,19 @@ expression: article
         "volumeNumber": 10,
         "issueNumber": 8
       },
-      "pageStart": 1931
+      "pageStart": 1931,
+      "identifiers": [
+        {
+          "type": "PropertyValue",
+          "propertyId": "pmid",
+          "value": "34440699"
+        },
+        {
+          "type": "PropertyValue",
+          "propertyId": "pmcid",
+          "value": "PMC8393631"
+        }
+      ]
     },
     {
       "type": "Reference",
@@ -1338,7 +1455,19 @@ expression: article
         ],
         "volumeNumber": 28,
         "issueNumber": 12
-      }
+      },
+      "identifiers": [
+        {
+          "type": "PropertyValue",
+          "propertyId": "pmid",
+          "value": "10871386"
+        },
+        {
+          "type": "PropertyValue",
+          "propertyId": "pmcid",
+          "value": "PMC102748"
+        }
+      ]
     },
     {
       "type": "Reference",
@@ -1426,7 +1555,19 @@ expression: article
         ],
         "volumeNumber": 15
       },
-      "pageStart": 265
+      "pageStart": 265,
+      "identifiers": [
+        {
+          "type": "PropertyValue",
+          "propertyId": "pmid",
+          "value": "26572227"
+        },
+        {
+          "type": "PropertyValue",
+          "propertyId": "pmcid",
+          "value": "PMC4647581"
+        }
+      ]
     },
     {
       "type": "Reference",
@@ -1488,7 +1629,19 @@ expression: article
         ],
         "volumeNumber": 3
       },
-      "pageStart": 100120
+      "pageStart": 100120,
+      "identifiers": [
+        {
+          "type": "PropertyValue",
+          "propertyId": "pmid",
+          "value": "35909594"
+        },
+        {
+          "type": "PropertyValue",
+          "propertyId": "pmcid",
+          "value": "PMC9325740"
+        }
+      ]
     },
     {
       "type": "Reference",
@@ -1567,7 +1720,19 @@ expression: article
         ],
         "volumeNumber": 15
       },
-      "pageStart": 1406632
+      "pageStart": 1406632,
+      "identifiers": [
+        {
+          "type": "PropertyValue",
+          "propertyId": "pmid",
+          "value": "39091309"
+        },
+        {
+          "type": "PropertyValue",
+          "propertyId": "pmcid",
+          "value": "PMC11292733"
+        }
+      ]
     },
     {
       "type": "Reference",
@@ -1632,7 +1797,14 @@ expression: article
         "issueNumber": 1
       },
       "pageStart": 9,
-      "pageEnd": 28
+      "pageEnd": 28,
+      "identifiers": [
+        {
+          "type": "PropertyValue",
+          "propertyId": "pmid",
+          "value": "36695788"
+        }
+      ]
     },
     {
       "type": "Reference",
@@ -1722,7 +1894,14 @@ expression: article
         "issueNumber": 4
       },
       "pageStart": 671,
-      "pageEnd": 6
+      "pageEnd": 6,
+      "identifiers": [
+        {
+          "type": "PropertyValue",
+          "propertyId": "pmid",
+          "value": "18809384"
+        }
+      ]
     },
     {
       "type": "Reference",
@@ -1811,7 +1990,19 @@ expression: article
         "volumeNumber": 2,
         "issueNumber": 1
       },
-      "pageStart": 15
+      "pageStart": 15,
+      "identifiers": [
+        {
+          "type": "PropertyValue",
+          "propertyId": "pmid",
+          "value": "19284882"
+        },
+        {
+          "type": "PropertyValue",
+          "propertyId": "pmcid",
+          "value": "PMC2670822"
+        }
+      ]
     },
     {
       "type": "Reference",
@@ -1989,7 +2180,19 @@ expression: article
         ],
         "volumeNumber": 6
       },
-      "pageStart": 10
+      "pageStart": 10,
+      "identifiers": [
+        {
+          "type": "PropertyValue",
+          "propertyId": "pmid",
+          "value": "19166574"
+        },
+        {
+          "type": "PropertyValue",
+          "propertyId": "pmcid",
+          "value": "PMC2651855"
+        }
+      ]
     },
     {
       "type": "Reference",
@@ -2016,21 +2219,21 @@ expression: article
     {
       "type": "Reference",
       "id": "pone.0332245.ref026",
+      "workType": "Book",
       "authors": [
         {
-          "type": "Person",
-          "familyNames": [
-            "Biggerstaff"
-          ],
-          "givenNames": [
-            "Brad",
-            "J"
-          ]
+          "type": "Organization",
+          "name": "Biggerstaff, Brad J"
         }
       ],
       "date": {
         "type": "Date",
         "value": "2009"
+      },
+      "publisher": {
+        "type": "Organization",
+        "name": "Centers for Disease Control and Prevention",
+        "address": "Fort Collins, CO, U.S.A"
       },
       "text": "Biggerstaff, Brad J . PooledInfRate, Version 4.0: a Microsoft® Office Excel© Add-In to compute prevalence estimates from pooled samples. Centers for Disease Control and Prevention , Fort Collins, CO, U.S.A ., 2009 ."
     },
@@ -2160,7 +2363,19 @@ expression: article
         ],
         "volumeNumber": 16,
         "issueNumber": 7
-      }
+      },
+      "identifiers": [
+        {
+          "type": "PropertyValue",
+          "propertyId": "pmid",
+          "value": "35793379"
+        },
+        {
+          "type": "PropertyValue",
+          "propertyId": "pmcid",
+          "value": "PMC9321428"
+        }
+      ]
     },
     {
       "type": "Reference",
@@ -2250,7 +2465,19 @@ expression: article
         "volumeNumber": 33,
         "issueNumber": 11
       },
-      "pageStart": 108506
+      "pageStart": 108506,
+      "identifiers": [
+        {
+          "type": "PropertyValue",
+          "propertyId": "pmid",
+          "value": "33326778"
+        },
+        {
+          "type": "PropertyValue",
+          "propertyId": "pmcid",
+          "value": "PMC7758158"
+        }
+      ]
     },
     {
       "type": "Reference",
@@ -2338,7 +2565,19 @@ expression: article
         ],
         "volumeNumber": 10
       },
-      "pageStart": 1056
+      "pageStart": 1056,
+      "identifiers": [
+        {
+          "type": "PropertyValue",
+          "propertyId": "pmid",
+          "value": "31139171"
+        },
+        {
+          "type": "PropertyValue",
+          "propertyId": "pmcid",
+          "value": "PMC6518337"
+        }
+      ]
     },
     {
       "type": "Reference",
@@ -2404,7 +2643,14 @@ expression: article
         "issueNumber": 6
       },
       "pageStart": 1701,
-      "pageEnd": 8
+      "pageEnd": 8,
+      "identifiers": [
+        {
+          "type": "PropertyValue",
+          "propertyId": "pmid",
+          "value": "38426313"
+        }
+      ]
     },
     {
       "type": "Reference",
@@ -2466,7 +2712,19 @@ expression: article
         ],
         "volumeNumber": 17,
         "issueNumber": 3
-      }
+      },
+      "identifiers": [
+        {
+          "type": "PropertyValue",
+          "propertyId": "pmid",
+          "value": "35324900"
+        },
+        {
+          "type": "PropertyValue",
+          "propertyId": "pmcid",
+          "value": "PMC8947081"
+        }
+      ]
     },
     {
       "type": "Reference",
@@ -2650,7 +2908,19 @@ expression: article
         "volumeNumber": 17,
         "issueNumber": 6
       },
-      "pageStart": 818
+      "pageStart": 818,
+      "identifiers": [
+        {
+          "type": "PropertyValue",
+          "propertyId": "pmid",
+          "value": "40573409"
+        },
+        {
+          "type": "PropertyValue",
+          "propertyId": "pmcid",
+          "value": "PMC12197569"
+        }
+      ]
     },
     {
       "type": "Reference",
@@ -2741,7 +3011,19 @@ expression: article
         "issueNumber": 2
       },
       "pageStart": 378,
-      "pageEnd": 81
+      "pageEnd": 81,
+      "identifiers": [
+        {
+          "type": "PropertyValue",
+          "propertyId": "pmid",
+          "value": "40425005"
+        },
+        {
+          "type": "PropertyValue",
+          "propertyId": "pmcid",
+          "value": "PMC12360123"
+        }
+      ]
     }
   ],
   "title": [

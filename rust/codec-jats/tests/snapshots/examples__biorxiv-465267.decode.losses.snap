@@ -15,11 +15,12 @@ expression: info.losses
 //article/back/ref-list/ref/citation/@linkable: 78
 //article/back/ref-list/ref/citation/@use-reference-as-is: 78
 //article/back/ref-list/ref/citation/article-title/@id: 74
-//article/back/ref-list/ref/citation/collab: 2
+//article/back/ref-list/ref/citation/collab/@id: 2
 //article/back/ref-list/ref/citation/etal: 3
-//article/back/ref-list/ref/citation/ext-link: 8
-"//article/back/ref-list/ref/citation/pub-id[@pub-id-type='arxiv']": 1
-//article/back/ref-list/ref/citation/publisher-name: 1
+//article/back/ref-list/ref/citation/ext-link/@id: 8
+//article/back/ref-list/ref/citation/ext-link/@ref: 8
+//article/back/ref-list/ref/citation/ext-link/@ref-type: 8
+//article/back/ref-list/ref/citation/ext-link/@rel: 8
 //article/back/ref-list/ref/citation/source/@id: 77
 //article/back/ref-list/ref/citation/string-name/@name-style: 226
 //article/back/ref-list/ref/citation/string-name/@sortable: 226

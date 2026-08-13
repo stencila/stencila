@@ -543,6 +543,7 @@ expression: jats
           <article-title>Humeral homology and the origin of the tetrapod elbow: a reinterpretation of the enigmatic specimens ANSP 21350 and GSM 104536</article-title>
           <source>Special Papers in Palaeontology</source>
           <year>2011</year>
+          <volume>86</volume>
           <fpage>17</fpage>
           <lpage>29</lpage>
         </element-citation>
@@ -558,6 +559,7 @@ expression: jats
           <article-title>Follow the footprints and mind the gaps: a new look at the origin of tetrapods</article-title>
           <source>Earth and Environmental Science Transactions of the Royal Society of Edinburgh</source>
           <year>2019</year>
+          <volume>109</volume>
           <fpage>115</fpage>
           <lpage>37</lpage>
         </element-citation>
@@ -581,9 +583,11 @@ expression: jats
           <article-title>The axial skeleton of the Devonian tetrapod <italic>Ichthyostega</italic>&#10;</article-title>
           <source>Nature</source>
           <year>2005</year>
+          <volume>437</volume>
           <fpage>137</fpage>
           <lpage>40</lpage>
           <pub-id pub-id-type="doi">10.1038/nature03893</pub-id>
+          <pub-id pub-id-type="pmid">16136143</pub-id>
         </element-citation>
       </ref>
       <ref id="inz212599-bib-0004">
@@ -601,6 +605,7 @@ expression: jats
           <article-title>IX.—The postcranial skeleton of <italic>Eusthenopteron foordi</italic> Whiteaves</article-title>
           <source>Earth and Environmental Science Transactions of the Royal Society of Edinburgh</source>
           <year>1970</year>
+          <volume>68</volume>
           <fpage>207</fpage>
           <lpage>329</lpage>
         </element-citation>
@@ -620,9 +625,11 @@ expression: jats
           <article-title>Patterns of axial and appendicular movements during aquatic walking in the salamander <italic>Siren lacertina</italic>&#10;</article-title>
           <source>Zoology</source>
           <year>2004</year>
+          <volume>107</volume>
           <fpage>111</fpage>
           <lpage>20</lpage>
           <pub-id pub-id-type="doi">10.1016/j.zool.2004.03.002</pub-id>
+          <pub-id pub-id-type="pmid">16351932</pub-id>
         </element-citation>
       </ref>
       <ref id="inz212599-bib-0006">
@@ -648,6 +655,7 @@ expression: jats
           <article-title>The Devonian placoderm fish <italic>Bothriolepis canadensis</italic> revisited with three‐dimensional digital imagery</article-title>
           <source>Palaeontologia Electronica</source>
           <year>2014</year>
+          <volume>17</volume>
           <fpage>1</fpage>
           <lpage>19</lpage>
         </element-citation>
@@ -663,9 +671,11 @@ expression: jats
           <article-title>The pelvic fin and girdle of <italic>Panderichthys</italic> and the origin of tetrapod locomotion</article-title>
           <source>Nature</source>
           <year>2005</year>
+          <volume>438</volume>
           <fpage>1145</fpage>
           <lpage>7</lpage>
           <pub-id pub-id-type="doi">10.1038/nature04119</pub-id>
+          <pub-id pub-id-type="pmid">16372007</pub-id>
         </element-citation>
       </ref>
       <ref id="inz212599-bib-0008">
@@ -687,9 +697,11 @@ expression: jats
           <article-title>The pectoral fin of <italic>Panderichthys</italic> and the origin of digits</article-title>
           <source>Nature</source>
           <year>2008</year>
+          <volume>456</volume>
           <fpage>636</fpage>
           <lpage>8</lpage>
           <pub-id pub-id-type="doi">10.1038/nature07339</pub-id>
+          <pub-id pub-id-type="pmid">18806778</pub-id>
         </element-citation>
       </ref>
       <ref id="inz212599-bib-0009">
@@ -711,9 +723,11 @@ expression: jats
           <article-title>A walking behavior generates functional overland movements in the tidepool sculpin, <italic>Oligocottus maculosus</italic>&#10;</article-title>
           <source>Zoology</source>
           <year>2018</year>
+          <volume>131</volume>
           <fpage>20</fpage>
           <lpage>8</lpage>
           <pub-id pub-id-type="doi">10.1016/j.zool.2018.10.003</pub-id>
+          <pub-id pub-id-type="pmid">30502824</pub-id>
         </element-citation>
       </ref>
       <ref id="inz212599-bib-0010">
@@ -742,7 +756,12 @@ expression: jats
           </person-group>
           <article-title>Emersion and terrestrial locomotion of the northern snakehead (<italic>Channa argus</italic>) on multiple substrates</article-title>
           <source>Integrative Organismal Biology</source>
+          <year>2019a</year>
+          <volume>1</volume>
+          <elocation-id>obz026</elocation-id>
           <pub-id pub-id-type="doi">10.1093/iob/obz026</pub-id>
+          <pub-id pub-id-type="pmid">33791540</pub-id>
+          <pub-id pub-id-type="pmcid">PMC7671134</pub-id>
         </element-citation>
       </ref>
       <ref id="inz212599-bib-0011">
@@ -767,9 +786,12 @@ expression: jats
           </person-group>
           <article-title>Where do fish go when stranded on land? Terrestrial orientation of the mangrove rivulus <italic>Kryptolebias marmoratus</italic>&#10;</article-title>
           <source>Journal of Fish Biology</source>
+          <year>2019b</year>
+          <volume>95</volume>
           <fpage>335</fpage>
           <lpage>44</lpage>
           <pub-id pub-id-type="doi">10.1111/jfb.13802</pub-id>
+          <pub-id pub-id-type="pmid">30242836</pub-id>
         </element-citation>
       </ref>
       <ref id="inz212599-bib-0012">
@@ -783,9 +805,11 @@ expression: jats
           <article-title>Devonian climate change, breathing, and the origin of the tetrapod stem group</article-title>
           <source>Integrative and Comparative Biology</source>
           <year>2007</year>
+          <volume>47</volume>
           <fpage>510</fpage>
           <lpage>23</lpage>
           <pub-id pub-id-type="doi">10.1093/icb/icm055</pub-id>
+          <pub-id pub-id-type="pmid">21672860</pub-id>
         </element-citation>
       </ref>
       <ref id="inz212599-bib-0013">
@@ -807,9 +831,11 @@ expression: jats
           <article-title>&#10;<italic>Elpistostege</italic> and the origin of the vertebrate hand</article-title>
           <source>Nature</source>
           <year>2020</year>
+          <volume>579</volume>
           <fpage>549</fpage>
           <lpage>54</lpage>
           <pub-id pub-id-type="doi">10.1038/s41586-020-2100-8</pub-id>
+          <pub-id pub-id-type="pmid">32214248</pub-id>
         </element-citation>
       </ref>
       <ref id="inz212599-bib-0014">
@@ -823,6 +849,7 @@ expression: jats
           <article-title>The Devonian tetrapod <italic>Acanthostega gunnari</italic> Jarvik: postcranial anatomy, basal tetrapod interrelationships and patterns of skeletal evolution</article-title>
           <source>Earth and Environmental Science Transactions of the Royal Society of Edinburgh</source>
           <year>1996</year>
+          <volume>87</volume>
           <fpage>363</fpage>
           <lpage>421</lpage>
         </element-citation>
@@ -842,12 +869,28 @@ expression: jats
           <article-title>Polydactyly in the earliest known tetrapod limbs</article-title>
           <source>Nature</source>
           <year>1990</year>
+          <volume>347</volume>
           <fpage>66</fpage>
           <lpage>9</lpage>
         </element-citation>
       </ref>
       <ref id="inz212599-bib-0016">
-        <mixed-citation>Courtenay  WR  Jr  ,  Williams  JD  ( 2004 ). Snakeheads (Pisces, Channidae): A biological synopsis and risk assessment. Circular 1251. US Geological Survey, Reston, VA, 143 pp.<year>2004</year></mixed-citation>
+        <citation-alternatives>
+          <element-citation>
+            <person-group person-group-type="author">
+              <name>
+                <surname>Courtenay</surname>
+                <given-names>W R</given-names>
+              </name>
+              <name>
+                <surname>Williams</surname>
+                <given-names>J D</given-names>
+              </name>
+            </person-group>
+            <year>2004</year>
+          </element-citation>
+          <mixed-citation>Courtenay WR Jr , Williams JD ( 2004 ). Snakeheads (Pisces, Channidae): A biological synopsis and risk assessment. Circular 1251. US Geological Survey, Reston, VA, 143 pp.</mixed-citation>
+        </citation-alternatives>
       </ref>
       <ref id="inz212599-bib-0017">
         <element-citation publication-type="journal">
@@ -868,9 +911,11 @@ expression: jats
           <article-title>A Devonian tetrapod‐like fish and the evolution of the tetrapod body plan</article-title>
           <source>Nature</source>
           <year>2006</year>
+          <volume>440</volume>
           <fpage>757</fpage>
           <lpage>63</lpage>
           <pub-id pub-id-type="doi">10.1038/nature04639</pub-id>
+          <pub-id pub-id-type="pmid">16598249</pub-id>
         </element-citation>
       </ref>
       <ref id="inz212599-bib-0018">
@@ -888,6 +933,7 @@ expression: jats
           <article-title>Terrestrial locomotion in the climbing perch, <italic>Anabas testudineus</italic> (Bloch) (Anabantidea, Pisces)</article-title>
           <source>Journal of Fish Biology</source>
           <year>1990</year>
+          <volume>37</volume>
           <fpage>175</fpage>
           <lpage>84</lpage>
         </element-citation>
@@ -903,6 +949,7 @@ expression: jats
           <article-title>The soft anatomy of <italic>Bothriolepis</italic>&#10;</article-title>
           <source>Journal of Paleontology</source>
           <year>1941</year>
+          <volume>15</volume>
           <fpage>553</fpage>
           <lpage>61</lpage>
         </element-citation>
@@ -918,6 +965,7 @@ expression: jats
           <article-title>Ähnlichkeit im Bau der Extremitäten der Dipnoi und Quadrupeda</article-title>
           <source>Travaux du Laboratoire de Morphologie Évolutive</source>
           <year>1933</year>
+          <volume>1</volume>
           <fpage>1</fpage>
           <lpage>68</lpage>
         </element-citation>
@@ -941,6 +989,7 @@ expression: jats
           <article-title>Observations of terrestrial locomotion in wild <italic>Polypterus senegalus</italic> from Lake Albert, Uganda</article-title>
           <source>African Journal of Aquatic Science</source>
           <year>2016</year>
+          <volume>41</volume>
           <fpage>67</fpage>
           <lpage>71</lpage>
         </element-citation>
@@ -956,6 +1005,7 @@ expression: jats
           <article-title>The aquatic origin of tetrapods</article-title>
           <source>Transactions of the Kansas Academy of Science</source>
           <year>1960</year>
+          <volume>63</volume>
           <fpage>115</fpage>
           <lpage>20</lpage>
         </element-citation>
@@ -971,6 +1021,7 @@ expression: jats
           <article-title>Two perspectives on the evolution of the tetrapod limb</article-title>
           <source>American Zoologist</source>
           <year>1989</year>
+          <volume>29</volume>
           <fpage>235</fpage>
           <lpage>54</lpage>
         </element-citation>
@@ -990,9 +1041,12 @@ expression: jats
           <article-title>Trackways produced by lungfish during terrestrial locomotion</article-title>
           <source>Scientific Reports</source>
           <year>2016</year>
+          <volume>6</volume>
           <fpage>1</fpage>
           <lpage>10</lpage>
           <pub-id pub-id-type="doi">10.1038/srep33734</pub-id>
+          <pub-id pub-id-type="pmid">27670758</pub-id>
+          <pub-id pub-id-type="pmcid">PMC5037403</pub-id>
         </element-citation>
       </ref>
       <ref id="inz212599-bib-0025">
@@ -1014,6 +1068,7 @@ expression: jats
           <article-title>New evidence for the controversial “lungs” of the Late Devonian antiarch <italic>Bothriolepis canadensis</italic> (Whiteaves, 1880) (Placodermi: Antiarcha)</article-title>
           <source>Journal of Vertebrate Paleontology</source>
           <year>2007</year>
+          <volume>27</volume>
           <fpage>709</fpage>
           <lpage>10</lpage>
         </element-citation>
@@ -1026,7 +1081,9 @@ expression: jats
               <given-names>P P</given-names>
             </name>
           </person-group>
-          <article-title>How Mammals Run. Anatomical Adaptations</article-title>
+          <source>How Mammals Run. Anatomical Adaptations</source>
+          <publisher-loc>New York</publisher-loc>
+          <publisher-name>J. Wiley and Sons</publisher-name>
           <year>1974</year>
           <fpage>367</fpage>
         </element-citation>
@@ -1042,6 +1099,7 @@ expression: jats
           <article-title>Terrestrial locomotion without limbs</article-title>
           <source>American Zoologist</source>
           <year>1962</year>
+          <volume>2</volume>
           <fpage>167</fpage>
           <lpage>82</lpage>
         </element-citation>
@@ -1065,9 +1123,11 @@ expression: jats
           <article-title>Thrash, flip, or jump: the behavioral and functional continuum of terrestrial locomotion in teleost fishes</article-title>
           <source>Integrative and Comparative Biology</source>
           <year>2013</year>
+          <volume>53</volume>
           <fpage>295</fpage>
           <lpage>306</lpage>
           <pub-id pub-id-type="doi">10.1093/icb/ict052</pub-id>
+          <pub-id pub-id-type="pmid">23704366</pub-id>
         </element-citation>
       </ref>
       <ref id="inz212599-bib-0029">
@@ -1081,9 +1141,11 @@ expression: jats
           <article-title>Studies in the mechanics of the tetrapod skeleton</article-title>
           <source>Journal of Experimental Biology</source>
           <year>1944</year>
+          <volume>20</volume>
           <fpage>88</fpage>
           <lpage>116</lpage>
           <pub-id pub-id-type="doi">10.1242/jeb.000687</pub-id>
+          <pub-id pub-id-type="pmid">17601942</pub-id>
         </element-citation>
       </ref>
       <ref id="inz212599-bib-0030">
@@ -1097,6 +1159,7 @@ expression: jats
           <article-title>On the locomotion of the mudskipper <italic>Periophthalmus koelreuteri</italic> (Pallas): (Gobiidae)</article-title>
           <source>Proceedings of the Zoological Society of London</source>
           <year>1960</year>
+          <volume>134</volume>
           <fpage>107</fpage>
           <lpage>35</lpage>
         </element-citation>
@@ -1112,6 +1175,7 @@ expression: jats
           <article-title>Analysis of the symmetrical gaits of tetrapods</article-title>
           <source>Folia Biotheoretica</source>
           <year>1966</year>
+          <volume>6</volume>
           <fpage>9</fpage>
           <lpage>22</lpage>
         </element-citation>
@@ -1127,6 +1191,7 @@ expression: jats
           <article-title>The heat of shortening and the dynamic constants of muscle</article-title>
           <source>Proceedings of the Royal Society of London B</source>
           <year>1938</year>
+          <volume>126</volume>
           <fpage>136</fpage>
           <lpage>95</lpage>
         </element-citation>
@@ -1154,6 +1219,7 @@ expression: jats
           <article-title>Biomechanics and functional preconditions for terrestrial lifestyle in basal tetrapods, with special consideration of <italic>Tiktaalik roseae</italic>&#10;</article-title>
           <source>Historical Biology</source>
           <year>2013</year>
+          <volume>25</volume>
           <fpage>167</fpage>
           <lpage>81</lpage>
         </element-citation>
@@ -1173,7 +1239,11 @@ expression: jats
           <article-title>Lungfish axial muscle function and the vertebrate water to land transition</article-title>
           <source>PLoS ONE</source>
           <year>2014</year>
+          <volume>9</volume>
+          <elocation-id>e96516</elocation-id>
           <pub-id pub-id-type="doi">10.1371/journal.pone.0096516</pub-id>
+          <pub-id pub-id-type="pmid">24788982</pub-id>
+          <pub-id pub-id-type="pmcid">PMC4008594</pub-id>
         </element-citation>
       </ref>
       <ref id="inz212599-bib-0035">
@@ -1187,6 +1257,7 @@ expression: jats
           <article-title>On the morphology and taxonomy of the Middle Devonian osteolepid fishes of Scotland</article-title>
           <source>Kungliga Svenska Vetenskapsakademiens Handlingar</source>
           <year>1948</year>
+          <volume>25</volume>
           <fpage>1</fpage>
           <lpage>301</lpage>
         </element-citation>
@@ -1202,6 +1273,7 @@ expression: jats
           <article-title>The mode of terrestrial locomotion in <italic>Clarias</italic>&#10;</article-title>
           <source>Oikos</source>
           <year>1957</year>
+          <volume>8</volume>
           <fpage>122</fpage>
           <lpage>9</lpage>
         </element-citation>
@@ -1221,9 +1293,11 @@ expression: jats
           <article-title>Propulsive forces of mudskipper fins and salamander limbs during terrestrial locomotion: Implications for the invasion of land</article-title>
           <source>Integrative and Comparative Biology</source>
           <year>2013</year>
+          <volume>53</volume>
           <fpage>283</fpage>
           <lpage>94</lpage>
           <pub-id pub-id-type="doi">10.1093/icb/ict051</pub-id>
+          <pub-id pub-id-type="pmid">23667046</pub-id>
         </element-citation>
       </ref>
       <ref id="inz212599-bib-0038">
@@ -1241,6 +1315,7 @@ expression: jats
           <article-title>The postcranial skeleton of the Devonian tetrapod <italic>Tulerpeton curtum</italic> Lebedev</article-title>
           <source>Zoological Journal of the Linnean Society</source>
           <year>1995</year>
+          <volume>114</volume>
           <fpage>307</fpage>
           <lpage>48</lpage>
         </element-citation>
@@ -1256,6 +1331,7 @@ expression: jats
           <article-title>&#10;<italic>Thinopus</italic> and a critical review of Devonian tetrapod footprints</article-title>
           <source>Ichnos</source>
           <year>2015</year>
+          <volume>22</volume>
           <fpage>136</fpage>
           <lpage>54</lpage>
         </element-citation>
@@ -1275,6 +1351,7 @@ expression: jats
           <article-title>Size, growth and reproductive biology of the giant mudskipper, <italic>Periophthalmodon schlosseri</italic> (Pallas, 1770), in Malaysian waters</article-title>
           <source>Journal of Applied Ichthyology</source>
           <year>2008</year>
+          <volume>24</volume>
           <fpage>290</fpage>
           <lpage>6</lpage>
         </element-citation>
@@ -1306,9 +1383,11 @@ expression: jats
           <article-title>Tetrapod trackways from the early Middle Devonian period of Poland</article-title>
           <source>Nature</source>
           <year>2010</year>
+          <volume>463</volume>
           <fpage>43</fpage>
           <lpage>8</lpage>
           <pub-id pub-id-type="doi">10.1038/nature08623</pub-id>
+          <pub-id pub-id-type="pmid">20054388</pub-id>
         </element-citation>
       </ref>
       <ref id="inz212599-bib-0042">
@@ -1322,9 +1401,11 @@ expression: jats
           <article-title>Morphological patterns in limb deficiencies and duplications</article-title>
           <source>American Journal of Anatomy</source>
           <year>1951</year>
+          <volume>89</volume>
           <fpage>135</fpage>
           <lpage>93</lpage>
           <pub-id pub-id-type="doi">10.1002/aja.1000890202</pub-id>
+          <pub-id pub-id-type="pmid">14894439</pub-id>
         </element-citation>
       </ref>
       <ref id="inz212599-bib-0043">
@@ -1342,9 +1423,11 @@ expression: jats
           <article-title>Sustained periodic terrestrial locomotion in air‐breathing fishes</article-title>
           <source>Journal of Fish Biology</source>
           <year>2014</year>
+          <volume>84</volume>
           <fpage>639</fpage>
           <lpage>60</lpage>
           <pub-id pub-id-type="doi">10.1111/jfb.12318</pub-id>
+          <pub-id pub-id-type="pmid">24502775</pub-id>
         </element-citation>
       </ref>
       <ref id="inz212599-bib-0044">
@@ -1362,6 +1445,7 @@ expression: jats
           <article-title>The pelvic girdle and hind limb of <italic>Crassigyrinus scoticus</italic> (Lydekker) from the Scottish Carboniferous and the origin of the tetrapod pelvic skeleton</article-title>
           <source>Earth and Environmental Science Transactions of The Royal Society of Edinburgh</source>
           <year>1990</year>
+          <volume>81</volume>
           <fpage>31</fpage>
           <lpage>44</lpage>
         </element-citation>
@@ -1385,9 +1469,11 @@ expression: jats
           <article-title>Historical perspectives on the evolution of tetrapodomorph movement</article-title>
           <source>Integrative and Comparative Biology</source>
           <year>2013</year>
+          <volume>53</volume>
           <fpage>209</fpage>
           <lpage>23</lpage>
           <pub-id pub-id-type="doi">10.1093/icb/ict022</pub-id>
+          <pub-id pub-id-type="pmid">23624864</pub-id>
         </element-citation>
       </ref>
       <ref id="inz212599-bib-0046">
@@ -1401,6 +1487,7 @@ expression: jats
           <article-title>Submerged walking in the epaulette shark <italic>Hemiscyllium ocellatum</italic> (Hemiscyllidae) and its implications for locomotion in rhipidistian fishes and early tetrapods</article-title>
           <source>Zoology</source>
           <year>1994</year>
+          <volume>98</volume>
           <fpage>278</fpage>
           <lpage>97</lpage>
         </element-citation>
@@ -1413,8 +1500,16 @@ expression: jats
               <given-names>J S</given-names>
             </name>
           </person-group>
-          <article-title>The origin of the tetrapod limb and the ancestry of tetrapods</article-title>
+          <person-group person-group-type="editor">
+            <name>
+              <surname>Panchen</surname>
+              <given-names>A L</given-names>
+            </name>
+          </person-group>
+          <chapter-title>The origin of the tetrapod limb and the ancestry of tetrapods</chapter-title>
           <source>The Terrestrial Environment and the Origin of Land Vertebrates</source>
+          <publisher-loc>New York</publisher-loc>
+          <publisher-name>Academic Press</publisher-name>
           <year>1980</year>
           <fpage>255</fpage>
           <lpage>92</lpage>
@@ -1436,8 +1531,24 @@ expression: jats
               <given-names>V</given-names>
             </name>
           </person-group>
-          <article-title>To move on immersed and emersed substrata: adaptive solutions in extant “fishes”</article-title>
+          <person-group person-group-type="editor">
+            <name>
+              <surname>Bels</surname>
+              <given-names>V</given-names>
+            </name>
+            <name>
+              <surname>Casinos</surname>
+              <given-names>A</given-names>
+            </name>
+            <name>
+              <surname>Davenport</surname>
+              <given-names>J</given-names>
+            </name>
+          </person-group>
+          <chapter-title>To move on immersed and emersed substrata: adaptive solutions in extant “fishes”</chapter-title>
           <source>How Vertebrates Moved onto Land</source>
+          <publisher-loc>Paris</publisher-loc>
+          <publisher-name>Mémoires du Muséum national d&apos;Histoire naturelle</publisher-name>
           <year>2011</year>
           <fpage>91</fpage>
           <lpage>128</lpage>
@@ -1454,6 +1565,7 @@ expression: jats
           <article-title>Tetrapod limbs and early tetrapod life</article-title>
           <source>Evolution; Internation Journal of Organic Evolution</source>
           <year>1958</year>
+          <volume>12</volume>
           <fpage>365</fpage>
           <lpage>9</lpage>
         </element-citation>
@@ -1473,6 +1585,7 @@ expression: jats
           <article-title>The pes of <italic>Diadectes</italic>: Notes on the primitive tetrapod limb</article-title>
           <source>Paleobiologica</source>
           <year>1931</year>
+          <volume>4</volume>
           <fpage>25</fpage>
           <lpage>48</lpage>
         </element-citation>
@@ -1485,7 +1598,9 @@ expression: jats
               <given-names>I I</given-names>
             </name>
           </person-group>
-          <article-title>The origin of terrestrial vertebrates</article-title>
+          <source>The origin of terrestrial vertebrates</source>
+          <publisher-loc>New York</publisher-loc>
+          <publisher-name>Academic Press</publisher-name>
           <year>1968</year>
         </element-citation>
       </ref>
@@ -1508,6 +1623,7 @@ expression: jats
           <article-title>Locomotor performance and energetic cost of sidewinding by the snake <italic>Crotalus cerastes</italic>&#10;</article-title>
           <source>Journal of Experimental Biology</source>
           <year>1992</year>
+          <volume>163</volume>
           <fpage>1</fpage>
           <lpage>14</lpage>
         </element-citation>
@@ -1520,8 +1636,24 @@ expression: jats
               <given-names>N H</given-names>
             </name>
           </person-group>
-          <article-title>The evolution of paired fins and the origin of tetrapod limbs</article-title>
+          <person-group person-group-type="editor">
+            <name>
+              <surname>Hecht</surname>
+              <given-names>M K</given-names>
+            </name>
+            <name>
+              <surname>MacIntyre</surname>
+              <given-names>R J</given-names>
+            </name>
+            <name>
+              <surname>Clegg</surname>
+              <given-names>M T</given-names>
+            </name>
+          </person-group>
+          <chapter-title>The evolution of paired fins and the origin of tetrapod limbs</chapter-title>
           <source>Evolutionary Biology</source>
+          <publisher-loc>New York</publisher-loc>
+          <publisher-name>Plenum Press</publisher-name>
           <year>1995</year>
           <fpage>39</fpage>
           <lpage>86</lpage>
@@ -1546,9 +1678,11 @@ expression: jats
           <article-title>The pectoral fin of <italic>Tiktaalik roseae</italic> and the origin of the tetrapod limb</article-title>
           <source>Nature</source>
           <year>2006</year>
+          <volume>440</volume>
           <fpage>764</fpage>
           <lpage>71</lpage>
           <pub-id pub-id-type="doi">10.1038/nature04637</pub-id>
+          <pub-id pub-id-type="pmid">16598250</pub-id>
         </element-citation>
       </ref>
       <ref id="inz212599-bib-0055">
@@ -1570,9 +1704,12 @@ expression: jats
           <article-title>Pelvic girdle and fin of <italic>Tiktaalik roseae</italic>&#10;</article-title>
           <source>PNAS</source>
           <year>2014</year>
+          <volume>111</volume>
           <fpage>893</fpage>
           <lpage>9</lpage>
           <pub-id pub-id-type="doi">10.1073/pnas.1322559111</pub-id>
+          <pub-id pub-id-type="pmid">24449831</pub-id>
+          <pub-id pub-id-type="pmcid">PMC3903263</pub-id>
         </element-citation>
       </ref>
       <ref id="inz212599-bib-0056">
@@ -1594,9 +1731,12 @@ expression: jats
           <article-title>Why don&apos;t large animals exclusively use springs to jump? Because they can jump higher without them</article-title>
           <source>Integrative and Comparative Biology</source>
           <year>2019</year>
+          <volume>59</volume>
           <fpage>1609</fpage>
           <lpage>18</lpage>
           <pub-id pub-id-type="doi">10.1093/icb/icz145</pub-id>
+          <pub-id pub-id-type="pmid">31399734</pub-id>
+          <pub-id pub-id-type="pmcid">PMC6907395</pub-id>
         </element-citation>
       </ref>
       <ref id="inz212599-bib-0057">
@@ -1614,9 +1754,11 @@ expression: jats
           <article-title>Kinematics of aquatic and terrestrial escape responses in mudskippers</article-title>
           <source>Journal of Experimental Biology</source>
           <year>2004</year>
+          <volume>207</volume>
           <fpage>4037</fpage>
           <lpage>44</lpage>
           <pub-id pub-id-type="doi">10.1242/jeb.01237</pub-id>
+          <pub-id pub-id-type="pmid">15498949</pub-id>
         </element-citation>
       </ref>
       <ref id="inz212599-bib-0058">
@@ -1630,7 +1772,10 @@ expression: jats
           <article-title>Three‐legged locomotion and the constraints on limb number: why tripeds don&apos;t have a leg to stand on</article-title>
           <source>Bioessays</source>
           <year>2019</year>
+          <volume>41</volume>
+          <elocation-id>1900061</elocation-id>
           <pub-id pub-id-type="doi">10.1002/bies.201900061</pub-id>
+          <pub-id pub-id-type="pmid">31531902</pub-id>
         </element-citation>
       </ref>
       <ref id="inz212599-bib-0059">
@@ -1645,8 +1790,16 @@ expression: jats
               <given-names>A N</given-names>
             </name>
           </person-group>
-          <article-title>The locomotor apparatus of <italic>Panderichthys rhombolepis</italic> (Gross), a supplement to the problem of fish‐tetrapod transition</article-title>
+          <person-group person-group-type="editor">
+            <name>
+              <surname>Mark‐Kurik</surname>
+              <given-names>E</given-names>
+            </name>
+          </person-group>
+          <chapter-title>The locomotor apparatus of <italic>Panderichthys rhombolepis</italic> (Gross), a supplement to the problem of fish‐tetrapod transition</chapter-title>
           <source>Fossil Fishes as Living Animals</source>
+          <publisher-loc>Tallinn</publisher-loc>
+          <publisher-name>Academy of Sciences of Estonia</publisher-name>
           <year>1992</year>
           <fpage>131</fpage>
           <lpage>40</lpage>
@@ -1664,8 +1817,19 @@ expression: jats
               <given-names>H‐P</given-names>
             </name>
           </person-group>
-          <article-title>Description and systematics of panderichthyid fishes with comments on their relationship to tetrapods</article-title>
+          <person-group person-group-type="editor">
+            <name>
+              <surname>Schultze</surname>
+              <given-names>H‐P</given-names>
+            </name>
+            <name>
+              <surname>Trueb</surname>
+              <given-names>L</given-names>
+            </name>
+          </person-group>
+          <chapter-title>Description and systematics of panderichthyid fishes with comments on their relationship to tetrapods</chapter-title>
           <source>Origins of the Higher Groups of Tetrapods: Controversy and Consensus</source>
+          <publisher-loc>Comstock, Ithaca, NY</publisher-loc>
           <year>1991</year>
           <fpage>68</fpage>
           <lpage>109</lpage>
@@ -1686,6 +1850,7 @@ expression: jats
           <article-title>On origin of vertebrae in lower tetrapods</article-title>
           <source>Journal of General Biology</source>
           <year>1986</year>
+          <volume>47</volume>
           <fpage>735</fpage>
           <lpage>47</lpage>
         </element-citation>
@@ -1717,9 +1882,11 @@ expression: jats
           <article-title>Locomotion in elongate fishes: A contact sport</article-title>
           <source>Zoology</source>
           <year>2015</year>
+          <volume>118</volume>
           <fpage>312</fpage>
           <lpage>9</lpage>
           <pub-id pub-id-type="doi">10.1016/j.zool.2015.06.002</pub-id>
+          <pub-id pub-id-type="pmid">26165693</pub-id>
         </element-citation>
       </ref>
       <ref id="inz212599-bib-0063">
@@ -1737,6 +1904,7 @@ expression: jats
           <article-title>Trackways of tetrapod vertebrates from the Upper Devonian of Victoria, Australia</article-title>
           <source>Nature</source>
           <year>1972</year>
+          <volume>238</volume>
           <fpage>469</fpage>
           <lpage>70</lpage>
         </element-citation>
@@ -1752,6 +1920,7 @@ expression: jats
           <article-title>The origin of the primitive tetrapod limb</article-title>
           <source>Proceedings of the Royal Society of London B</source>
           <year>1943</year>
+          <volume>131</volume>
           <fpage>373</fpage>
           <lpage>93</lpage>
         </element-citation>
@@ -1767,6 +1936,7 @@ expression: jats
           <article-title>A descriptive synonymy of the striated muscles of the Teleostei</article-title>
           <source>Proceedings of the Academy of Natural Sciences of Philadelphia</source>
           <year>1973</year>
+          <volume>125</volume>
           <fpage>225</fpage>
           <lpage>317</lpage>
         </element-citation>

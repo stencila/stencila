@@ -85,7 +85,7 @@ fn publication_format(node: &Node) -> Option<String> {
 ///
 /// An identifier without a type has no property to attach the type to, so is
 /// added as a plain string.
-fn push_identifier(
+pub(super) fn push_identifier(
     identifiers: &mut Option<Vec<PropertyValueOrString>>,
     property_id: Option<String>,
     name: Option<String>,

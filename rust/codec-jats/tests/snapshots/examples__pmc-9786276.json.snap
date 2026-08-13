@@ -447,7 +447,14 @@ expression: article
         "volumeNumber": 437
       },
       "pageStart": 137,
-      "pageEnd": 40
+      "pageEnd": 40,
+      "identifiers": [
+        {
+          "type": "PropertyValue",
+          "propertyId": "pmid",
+          "value": "16136143"
+        }
+      ]
     },
     {
       "type": "Reference",
@@ -589,7 +596,14 @@ expression: article
         "volumeNumber": 107
       },
       "pageStart": 111,
-      "pageEnd": 20
+      "pageEnd": 20,
+      "identifiers": [
+        {
+          "type": "PropertyValue",
+          "propertyId": "pmid",
+          "value": "16351932"
+        }
+      ]
     },
     {
       "type": "Reference",
@@ -738,7 +752,14 @@ expression: article
         "volumeNumber": 438
       },
       "pageStart": 1145,
-      "pageEnd": 7
+      "pageEnd": 7,
+      "identifiers": [
+        {
+          "type": "PropertyValue",
+          "propertyId": "pmid",
+          "value": "16372007"
+        }
+      ]
     },
     {
       "type": "Reference",
@@ -819,7 +840,14 @@ expression: article
         "volumeNumber": 456
       },
       "pageStart": 636,
-      "pageEnd": 8
+      "pageEnd": 8,
+      "identifiers": [
+        {
+          "type": "PropertyValue",
+          "propertyId": "pmid",
+          "value": "18806778"
+        }
+      ]
     },
     {
       "type": "Reference",
@@ -901,7 +929,14 @@ expression: article
         "volumeNumber": 131
       },
       "pageStart": 20,
-      "pageEnd": 8
+      "pageEnd": 8,
+      "identifiers": [
+        {
+          "type": "PropertyValue",
+          "propertyId": "pmid",
+          "value": "30502824"
+        }
+      ]
     },
     {
       "type": "Reference",
@@ -1001,7 +1036,24 @@ expression: article
           }
         ],
         "volumeNumber": 1
-      }
+      },
+      "identifiers": [
+        {
+          "type": "PropertyValue",
+          "propertyId": "elocation-id",
+          "value": "obz026"
+        },
+        {
+          "type": "PropertyValue",
+          "propertyId": "pmid",
+          "value": "33791540"
+        },
+        {
+          "type": "PropertyValue",
+          "propertyId": "pmcid",
+          "value": "PMC7671134"
+        }
+      ]
     },
     {
       "type": "Reference",
@@ -1092,7 +1144,14 @@ expression: article
         "volumeNumber": 95
       },
       "pageStart": 335,
-      "pageEnd": 44
+      "pageEnd": 44,
+      "identifiers": [
+        {
+          "type": "PropertyValue",
+          "propertyId": "pmid",
+          "value": "30242836"
+        }
+      ]
     },
     {
       "type": "Reference",
@@ -1137,7 +1196,14 @@ expression: article
         "volumeNumber": 47
       },
       "pageStart": 510,
-      "pageEnd": 23
+      "pageEnd": 23,
+      "identifiers": [
+        {
+          "type": "PropertyValue",
+          "propertyId": "pmid",
+          "value": "21672860"
+        }
+      ]
     },
     {
       "type": "Reference",
@@ -1218,7 +1284,14 @@ expression: article
         "volumeNumber": 579
       },
       "pageStart": 549,
-      "pageEnd": 54
+      "pageEnd": 54,
+      "identifiers": [
+        {
+          "type": "PropertyValue",
+          "propertyId": "pmid",
+          "value": "32214248"
+        }
+      ]
     },
     {
       "type": "Reference",
@@ -1338,11 +1411,33 @@ expression: article
     {
       "type": "Reference",
       "id": "inz212599-bib-0016",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Courtenay"
+          ],
+          "givenNames": [
+            "W",
+            "R"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Williams"
+          ],
+          "givenNames": [
+            "J",
+            "D"
+          ]
+        }
+      ],
       "date": {
         "type": "Date",
         "value": "2004"
       },
-      "text": "Courtenay  WR  Jr  ,  Williams  JD  ( 2004 ). Snakeheads (Pisces, Channidae): A biological synopsis and risk assessment. Circular 1251. US Geological Survey, Reston, VA, 143 pp."
+      "text": "Courtenay WR Jr , Williams JD ( 2004 ). Snakeheads (Pisces, Channidae): A biological synopsis and risk assessment. Circular 1251. US Geological Survey, Reston, VA, 143 pp."
     },
     {
       "type": "Reference",
@@ -1407,7 +1502,14 @@ expression: article
         "volumeNumber": 440
       },
       "pageStart": 757,
-      "pageEnd": 63
+      "pageEnd": 63,
+      "identifiers": [
+        {
+          "type": "PropertyValue",
+          "propertyId": "pmid",
+          "value": "16598249"
+        }
+      ]
     },
     {
       "type": "Reference",
@@ -1807,7 +1909,19 @@ expression: article
         "volumeNumber": 6
       },
       "pageStart": 1,
-      "pageEnd": 10
+      "pageEnd": 10,
+      "identifiers": [
+        {
+          "type": "PropertyValue",
+          "propertyId": "pmid",
+          "value": "27670758"
+        },
+        {
+          "type": "PropertyValue",
+          "propertyId": "pmcid",
+          "value": "PMC5037403"
+        }
+      ]
     },
     {
       "type": "Reference",
@@ -1916,6 +2030,11 @@ expression: article
           }
         }
       ],
+      "publisher": {
+        "type": "Organization",
+        "name": "J. Wiley and Sons",
+        "address": "New York"
+      },
       "pageStart": 367
     },
     {
@@ -2024,7 +2143,14 @@ expression: article
         "volumeNumber": 53
       },
       "pageStart": 295,
-      "pageEnd": 306
+      "pageEnd": 306,
+      "identifiers": [
+        {
+          "type": "PropertyValue",
+          "propertyId": "pmid",
+          "value": "23704366"
+        }
+      ]
     },
     {
       "type": "Reference",
@@ -2068,7 +2194,14 @@ expression: article
         "volumeNumber": 20
       },
       "pageStart": 88,
-      "pageEnd": 116
+      "pageEnd": 116,
+      "identifiers": [
+        {
+          "type": "PropertyValue",
+          "propertyId": "pmid",
+          "value": "17601942"
+        }
+      ]
     },
     {
       "type": "Reference",
@@ -2356,7 +2489,24 @@ expression: article
           }
         ],
         "volumeNumber": 9
-      }
+      },
+      "identifiers": [
+        {
+          "type": "PropertyValue",
+          "propertyId": "elocation-id",
+          "value": "e96516"
+        },
+        {
+          "type": "PropertyValue",
+          "propertyId": "pmid",
+          "value": "24788982"
+        },
+        {
+          "type": "PropertyValue",
+          "propertyId": "pmcid",
+          "value": "PMC4008594"
+        }
+      ]
     },
     {
       "type": "Reference",
@@ -2515,7 +2665,14 @@ expression: article
         "volumeNumber": 53
       },
       "pageStart": 283,
-      "pageEnd": 94
+      "pageEnd": 94,
+      "identifiers": [
+        {
+          "type": "PropertyValue",
+          "propertyId": "pmid",
+          "value": "23667046"
+        }
+      ]
     },
     {
       "type": "Reference",
@@ -2798,7 +2955,14 @@ expression: article
         "volumeNumber": 463
       },
       "pageStart": 43,
-      "pageEnd": 8
+      "pageEnd": 8,
+      "identifiers": [
+        {
+          "type": "PropertyValue",
+          "propertyId": "pmid",
+          "value": "20054388"
+        }
+      ]
     },
     {
       "type": "Reference",
@@ -2842,7 +3006,14 @@ expression: article
         "volumeNumber": 89
       },
       "pageStart": 135,
-      "pageEnd": 93
+      "pageEnd": 93,
+      "identifiers": [
+        {
+          "type": "PropertyValue",
+          "propertyId": "pmid",
+          "value": "14894439"
+        }
+      ]
     },
     {
       "type": "Reference",
@@ -2897,7 +3068,14 @@ expression: article
         "volumeNumber": 84
       },
       "pageStart": 639,
-      "pageEnd": 60
+      "pageEnd": 60,
+      "identifiers": [
+        {
+          "type": "PropertyValue",
+          "propertyId": "pmid",
+          "value": "24502775"
+        }
+      ]
     },
     {
       "type": "Reference",
@@ -3033,7 +3211,14 @@ expression: article
         "volumeNumber": 53
       },
       "pageStart": 209,
-      "pageEnd": 23
+      "pageEnd": 23,
+      "identifiers": [
+        {
+          "type": "PropertyValue",
+          "propertyId": "pmid",
+          "value": "23624864"
+        }
+      ]
     },
     {
       "type": "Reference",
@@ -3099,7 +3284,7 @@ expression: article
     {
       "type": "Reference",
       "id": "inz212599-bib-0047",
-      "workType": "Book",
+      "workType": "Chapter",
       "authors": [
         {
           "type": "Person",
@@ -3126,7 +3311,7 @@ expression: article
       ],
       "isPartOf": {
         "type": "Reference",
-        "workType": "Periodical",
+        "workType": "Book",
         "title": [
           {
             "type": "Text",
@@ -3146,7 +3331,12 @@ expression: article
               "L"
             ]
           }
-        ]
+        ],
+        "publisher": {
+          "type": "Organization",
+          "name": "Academic Press",
+          "address": "New York"
+        }
       },
       "pageStart": 255,
       "pageEnd": 92
@@ -3154,7 +3344,7 @@ expression: article
     {
       "type": "Reference",
       "id": "inz212599-bib-0048",
-      "workType": "Book",
+      "workType": "Chapter",
       "authors": [
         {
           "type": "Person",
@@ -3198,7 +3388,7 @@ expression: article
       ],
       "isPartOf": {
         "type": "Reference",
-        "workType": "Periodical",
+        "workType": "Book",
         "title": [
           {
             "type": "Text",
@@ -3235,7 +3425,12 @@ expression: article
               "J"
             ]
           }
-        ]
+        ],
+        "publisher": {
+          "type": "Organization",
+          "name": "Mémoires du Muséum national d'Histoire naturelle",
+          "address": "Paris"
+        }
       },
       "pageStart": 91,
       "pageEnd": 128
@@ -3381,7 +3576,12 @@ expression: article
             "string": "The origin of terrestrial vertebrates"
           }
         }
-      ]
+      ],
+      "publisher": {
+        "type": "Organization",
+        "name": "Academic Press",
+        "address": "New York"
+      }
     },
     {
       "type": "Reference",
@@ -3467,7 +3667,7 @@ expression: article
     {
       "type": "Reference",
       "id": "inz212599-bib-0053",
-      "workType": "Book",
+      "workType": "Chapter",
       "authors": [
         {
           "type": "Person",
@@ -3494,7 +3694,7 @@ expression: article
       ],
       "isPartOf": {
         "type": "Reference",
-        "workType": "Periodical",
+        "workType": "Book",
         "title": [
           {
             "type": "Text",
@@ -3534,7 +3734,12 @@ expression: article
               "T"
             ]
           }
-        ]
+        ],
+        "publisher": {
+          "type": "Organization",
+          "name": "Plenum Press",
+          "address": "New York"
+        }
       },
       "pageStart": 39,
       "pageEnd": 86
@@ -3619,7 +3824,14 @@ expression: article
         "volumeNumber": 440
       },
       "pageStart": 764,
-      "pageEnd": 71
+      "pageEnd": 71,
+      "identifiers": [
+        {
+          "type": "PropertyValue",
+          "propertyId": "pmid",
+          "value": "16598250"
+        }
+      ]
     },
     {
       "type": "Reference",
@@ -3701,7 +3913,19 @@ expression: article
         "volumeNumber": 111
       },
       "pageStart": 893,
-      "pageEnd": 9
+      "pageEnd": 9,
+      "identifiers": [
+        {
+          "type": "PropertyValue",
+          "propertyId": "pmid",
+          "value": "24449831"
+        },
+        {
+          "type": "PropertyValue",
+          "propertyId": "pmcid",
+          "value": "PMC3903263"
+        }
+      ]
     },
     {
       "type": "Reference",
@@ -3763,7 +3987,19 @@ expression: article
         "volumeNumber": 59
       },
       "pageStart": 1609,
-      "pageEnd": 18
+      "pageEnd": 18,
+      "identifiers": [
+        {
+          "type": "PropertyValue",
+          "propertyId": "pmid",
+          "value": "31399734"
+        },
+        {
+          "type": "PropertyValue",
+          "propertyId": "pmcid",
+          "value": "PMC6907395"
+        }
+      ]
     },
     {
       "type": "Reference",
@@ -3818,7 +4054,14 @@ expression: article
         "volumeNumber": 207
       },
       "pageStart": 4037,
-      "pageEnd": 44
+      "pageEnd": 44,
+      "identifiers": [
+        {
+          "type": "PropertyValue",
+          "propertyId": "pmid",
+          "value": "15498949"
+        }
+      ]
     },
     {
       "type": "Reference",
@@ -3861,12 +4104,24 @@ expression: article
           }
         ],
         "volumeNumber": 41
-      }
+      },
+      "identifiers": [
+        {
+          "type": "PropertyValue",
+          "propertyId": "elocation-id",
+          "value": "1900061"
+        },
+        {
+          "type": "PropertyValue",
+          "propertyId": "pmid",
+          "value": "31531902"
+        }
+      ]
     },
     {
       "type": "Reference",
       "id": "inz212599-bib-0059",
-      "workType": "Book",
+      "workType": "Chapter",
       "authors": [
         {
           "type": "Person",
@@ -3920,7 +4175,7 @@ expression: article
       ],
       "isPartOf": {
         "type": "Reference",
-        "workType": "Periodical",
+        "workType": "Book",
         "title": [
           {
             "type": "Text",
@@ -3939,7 +4194,12 @@ expression: article
               "E"
             ]
           }
-        ]
+        ],
+        "publisher": {
+          "type": "Organization",
+          "name": "Academy of Sciences of Estonia",
+          "address": "Tallinn"
+        }
       },
       "pageStart": 131,
       "pageEnd": 40
@@ -3947,7 +4207,7 @@ expression: article
     {
       "type": "Reference",
       "id": "inz212599-bib-0060",
-      "workType": "Book",
+      "workType": "Chapter",
       "authors": [
         {
           "type": "Person",
@@ -3983,7 +4243,7 @@ expression: article
       ],
       "isPartOf": {
         "type": "Reference",
-        "workType": "Periodical",
+        "workType": "Book",
         "title": [
           {
             "type": "Text",
@@ -4011,7 +4271,11 @@ expression: article
               "L"
             ]
           }
-        ]
+        ],
+        "publisher": {
+          "type": "Organization",
+          "address": "Comstock, Ithaca, NY"
+        }
       },
       "pageStart": 68,
       "pageEnd": 109
@@ -4152,7 +4416,14 @@ expression: article
         "volumeNumber": 118
       },
       "pageStart": 312,
-      "pageEnd": 9
+      "pageEnd": 9,
+      "identifiers": [
+        {
+          "type": "PropertyValue",
+          "propertyId": "pmid",
+          "value": "26165693"
+        }
+      ]
     },
     {
       "type": "Reference",

@@ -11,9 +11,6 @@ expression: info.losses
 //article/back/app-group/app/table-wrap/table/tbody/tr/td/italic/break: 14
 //article/back/app-group/app/table-wrap/table/tbody/tr/td/named-content: 18
 //article/back/app-group/app/table-wrap/table/tbody/tr/td/named-content/@content-type: 18
-//article/back/ref-list/ref/element-citation/elocation-id: 7
-"//article/back/ref-list/ref/element-citation/pub-id[@pub-id-type='pmid']": 66
-//article/back/ref-list/ref/element-citation/year/@iso-8601-date: 68
 //article/back/ref-list/title: 1
 //article/back/sec/@id: 3
 //article/back/sec/fn-group/fn/@fn-type: 8

@@ -2,15 +2,8 @@
 source: rust/codec-jats/tests/examples.rs
 expression: info.losses
 ---
-//article/back/ref-list/ref/mixed-citation/collab: 1
-//article/back/ref-list/ref/mixed-citation/comment: 28
 //article/back/ref-list/ref/mixed-citation/etal: 17
-//article/back/ref-list/ref/mixed-citation/ext-link: 6
 //article/back/ref-list/ref/mixed-citation/name/@name-style: 137
-"//article/back/ref-list/ref/mixed-citation/pub-id[@pub-id-type='pmcid']": 20
-"//article/back/ref-list/ref/mixed-citation/pub-id[@pub-id-type='pmid']": 26
-//article/back/ref-list/ref/mixed-citation/publisher-loc: 1
-//article/back/ref-list/ref/mixed-citation/publisher-name: 1
 //article/back/ref-list/title: 1
 //article/body/sec/@id: 6
 //article/body/sec/p/italic/@toggle: 9

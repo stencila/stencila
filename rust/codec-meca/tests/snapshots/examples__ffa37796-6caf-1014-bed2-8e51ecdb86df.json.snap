@@ -427,11 +427,41 @@ expression: article
     {
       "type": "Reference",
       "id": "c9",
+      "workType": "Article",
+      "authors": [
+        {
+          "type": "Organization",
+          "name": "International Human Genome Sequencing Consortium et al"
+        }
+      ],
       "date": {
         "type": "Date",
         "value": "2001"
       },
-      "text": "International Human Genome Sequencing Consortium et al . Initial sequencing and analysis of the human genome . Nature , 409 ( 6822 ): 860 – 921 , February  2001 ."
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Initial sequencing and analysis of the human genome"
+          }
+        }
+      ],
+      "isPartOf": {
+        "type": "Reference",
+        "workType": "Periodical",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Nature"
+            }
+          }
+        ],
+        "volumeNumber": 409,
+        "issueNumber": 6822
+      },
+      "pageStart": 860,
+      "pageEnd": 921
     },
     {
       "type": "Reference",

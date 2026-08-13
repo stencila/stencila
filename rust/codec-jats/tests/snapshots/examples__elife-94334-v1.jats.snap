@@ -1869,9 +1869,11 @@ expression: jats
           <article-title>Two distinct pathways for inhibiting pds1 ubiquitination in response to DNA damage</article-title>
           <source>The Journal of Biological Chemistry</source>
           <year>2003</year>
+          <volume>278</volume>
           <fpage>45027</fpage>
           <lpage>45033</lpage>
           <pub-id pub-id-type="doi">10.1074/jbc.M306783200</pub-id>
+          <pub-id pub-id-type="pmid">12947083</pub-id>
         </element-citation>
       </ref>
       <ref id="bib2">
@@ -1897,9 +1899,11 @@ expression: jats
           <article-title>Rad51-mediated double-strand break repair and mismatch correction of divergent substrates</article-title>
           <source>Nature</source>
           <year>2017</year>
+          <volume>544</volume>
           <fpage>377</fpage>
           <lpage>380</lpage>
           <pub-id pub-id-type="doi">10.1038/nature22046</pub-id>
+          <pub-id pub-id-type="pmid">28405019</pub-id>
         </element-citation>
       </ref>
       <ref id="bib3">
@@ -1917,6 +1921,7 @@ expression: jats
           <article-title>The checkpoint protein Rad24 of <italic>Saccharomyces cerevisiae</italic> is involved in processing double-strand break ends and in recombination partner choice</article-title>
           <source>Molecular and Cellular Biology</source>
           <year>2003</year>
+          <volume>23</volume>
           <fpage>6585</fpage>
           <lpage>6596</lpage>
           <pub-id pub-id-type="doi">10.1128/MCB.23.18.6585-6596.2003</pub-id>
@@ -1941,9 +1946,11 @@ expression: jats
           <article-title>A mechanism for coupling exit from mitosis to partitioning of the nucleus</article-title>
           <source>Cell</source>
           <year>2000</year>
+          <volume>102</volume>
           <fpage>21</fpage>
           <lpage>31</lpage>
           <pub-id pub-id-type="doi">10.1016/s0092-8674(00)00007-6</pub-id>
+          <pub-id pub-id-type="pmid">10929710</pub-id>
         </element-citation>
       </ref>
       <ref id="bib5">
@@ -1973,9 +1980,11 @@ expression: jats
           <article-title>Dephosphorylation of gamma H2A by Glc7/protein phosphatase 1 promotes recovery from inhibition of DNA replication</article-title>
           <source>Molecular and Cellular Biology</source>
           <year>2010</year>
+          <volume>30</volume>
           <fpage>131</fpage>
           <lpage>145</lpage>
           <pub-id pub-id-type="doi">10.1128/MCB.01000-09</pub-id>
+          <pub-id pub-id-type="pmid">19884341</pub-id>
         </element-citation>
       </ref>
       <ref id="bib6">
@@ -1997,9 +2006,11 @@ expression: jats
           <article-title>Mechanism of Dun1 activation by Rad53 phosphorylation in <italic>Saccharomyces cerevisiae</italic></article-title>
           <source>The Journal of Biological Chemistry</source>
           <year>2007</year>
+          <volume>282</volume>
           <fpage>986</fpage>
           <lpage>995</lpage>
           <pub-id pub-id-type="doi">10.1074/jbc.M609322200</pub-id>
+          <pub-id pub-id-type="pmid">17114794</pub-id>
         </element-citation>
       </ref>
       <ref id="bib7">
@@ -2033,9 +2044,11 @@ expression: jats
           <article-title>Hyperactivation of the yeast DNA damage checkpoint by TEL1 and DDC2 overexpression</article-title>
           <source>The EMBO Journal</source>
           <year>2001</year>
+          <volume>20</volume>
           <fpage>6485</fpage>
           <lpage>6498</lpage>
           <pub-id pub-id-type="doi">10.1093/emboj/20.22.6485</pub-id>
+          <pub-id pub-id-type="pmid">11707419</pub-id>
         </element-citation>
       </ref>
       <ref id="bib8">
@@ -2057,9 +2070,11 @@ expression: jats
           <article-title>RAD9 and RAD24 define two additive, interacting branches of the DNA damage checkpoint pathway in budding yeast normally required for Rad53 modification and activation</article-title>
           <source>The EMBO Journal</source>
           <year>1998</year>
+          <volume>17</volume>
           <fpage>2687</fpage>
           <lpage>2698</lpage>
           <pub-id pub-id-type="doi">10.1093/emboj/17.9.2687</pub-id>
+          <pub-id pub-id-type="pmid">9564050</pub-id>
         </element-citation>
       </ref>
       <ref id="bib9">
@@ -2077,9 +2092,11 @@ expression: jats
           <article-title>Kinetic framework of spindle assembly checkpoint signalling</article-title>
           <source>Nature Cell Biology</source>
           <year>2013</year>
+          <volume>15</volume>
           <fpage>1370</fpage>
           <lpage>1377</lpage>
           <pub-id pub-id-type="doi">10.1038/ncb2842</pub-id>
+          <pub-id pub-id-type="pmid">24096243</pub-id>
         </element-citation>
       </ref>
       <ref id="bib10">
@@ -2109,9 +2126,11 @@ expression: jats
           <article-title>The yeast DNA damage checkpoint proteins control a cytoplasmic response to DNA damage</article-title>
           <source>PNAS</source>
           <year>2007</year>
+          <volume>104</volume>
           <fpage>11358</fpage>
           <lpage>11363</lpage>
           <pub-id pub-id-type="doi">10.1073/pnas.0609636104</pub-id>
+          <pub-id pub-id-type="pmid">17586685</pub-id>
         </element-citation>
       </ref>
       <ref id="bib11">
@@ -2141,9 +2160,11 @@ expression: jats
           <article-title>Mad2 prolongs DNA damage checkpoint arrest caused by a double-strand break via a centromere-dependent mechanism</article-title>
           <source>Current Biology</source>
           <year>2010</year>
+          <volume>20</volume>
           <fpage>328</fpage>
           <lpage>332</lpage>
           <pub-id pub-id-type="doi">10.1016/j.cub.2009.12.033</pub-id>
+          <pub-id pub-id-type="pmid">20096585</pub-id>
         </element-citation>
       </ref>
       <ref id="bib12">
@@ -2169,9 +2190,11 @@ expression: jats
           <article-title>The processing of double-strand breaks and binding of single-strand-binding proteins RPA and Rad51 modulate the formation of ATR-kinase foci in yeast</article-title>
           <source>Journal of Cell Science</source>
           <year>2007</year>
+          <volume>120</volume>
           <fpage>4209</fpage>
           <lpage>4220</lpage>
           <pub-id pub-id-type="doi">10.1242/jcs.018366</pub-id>
+          <pub-id pub-id-type="pmid">18003698</pub-id>
         </element-citation>
       </ref>
       <ref id="bib13">
@@ -2197,9 +2220,11 @@ expression: jats
           <article-title>The FHA domain is a modular phosphopeptide recognition motif</article-title>
           <source>Molecular Cell</source>
           <year>1999</year>
+          <volume>4</volume>
           <fpage>387</fpage>
           <lpage>394</lpage>
           <pub-id pub-id-type="doi">10.1016/s1097-2765(00)80340-8</pub-id>
+          <pub-id pub-id-type="pmid">10518219</pub-id>
         </element-citation>
       </ref>
       <ref id="bib14">
@@ -2229,9 +2254,11 @@ expression: jats
           <article-title>The <italic>Saccharomyces cerevisiae</italic> chromatin remodeler Fun30 regulates DNA end resection and checkpoint deactivation</article-title>
           <source>Molecular and Cellular Biology</source>
           <year>2012</year>
+          <volume>32</volume>
           <fpage>4727</fpage>
           <lpage>4740</lpage>
           <pub-id pub-id-type="doi">10.1128/MCB.00566-12</pub-id>
+          <pub-id pub-id-type="pmid">23007155</pub-id>
         </element-citation>
       </ref>
       <ref id="bib15">
@@ -2249,7 +2276,10 @@ expression: jats
           <article-title>Biochemical characterization of DNA damage checkpoint complexes: clamp loader and clamp complexes with specificity for 5’ recessed DNA</article-title>
           <source>PLOS Biology</source>
           <year>2003</year>
+          <volume>1</volume>
+          <elocation-id>E33</elocation-id>
           <pub-id pub-id-type="doi">10.1371/journal.pbio.0000033</pub-id>
+          <pub-id pub-id-type="pmid">14624239</pub-id>
         </element-citation>
       </ref>
       <ref id="bib16">
@@ -2263,9 +2293,11 @@ expression: jats
           <article-title>MEC1-dependent phosphorylation of Rad9p in response to DNA damage</article-title>
           <source>Molecular Cell</source>
           <year>1998</year>
+          <volume>2</volume>
           <fpage>183</fpage>
           <lpage>189</lpage>
           <pub-id pub-id-type="doi">10.1016/s1097-2765(00)80128-8</pub-id>
+          <pub-id pub-id-type="pmid">9734355</pub-id>
         </element-citation>
       </ref>
       <ref id="bib17">
@@ -2295,9 +2327,11 @@ expression: jats
           <article-title>Characterization of the activation domain of the Rad53 checkpoint kinase</article-title>
           <source>Cell Cycle</source>
           <year>2008</year>
+          <volume>7</volume>
           <fpage>493</fpage>
           <lpage>499</lpage>
           <pub-id pub-id-type="doi">10.4161/cc.7.4.5323</pub-id>
+          <pub-id pub-id-type="pmid">18287812</pub-id>
         </element-citation>
       </ref>
       <ref id="bib18">
@@ -2315,9 +2349,11 @@ expression: jats
           <article-title>Overlapping roles of the spindle assembly and DNA damage checkpoints in the cell-cycle response to altered chromosomes in <italic>Saccharomyces cerevisiae</italic></article-title>
           <source>Genetics</source>
           <year>2002</year>
+          <volume>161</volume>
           <fpage>521</fpage>
           <lpage>534</lpage>
           <pub-id pub-id-type="doi">10.1093/genetics/161.2.521</pub-id>
+          <pub-id pub-id-type="pmid">12072451</pub-id>
         </element-citation>
       </ref>
       <ref id="bib19">
@@ -2355,9 +2391,11 @@ expression: jats
           <article-title>Control of mitotic exit in budding yeast. In vitro regulation of Tem1 GTPase by Bub2 and Bfa1</article-title>
           <source>The Journal of Biological Chemistry</source>
           <year>2002</year>
+          <volume>277</volume>
           <fpage>28439</fpage>
           <lpage>28445</lpage>
           <pub-id pub-id-type="doi">10.1074/jbc.M202540200</pub-id>
+          <pub-id pub-id-type="pmid">12048186</pub-id>
         </element-citation>
       </ref>
       <ref id="bib20">
@@ -2391,9 +2429,11 @@ expression: jats
           <article-title>Regulation of the Bub2/Bfa1 GAP complex by Cdc5 and cell cycle checkpoints</article-title>
           <source>Cell</source>
           <year>2001</year>
+          <volume>107</volume>
           <fpage>655</fpage>
           <lpage>665</lpage>
           <pub-id pub-id-type="doi">10.1016/s0092-8674(01)00580-3</pub-id>
+          <pub-id pub-id-type="pmid">11733064</pub-id>
         </element-citation>
       </ref>
       <ref id="bib21">
@@ -2423,9 +2463,11 @@ expression: jats
           <article-title>Heterochromatin is refractory to gamma-H2AX modification in yeast and mammals</article-title>
           <source>The Journal of Cell Biology</source>
           <year>2007</year>
+          <volume>178</volume>
           <fpage>209</fpage>
           <lpage>218</lpage>
           <pub-id pub-id-type="doi">10.1083/jcb.200612031</pub-id>
+          <pub-id pub-id-type="pmid">17635934</pub-id>
         </element-citation>
       </ref>
       <ref id="bib22">
@@ -2443,7 +2485,10 @@ expression: jats
           <article-title>DNA damage activates the SAC in an ATM/ATR-dependent manner, independently of the kinetochore</article-title>
           <source>PLOS Genetics</source>
           <year>2008</year>
+          <volume>4</volume>
+          <elocation-id>e1000015</elocation-id>
           <pub-id pub-id-type="doi">10.1371/journal.pgen.1000015</pub-id>
+          <pub-id pub-id-type="pmid">18454191</pub-id>
         </element-citation>
       </ref>
       <ref id="bib23">
@@ -2465,7 +2510,10 @@ expression: jats
           <article-title>DNA damage kinase signaling: checkpoint and repair at 30 years</article-title>
           <source>The EMBO Journal</source>
           <year>2019</year>
+          <volume>38</volume>
+          <elocation-id>e101801</elocation-id>
           <pub-id pub-id-type="doi">10.15252/embj.2019101801</pub-id>
+          <pub-id pub-id-type="pmid">31393028</pub-id>
         </element-citation>
       </ref>
       <ref id="bib24">
@@ -2511,9 +2559,11 @@ expression: jats
           <article-title>Histone methyltransferase Dot1 and Rad9 inhibit single-stranded DNA accumulation at DSBs and uncapped telomeres</article-title>
           <source>The EMBO Journal</source>
           <year>2008</year>
+          <volume>27</volume>
           <fpage>1502</fpage>
           <lpage>1512</lpage>
           <pub-id pub-id-type="doi">10.1038/emboj.2008.81</pub-id>
+          <pub-id pub-id-type="pmid">18418382</pub-id>
         </element-citation>
       </ref>
       <ref id="bib25">
@@ -2547,9 +2597,11 @@ expression: jats
           <article-title>Saccharomyces Ku70, mre11/rad50 and RPA proteins regulate adaptation to G2/M arrest after DNA damage</article-title>
           <source>Cell</source>
           <year>1998</year>
+          <volume>94</volume>
           <fpage>399</fpage>
           <lpage>409</lpage>
           <pub-id pub-id-type="doi">10.1016/s0092-8674(00)81482-8</pub-id>
+          <pub-id pub-id-type="pmid">9708741</pub-id>
         </element-citation>
       </ref>
       <ref id="bib26">
@@ -2575,9 +2627,11 @@ expression: jats
           <article-title>Dynamics of yeast histone H2A and H2B phosphorylation in response to a double-strand break</article-title>
           <source>Nature Structural &amp; Molecular Biology</source>
           <year>2014</year>
+          <volume>21</volume>
           <fpage>103</fpage>
           <lpage>109</lpage>
           <pub-id pub-id-type="doi">10.1038/nsmb.2737</pub-id>
+          <pub-id pub-id-type="pmid">24336221</pub-id>
         </element-citation>
       </ref>
       <ref id="bib27">
@@ -2615,9 +2669,11 @@ expression: jats
           <article-title>PP2C phosphatases Ptc2 and Ptc3 are required for DNA checkpoint inactivation after a double-strand break</article-title>
           <source>Molecular Cell</source>
           <year>2003</year>
+          <volume>11</volume>
           <fpage>827</fpage>
           <lpage>835</lpage>
           <pub-id pub-id-type="doi">10.1016/s1097-2765(03)00058-3</pub-id>
+          <pub-id pub-id-type="pmid">12667463</pub-id>
         </element-citation>
       </ref>
       <ref id="bib28">
@@ -2643,9 +2699,11 @@ expression: jats
           <article-title>Mre11 nuclease activity and Ctp1 regulate Chk1 activation by Rad3ATR and Tel1ATM checkpoint kinases at double-strand breaks</article-title>
           <source>Molecular and Cellular Biology</source>
           <year>2011</year>
+          <volume>31</volume>
           <fpage>573</fpage>
           <lpage>583</lpage>
           <pub-id pub-id-type="doi">10.1128/MCB.00994-10</pub-id>
+          <pub-id pub-id-type="pmid">21098122</pub-id>
         </element-citation>
       </ref>
       <ref id="bib29">
@@ -2671,9 +2729,11 @@ expression: jats
           <article-title>Replication protein A directs loading of the DNA damage checkpoint clamp to 5’-DNA junctions</article-title>
           <source>The Journal of Biological Chemistry</source>
           <year>2006</year>
+          <volume>281</volume>
           <fpage>27855</fpage>
           <lpage>27861</lpage>
           <pub-id pub-id-type="doi">10.1074/jbc.M605176200</pub-id>
+          <pub-id pub-id-type="pmid">16864589</pub-id>
         </element-citation>
       </ref>
       <ref id="bib30">
@@ -2699,9 +2759,11 @@ expression: jats
           <article-title>Dual role for <italic>Saccharomyces cerevisiae</italic> Tel1 in the checkpoint response to double-strand breaks</article-title>
           <source>EMBO Reports</source>
           <year>2007</year>
+          <volume>8</volume>
           <fpage>380</fpage>
           <lpage>387</lpage>
           <pub-id pub-id-type="doi">10.1038/sj.embor.7400911</pub-id>
+          <pub-id pub-id-type="pmid">17347674</pub-id>
         </element-citation>
       </ref>
       <ref id="bib31">
@@ -2739,7 +2801,10 @@ expression: jats
           <article-title>DNA damage-induced metaphase I arrest is mediated by the spindle assembly checkpoint and maternal age</article-title>
           <source>Nature Communications</source>
           <year>2015</year>
+          <volume>6</volume>
+          <elocation-id>8706</elocation-id>
           <pub-id pub-id-type="doi">10.1038/ncomms9706</pub-id>
+          <pub-id pub-id-type="pmid">26522734</pub-id>
         </element-citation>
       </ref>
       <ref id="bib32">
@@ -2757,9 +2822,11 @@ expression: jats
           <article-title>RPA-coated single-stranded DNA as a platform for post-translational modifications in the DNA damage response</article-title>
           <source>Cell Research</source>
           <year>2015</year>
+          <volume>25</volume>
           <fpage>9</fpage>
           <lpage>23</lpage>
           <pub-id pub-id-type="doi">10.1038/cr.2014.147</pub-id>
+          <pub-id pub-id-type="pmid">25403473</pub-id>
         </element-citation>
       </ref>
       <ref id="bib33">
@@ -2777,7 +2844,10 @@ expression: jats
           <article-title>Regulation of mitotic exit by cell cycle checkpoints: lessons from <italic>Saccharomyces cerevisiae</italic></article-title>
           <source>Genes</source>
           <year>2020</year>
+          <volume>11</volume>
+          <elocation-id>195</elocation-id>
           <pub-id pub-id-type="doi">10.3390/genes11020195</pub-id>
+          <pub-id pub-id-type="pmid">32059558</pub-id>
         </element-citation>
       </ref>
       <ref id="bib34">
@@ -2795,9 +2865,11 @@ expression: jats
           <article-title>Principles and dynamics of spindle assembly checkpoint signalling</article-title>
           <source>Nature Reviews. Molecular Cell Biology</source>
           <year>2023</year>
+          <volume>24</volume>
           <fpage>543</fpage>
           <lpage>559</lpage>
           <pub-id pub-id-type="doi">10.1038/s41580-023-00593-z</pub-id>
+          <pub-id pub-id-type="pmid">36964313</pub-id>
         </element-citation>
       </ref>
       <ref id="bib35">
@@ -2815,7 +2887,10 @@ expression: jats
           <article-title>Sources of DNA double-strand breaks and models of recombinational DNA repair</article-title>
           <source>Cold Spring Harbor Perspectives in Biology</source>
           <year>2014</year>
+          <volume>6</volume>
+          <elocation-id>a016428</elocation-id>
           <pub-id pub-id-type="doi">10.1101/cshperspect.a016428</pub-id>
+          <pub-id pub-id-type="pmid">25104768</pub-id>
         </element-citation>
       </ref>
       <ref id="bib36">
@@ -2837,9 +2912,11 @@ expression: jats
           <article-title>Two checkpoint complexes are independently recruited to sites of DNA damage in vivo</article-title>
           <source>Genes &amp; Development</source>
           <year>2001</year>
+          <volume>15</volume>
           <fpage>2809</fpage>
           <lpage>2821</lpage>
           <pub-id pub-id-type="doi">10.1101/gad.903501</pub-id>
+          <pub-id pub-id-type="pmid">11691833</pub-id>
         </element-citation>
       </ref>
       <ref id="bib37">
@@ -2877,6 +2954,7 @@ expression: jats
           <article-title>Mec1ATR Autophosphorylation and Ddc2ATRIP Phosphorylation Regulates DNA Damage Checkpoint Signaling</article-title>
           <source>Cell Reports</source>
           <year>2019</year>
+          <volume>28</volume>
           <fpage>1090</fpage>
           <lpage>1102</lpage>
           <pub-id pub-id-type="doi">10.1016/j.celrep.2019.06.068</pub-id>
@@ -2905,9 +2983,11 @@ expression: jats
           <article-title>Detection of <italic>Saccharomyces cerevisiae</italic> Atg13 by western blot</article-title>
           <source>Autophagy</source>
           <year>2014</year>
+          <volume>10</volume>
           <fpage>514</fpage>
           <lpage>517</lpage>
           <pub-id pub-id-type="doi">10.4161/auto.27707</pub-id>
+          <pub-id pub-id-type="pmid">24430166</pub-id>
         </element-citation>
       </ref>
       <ref id="bib39">
@@ -2925,9 +3005,11 @@ expression: jats
           <article-title>Cell cycle and genetic requirements of two pathways of nonhomologous end-joining repair of double-strand breaks in <italic>Saccharomyces cerevisiae</italic></article-title>
           <source>Molecular and Cellular Biology</source>
           <year>1996</year>
+          <volume>16</volume>
           <fpage>2164</fpage>
           <lpage>2173</lpage>
           <pub-id pub-id-type="doi">10.1128/MCB.16.5.2164</pub-id>
+          <pub-id pub-id-type="pmid">8628283</pub-id>
         </element-citation>
       </ref>
       <ref id="bib40">
@@ -2945,9 +3027,11 @@ expression: jats
           <article-title>An expanded tool kit for the auxin-inducible degron system in budding yeast</article-title>
           <source>Yeast</source>
           <year>2013</year>
+          <volume>30</volume>
           <fpage>341</fpage>
           <lpage>351</lpage>
           <pub-id pub-id-type="doi">10.1002/yea.2967</pub-id>
+          <pub-id pub-id-type="pmid">23836714</pub-id>
         </element-citation>
       </ref>
       <ref id="bib41">
@@ -2961,9 +3045,11 @@ expression: jats
           <article-title>The molecular biology of spindle assembly checkpoint signaling dynamics</article-title>
           <source>Current Biology</source>
           <year>2015</year>
+          <volume>25</volume>
           <fpage>R1002</fpage>
           <lpage>R1018</lpage>
           <pub-id pub-id-type="doi">10.1016/j.cub.2015.08.051</pub-id>
+          <pub-id pub-id-type="pmid">26485365</pub-id>
         </element-citation>
       </ref>
       <ref id="bib42">
@@ -2981,9 +3067,11 @@ expression: jats
           <article-title>The unstructured C-terminal tail of the 9-1-1 clamp subunit Ddc1 activates Mec1/ATR via two distinct mechanisms</article-title>
           <source>Molecular Cell</source>
           <year>2009</year>
+          <volume>36</volume>
           <fpage>743</fpage>
           <lpage>753</lpage>
           <pub-id pub-id-type="doi">10.1016/j.molcel.2009.10.014</pub-id>
+          <pub-id pub-id-type="pmid">20005839</pub-id>
         </element-citation>
       </ref>
       <ref id="bib43">
@@ -3013,9 +3101,11 @@ expression: jats
           <article-title>An auxin-based degron system for the rapid depletion of proteins in nonplant cells</article-title>
           <source>Nature Methods</source>
           <year>2009</year>
+          <volume>6</volume>
           <fpage>917</fpage>
           <lpage>922</lpage>
           <pub-id pub-id-type="doi">10.1038/nmeth.1401</pub-id>
+          <pub-id pub-id-type="pmid">19915560</pub-id>
         </element-citation>
       </ref>
       <ref id="bib44">
@@ -3053,9 +3143,11 @@ expression: jats
           <article-title>Pph3-Psy2 is a phosphatase complex required for Rad53 dephosphorylation and replication fork restart during recovery from DNA damage</article-title>
           <source>PNAS</source>
           <year>2007</year>
+          <volume>104</volume>
           <fpage>9290</fpage>
           <lpage>9295</lpage>
           <pub-id pub-id-type="doi">10.1073/pnas.0703252104</pub-id>
+          <pub-id pub-id-type="pmid">17517611</pub-id>
         </element-citation>
       </ref>
       <ref id="bib45">
@@ -3081,8 +3173,10 @@ expression: jats
           <article-title>The checkpoint protein Ddc2, functionally related to <italic>S. pombe</italic> Rad26, interacts with Mec1 and is regulated by Mec1-dependent phosphorylation in budding yeast</article-title>
           <source>Genes &amp; Development</source>
           <year>2000</year>
+          <volume>14</volume>
           <fpage>2046</fpage>
           <lpage>2059</lpage>
+          <pub-id pub-id-type="pmid">10950868</pub-id>
         </element-citation>
       </ref>
       <ref id="bib46">
@@ -3128,9 +3222,11 @@ expression: jats
           <article-title>Activation of Rad53 kinase in response to DNA damage and its effect in modulating phosphorylation of the lagging strand DNA polymerase</article-title>
           <source>The EMBO Journal</source>
           <year>1999</year>
+          <volume>18</volume>
           <fpage>6561</fpage>
           <lpage>6572</lpage>
           <pub-id pub-id-type="doi">10.1093/emboj/18.22.6561</pub-id>
+          <pub-id pub-id-type="pmid">10562568</pub-id>
         </element-citation>
       </ref>
       <ref id="bib47">
@@ -3160,9 +3256,11 @@ expression: jats
           <article-title>Regulation of Saccharomyces Rad53 checkpoint kinase during adaptation from DNA damage-induced G2/M arrest</article-title>
           <source>Molecular Cell</source>
           <year>2001</year>
+          <volume>7</volume>
           <fpage>293</fpage>
           <lpage>300</lpage>
           <pub-id pub-id-type="doi">10.1016/s1097-2765(01)00177-0</pub-id>
+          <pub-id pub-id-type="pmid">11239458</pub-id>
         </element-citation>
       </ref>
       <ref id="bib48">
@@ -3188,9 +3286,11 @@ expression: jats
           <article-title>Aberrant synthesis of indole-3-acetic acid in <italic>Saccharomyces cerevisiae</italic> triggers morphogenic transition, a virulence trait of pathogenic fungi</article-title>
           <source>Genetics</source>
           <year>2010</year>
+          <volume>185</volume>
           <fpage>211</fpage>
           <lpage>220</lpage>
           <pub-id pub-id-type="doi">10.1534/genetics.109.112854</pub-id>
+          <pub-id pub-id-type="pmid">20233857</pub-id>
         </element-citation>
       </ref>
       <ref id="bib49">
@@ -3220,9 +3320,11 @@ expression: jats
           <article-title>DNA double-stranded breaks induce histone H2AX phosphorylation on serine 139</article-title>
           <source>The Journal of Biological Chemistry</source>
           <year>1998</year>
+          <volume>273</volume>
           <fpage>5858</fpage>
           <lpage>5868</lpage>
           <pub-id pub-id-type="doi">10.1074/jbc.273.10.5858</pub-id>
+          <pub-id pub-id-type="pmid">9488723</pub-id>
         </element-citation>
       </ref>
       <ref id="bib50">
@@ -3252,9 +3354,11 @@ expression: jats
           <article-title>The optimal strategy balancing risk and speed predicts DNA damage checkpoint override times</article-title>
           <source>Nature Physics</source>
           <year>2022</year>
+          <volume>18</volume>
           <fpage>832</fpage>
           <lpage>839</lpage>
           <pub-id pub-id-type="doi">10.1038/s41567-022-01601-3</pub-id>
+          <pub-id pub-id-type="pmid">36281344</pub-id>
         </element-citation>
       </ref>
       <ref id="bib51">
@@ -3292,9 +3396,11 @@ expression: jats
           <article-title>Control of the DNA damage checkpoint by chk1 and rad53 protein kinases through distinct mechanisms</article-title>
           <source>Science</source>
           <year>1999</year>
+          <volume>286</volume>
           <fpage>1166</fpage>
           <lpage>1171</lpage>
           <pub-id pub-id-type="doi">10.1126/science.286.5442.1166</pub-id>
+          <pub-id pub-id-type="pmid">10550056</pub-id>
         </element-citation>
       </ref>
       <ref id="bib52">
@@ -3328,9 +3434,11 @@ expression: jats
           <article-title>Rad9 phosphorylation sites couple Rad53 to the <italic>Saccharomyces cerevisiae</italic> DNA damage checkpoint</article-title>
           <source>Molecular Cell</source>
           <year>2002</year>
+          <volume>9</volume>
           <fpage>1055</fpage>
           <lpage>1065</lpage>
           <pub-id pub-id-type="doi">10.1016/s1097-2765(02)00532-4</pub-id>
+          <pub-id pub-id-type="pmid">12049741</pub-id>
         </element-citation>
       </ref>
       <ref id="bib53">
@@ -3352,9 +3460,11 @@ expression: jats
           <article-title>The yeast TEM1 gene, which encodes a GTP-binding protein, is involved in termination of M phase</article-title>
           <source>Molecular and Cellular Biology</source>
           <year>1994</year>
+          <volume>14</volume>
           <fpage>7476</fpage>
           <lpage>7482</lpage>
           <pub-id pub-id-type="doi">10.1128/mcb.14.11.7476-7482.1994</pub-id>
+          <pub-id pub-id-type="pmid">7935462</pub-id>
         </element-citation>
       </ref>
       <ref id="bib54">
@@ -3396,9 +3506,11 @@ expression: jats
           <article-title>Distribution and dynamics of chromatin modification induced by a defined DNA double-strand break</article-title>
           <source>Current Biology</source>
           <year>2004</year>
+          <volume>14</volume>
           <fpage>1703</fpage>
           <lpage>1711</lpage>
           <pub-id pub-id-type="doi">10.1016/j.cub.2004.09.047</pub-id>
+          <pub-id pub-id-type="pmid">15458641</pub-id>
         </element-citation>
       </ref>
       <ref id="bib55">
@@ -3424,9 +3536,11 @@ expression: jats
           <article-title>Proteome-wide identification of in vivo targets of DNA damage checkpoint kinases</article-title>
           <source>PNAS</source>
           <year>2007</year>
+          <volume>104</volume>
           <fpage>10364</fpage>
           <lpage>10369</lpage>
           <pub-id pub-id-type="doi">10.1073/pnas.0701622104</pub-id>
+          <pub-id pub-id-type="pmid">17563356</pub-id>
         </element-citation>
       </ref>
       <ref id="bib56">
@@ -3460,9 +3574,11 @@ expression: jats
           <article-title><italic>Saccharomyces cerevisiae</italic> Rad9 acts as a Mec1 adaptor to allow Rad53 activation</article-title>
           <source>Current Biology</source>
           <year>2005</year>
+          <volume>15</volume>
           <fpage>1364</fpage>
           <lpage>1375</lpage>
           <pub-id pub-id-type="doi">10.1016/j.cub.2005.06.063</pub-id>
+          <pub-id pub-id-type="pmid">16085488</pub-id>
         </element-citation>
       </ref>
       <ref id="bib57">
@@ -3504,9 +3620,11 @@ expression: jats
           <article-title>Caffeine impairs resection during DNA break repair by reducing the levels of nucleases Sae2 and Dna2</article-title>
           <source>Nucleic Acids Research</source>
           <year>2015</year>
+          <volume>43</volume>
           <fpage>6889</fpage>
           <lpage>6901</lpage>
           <pub-id pub-id-type="doi">10.1093/nar/gkv520</pub-id>
+          <pub-id pub-id-type="pmid">26019182</pub-id>
         </element-citation>
       </ref>
       <ref id="bib58">
@@ -3524,9 +3642,11 @@ expression: jats
           <article-title>The <italic>Saccharomyces cerevisiae</italic> 14-3-3 proteins Bmh1 and Bmh2 directly influence the DNA damage-dependent functions of Rad53</article-title>
           <source>PNAS</source>
           <year>2007</year>
+          <volume>104</volume>
           <fpage>2797</fpage>
           <lpage>2802</lpage>
           <pub-id pub-id-type="doi">10.1073/pnas.0611259104</pub-id>
+          <pub-id pub-id-type="pmid">17299042</pub-id>
         </element-citation>
       </ref>
       <ref id="bib59">
@@ -3548,9 +3668,11 @@ expression: jats
           <article-title>Maintenance of the DNA-damage checkpoint requires DNA-damage-induced mediator protein oligomerization</article-title>
           <source>Molecular Cell</source>
           <year>2009</year>
+          <volume>33</volume>
           <fpage>147</fpage>
           <lpage>159</lpage>
           <pub-id pub-id-type="doi">10.1016/j.molcel.2008.12.022</pub-id>
+          <pub-id pub-id-type="pmid">19187758</pub-id>
         </element-citation>
       </ref>
       <ref id="bib60">
@@ -3592,9 +3714,11 @@ expression: jats
           <article-title>Recovery from checkpoint-mediated arrest after repair of a double-strand break requires Srs2 helicase</article-title>
           <source>Molecular Cell</source>
           <year>2002</year>
+          <volume>10</volume>
           <fpage>373</fpage>
           <lpage>385</lpage>
           <pub-id pub-id-type="doi">10.1016/s1097-2765(02)00593-2</pub-id>
+          <pub-id pub-id-type="pmid">12191482</pub-id>
         </element-citation>
       </ref>
       <ref id="bib61">
@@ -3620,9 +3744,11 @@ expression: jats
           <article-title>New heterologous modules for classical or PCR-based gene disruptions in <italic>Saccharomyces cerevisiae</italic></article-title>
           <source>Yeast</source>
           <year>1994</year>
+          <volume>10</volume>
           <fpage>1793</fpage>
           <lpage>1808</lpage>
           <pub-id pub-id-type="doi">10.1002/yea.320101310</pub-id>
+          <pub-id pub-id-type="pmid">7747518</pub-id>
         </element-citation>
       </ref>
       <ref id="bib62">
@@ -3644,9 +3770,11 @@ expression: jats
           <article-title>Checkpoint Responses to DNA Double-Strand Breaks</article-title>
           <source>Annual Review of Biochemistry</source>
           <year>2020</year>
+          <volume>89</volume>
           <fpage>103</fpage>
           <lpage>133</lpage>
           <pub-id pub-id-type="doi">10.1146/annurev-biochem-011520-104722</pub-id>
+          <pub-id pub-id-type="pmid">32176524</pub-id>
         </element-citation>
       </ref>
       <ref id="bib63">
@@ -3676,9 +3804,11 @@ expression: jats
           <article-title>Dun1, a Chk2-related kinase, is the central regulator of securin-separase dynamics during DNA damage signaling</article-title>
           <source>Nucleic Acids Research</source>
           <year>2020</year>
+          <volume>48</volume>
           <fpage>6092</fpage>
           <lpage>6107</lpage>
           <pub-id pub-id-type="doi">10.1093/nar/gkaa355</pub-id>
+          <pub-id pub-id-type="pmid">32402080</pub-id>
         </element-citation>
       </ref>
       <ref id="bib64">
@@ -3744,7 +3874,10 @@ expression: jats
           <article-title>The auxin-inducible degron 2 technology provides sharp degradation control in yeast, mammalian cells, and mice</article-title>
           <source>Nature Communications</source>
           <year>2020</year>
+          <volume>11</volume>
+          <elocation-id>5701</elocation-id>
           <pub-id pub-id-type="doi">10.1038/s41467-020-19532-z</pub-id>
+          <pub-id pub-id-type="pmid">33177522</pub-id>
         </element-citation>
       </ref>
       <ref id="bib65">
@@ -3762,9 +3895,11 @@ expression: jats
           <article-title>The Dun1 checkpoint kinase phosphorylates and regulates the ribonucleotide reductase inhibitor Sml1</article-title>
           <source>PNAS</source>
           <year>2002</year>
+          <volume>99</volume>
           <fpage>3746</fpage>
           <lpage>3751</lpage>
           <pub-id pub-id-type="doi">10.1073/pnas.062502299</pub-id>
+          <pub-id pub-id-type="pmid">11904430</pub-id>
         </element-citation>
       </ref>
       <ref id="bib66">
@@ -3782,9 +3917,11 @@ expression: jats
           <article-title>DUN1 encodes a protein kinase that controls the DNA damage response in yeast</article-title>
           <source>Cell</source>
           <year>1993</year>
+          <volume>75</volume>
           <fpage>1119</fpage>
           <lpage>1127</lpage>
           <pub-id pub-id-type="doi">10.1016/0092-8674(93)90321-g</pub-id>
+          <pub-id pub-id-type="pmid">8261511</pub-id>
         </element-citation>
       </ref>
       <ref id="bib67">
@@ -3814,9 +3951,11 @@ expression: jats
           <article-title>Sgs1 helicase and two nucleases Dna2 and Exo1 resect DNA double-strand break ends</article-title>
           <source>Cell</source>
           <year>2008</year>
+          <volume>134</volume>
           <fpage>981</fpage>
           <lpage>994</lpage>
           <pub-id pub-id-type="doi">10.1016/j.cell.2008.08.037</pub-id>
+          <pub-id pub-id-type="pmid">18805091</pub-id>
         </element-citation>
       </ref>
       <ref id="bib68">
@@ -3834,9 +3973,11 @@ expression: jats
           <article-title>Sensing DNA damage through ATRIP recognition of RPA-ssDNA complexes</article-title>
           <source>Science</source>
           <year>2003</year>
+          <volume>300</volume>
           <fpage>1542</fpage>
           <lpage>1548</lpage>
           <pub-id pub-id-type="doi">10.1126/science.1083430</pub-id>
+          <pub-id pub-id-type="pmid">12791985</pub-id>
         </element-citation>
       </ref>
     </ref-list>

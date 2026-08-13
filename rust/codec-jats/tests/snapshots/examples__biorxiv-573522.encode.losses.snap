@@ -2,6 +2,5 @@
 source: rust/codec-jats/tests/examples.rs
 expression: info.losses
 ---
-Reference.isPartOf.volumeNumber: 46
 Supplement.work_type: 1
 Table.images: 2

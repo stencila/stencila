@@ -611,7 +611,7 @@ expression: article
       ],
       "date": {
         "type": "Date",
-        "value": "\n          2007"
+        "value": "2007"
       },
       "title": [
         {
@@ -652,7 +652,14 @@ expression: article
         "volumeNumber": 30
       },
       "pageStart": 258,
-      "pageEnd": 270
+      "pageEnd": 270,
+      "identifiers": [
+        {
+          "type": "PropertyValue",
+          "propertyId": "pmid",
+          "value": "17263773"
+        }
+      ]
     },
     {
       "type": "Reference",
@@ -740,7 +747,14 @@ expression: article
         "volumeNumber": 25
       },
       "pageStart": 2349,
-      "pageEnd": "\n          2365"
+      "pageEnd": 2365,
+      "identifiers": [
+        {
+          "type": "PropertyValue",
+          "propertyId": "pmid",
+          "value": "26910960"
+        }
+      ]
     },
     {
       "type": "Reference",
@@ -828,7 +842,7 @@ expression: article
         "volumeNumber": 9
       },
       "pageStart": 587,
-      "pageEnd": "\n          606"
+      "pageEnd": 606
     },
     {
       "type": "Reference",
@@ -916,7 +930,14 @@ expression: article
         "volumeNumber": 214
       },
       "pageStart": 1002,
-      "pageEnd": "\n          1018"
+      "pageEnd": 1018,
+      "identifiers": [
+        {
+          "type": "PropertyValue",
+          "propertyId": "pmid",
+          "value": "27389684"
+        }
+      ]
     },
     {
       "type": "Reference",
@@ -971,7 +992,7 @@ expression: article
       ],
       "date": {
         "type": "Date",
-        "value": "\n          2001"
+        "value": "2001"
       },
       "title": [
         {
@@ -1083,7 +1104,14 @@ expression: article
         "volumeNumber": 20
       },
       "pageStart": 179,
-      "pageEnd": "\n          186"
+      "pageEnd": 186,
+      "identifiers": [
+        {
+          "type": "PropertyValue",
+          "propertyId": "pmid",
+          "value": "12651470"
+        }
+      ]
     },
     {
       "type": "Reference",
@@ -1102,7 +1130,7 @@ expression: article
       ],
       "date": {
         "type": "Date",
-        "value": "\n          1971"
+        "value": "1971"
       },
       "title": [
         {
@@ -1111,7 +1139,12 @@ expression: article
             "string": "Ratio Correlation: A Manual for Students of Petrology and Geochemistry"
           }
         }
-      ]
+      ],
+      "publisher": {
+        "type": "Organization",
+        "name": "University of Chicago Press",
+        "address": "Chicago and\n          London"
+      }
     },
     {
       "type": "Reference",
@@ -1157,7 +1190,7 @@ expression: article
       ],
       "date": {
         "type": "Date",
-        "value": "\n          1993"
+        "value": "1993"
       },
       "title": [
         {
@@ -1181,7 +1214,14 @@ expression: article
         "volumeNumber": 93
       },
       "pageStart": 63,
-      "pageEnd": 69
+      "pageEnd": 69,
+      "identifiers": [
+        {
+          "type": "PropertyValue",
+          "propertyId": "pmid",
+          "value": "28313775"
+        }
+      ]
     },
     {
       "type": "Reference",
@@ -1199,7 +1239,7 @@ expression: article
       ],
       "date": {
         "type": "Date",
-        "value": "\n          2017"
+        "value": "2017"
       },
       "title": [
         {
@@ -1313,7 +1353,14 @@ expression: article
         "volumeNumber": 19
       },
       "pageStart": 3790,
-      "pageEnd": 3807
+      "pageEnd": 3807,
+      "identifiers": [
+        {
+          "type": "PropertyValue",
+          "propertyId": "pmid",
+          "value": "23824839"
+        }
+      ]
     },
     {
       "type": "Reference",
@@ -1489,7 +1536,14 @@ expression: article
         "volumeNumber": 210
       },
       "pageStart": 1130,
-      "pageEnd": "\n          1144"
+      "pageEnd": 1144,
+      "identifiers": [
+        {
+          "type": "PropertyValue",
+          "propertyId": "pmid",
+          "value": "26719951"
+        }
+      ]
     },
     {
       "type": "Reference",
@@ -1577,7 +1631,14 @@ expression: article
         "volumeNumber": 33
       },
       "pageStart": 959,
-      "pageEnd": 980
+      "pageEnd": 980,
+      "identifiers": [
+        {
+          "type": "PropertyValue",
+          "propertyId": "pmid",
+          "value": "20102540"
+        }
+      ]
     },
     {
       "type": "Reference",
@@ -1665,7 +1726,14 @@ expression: article
         "volumeNumber": 178
       },
       "pageStart": 659,
-      "pageEnd": "\n          672"
+      "pageEnd": 672,
+      "identifiers": [
+        {
+          "type": "PropertyValue",
+          "propertyId": "pmid",
+          "value": "25752617"
+        }
+      ]
     },
     {
       "type": "Reference",
@@ -1729,7 +1797,7 @@ expression: article
       ],
       "date": {
         "type": "Date",
-        "value": "\n          2017"
+        "value": "2017"
       },
       "title": [
         {
@@ -1753,7 +1821,7 @@ expression: article
         "volumeNumber": 14
       },
       "pageStart": 481,
-      "pageEnd": "\n          495"
+      "pageEnd": 495
     },
     {
       "type": "Reference",
@@ -1858,7 +1926,14 @@ expression: article
         "volumeNumber": 14
       },
       "pageStart": 349,
-      "pageEnd": "\n          357"
+      "pageEnd": 357,
+      "identifiers": [
+        {
+          "type": "PropertyValue",
+          "propertyId": "pmid",
+          "value": "21303437"
+        }
+      ]
     },
     {
       "type": "Reference",
@@ -1940,7 +2015,7 @@ expression: article
       ],
       "date": {
         "type": "Date",
-        "value": "\n          2016"
+        "value": "2016"
       },
       "title": [
         {
@@ -2014,7 +2089,7 @@ expression: article
       ],
       "date": {
         "type": "Date",
-        "value": "\n          1989"
+        "value": "1989"
       },
       "title": [
         {
@@ -2038,7 +2113,14 @@ expression: article
         "volumeNumber": 78
       },
       "pageStart": 9,
-      "pageEnd": 19
+      "pageEnd": 19,
+      "identifiers": [
+        {
+          "type": "PropertyValue",
+          "propertyId": "pmid",
+          "value": "28311896"
+        }
+      ]
     },
     {
       "type": "Reference",
@@ -2066,7 +2148,7 @@ expression: article
       ],
       "date": {
         "type": "Date",
-        "value": "\n          2001"
+        "value": "2001"
       },
       "title": [
         {
@@ -2109,7 +2191,7 @@ expression: article
       ],
       "date": {
         "type": "Date",
-        "value": "\n          1989"
+        "value": "1989"
       },
       "title": [
         {
@@ -2161,7 +2243,7 @@ expression: article
       ],
       "date": {
         "type": "Date",
-        "value": "\n          1984"
+        "value": "1984"
       },
       "title": [
         {
@@ -2222,7 +2304,7 @@ expression: article
       ],
       "date": {
         "type": "Date",
-        "value": "\n          1980"
+        "value": "1980"
       },
       "title": [
         {
@@ -2246,7 +2328,14 @@ expression: article
         "volumeNumber": 149
       },
       "pageStart": 78,
-      "pageEnd": 90
+      "pageEnd": 90,
+      "identifiers": [
+        {
+          "type": "PropertyValue",
+          "propertyId": "pmid",
+          "value": "24306196"
+        }
+      ]
     },
     {
       "type": "Reference",
@@ -2283,7 +2372,7 @@ expression: article
       ],
       "date": {
         "type": "Date",
-        "value": "\n          1985"
+        "value": "1985"
       },
       "title": [
         {
@@ -2341,7 +2430,14 @@ expression: article
         "volumeNumber": 165
       },
       "pageStart": 249,
-      "pageEnd": 263
+      "pageEnd": 263,
+      "identifiers": [
+        {
+          "type": "PropertyValue",
+          "propertyId": "pmid",
+          "value": "24241050"
+        }
+      ]
     },
     {
       "type": "Reference",
@@ -2387,7 +2483,7 @@ expression: article
       ],
       "date": {
         "type": "Date",
-        "value": "\n          2014"
+        "value": "2014"
       },
       "title": [
         {
@@ -2411,7 +2507,7 @@ expression: article
         "volumeNumber": 34
       },
       "pageStart": 623,
-      "pageEnd": "\n          642"
+      "pageEnd": 642
     },
     {
       "type": "Reference",
@@ -2535,7 +2631,7 @@ expression: article
       ],
       "date": {
         "type": "Date",
-        "value": "\n          2005"
+        "value": "2005"
       },
       "title": [
         {
@@ -2587,7 +2683,7 @@ expression: article
       ],
       "date": {
         "type": "Date",
-        "value": "\n          2007"
+        "value": "2007"
       },
       "title": [
         {
@@ -2611,7 +2707,14 @@ expression: article
         "volumeNumber": 30
       },
       "pageStart": 1176,
-      "pageEnd": 1190
+      "pageEnd": 1190,
+      "identifiers": [
+        {
+          "type": "PropertyValue",
+          "propertyId": "pmid",
+          "value": "17661754"
+        }
+      ]
     },
     {
       "type": "Reference",
@@ -2657,7 +2760,7 @@ expression: article
       ],
       "date": {
         "type": "Date",
-        "value": "\n          2009"
+        "value": "2009"
       },
       "title": [
         {
@@ -2819,7 +2922,14 @@ expression: article
         ],
         "volumeNumber": 3
       },
-      "pageStart": 16201
+      "pageStart": 16201,
+      "identifiers": [
+        {
+          "type": "PropertyValue",
+          "propertyId": "pmid",
+          "value": "27991884"
+        }
+      ]
     },
     {
       "type": "Reference",
@@ -2856,7 +2966,7 @@ expression: article
       ],
       "date": {
         "type": "Date",
-        "value": "\n          2010"
+        "value": "2010"
       },
       "title": [
         {
@@ -2908,7 +3018,7 @@ expression: article
       ],
       "date": {
         "type": "Date",
-        "value": "\n          1987"
+        "value": "1987"
       },
       "title": [
         {
@@ -2949,7 +3059,14 @@ expression: article
         "volumeNumber": 83
       },
       "pageStart": 1032,
-      "pageEnd": "\n          1036"
+      "pageEnd": 1036,
+      "identifiers": [
+        {
+          "type": "PropertyValue",
+          "propertyId": "pmid",
+          "value": "16665319"
+        }
+      ]
     },
     {
       "type": "Reference",
@@ -2967,7 +3084,7 @@ expression: article
       ],
       "date": {
         "type": "Date",
-        "value": "\n          2014"
+        "value": "2014"
       },
       "title": [
         {
@@ -3063,7 +3180,14 @@ expression: article
         ],
         "volumeNumber": 7
       },
-      "pageStart": "e38345"
+      "pageStart": "e38345",
+      "identifiers": [
+        {
+          "type": "PropertyValue",
+          "propertyId": "pmid",
+          "value": "22685562"
+        }
+      ]
     },
     {
       "type": "Reference",
@@ -3461,7 +3585,7 @@ expression: article
       ],
       "date": {
         "type": "Date",
-        "value": "\n          2007"
+        "value": "2007"
       },
       "title": [
         {
@@ -3485,7 +3609,7 @@ expression: article
         "volumeNumber": 192
       },
       "pageStart": 277,
-      "pageEnd": "\n          287"
+      "pageEnd": 287
     },
     {
       "type": "Reference",
@@ -3522,7 +3646,7 @@ expression: article
       ],
       "date": {
         "type": "Date",
-        "value": "\n          2009"
+        "value": "2009"
       },
       "title": [
         {
@@ -3546,7 +3670,14 @@ expression: article
         "volumeNumber": 60
       },
       "pageStart": 2433,
-      "pageEnd": "\n          2449"
+      "pageEnd": 2449,
+      "identifiers": [
+        {
+          "type": "PropertyValue",
+          "propertyId": "pmid",
+          "value": "19255061"
+        }
+      ]
     },
     {
       "type": "Reference",
@@ -3583,7 +3714,7 @@ expression: article
       ],
       "date": {
         "type": "Date",
-        "value": "\n          2015"
+        "value": "2015"
       },
       "title": [
         {
@@ -3607,7 +3738,14 @@ expression: article
         "volumeNumber": 205
       },
       "pageStart": 973,
-      "pageEnd": "\n          993"
+      "pageEnd": 993,
+      "identifiers": [
+        {
+          "type": "PropertyValue",
+          "propertyId": "pmid",
+          "value": "25318596"
+        }
+      ]
     },
     {
       "type": "Reference",
@@ -3662,7 +3800,7 @@ expression: article
       ],
       "date": {
         "type": "Date",
-        "value": "\n          2014"
+        "value": "2014"
       },
       "title": [
         {
@@ -3686,7 +3824,14 @@ expression: article
         "volumeNumber": 17
       },
       "pageStart": 82,
-      "pageEnd": "\n          91"
+      "pageEnd": 91,
+      "identifiers": [
+        {
+          "type": "PropertyValue",
+          "propertyId": "pmid",
+          "value": "24215231"
+        }
+      ]
     },
     {
       "type": "Reference",
@@ -3705,7 +3850,7 @@ expression: article
       ],
       "date": {
         "type": "Date",
-        "value": "\n          2014"
+        "value": "2014"
       },
       "title": [
         {
@@ -3729,7 +3874,14 @@ expression: article
         "volumeNumber": 119
       },
       "pageStart": 15,
-      "pageEnd": "\n          29"
+      "pageEnd": 29,
+      "identifiers": [
+        {
+          "type": "PropertyValue",
+          "propertyId": "pmid",
+          "value": "23564478"
+        }
+      ]
     },
     {
       "type": "Reference",
@@ -3817,7 +3969,14 @@ expression: article
         "volumeNumber": 213
       },
       "pageStart": 22,
-      "pageEnd": "\n          42"
+      "pageEnd": 42,
+      "identifiers": [
+        {
+          "type": "PropertyValue",
+          "propertyId": "pmid",
+          "value": "27891647"
+        }
+      ]
     },
     {
       "type": "Reference",
@@ -3913,7 +4072,14 @@ expression: article
         "volumeNumber": 216
       },
       "pageStart": 1090,
-      "pageEnd": "\n          1103"
+      "pageEnd": 1103,
+      "identifiers": [
+        {
+          "type": "PropertyValue",
+          "propertyId": "pmid",
+          "value": "28877330"
+        }
+      ]
     },
     {
       "type": "Reference",
@@ -4001,7 +4167,14 @@ expression: article
         "volumeNumber": 23
       },
       "pageStart": 2783,
-      "pageEnd": 2800
+      "pageEnd": 2800,
+      "identifiers": [
+        {
+          "type": "PropertyValue",
+          "propertyId": "pmid",
+          "value": "27859952"
+        }
+      ]
     },
     {
       "type": "Reference",
@@ -4108,7 +4281,7 @@ expression: article
       ],
       "date": {
         "type": "Date",
-        "value": "\n          2008"
+        "value": "2008"
       },
       "title": [
         {
@@ -4132,7 +4305,14 @@ expression: article
         "volumeNumber": 59
       },
       "pageStart": 1647,
-      "pageEnd": "\n          1661"
+      "pageEnd": 1661,
+      "identifiers": [
+        {
+          "type": "PropertyValue",
+          "propertyId": "pmid",
+          "value": "18359752"
+        }
+      ]
     },
     {
       "type": "Reference",
@@ -4219,7 +4399,14 @@ expression: article
         ],
         "volumeNumber": 540
       },
-      "pageStart": 567
+      "pageStart": 567,
+      "identifiers": [
+        {
+          "type": "PropertyValue",
+          "propertyId": "pmid",
+          "value": "27871089"
+        }
+      ]
     },
     {
       "type": "Reference",
@@ -4247,7 +4434,7 @@ expression: article
       ],
       "date": {
         "type": "Date",
-        "value": "\n          2013"
+        "value": "2013"
       },
       "title": [
         {
@@ -4288,7 +4475,14 @@ expression: article
         "volumeNumber": 19
       },
       "pageStart": 45,
-      "pageEnd": 63
+      "pageEnd": 63,
+      "identifiers": [
+        {
+          "type": "PropertyValue",
+          "propertyId": "pmid",
+          "value": "23504720"
+        }
+      ]
     },
     {
       "type": "Reference",
@@ -4316,7 +4510,7 @@ expression: article
       ],
       "date": {
         "type": "Date",
-        "value": "\n          2017a"
+        "value": "2017a"
       },
       "title": [
         {
@@ -4339,7 +4533,14 @@ expression: article
         ],
         "volumeNumber": 98
       },
-      "pageStart": 2978
+      "pageStart": 2978,
+      "identifiers": [
+        {
+          "type": "PropertyValue",
+          "propertyId": "pmid",
+          "value": "28833038"
+        }
+      ]
     },
     {
       "type": "Reference",
@@ -4367,7 +4568,7 @@ expression: article
       ],
       "date": {
         "type": "Date",
-        "value": "\n          2017b"
+        "value": "2017b"
       },
       "title": [
         {
@@ -4391,7 +4592,14 @@ expression: article
         "volumeNumber": 23
       },
       "pageStart": 4840,
-      "pageEnd": 4853
+      "pageEnd": 4853,
+      "identifiers": [
+        {
+          "type": "PropertyValue",
+          "propertyId": "pmid",
+          "value": "28560841"
+        }
+      ]
     },
     {
       "type": "Reference",
@@ -4419,7 +4627,7 @@ expression: article
       ],
       "date": {
         "type": "Date",
-        "value": "\n          2018"
+        "value": "2018"
       },
       "title": [
         {
@@ -4443,7 +4651,14 @@ expression: article
         "volumeNumber": 99
       },
       "pageStart": 1610,
-      "pageEnd": "\n          1620"
+      "pageEnd": 1620,
+      "identifiers": [
+        {
+          "type": "PropertyValue",
+          "propertyId": "pmid",
+          "value": "29705984"
+        }
+      ]
     },
     {
       "type": "Reference",
@@ -4531,7 +4746,7 @@ expression: article
         "volumeNumber": 52
       },
       "pageStart": 412,
-      "pageEnd": "\n          434"
+      "pageEnd": 434
     },
     {
       "type": "Reference",
@@ -4619,7 +4834,14 @@ expression: article
         "volumeNumber": 40
       },
       "pageStart": 816,
-      "pageEnd": 830
+      "pageEnd": 830,
+      "identifiers": [
+        {
+          "type": "PropertyValue",
+          "propertyId": "pmid",
+          "value": "27764894"
+        }
+      ]
     },
     {
       "type": "Reference",
@@ -4665,7 +4887,7 @@ expression: article
       ],
       "date": {
         "type": "Date",
-        "value": "\n          2013"
+        "value": "2013"
       },
       "title": [
         {
@@ -4689,7 +4911,14 @@ expression: article
         "volumeNumber": 173
       },
       "pageStart": 1179,
-      "pageEnd": "\n          1189"
+      "pageEnd": 1189,
+      "identifiers": [
+        {
+          "type": "PropertyValue",
+          "propertyId": "pmid",
+          "value": "23797410"
+        }
+      ]
     },
     {
       "type": "Reference",
@@ -4744,7 +4973,7 @@ expression: article
       ],
       "date": {
         "type": "Date",
-        "value": "\n          2016"
+        "value": "2016"
       },
       "title": [
         {
@@ -4785,7 +5014,14 @@ expression: article
         "volumeNumber": 353
       },
       "pageStart": 72,
-      "pageEnd": 74
+      "pageEnd": 74,
+      "identifiers": [
+        {
+          "type": "PropertyValue",
+          "propertyId": "pmid",
+          "value": "27365447"
+        }
+      ]
     },
     {
       "type": "Reference",
@@ -4870,10 +5106,10 @@ expression: article
             }
           }
         ],
-        "volumeNumber": 0
+        "volumeNumber": "0000"
       },
-      "pageStart": "\n          0000",
-      "pageEnd": 0
+      "pageStart": "0000",
+      "pageEnd": "0000"
     },
     {
       "type": "Reference",
@@ -4961,7 +5197,7 @@ expression: article
         "volumeNumber": 15
       },
       "pageStart": 3461,
-      "pageEnd": "\n          3474"
+      "pageEnd": 3474
     },
     {
       "type": "Reference",
@@ -4989,7 +5225,7 @@ expression: article
       ],
       "date": {
         "type": "Date",
-        "value": "\n          1981"
+        "value": "1981"
       },
       "title": [
         {
@@ -5013,7 +5249,14 @@ expression: article
         "volumeNumber": 153
       },
       "pageStart": 376,
-      "pageEnd": 387
+      "pageEnd": 387,
+      "identifiers": [
+        {
+          "type": "PropertyValue",
+          "propertyId": "pmid",
+          "value": "24276943"
+        }
+      ]
     },
     {
       "type": "Reference",
@@ -5118,7 +5361,14 @@ expression: article
         "volumeNumber": 4
       },
       "pageStart": 3218,
-      "pageEnd": "\n          3235"
+      "pageEnd": 3235,
+      "identifiers": [
+        {
+          "type": "PropertyValue",
+          "propertyId": "pmid",
+          "value": "25473475"
+        }
+      ]
     },
     {
       "type": "Reference",
@@ -5223,7 +5473,14 @@ expression: article
         "volumeNumber": 215
       },
       "pageStart": 1370,
-      "pageEnd": "\n          1386"
+      "pageEnd": 1386,
+      "identifiers": [
+        {
+          "type": "PropertyValue",
+          "propertyId": "pmid",
+          "value": "28643848"
+        }
+      ]
     },
     {
       "type": "Reference",
@@ -5311,7 +5568,14 @@ expression: article
         "volumeNumber": 99
       },
       "pageStart": 500,
-      "pageEnd": 500
+      "pageEnd": 500,
+      "identifiers": [
+        {
+          "type": "PropertyValue",
+          "propertyId": "pmid",
+          "value": "29155446"
+        }
+      ]
     },
     {
       "type": "Reference",
@@ -5375,7 +5639,7 @@ expression: article
       ],
       "date": {
         "type": "Date",
-        "value": "\n          2017b"
+        "value": "2017b"
       },
       "title": [
         {
@@ -5399,7 +5663,14 @@ expression: article
         "volumeNumber": 213
       },
       "pageStart": 976,
-      "pageEnd": "\n          982"
+      "pageEnd": 982,
+      "identifiers": [
+        {
+          "type": "PropertyValue",
+          "propertyId": "pmid",
+          "value": "27859388"
+        }
+      ]
     },
     {
       "type": "Reference",
@@ -5487,7 +5758,14 @@ expression: article
         "volumeNumber": 3
       },
       "pageStart": 734,
-      "pageEnd": "\n          741"
+      "pageEnd": 741,
+      "identifiers": [
+        {
+          "type": "PropertyValue",
+          "propertyId": "pmid",
+          "value": "29150690"
+        }
+      ]
     },
     {
       "type": "Reference",
@@ -5551,7 +5829,7 @@ expression: article
       ],
       "date": {
         "type": "Date",
-        "value": "\n          2014"
+        "value": "2014"
       },
       "title": [
         {
@@ -5700,7 +5978,7 @@ expression: article
       ],
       "date": {
         "type": "Date",
-        "value": "\n          2003"
+        "value": "2003"
       },
       "title": [
         {
@@ -5724,7 +6002,14 @@ expression: article
         "volumeNumber": 161
       },
       "pageStart": 98,
-      "pageEnd": "\n          111"
+      "pageEnd": 111,
+      "identifiers": [
+        {
+          "type": "PropertyValue",
+          "propertyId": "pmid",
+          "value": "12650465"
+        }
+      ]
     },
     {
       "type": "Reference",
@@ -5824,7 +6109,7 @@ expression: article
       ],
       "date": {
         "type": "Date",
-        "value": "\n          2009"
+        "value": "2009"
       },
       "title": [
         {
@@ -5833,7 +6118,12 @@ expression: article
             "string": "Mixed Effects Models and Extensions in Ecology"
           }
         }
-      ]
+      ],
+      "publisher": {
+        "type": "Organization",
+        "name": "Springer",
+        "address": "New York, NY"
+      }
     }
   ],
   "title": [

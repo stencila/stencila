@@ -364,7 +364,7 @@ impl Article {
     }
 }
 
-fn encode_text_element(context: &mut JatsEncodeContext, name: &str, value: &str) {
+pub(super) fn encode_text_element(context: &mut JatsEncodeContext, name: &str, value: &str) {
     let value = value.trim();
     if !value.is_empty() {
         context.enter_elem(name).push_text(value).exit_elem();
@@ -474,18 +474,18 @@ fn primitive_text(value: &Primitive) -> Option<String> {
 }
 
 /// An identifier flattened into the parts that JATS represents
-struct Identifier<'a> {
+pub(super) struct Identifier<'a> {
     /// The kind of identifier, e.g. `pmid`, from `PropertyValue.propertyId`
-    property_id: Option<&'a str>,
+    pub(super) property_id: Option<&'a str>,
     /// A qualifier distinguishing identifiers of the same kind, from `PropertyValue.name`
-    name: Option<&'a str>,
+    pub(super) name: Option<&'a str>,
     /// The identifier itself
-    value: String,
+    pub(super) value: String,
 }
 
 /// Flatten identifiers, reporting any whose value can not be represented as text
-fn identifiers<'a>(
-    identifiers: Option<&'a Vec<PropertyValueOrString>>,
+pub(super) fn identifiers<'a>(
+    identifiers: Option<&'a [PropertyValueOrString]>,
     loss: &str,
     context: &mut JatsEncodeContext,
 ) -> Vec<Identifier<'a>> {
@@ -529,7 +529,7 @@ fn encode_journal_meta(
     let periodical = journal.periodical;
     let title = periodical.and_then(|periodical| periodical.name.as_deref());
     let identifiers = identifiers(
-        periodical.and_then(|periodical| periodical.options.identifiers.as_ref()),
+        periodical.and_then(|periodical| periodical.options.identifiers.as_deref()),
         "Periodical.identifiers",
         context,
     );
@@ -1452,7 +1452,7 @@ impl JatsCodec for Article {
         // An electronic location identifier is emitted with the pagination it
         // stands in for, not with the other identifiers
         let article_identifiers = identifiers(
-            self.options.identifiers.as_ref(),
+            self.options.identifiers.as_deref(),
             "Article.identifiers",
             context,
         );
@@ -1517,7 +1517,7 @@ impl JatsCodec for Article {
                     .exit_elem();
             }
             for identifier in &identifiers(
-                issue_work.options.identifiers.as_ref(),
+                issue_work.options.identifiers.as_deref(),
                 "PublicationIssue.identifiers",
                 context,
             ) {

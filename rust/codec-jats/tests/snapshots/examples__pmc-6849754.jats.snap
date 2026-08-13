@@ -637,8 +637,11 @@ expression: jats
           </person-group>
           <article-title>The response of photosynthesis and stomatal conductance to&#10;          rising CO<sub>2</sub>: mechanisms and environmental interactions</article-title>
           <source>Plant, Cell Environ.</source>
+          <year>2007</year>
+          <volume>30</volume>
           <fpage>258</fpage>
           <lpage>270</lpage>
+          <pub-id pub-id-type="pmid">17263773</pub-id>
         </element-citation>
       </ref>
       <ref id="ele13210-bib-0002">
@@ -672,8 +675,10 @@ expression: jats
           <article-title>Global‐scale environmental&#10;          control of plant photosynthetic capacity</article-title>
           <source>Ecol. Appl.</source>
           <year>2015</year>
+          <volume>25</volume>
           <fpage>2349</fpage>
-          <lpage>&#10;          2365</lpage>
+          <lpage>2365</lpage>
+          <pub-id pub-id-type="pmid">26910960</pub-id>
         </element-citation>
       </ref>
       <ref id="ele13210-bib-0003">
@@ -707,8 +712,9 @@ expression: jats
           <article-title>A global scale mechanistic model&#10;          of photosynthetic capacity (LUNA V1. 0)</article-title>
           <source>Geosci. Model Dev.</source>
           <year>2016</year>
+          <volume>9</volume>
           <fpage>587</fpage>
-          <lpage>&#10;          606</lpage>
+          <lpage>606</lpage>
         </element-citation>
       </ref>
       <ref id="ele13210-bib-0004">
@@ -742,8 +748,10 @@ expression: jats
           <article-title>Leaf‐level photosynthetic&#10;          capacity in lowland Amazonian and high‐elevation Andean tropical moist forests of&#10;          Peru</article-title>
           <source>New Phytol.</source>
           <year>2017</year>
+          <volume>214</volume>
           <fpage>1002</fpage>
-          <lpage>&#10;          1018</lpage>
+          <lpage>1018</lpage>
+          <pub-id pub-id-type="pmid">27389684</pub-id>
         </element-citation>
       </ref>
       <ref id="ele13210-bib-0005">
@@ -772,6 +780,8 @@ expression: jats
           </person-group>
           <article-title>Improved temperature response functions for models of&#10;          Rubisco‐limited photosynthesis</article-title>
           <source>Plant, Cell Environ.</source>
+          <year>2001</year>
+          <volume>24</volume>
           <fpage>253</fpage>
           <lpage>259</lpage>
         </element-citation>
@@ -807,8 +817,10 @@ expression: jats
           <article-title>Photosynthetic capacity in a&#10;          central Amazonian rain forest</article-title>
           <source>Tree Physiol.</source>
           <year>2000</year>
+          <volume>20</volume>
           <fpage>179</fpage>
-          <lpage>&#10;          186</lpage>
+          <lpage>186</lpage>
+          <pub-id pub-id-type="pmid">12651470</pub-id>
         </element-citation>
       </ref>
       <ref id="ele13210-bib-0007">
@@ -819,7 +831,10 @@ expression: jats
               <given-names>F</given-names>
             </name>
           </person-group>
-          <article-title>Ratio Correlation: A Manual for Students of Petrology and Geochemistry</article-title>
+          <source>Ratio Correlation: A Manual for Students of Petrology and Geochemistry</source>
+          <publisher-loc>Chicago and&#10;          London</publisher-loc>
+          <publisher-name>University of Chicago Press</publisher-name>
+          <year>1971</year>
         </element-citation>
       </ref>
       <ref id="ele13210-bib-0008">
@@ -844,8 +859,11 @@ expression: jats
           </person-group>
           <article-title>Coordination theory of leaf nitrogen distribution in a canopy</article-title>
           <source>Oecologia</source>
+          <year>1993</year>
+          <volume>93</volume>
           <fpage>63</fpage>
           <lpage>69</lpage>
+          <pub-id pub-id-type="pmid">28313775</pub-id>
         </element-citation>
       </ref>
       <ref id="ele13210-bib-0009">
@@ -856,7 +874,8 @@ expression: jats
               <given-names>W</given-names>
             </name>
           </person-group>
-          <article-title>wcornwell/leaf13C v0.1.0. Zenodo</article-title>
+          <source>wcornwell/leaf13C v0.1.0. Zenodo</source>
+          <year>2017</year>
         </element-citation>
       </ref>
       <ref id="ele13210-bib-0010">
@@ -890,8 +909,10 @@ expression: jats
           <article-title>Photosynthesis of temperate&#10;          Eucalyptus globulus trees outside their native range has limited adjustment to elevated CO<sub>&#10;          2</sub> and climate warming</article-title>
           <source>Glob. Chang. Biol.</source>
           <year>2013</year>
+          <volume>19</volume>
           <fpage>3790</fpage>
           <lpage>3807</lpage>
+          <pub-id pub-id-type="pmid">23824839</pub-id>
         </element-citation>
       </ref>
       <ref id="ele13210-bib-0011">
@@ -925,6 +946,7 @@ expression: jats
           <article-title>Simple process‐led&#10;          algorithms for simulating habitats (SPLASH v.1.0): Robust indices of radiation,&#10;          evapotranspiration and plant‐available moisture</article-title>
           <source>Geosci. Model Dev.</source>
           <year>2017</year>
+          <volume>10</volume>
           <fpage>689</fpage>
           <lpage>708</lpage>
         </element-citation>
@@ -960,8 +982,10 @@ expression: jats
           <article-title>A test of the&#10;          ‘one‐point method’ for estimating maximum carboxylation capacity from&#10;          field‐measured, light‐saturated photosynthesis</article-title>
           <source>New Phytol.</source>
           <year>2016</year>
+          <volume>210</volume>
           <fpage>1130</fpage>
-          <lpage>&#10;          1144</lpage>
+          <lpage>1144</lpage>
+          <pub-id pub-id-type="pmid">26719951</pub-id>
         </element-citation>
       </ref>
       <ref id="ele13210-bib-0013">
@@ -995,8 +1019,10 @@ expression: jats
           <article-title>Co‐limitation of&#10;          photosynthetic capacity by nitrogen and phosphorus in West Africa woodlands</article-title>
           <source>Plant, Cell Environ.</source>
           <year>2010</year>
+          <volume>33</volume>
           <fpage>959</fpage>
           <lpage>980</lpage>
+          <pub-id pub-id-type="pmid">20102540</pub-id>
         </element-citation>
       </ref>
       <ref id="ele13210-bib-0014">
@@ -1030,8 +1056,10 @@ expression: jats
           <article-title>Biome‐specific effects of&#10;          nitrogen and phosphorus on the photosynthetic characteristics of trees at a&#10;          forest‐savanna boundary in Cameroon</article-title>
           <source>Oecologia</source>
           <year>2015</year>
+          <volume>178</volume>
           <fpage>659</fpage>
-          <lpage>&#10;          672</lpage>
+          <lpage>672</lpage>
+          <pub-id pub-id-type="pmid">25752617</pub-id>
         </element-citation>
       </ref>
       <ref id="ele13210-bib-0015">
@@ -1064,8 +1092,10 @@ expression: jats
           </person-group>
           <article-title>Leaf nitrogen from first principles: field evidence for&#10;          adaptive variation with climate</article-title>
           <source>Biogeosciences</source>
+          <year>2017</year>
+          <volume>14</volume>
           <fpage>481</fpage>
-          <lpage>&#10;          495</lpage>
+          <lpage>495</lpage>
         </element-citation>
       </ref>
       <ref id="ele13210-bib-0016">
@@ -1099,8 +1129,10 @@ expression: jats
           <article-title>Increases in the flux of carbon&#10;          belowground stimulate nitrogen uptake and sustain the long‐term enhancement of&#10;          forest productivity under elevated CO<sub>2</sub>&#10;          </article-title>
           <source>Ecol. Lett.</source>
           <year>2011</year>
+          <volume>14</volume>
           <fpage>349</fpage>
-          <lpage>&#10;          357</lpage>
+          <lpage>357</lpage>
+          <pub-id pub-id-type="pmid">21303437</pub-id>
         </element-citation>
       </ref>
       <ref id="ele13210-bib-0017">
@@ -1115,7 +1147,7 @@ expression: jats
               <given-names>O</given-names>
             </name>
           </person-group>
-          <article-title>Quantum yields for CO<sub>2</sub> uptake in C3 and C4&#10;          plants</article-title>
+          <source>Quantum yields for CO<sub>2</sub> uptake in C3 and C4&#10;          plants</source>
           <year>1977</year>
         </element-citation>
       </ref>
@@ -1133,6 +1165,7 @@ expression: jats
           </person-group>
           <article-title>A global dataset of photosynthetic CO<sub>2</sub> response&#10;          curves measured in the field at controlled light, CO<sub>2</sub> and temperatures</article-title>
           <source>Univ. West. Sydney</source>
+          <year>2016</year>
           <pub-id pub-id-type="doi">10.4225/35/569434cfba16e</pub-id>
         </element-citation>
       </ref>
@@ -1146,8 +1179,11 @@ expression: jats
           </person-group>
           <article-title>Photosynthesis and nitrogen relationships in leaves of C3&#10;          plants</article-title>
           <source>Oecologia</source>
+          <year>1989</year>
+          <volume>78</volume>
           <fpage>9</fpage>
           <lpage>19</lpage>
+          <pub-id pub-id-type="pmid">28311896</pub-id>
         </element-citation>
       </ref>
       <ref id="ele13210-bib-0020">
@@ -1164,6 +1200,8 @@ expression: jats
           </person-group>
           <article-title>Photosynthetic acclimation of plants to growth irradiance:&#10;          the relative importance of specific leaf area and nitrogen partitioning in maximizing&#10;          carbon gain</article-title>
           <source>Plant, Cell Environ.</source>
+          <year>2001</year>
+          <volume>24</volume>
           <fpage>755</fpage>
           <lpage>767</lpage>
         </element-citation>
@@ -1178,6 +1216,8 @@ expression: jats
           </person-group>
           <article-title>Models of integrated photosynthesis of cells and leaves</article-title>
           <source>Philos. Trans. R. Soc. London. B, Biol. Sci.</source>
+          <year>1989</year>
+          <volume>323</volume>
           <fpage>357 LP</fpage>
           <lpage>367</lpage>
         </element-citation>
@@ -1196,6 +1236,8 @@ expression: jats
           </person-group>
           <article-title>An empirical model of stomatal conductance</article-title>
           <source>Funct. Plant Biol.</source>
+          <year>1984</year>
+          <volume>11</volume>
           <fpage>191</fpage>
           <lpage>210</lpage>
         </element-citation>
@@ -1218,8 +1260,11 @@ expression: jats
           </person-group>
           <article-title>A biochemical model of photosynthetic CO 2 assimilation in&#10;          leaves of C 3 species</article-title>
           <source>Planta</source>
+          <year>1980</year>
+          <volume>149</volume>
           <fpage>78</fpage>
           <lpage>90</lpage>
+          <pub-id pub-id-type="pmid">24306196</pub-id>
         </element-citation>
       </ref>
       <ref id="ele13210-bib-0024">
@@ -1240,8 +1285,11 @@ expression: jats
           </person-group>
           <article-title>Interactive effects of light, leaf temperature, CO<sub>2</sub>&#10;          and O<sub>2</sub> on photosynthesis in soybean</article-title>
           <source>Planta</source>
+          <year>1985</year>
+          <volume>165</volume>
           <fpage>249</fpage>
           <lpage>263</lpage>
+          <pub-id pub-id-type="pmid">24241050</pub-id>
         </element-citation>
       </ref>
       <ref id="ele13210-bib-0025">
@@ -1266,8 +1314,10 @@ expression: jats
           </person-group>
           <article-title>Updated high‐resolution grids of monthly climatic&#10;          observations – the CRU TS3.10 Dataset</article-title>
           <source>Int. J. Climatol.</source>
+          <year>2014</year>
+          <volume>34</volume>
           <fpage>623</fpage>
-          <lpage>&#10;          642</lpage>
+          <lpage>642</lpage>
         </element-citation>
       </ref>
       <ref id="ele13210-bib-0026">
@@ -1301,6 +1351,7 @@ expression: jats
           <article-title>New international formulation for&#10;          the Viscosity of H<sub>2</sub>O</article-title>
           <source>J. Phys. Chem. Ref. Data</source>
           <year>2009</year>
+          <volume>38</volume>
           <fpage>101</fpage>
           <lpage>125</lpage>
         </element-citation>
@@ -1315,6 +1366,8 @@ expression: jats
           </person-group>
           <article-title>The light gradients inside soybean leaves and their effect on&#10;          the curvature factor of the light response curves of photosynthesis</article-title>
           <source>BIOTROPIA‐The Southeast Asian J. Trop. Biol</source>
+          <year>2005</year>
+          <volume>25</volume>
           <fpage>29</fpage>
           <lpage>49</lpage>
         </element-citation>
@@ -1333,8 +1386,11 @@ expression: jats
           </person-group>
           <article-title>Temperature acclimation in a biochemical model of&#10;          photosynthesis: a reanalysis of data from 36 species</article-title>
           <source>Plant, Cell Environ.</source>
+          <year>2007</year>
+          <volume>30</volume>
           <fpage>1176</fpage>
           <lpage>1190</lpage>
+          <pub-id pub-id-type="pmid">17661754</pub-id>
         </element-citation>
       </ref>
       <ref id="ele13210-bib-0029">
@@ -1359,6 +1415,8 @@ expression: jats
           </person-group>
           <article-title>Quantifying photosynthetic capacity and its relationship to&#10;          leaf nitrogen content for global‐scale terrestrial biosphere models</article-title>
           <source>Glob. Chang. Biol.</source>
+          <year>2009</year>
+          <volume>15</volume>
           <fpage>976</fpage>
         </element-citation>
       </ref>
@@ -1393,6 +1451,7 @@ expression: jats
           <article-title>TRY–a global database of&#10;          plant traits</article-title>
           <source>Glob. Chang. Biol.</source>
           <year>2011</year>
+          <volume>17</volume>
           <fpage>2905</fpage>
           <lpage>2935</lpage>
         </element-citation>
@@ -1412,7 +1471,9 @@ expression: jats
           <article-title>Global leaf trait estimates biased due to plasticity&#10;          in the shade</article-title>
           <source>Nat. Plants</source>
           <year>2016</year>
+          <volume>3</volume>
           <fpage>16201</fpage>
+          <pub-id pub-id-type="pmid">27991884</pub-id>
         </element-citation>
       </ref>
       <ref id="ele13210-bib-0032">
@@ -1433,6 +1494,8 @@ expression: jats
           </person-group>
           <article-title>Soil water stress and coupled&#10;          photosynthesis–conductance models: bridging the gap between conflicting reports on&#10;          the relative roles of stomatal, mesophyll conductance and biochemical limitations to&#10;          photosynthesis</article-title>
           <source>Agric. For. Meteorol.</source>
+          <year>2010</year>
+          <volume>150</volume>
           <fpage>443</fpage>
           <lpage>453</lpage>
         </element-citation>
@@ -1451,8 +1514,11 @@ expression: jats
           </person-group>
           <article-title>Investigation of the CO<sub>2</sub> dependence of quantum&#10;          yield and respiration in Eucalyptus pauciflora</article-title>
           <source>Plant Physiol.</source>
+          <year>1987</year>
+          <volume>83</volume>
           <fpage>1032</fpage>
-          <lpage>&#10;          1036</lpage>
+          <lpage>1036</lpage>
+          <pub-id pub-id-type="pmid">16665319</pub-id>
         </element-citation>
       </ref>
       <ref id="ele13210-bib-0034">
@@ -1463,7 +1529,8 @@ expression: jats
               <given-names>P</given-names>
             </name>
           </person-group>
-          <article-title>lmodel2: Model II Regression</article-title>
+          <source>lmodel2: Model II Regression</source>
+          <year>2014</year>
         </element-citation>
       </ref>
       <ref id="ele13210-bib-0035">
@@ -1497,7 +1564,9 @@ expression: jats
           <article-title>The coordination of leaf&#10;          photosynthesis links C and N fluxes in C3 plant species</article-title>
           <source>PLoS ONE</source>
           <year>2012</year>
+          <volume>7</volume>
           <fpage>e38345</fpage>
+          <pub-id pub-id-type="pmid">22685562</pub-id>
         </element-citation>
       </ref>
       <ref id="ele13210-bib-0036">
@@ -1531,6 +1600,7 @@ expression: jats
           <article-title>Global effects of soil and climate&#10;          on leaf photosynthetic traits and rates</article-title>
           <source>Glob. Ecol. Biogeogr.</source>
           <year>2015</year>
+          <volume>24</volume>
           <fpage>706</fpage>
           <lpage>717</lpage>
         </element-citation>
@@ -1566,6 +1636,7 @@ expression: jats
           <article-title>Temperature response of parameters&#10;          of a biochemically based model of photosynthesis. II. A review of experimental data</article-title>
           <source>Plant, Cell Environ.</source>
           <year>2002</year>
+          <volume>25</volume>
           <fpage>1167</fpage>
           <lpage>1179</lpage>
         </element-citation>
@@ -1601,6 +1672,7 @@ expression: jats
           <article-title>Reconciling the optimal and&#10;          empirical approaches to modelling stomatal conductance</article-title>
           <source>Glob. Chang. Biol.</source>
           <year>2011</year>
+          <volume>17</volume>
           <fpage>2134</fpage>
           <lpage>2144</lpage>
         </element-citation>
@@ -1636,6 +1708,7 @@ expression: jats
           <article-title>Acclimation of photosynthetic&#10;          capacity to irradiance in tree canopies in relation to leaf nitrogen concentration and&#10;          leaf mass per unit area</article-title>
           <source>Plant, Cell Environ.</source>
           <year>2002</year>
+          <volume>25</volume>
           <fpage>343</fpage>
           <lpage>357</lpage>
         </element-citation>
@@ -1662,8 +1735,10 @@ expression: jats
           </person-group>
           <article-title>Photosynthetic parameters from two contrasting woody&#10;          vegetation types in West Africa</article-title>
           <source>Plant Ecol.</source>
+          <year>2007</year>
+          <volume>192</volume>
           <fpage>277</fpage>
-          <lpage>&#10;          287</lpage>
+          <lpage>287</lpage>
         </element-citation>
       </ref>
       <ref id="ele13210-bib-0041">
@@ -1684,8 +1759,11 @@ expression: jats
           </person-group>
           <article-title>Leaf mesophyll diffusion conductance in 35 Australian&#10;          sclerophylls covering a broad range of foliage structural and physiological variation</article-title>
           <source>J. Exp. Bot.</source>
+          <year>2009</year>
+          <volume>60</volume>
           <fpage>2433</fpage>
-          <lpage>&#10;          2449</lpage>
+          <lpage>2449</lpage>
+          <pub-id pub-id-type="pmid">19255061</pub-id>
         </element-citation>
       </ref>
       <ref id="ele13210-bib-0042">
@@ -1706,8 +1784,11 @@ expression: jats
           </person-group>
           <article-title>A worldwide analysis of within‐canopy variations in&#10;          leaf structural, chemical and physiological traits across plant functional types</article-title>
           <source>New Phytol.</source>
+          <year>2015</year>
+          <volume>205</volume>
           <fpage>973</fpage>
-          <lpage>&#10;          993</lpage>
+          <lpage>993</lpage>
+          <pub-id pub-id-type="pmid">25318596</pub-id>
         </element-citation>
       </ref>
       <ref id="ele13210-bib-0043">
@@ -1736,8 +1817,11 @@ expression: jats
           </person-group>
           <article-title>Balancing the costs of carbon gain and water transport:&#10;          testing a new theoretical framework for plant functional ecology</article-title>
           <source>Ecol. Lett.</source>
+          <year>2014</year>
+          <volume>17</volume>
           <fpage>82</fpage>
-          <lpage>&#10;          91</lpage>
+          <lpage>91</lpage>
+          <pub-id pub-id-type="pmid">24215231</pub-id>
         </element-citation>
       </ref>
       <ref id="ele13210-bib-0044">
@@ -1750,8 +1834,11 @@ expression: jats
           </person-group>
           <article-title>The use and misuse of Vc,max in Earth System Models</article-title>
           <source>Photosynth. Res.</source>
+          <year>2014</year>
+          <volume>119</volume>
           <fpage>15</fpage>
-          <lpage>&#10;          29</lpage>
+          <lpage>29</lpage>
+          <pub-id pub-id-type="pmid">23564478</pub-id>
         </element-citation>
       </ref>
       <ref id="ele13210-bib-0045">
@@ -1784,8 +1871,11 @@ expression: jats
           </person-group>
           <article-title>A roadmap for improving the&#10;          representation of photosynthesis in Earth system models</article-title>
           <source>New Phytol.</source>
+          <year>2017a</year>
+          <volume>213</volume>
           <fpage>22</fpage>
-          <lpage>&#10;          42</lpage>
+          <lpage>42</lpage>
+          <pub-id pub-id-type="pmid">27891647</pub-id>
         </element-citation>
       </ref>
       <ref id="ele13210-bib-0046">
@@ -1814,8 +1904,11 @@ expression: jats
           </person-group>
           <article-title>Terrestrial biosphere models underestimate&#10;          photosynthetic capacity and CO<sub>2</sub> assimilation in the Arctic</article-title>
           <source>New Phytol.</source>
+          <year>2017b</year>
+          <volume>216</volume>
           <fpage>1090</fpage>
-          <lpage>&#10;          1103</lpage>
+          <lpage>1103</lpage>
+          <pub-id pub-id-type="pmid">28877330</pub-id>
         </element-citation>
       </ref>
       <ref id="ele13210-bib-0047">
@@ -1849,8 +1942,10 @@ expression: jats
           <article-title>Strong thermal acclimation of&#10;          photosynthesis in tropical and temperate wet‐forest tree species: the importance of&#10;          altered Rubisco content</article-title>
           <source>Glob. Chang. Biol.</source>
           <year>2017</year>
+          <volume>23</volume>
           <fpage>2783</fpage>
           <lpage>2800</lpage>
+          <pub-id pub-id-type="pmid">27859952</pub-id>
         </element-citation>
       </ref>
       <ref id="ele13210-bib-0048">
@@ -1884,6 +1979,7 @@ expression: jats
           <article-title>Remotely estimating photosynthetic&#10;          capacity, and its response to temperature, in vegetation canopies using imaging&#10;          spectroscopy</article-title>
           <source>Remote Sens. Environ.</source>
           <year>2015</year>
+          <volume>167</volume>
           <fpage>78</fpage>
           <lpage>87</lpage>
         </element-citation>
@@ -1898,8 +1994,11 @@ expression: jats
           </person-group>
           <article-title>Quantum yield variation across the three pathways of&#10;          photosynthesis: not yet out of the dark</article-title>
           <source>J. Exp. Bot.</source>
+          <year>2008</year>
+          <volume>59</volume>
           <fpage>1647</fpage>
-          <lpage>&#10;          1661</lpage>
+          <lpage>1661</lpage>
+          <pub-id pub-id-type="pmid">18359752</pub-id>
         </element-citation>
       </ref>
       <ref id="ele13210-bib-0050">
@@ -1933,7 +2032,9 @@ expression: jats
           <article-title>Water balance creates a threshold&#10;          in soil pH at the global scale</article-title>
           <source>Nature</source>
           <year>2016</year>
+          <volume>540</volume>
           <fpage>567</fpage>
+          <pub-id pub-id-type="pmid">27871089</pub-id>
         </element-citation>
       </ref>
       <ref id="ele13210-bib-0051">
@@ -1950,8 +2051,11 @@ expression: jats
           </person-group>
           <article-title>Plant respiration and photosynthesis in global‐scale&#10;          models: incorporating acclimation to temperature and CO<sub>2</sub>&#10;          </article-title>
           <source>Glob. Chang. Biol.</source>
+          <year>2013</year>
+          <volume>19</volume>
           <fpage>45</fpage>
           <lpage>63</lpage>
+          <pub-id pub-id-type="pmid">23504720</pub-id>
         </element-citation>
       </ref>
       <ref id="ele13210-bib-0052">
@@ -1968,7 +2072,10 @@ expression: jats
           </person-group>
           <article-title>LCE: Leaf carbon exchange dataset for tropical, temperate,&#10;          and boreal species of North and Central America</article-title>
           <source>Ecology</source>
+          <year>2017a</year>
+          <volume>98</volume>
           <fpage>2978</fpage>
+          <pub-id pub-id-type="pmid">28833038</pub-id>
         </element-citation>
       </ref>
       <ref id="ele13210-bib-0053">
@@ -1985,8 +2092,11 @@ expression: jats
           </person-group>
           <article-title>Short‐term acclimation to warmer temperatures&#10;          accelerates leaf carbon exchange processes across plant types</article-title>
           <source>Glob. Chang. Biol.</source>
+          <year>2017b</year>
+          <volume>23</volume>
           <fpage>4840</fpage>
           <lpage>4853</lpage>
+          <pub-id pub-id-type="pmid">28560841</pub-id>
         </element-citation>
       </ref>
       <ref id="ele13210-bib-0054">
@@ -2003,8 +2113,11 @@ expression: jats
           </person-group>
           <article-title>Drivers of leaf carbon exchange capacity across biomes at the&#10;          continental scale</article-title>
           <source>Ecology</source>
+          <year>2018</year>
+          <volume>99</volume>
           <fpage>1610</fpage>
-          <lpage>&#10;          1620</lpage>
+          <lpage>1620</lpage>
+          <pub-id pub-id-type="pmid">29705984</pub-id>
         </element-citation>
       </ref>
       <ref id="ele13210-bib-0055">
@@ -2038,8 +2151,9 @@ expression: jats
           <article-title>Toward a better integration of&#10;          biological data from precipitation manipulation experiments into Earth system models</article-title>
           <source>Rev. Geophys.</source>
           <year>2014</year>
+          <volume>52</volume>
           <fpage>412</fpage>
-          <lpage>&#10;          434</lpage>
+          <lpage>434</lpage>
         </element-citation>
       </ref>
       <ref id="ele13210-bib-0056">
@@ -2073,8 +2187,10 @@ expression: jats
           <article-title>Predicting stomatal responses to&#10;          the environment from the optimization of photosynthetic gain and hydraulic cost</article-title>
           <source>Plant, Cell Environ.</source>
           <year>2017</year>
+          <volume>40</volume>
           <fpage>816</fpage>
           <lpage>830</lpage>
+          <pub-id pub-id-type="pmid">27764894</pub-id>
         </element-citation>
       </ref>
       <ref id="ele13210-bib-0057">
@@ -2099,8 +2215,11 @@ expression: jats
           </person-group>
           <article-title>Weak vertical canopy gradients of photosynthetic capacities&#10;          and stomatal responses in a fertile Norway spruce stand</article-title>
           <source>Oecologia</source>
+          <year>2013</year>
+          <volume>173</volume>
           <fpage>1179</fpage>
-          <lpage>&#10;          1189</lpage>
+          <lpage>1189</lpage>
+          <pub-id pub-id-type="pmid">23797410</pub-id>
         </element-citation>
       </ref>
       <ref id="ele13210-bib-0058">
@@ -2129,8 +2248,11 @@ expression: jats
           </person-group>
           <article-title>Mycorrhizal association as a primary control of the CO<sub>2</sub>&#10;          fertilization effect</article-title>
           <source>Science</source>
+          <year>2016</year>
+          <volume>353</volume>
           <fpage>72</fpage>
           <lpage>74</lpage>
+          <pub-id pub-id-type="pmid">27365447</pub-id>
         </element-citation>
       </ref>
       <ref id="ele13210-bib-0059">
@@ -2163,8 +2285,10 @@ expression: jats
           </person-group>
           <article-title>Functional trait variation&#10;          related to gap dynamics in tropical moist forests: a vegetation modelling perspective</article-title>
           <source>Perspect. Plant Ecol. Evol. Syst.</source>
-          <fpage>&#10;          0000</fpage>
-          <lpage>0</lpage>
+          <year>2018a</year>
+          <volume>0000</volume>
+          <fpage>0000</fpage>
+          <lpage>0000</lpage>
         </element-citation>
       </ref>
       <ref id="ele13210-bib-0060">
@@ -2197,8 +2321,10 @@ expression: jats
           </person-group>
           <article-title>Thermal acclimation of leaf&#10;          photosynthetic traits in an evergreen woodland, consistent with the coordination&#10;          hypothesis</article-title>
           <source>Biogeosciences</source>
+          <year>2018b</year>
+          <volume>15</volume>
           <fpage>3461</fpage>
-          <lpage>&#10;          3474</lpage>
+          <lpage>3474</lpage>
         </element-citation>
       </ref>
       <ref id="ele13210-bib-0061">
@@ -2215,8 +2341,11 @@ expression: jats
           </person-group>
           <article-title>Some relationships between the biochemistry of photosynthesis&#10;          and the gas exchange of leaves</article-title>
           <source>Planta</source>
+          <year>1981</year>
+          <volume>153</volume>
           <fpage>376</fpage>
           <lpage>387</lpage>
+          <pub-id pub-id-type="pmid">24276943</pub-id>
         </element-citation>
       </ref>
       <ref id="ele13210-bib-0062">
@@ -2250,8 +2379,10 @@ expression: jats
           <article-title>The relationship of leaf&#10;          photosynthetic traits – V<sub>cmax</sub> and Jmax – to leaf nitrogen, leaf&#10;          phosphorus, and specific leaf area: a meta‐analysis and modeling study</article-title>
           <source>Ecol. Evol.</source>
           <year>2014</year>
+          <volume>4</volume>
           <fpage>3218</fpage>
-          <lpage>&#10;          3235</lpage>
+          <lpage>3235</lpage>
+          <pub-id pub-id-type="pmid">25473475</pub-id>
         </element-citation>
       </ref>
       <ref id="ele13210-bib-0063">
@@ -2285,8 +2416,10 @@ expression: jats
           <article-title>The impact of alternative&#10;          trait‐scaling hypotheses for the maximum photosynthetic carboxylation rate (V<sub>&#10;          cmax</sub>) on global gross primary production</article-title>
           <source>New Phytol.</source>
           <year>2017</year>
+          <volume>215</volume>
           <fpage>1370</fpage>
-          <lpage>&#10;          1386</lpage>
+          <lpage>1386</lpage>
+          <pub-id pub-id-type="pmid">28643848</pub-id>
         </element-citation>
       </ref>
       <ref id="ele13210-bib-0064">
@@ -2319,8 +2452,11 @@ expression: jats
           </person-group>
           <article-title>The China Plant Trait Database:&#10;          towards a comprehensive regional compilation of functional traits for land plants</article-title>
           <source>Ecology</source>
+          <year>2017a</year>
+          <volume>99</volume>
           <fpage>500</fpage>
           <lpage>500</lpage>
+          <pub-id pub-id-type="pmid">29155446</pub-id>
         </element-citation>
       </ref>
       <ref id="ele13210-bib-0065">
@@ -2353,8 +2489,11 @@ expression: jats
           </person-group>
           <article-title>Photosynthetic responses to altitude: an explanation based&#10;          on optimality principles</article-title>
           <source>New Phytol.</source>
+          <year>2017b</year>
+          <volume>213</volume>
           <fpage>976</fpage>
-          <lpage>&#10;          982</lpage>
+          <lpage>982</lpage>
+          <pub-id pub-id-type="pmid">27859388</pub-id>
         </element-citation>
       </ref>
       <ref id="ele13210-bib-0066">
@@ -2387,8 +2526,11 @@ expression: jats
           </person-group>
           <article-title>Towards a universal model for&#10;          carbon dioxide uptake by plants</article-title>
           <source>Nat. Plants</source>
+          <year>2017c</year>
+          <volume>3</volume>
           <fpage>734</fpage>
-          <lpage>&#10;          741</lpage>
+          <lpage>741</lpage>
+          <pub-id pub-id-type="pmid">29150690</pub-id>
         </element-citation>
       </ref>
       <ref id="ele13210-bib-0067">
@@ -2421,6 +2563,8 @@ expression: jats
           </person-group>
           <article-title>The WFDEI meteorological forcing data set: WATCH Forcing Data&#10;          methodology applied to ERA‐Interim reanalysis data</article-title>
           <source>Water Resour. Res.</source>
+          <year>2014</year>
+          <volume>50</volume>
           <fpage>7505</fpage>
           <lpage>7514</lpage>
         </element-citation>
@@ -2456,6 +2600,7 @@ expression: jats
           <article-title>Inter‐specific variation of&#10;          the biochemical limitation to photosynthesis and related leaf traits of 30 species from&#10;          mountain grassland ecosystems under different land use</article-title>
           <source>Plant, Cell Environ.</source>
           <year>1999</year>
+          <volume>22</volume>
           <fpage>1281</fpage>
           <lpage>1296</lpage>
         </element-citation>
@@ -2478,8 +2623,11 @@ expression: jats
           </person-group>
           <article-title>Least‐cost input mixtures of water and nitrogen for&#10;          photosynthesis</article-title>
           <source>Am. Nat.</source>
+          <year>2003</year>
+          <volume>161</volume>
           <fpage>98</fpage>
-          <lpage>&#10;          111</lpage>
+          <lpage>111</lpage>
+          <pub-id pub-id-type="pmid">12650465</pub-id>
         </element-citation>
       </ref>
       <ref id="ele13210-bib-0070">
@@ -2526,7 +2674,10 @@ expression: jats
               <given-names>W</given-names>
             </name>
           </person-group>
-          <article-title>Mixed Effects Models and Extensions in Ecology</article-title>
+          <source>Mixed Effects Models and Extensions in Ecology</source>
+          <publisher-loc>New York, NY</publisher-loc>
+          <publisher-name>Springer</publisher-name>
+          <year>2009</year>
         </element-citation>
       </ref>
     </ref-list>

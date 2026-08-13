@@ -366,7 +366,14 @@ expression: article
         "volumeNumber": 23
       },
       "pageStart": 2072,
-      "pageEnd": 2092
+      "pageEnd": 2092,
+      "identifiers": [
+        {
+          "type": "PropertyValue",
+          "propertyId": "pmid",
+          "value": "24629132"
+        }
+      ]
     },
     {
       "type": "Reference",
@@ -428,7 +435,14 @@ expression: article
         "volumeNumber": 108
       },
       "pageStart": 349,
-      "pageEnd": 360
+      "pageEnd": 360,
+      "identifiers": [
+        {
+          "type": "PropertyValue",
+          "propertyId": "pmid",
+          "value": "28498987"
+        }
+      ]
     },
     {
       "type": "Reference",
@@ -468,6 +482,18 @@ expression: article
         "type": "Date",
         "value": "2016"
       },
+      "identifiers": [
+        {
+          "type": "PropertyValue",
+          "propertyId": "pmcid",
+          "value": "PMC4994077"
+        },
+        {
+          "type": "PropertyValue",
+          "propertyId": "pmid",
+          "value": "27602271"
+        }
+      ],
       "text": "Bogdan, V., Jůnek, T. & Vymyslická, P. J. Temporal overlaps of feral cats with prey and competitors in primary and human-altered habitats on Bohol Island. Philippines PeerJ 4 , e2288 (2016). 10.7717/peerj.2288 PMC4994077 27602271"
     },
     {
@@ -530,7 +556,19 @@ expression: article
         "volumeNumber": 6
       },
       "pageStart": 5321,
-      "pageEnd": 5332
+      "pageEnd": 5332,
+      "identifiers": [
+        {
+          "type": "PropertyValue",
+          "propertyId": "pmid",
+          "value": "27551385"
+        },
+        {
+          "type": "PropertyValue",
+          "propertyId": "pmcid",
+          "value": "PMC4984506"
+        }
+      ]
     },
     {
       "type": "Reference",
@@ -981,7 +1019,19 @@ expression: article
         ],
         "volumeNumber": 13
       },
-      "pageStart": "e0200828"
+      "pageStart": "e0200828",
+      "identifiers": [
+        {
+          "type": "PropertyValue",
+          "propertyId": "pmid",
+          "value": "30028844"
+        },
+        {
+          "type": "PropertyValue",
+          "propertyId": "pmcid",
+          "value": "PMC6054408"
+        }
+      ]
     },
     {
       "type": "Reference",
@@ -1112,12 +1162,25 @@ expression: article
         "volumeNumber": 11
       },
       "pageStart": 4205,
-      "pageEnd": 4217
+      "pageEnd": 4217,
+      "identifiers": [
+        {
+          "type": "PropertyValue",
+          "propertyId": "pmid",
+          "value": "33976804"
+        },
+        {
+          "type": "PropertyValue",
+          "propertyId": "pmcid",
+          "value": "PMC8093725"
+        }
+      ]
     },
     {
       "type": "Reference",
       "id": "CR22",
       "workType": "Article",
+      "doi": "10.13057/biodiv/d250650",
       "authors": [
         {
           "type": "Person",
@@ -1412,12 +1475,20 @@ expression: article
         "volumeNumber": 270
       },
       "pageStart": 729,
-      "pageEnd": 744
+      "pageEnd": 744,
+      "identifiers": [
+        {
+          "type": "PropertyValue",
+          "propertyId": "pmid",
+          "value": "19123240"
+        }
+      ]
     },
     {
       "type": "Reference",
       "id": "CR27",
       "workType": "Article",
+      "doi": "10.1111/j.1096-3642.2010.00636.x",
       "authors": [
         {
           "type": "Person",
@@ -1531,7 +1602,19 @@ expression: article
         ],
         "volumeNumber": 55
       },
-      "pageStart": "e1"
+      "pageStart": "e1",
+      "identifiers": [
+        {
+          "type": "PropertyValue",
+          "propertyId": "pmid",
+          "value": "31966146"
+        },
+        {
+          "type": "PropertyValue",
+          "propertyId": "pmcid",
+          "value": "PMC6511815"
+        }
+      ]
     },
     {
       "type": "Reference",
@@ -1605,7 +1688,14 @@ expression: article
         "volumeNumber": 10
       },
       "pageStart": 146,
-      "pageEnd": 152
+      "pageEnd": 152,
+      "identifiers": [
+        {
+          "type": "PropertyValue",
+          "propertyId": "pmid",
+          "value": "17257102"
+        }
+      ]
     },
     {
       "type": "Reference",
@@ -1807,7 +1897,19 @@ expression: article
         ],
         "volumeNumber": 3
       },
-      "pageStart": "e1309"
+      "pageStart": "e1309",
+      "identifiers": [
+        {
+          "type": "PropertyValue",
+          "propertyId": "pmid",
+          "value": "26500818"
+        },
+        {
+          "type": "PropertyValue",
+          "propertyId": "pmcid",
+          "value": "PMC4614805"
+        }
+      ]
     },
     {
       "type": "Reference",
@@ -1969,7 +2071,19 @@ expression: article
         ],
         "volumeNumber": 3
       },
-      "pageStart": 160350
+      "pageStart": 160350,
+      "identifiers": [
+        {
+          "type": "PropertyValue",
+          "propertyId": "pmid",
+          "value": "27853549"
+        },
+        {
+          "type": "PropertyValue",
+          "propertyId": "pmcid",
+          "value": "PMC5098974"
+        }
+      ]
     },
     {
       "type": "Reference",
@@ -2027,6 +2141,13 @@ expression: article
         "type": "Date",
         "value": "2019"
       },
+      "identifiers": [
+        {
+          "type": "PropertyValue",
+          "propertyId": "pmid",
+          "value": "31172504"
+        }
+      ],
       "text": "Nijhawan, S., Mitapo, I., Pulu, J., Carbone, C. & Rowcliffe, J. M. Does polymorphism make the Asiatic golden cat the most adaptable predator in the Eastern Himalayas? Ecology 100 , e02768 (2019). 10.1002/ecy.2768 31172504"
     },
     {
@@ -2091,7 +2212,14 @@ expression: article
         "volumeNumber": 35
       },
       "pageStart": 477,
-      "pageEnd": 483
+      "pageEnd": 483,
+      "identifiers": [
+        {
+          "type": "PropertyValue",
+          "propertyId": "pmid",
+          "value": "32396814"
+        }
+      ]
     },
     {
       "type": "Reference",
@@ -2136,7 +2264,14 @@ expression: article
         "volumeNumber": 91
       },
       "pageStart": 1361,
-      "pageEnd": 1372
+      "pageEnd": 1372,
+      "identifiers": [
+        {
+          "type": "PropertyValue",
+          "propertyId": "pmid",
+          "value": "35593055"
+        }
+      ]
     },
     {
       "type": "Reference",
@@ -2362,7 +2497,19 @@ expression: article
         "volumeNumber": 317
       },
       "pageStart": 519,
-      "pageEnd": 523
+      "pageEnd": 523,
+      "identifiers": [
+        {
+          "type": "PropertyValue",
+          "propertyId": "pmid",
+          "value": "17600185"
+        },
+        {
+          "type": "PropertyValue",
+          "propertyId": "pmcid",
+          "value": "PMC5612713"
+        }
+      ]
     },
     {
       "type": "Reference",
@@ -2426,7 +2573,19 @@ expression: article
         ],
         "volumeNumber": 9
       },
-      "pageStart": 795
+      "pageStart": 795,
+      "identifiers": [
+        {
+          "type": "PropertyValue",
+          "propertyId": "pmid",
+          "value": "31615026"
+        },
+        {
+          "type": "PropertyValue",
+          "propertyId": "pmcid",
+          "value": "PMC6826879"
+        }
+      ]
     },
     {
       "type": "Reference",
@@ -2486,7 +2645,19 @@ expression: article
         ],
         "volumeNumber": 7
       },
-      "pageStart": "eabg0221"
+      "pageStart": "eabg0221",
+      "identifiers": [
+        {
+          "type": "PropertyValue",
+          "propertyId": "pmid",
+          "value": "34162544"
+        },
+        {
+          "type": "PropertyValue",
+          "propertyId": "pmcid",
+          "value": "PMC8221621"
+        }
+      ]
     },
     {
       "type": "Reference",
@@ -2839,7 +3010,19 @@ expression: article
         ],
         "volumeNumber": 9
       },
-      "pageStart": "e94527"
+      "pageStart": "e94527",
+      "identifiers": [
+        {
+          "type": "PropertyValue",
+          "propertyId": "pmid",
+          "value": "24718586"
+        },
+        {
+          "type": "PropertyValue",
+          "propertyId": "pmcid",
+          "value": "PMC3981823"
+        }
+      ]
     },
     {
       "type": "Reference",
@@ -2883,7 +3066,19 @@ expression: article
         ],
         "volumeNumber": 13
       },
-      "pageStart": 3616
+      "pageStart": 3616,
+      "identifiers": [
+        {
+          "type": "PropertyValue",
+          "propertyId": "pmid",
+          "value": "38066967"
+        },
+        {
+          "type": "PropertyValue",
+          "propertyId": "pmcid",
+          "value": "PMC10705091"
+        }
+      ]
     },
     {
       "type": "Reference",
@@ -2943,7 +3138,19 @@ expression: article
         ],
         "volumeNumber": 14
       },
-      "pageStart": 24251
+      "pageStart": 24251,
+      "identifiers": [
+        {
+          "type": "PropertyValue",
+          "propertyId": "pmid",
+          "value": "39414828"
+        },
+        {
+          "type": "PropertyValue",
+          "propertyId": "pmcid",
+          "value": "PMC11484747"
+        }
+      ]
     },
     {
       "type": "Reference",

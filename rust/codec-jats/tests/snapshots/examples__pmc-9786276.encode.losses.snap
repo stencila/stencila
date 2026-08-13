@@ -2,6 +2,4 @@
 source: rust/codec-jats/tests/examples.rs
 expression: info.losses
 ---
-Reference.isPartOf.editors: 5
-Reference.isPartOf.volumeNumber: 57
 Supplement.work_type: 10

@@ -2,7 +2,6 @@
 source: rust/codec-meca/tests/examples.rs
 expression: info.losses
 ---
-//article/back/ref-list/ref/mixed-citation/ext-link: 1
 //article/back/ref-list/ref/mixed-citation/string-name/text(): 129
 //article/back/ref-list/title: 1
 //article/back/sec/@id: 2

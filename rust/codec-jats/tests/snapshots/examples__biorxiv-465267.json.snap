@@ -1059,6 +1059,7 @@ expression: article
       "type": "Reference",
       "id": "c15",
       "workType": "Article",
+      "doi": "10.1016/j.physrep.2019.04.001",
       "authors": [
         {
           "type": "Person",
@@ -1125,6 +1126,7 @@ expression: article
         ],
         "volumeNumber": 813
       },
+      "url": "https://doi.org/10.1016/j.physrep.2019.04.001",
       "pageStart": 1,
       "pageEnd": 90
     },
@@ -1282,7 +1284,11 @@ expression: article
             "string": "Null models in ecology"
           }
         }
-      ]
+      ],
+      "publisher": {
+        "type": "Organization",
+        "name": "Smithsonian Institution Press"
+      }
     },
     {
       "type": "Reference",
@@ -1907,7 +1913,7 @@ expression: article
         "volumeNumber": 72,
         "issueNumber": 5
       },
-      "pageStart": 56708
+      "pageStart": "056708"
     },
     {
       "type": "Reference",
@@ -2485,7 +2491,7 @@ expression: article
         "volumeNumber": 96,
         "issueNumber": 6
       },
-      "pageStart": 62302
+      "pageStart": "062302"
     },
     {
       "type": "Reference",
@@ -2541,12 +2547,14 @@ expression: article
             "string": "Hybrid structural arrangements mediate stability and feasibility in mutualistic networks"
           }
         }
-      ]
+      ],
+      "url": "https://arxiv.org/pdf/2105.09191.pdf"
     },
     {
       "type": "Reference",
       "id": "c40",
       "workType": "Article",
+      "doi": "10.1038/s41467-020-19154-5",
       "authors": [
         {
           "type": "Person",
@@ -2611,7 +2619,8 @@ expression: article
         ],
         "volumeNumber": 11,
         "issueNumber": 1
-      }
+      },
+      "url": "https://doi.org/10.1038/s41467-020-19154-5"
     },
     {
       "type": "Reference",
@@ -2875,6 +2884,7 @@ expression: article
       "type": "Reference",
       "id": "c46",
       "workType": "Article",
+      "doi": "10.1016/j.physa.2006.11.093",
       "authors": [
         {
           "type": "Person",
@@ -2951,6 +2961,7 @@ expression: article
         "volumeNumber": 379,
         "issueNumber": 1
       },
+      "url": "https://doi.org/10.1016/j.physa.2006.11.093",
       "pageStart": 317,
       "pageEnd": 333
     },
@@ -2958,6 +2969,7 @@ expression: article
       "type": "Reference",
       "id": "c47",
       "workType": "Article",
+      "doi": "10.3982/TE1348",
       "authors": [
         {
           "type": "Person",
@@ -3015,6 +3027,7 @@ expression: article
         "volumeNumber": 9,
         "issueNumber": 3
       },
+      "url": "https://doi.org/10.3982/TE1348",
       "pageStart": 695,
       "pageEnd": 752
     },
@@ -3022,6 +3035,7 @@ expression: article
       "type": "Reference",
       "id": "c48",
       "workType": "Article",
+      "doi": "10.1038/srep30286",
       "authors": [
         {
           "type": "Person",
@@ -3086,6 +3100,7 @@ expression: article
         "volumeNumber": 6,
         "issueNumber": 1
       },
+      "url": "https://doi.org/10.1038/srep30286",
       "pageStart": 30286
     },
     {
@@ -3224,6 +3239,7 @@ expression: article
       "type": "Reference",
       "id": "c51",
       "workType": "Article",
+      "doi": "10.1016/j.laa.2008.06.018",
       "authors": [
         {
           "type": "Person",
@@ -3290,6 +3306,7 @@ expression: article
         "volumeNumber": 429,
         "issueNumber": 8
       },
+      "url": "https://doi.org/10.1016/j.laa.2008.06.018",
       "pageStart": 2168,
       "pageEnd": 2179
     },
@@ -3349,7 +3366,14 @@ expression: article
             }
           }
         ]
-      }
+      },
+      "identifiers": [
+        {
+          "type": "PropertyValue",
+          "propertyId": "arxiv",
+          "value": "0809.1615"
+        }
+      ]
     },
     {
       "type": "Reference",
@@ -4017,7 +4041,7 @@ expression: article
         "volumeNumber": 69,
         "issueNumber": 2
       },
-      "pageStart": 26113
+      "pageStart": "026113"
     },
     {
       "type": "Reference",
@@ -4385,11 +4409,11 @@ expression: article
     {
       "type": "Reference",
       "id": "c70",
-      "workType": "Article",
+      "workType": "WebPage",
       "authors": [
         {
           "type": "Organization",
-          "name": "Web of Life"
+          "name": "Web of Life: ecological networks database"
         }
       ],
       "date": {
@@ -4415,7 +4439,8 @@ expression: article
             }
           }
         ]
-      }
+      },
+      "url": "http://www.web-of-life.es/"
     },
     {
       "type": "Reference",
@@ -4531,7 +4556,7 @@ expression: article
         "volumeNumber": 9,
         "issueNumber": 3
       },
-      "pageStart": 31024
+      "pageStart": "031024"
     },
     {
       "type": "Reference",
@@ -4576,6 +4601,10 @@ expression: article
             "S",
             "L"
           ]
+        },
+        {
+          "type": "Organization",
+          "name": "others"
         }
       ],
       "date": {
@@ -4764,7 +4793,7 @@ expression: article
         "volumeNumber": 91,
         "issueNumber": 4
       },
-      "pageStart": 42812
+      "pageStart": "042812"
     },
     {
       "type": "Reference",
@@ -4816,7 +4845,7 @@ expression: article
         "volumeNumber": 13,
         "issueNumber": 8
       },
-      "pageStart": 83001
+      "pageStart": "083001"
     },
     {
       "type": "Reference",

@@ -390,7 +390,7 @@ expression: article
     {
       "type": "Reference",
       "id": "c5",
-      "workType": "Book",
+      "workType": "Chapter",
       "authors": [
         {
           "type": "Person",
@@ -423,7 +423,11 @@ expression: article
             "string": "Comparative correlative neuroanatomy of the vertebrate telencephalon"
           }
         }
-      ]
+      ],
+      "publisher": {
+        "type": "Organization",
+        "name": "Macmillan Pub Co"
+      }
     },
     {
       "type": "Reference",
@@ -481,7 +485,8 @@ expression: article
             "string": "Glutamatergic neuron types in the amygdala of the urodele amphibian Pleurodeles waltl"
           }
         }
-      ]
+      ],
+      "url": "https://www.biorxiv.org/content/10.1101/2022.06.15.496313v1"
     },
     {
       "type": "Reference",
@@ -1341,7 +1346,7 @@ expression: article
         ],
         "volumeNumber": 6
       },
-      "pageStart": 234,
+      "pageStart": "0234",
       "pageEnd": 19
     },
     {
@@ -1558,7 +1563,8 @@ expression: article
           }
         ],
         "volumeNumber": 7
-      }
+      },
+      "url": "https://www.frontiersin.org/articles/10.3389/fnsys.2013.00066"
     },
     {
       "type": "Reference",
@@ -1703,7 +1709,8 @@ expression: article
           }
         ],
         "volumeNumber": 14
-      }
+      },
+      "url": "https://www.frontiersin.org/articles/10.3389/fnbeh.2020.00035"
     },
     {
       "type": "Reference",
@@ -2489,7 +2496,8 @@ expression: article
           }
         ],
         "volumeNumber": 16
-      }
+      },
+      "url": "https://www.frontiersin.org/articles/10.3389/fnana.2022.883537"
     },
     {
       "type": "Reference",
@@ -3189,7 +3197,8 @@ expression: article
             "string": "A quantitative description of the mouse piriform cortex"
           }
         }
-      ]
+      ],
+      "url": "https://www.biorxiv.org/content/10.1101/099002v1"
     },
     {
       "type": "Reference",

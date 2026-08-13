@@ -10,8 +10,10 @@ expression: info.losses
 //article/back/ref-list/ref/citation/@use-reference-as-is: 50
 //article/back/ref-list/ref/citation/article-title/@id: 49
 //article/back/ref-list/ref/citation/etal: 1
-//article/back/ref-list/ref/citation/ext-link: 5
-//article/back/ref-list/ref/citation/publisher-name: 1
+//article/back/ref-list/ref/citation/ext-link/@id: 5
+//article/back/ref-list/ref/citation/ext-link/@ref: 5
+//article/back/ref-list/ref/citation/ext-link/@ref-type: 5
+//article/back/ref-list/ref/citation/ext-link/@rel: 5
 //article/back/ref-list/ref/citation/source/@id: 47
 //article/back/ref-list/ref/citation/string-name/@name-style: 189
 //article/back/ref-list/ref/citation/string-name/@sortable: 189

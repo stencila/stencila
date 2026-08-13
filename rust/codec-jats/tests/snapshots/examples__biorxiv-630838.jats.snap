@@ -526,6 +526,7 @@ expression: jats
           <article-title>Cell motility in cancer invasion and metastasis: insights from simple model organisms</article-title>
           <source>Nat Rev Cancer</source>
           <year>2018</year>
+          <volume>18</volume>
           <fpage>296</fpage>
           <lpage>312</lpage>
         </element-citation>
@@ -553,6 +554,7 @@ expression: jats
           <article-title>Mutational drivers of cancer cell migration and invasion</article-title>
           <source>Br J Cancer</source>
           <year>2021</year>
+          <volume>124</volume>
           <fpage>102</fpage>
           <lpage>114</lpage>
         </element-citation>
@@ -584,6 +586,8 @@ expression: jats
           <article-title>Molecular principles of metastasis: a hallmark of cancer revisited</article-title>
           <source>Sig Transduct Target Ther</source>
           <year>2020</year>
+          <volume>5</volume>
+          <issue>28</issue>
         </element-citation>
       </ref>
       <ref id="c4">
@@ -613,6 +617,7 @@ expression: jats
           <article-title>Dynamic imaging of cancer growth and invasion: a modified skin-fold chamber model</article-title>
           <source>Histochem Cell Biol</source>
           <year>2008</year>
+          <volume>130</volume>
           <fpage>1147</fpage>
           <lpage>1154</lpage>
         </element-citation>
@@ -636,6 +641,7 @@ expression: jats
           <article-title>Intravital third harmonic generation microscopy of collective melanoma cell invasion: Principles of interface guidance and microvesicle dynamics</article-title>
           <source>IntraVital</source>
           <year>2012</year>
+          <volume>1</volume>
           <fpage>32</fpage>
           <lpage>43</lpage>
         </element-citation>
@@ -655,6 +661,7 @@ expression: jats
           <article-title>The front and rear of collective cell migration</article-title>
           <source>Nat Rev Mol Cell Biol</source>
           <year>2016</year>
+          <volume>17</volume>
           <fpage>97</fpage>
           <lpage>109</lpage>
         </element-citation>
@@ -670,6 +677,7 @@ expression: jats
           <article-title>Cell Migration: Integrating Signals from Front to Back</article-title>
           <source>Science</source>
           <year>2003</year>
+          <volume>302</volume>
           <fpage>1704</fpage>
           <lpage>1709</lpage>
         </element-citation>
@@ -689,6 +697,8 @@ expression: jats
           <article-title>Signaling Networks that Regulate Cell Migration</article-title>
           <source>Cold Spring Harb Perspect Biol</source>
           <year>2015</year>
+          <volume>7</volume>
+          <issue>a005959</issue>
         </element-citation>
       </ref>
       <ref id="c9">
@@ -706,6 +716,7 @@ expression: jats
           <article-title>Tumour-cell invasion and migration: diversity and escape mechanisms</article-title>
           <source>Nat Rev Cancer</source>
           <year>2003</year>
+          <volume>3</volume>
           <fpage>362</fpage>
           <lpage>374</lpage>
         </element-citation>
@@ -725,6 +736,7 @@ expression: jats
           <article-title>Cancer Invasion and the Microenvironment: Plasticity and Reciprocity</article-title>
           <source>Cell</source>
           <year>2011</year>
+          <volume>147</volume>
           <fpage>992</fpage>
           <lpage>1009</lpage>
         </element-citation>
@@ -740,6 +752,7 @@ expression: jats
           <article-title>Matrix geometry determines optimal cancer cell migration strategy and modulates response to interventions</article-title>
           <source>Nat Cell Biol</source>
           <year>2013</year>
+          <volume>15</volume>
           <fpage>751</fpage>
           <lpage>762</lpage>
         </element-citation>
@@ -767,6 +780,7 @@ expression: jats
           <article-title>The molecular mechanisms of transition between mesenchymal and amoeboid invasiveness in tumor cells</article-title>
           <source>Cell. Mol. Life Sci</source>
           <year>2010</year>
+          <volume>67</volume>
           <fpage>63</fpage>
           <lpage>71</lpage>
         </element-citation>
@@ -786,6 +800,7 @@ expression: jats
           <article-title>Integration of actin dynamics and cell adhesion by a three-dimensional, mechanosensitive molecular clutch</article-title>
           <source>Nat Cell Biol</source>
           <year>2015</year>
+          <volume>17</volume>
           <fpage>955</fpage>
           <lpage>963</lpage>
         </element-citation>
@@ -805,6 +820,7 @@ expression: jats
           <article-title>Blebs lead the way: how to migrate without lamellipodia</article-title>
           <source>Nat Rev Mol Cell Biol</source>
           <year>2008</year>
+          <volume>9</volume>
           <fpage>730</fpage>
           <lpage>736</lpage>
         </element-citation>
@@ -836,6 +852,7 @@ expression: jats
           <article-title>An ezrin-rich, rigid uropod-like structure directs movement of amoeboid blebbing cells</article-title>
           <source>Journal of Cell Science</source>
           <year>2011</year>
+          <volume>124</volume>
           <fpage>1256</fpage>
           <lpage>1267</lpage>
         </element-citation>
@@ -863,6 +880,7 @@ expression: jats
           <article-title>Blebology: principles of bleb-based migration</article-title>
           <source>Trends in Cell Biology</source>
           <year>2024</year>
+          <volume>34</volume>
           <fpage>838</fpage>
           <lpage>853</lpage>
         </element-citation>
@@ -894,6 +912,7 @@ expression: jats
           <article-title>Non-equilibration of hydrostatic pressure in blebbing cells</article-title>
           <source>Nature</source>
           <year>2005</year>
+          <volume>435</volume>
           <fpage>365</fpage>
           <lpage>369</lpage>
         </element-citation>
@@ -921,6 +940,7 @@ expression: jats
           <article-title>Cell mechanics control rapid transitions between blebs and lamellipodia during migration</article-title>
           <source>Proc. Natl. Acad. Sci. U.S.A</source>
           <year>2012</year>
+          <volume>109</volume>
           <fpage>14434</fpage>
           <lpage>14439</lpage>
         </element-citation>
@@ -936,6 +956,7 @@ expression: jats
           <article-title>Confinement and Low Adhesion Induce Fast Amoeboid Migration of Slow Mesenchymal Cells</article-title>
           <source>Cell</source>
           <year>2015</year>
+          <volume>160</volume>
           <fpage>659</fpage>
           <lpage>672</lpage>
         </element-citation>
@@ -951,6 +972,7 @@ expression: jats
           <article-title>Erk regulation of actin capping and bundling by Eps8 promotes cortex tension and leader bleb-based migration</article-title>
           <source>eLife</source>
           <year>2015</year>
+          <volume>4</volume>
           <fpage>e08314</fpage>
         </element-citation>
       </ref>
@@ -977,6 +999,7 @@ expression: jats
           <article-title>Reassembly of contractile actin cortex in cell blebs</article-title>
           <source>The Journal of Cell Biology</source>
           <year>2006</year>
+          <volume>175</volume>
           <fpage>477</fpage>
           <lpage>490</lpage>
         </element-citation>
@@ -992,6 +1015,7 @@ expression: jats
           <article-title>Cortical Contractility Triggers a Stochastic Switch to Fast Amoeboid Cell Motility</article-title>
           <source>Cell</source>
           <year>2015</year>
+          <volume>160</volume>
           <fpage>673</fpage>
           <lpage>685</lpage>
         </element-citation>
@@ -1015,6 +1039,7 @@ expression: jats
           <article-title>Front–Rear Polarization by Mechanical Cues: From Single Cells to Tissues</article-title>
           <source>Trends in Cell Biology</source>
           <year>2016</year>
+          <volume>26</volume>
           <fpage>420</fpage>
           <lpage>433</lpage>
         </element-citation>
@@ -1030,6 +1055,7 @@ expression: jats
           <article-title>Chemokine-biased robust self-organizing polarization of migrating cells in vivo</article-title>
           <source>Proc Natl Acad Sci USA</source>
           <year>2021</year>
+          <volume>118</volume>
           <fpage>e2018480118</fpage>
         </element-citation>
       </ref>
@@ -1044,6 +1070,7 @@ expression: jats
           <article-title>Cytoskeletal Mechanisms for Breaking Cellular Symmetry</article-title>
           <source>Cold Spring Harbor Perspectives in Biology</source>
           <year>2010</year>
+          <volume>2</volume>
           <fpage>a003392</fpage>
           <lpage>a003392</lpage>
         </element-citation>
@@ -1071,6 +1098,7 @@ expression: jats
           <article-title>Activation of Rac and Cdc42 by Integrins Mediates Cell Spreading</article-title>
           <source>MBoC</source>
           <year>1998</year>
+          <volume>9</volume>
           <fpage>1863</fpage>
           <lpage>1871</lpage>
         </element-citation>
@@ -1086,6 +1114,7 @@ expression: jats
           <article-title>Phosphoinositide 3-kinase activates Rac by entering in a complex with Eps8, Abi1, and Sos-1</article-title>
           <source>The Journal of Cell Biology</source>
           <year>2003</year>
+          <volume>160</volume>
           <fpage>17</fpage>
           <lpage>23</lpage>
         </element-citation>
@@ -1117,6 +1146,7 @@ expression: jats
           <article-title>Two Distinct Actin Networks Drive the Protrusion of Migrating Cells</article-title>
           <source>Science</source>
           <year>2004</year>
+          <volume>305</volume>
           <fpage>1782</fpage>
           <lpage>1786</lpage>
         </element-citation>
@@ -1132,6 +1162,7 @@ expression: jats
           <article-title>Arp2/3 Is Critical for Lamellipodia and Response to Extracellular Matrix Cues but Is Dispensable for Chemotaxis</article-title>
           <source>Cell</source>
           <year>2012</year>
+          <volume>148</volume>
           <fpage>973</fpage>
           <lpage>987</lpage>
         </element-citation>
@@ -1155,6 +1186,8 @@ expression: jats
           <article-title>Coordinated integrin activation by actin-dependent force during T-cell migration</article-title>
           <source>Nat Commun</source>
           <year>2016</year>
+          <volume>7</volume>
+          <issue>13119</issue>
         </element-citation>
       </ref>
       <ref id="c31">
@@ -1176,6 +1209,7 @@ expression: jats
           <article-title>The principles of directed cell migration</article-title>
           <source>Nat Rev Mol Cell Biol</source>
           <year>2021</year>
+          <volume>22</volume>
           <fpage>529</fpage>
           <lpage>547</lpage>
         </element-citation>
@@ -1195,6 +1229,7 @@ expression: jats
           <article-title>Rho-stimulated contractility drives the formation of stress fibers and focal adhesions</article-title>
           <source>The Journal of cell biology</source>
           <year>1996</year>
+          <volume>133</volume>
           <fpage>1403</fpage>
           <lpage>1415</lpage>
         </element-citation>
@@ -1210,6 +1245,7 @@ expression: jats
           <article-title>Rigidity percolation and active advection synergize in the actomyosin cortex to drive amoeboid cell motility</article-title>
           <source>Developmental Cell</source>
           <year>2024</year>
+          <issue>S1534580724004015</issue>
           <pub-id pub-id-type="doi">10.1016/j.devcel.2024.06.023</pub-id>
         </element-citation>
       </ref>
@@ -1224,6 +1260,7 @@ expression: jats
           <article-title>Membrane Flow Drives an Adhesion-Independent Amoeboid Cell Migration Mode</article-title>
           <source>Developmental Cell</source>
           <year>2018</year>
+          <volume>46</volume>
           <fpage>9</fpage>
           <lpage>22</lpage>
         </element-citation>
@@ -1239,6 +1276,7 @@ expression: jats
           <article-title>Actin Flows Mediate a Universal Coupling between Cell Speed and Cell Persistence</article-title>
           <source>Cell</source>
           <year>2015</year>
+          <volume>161</volume>
           <fpage>374</fpage>
           <lpage>386</lpage>
         </element-citation>
@@ -1254,6 +1292,7 @@ expression: jats
           <article-title>Chemokines and integrins independently tune actin flow and substrate friction during intranodal migration of T cells</article-title>
           <source>Nat Immunol</source>
           <year>2018</year>
+          <volume>19</volume>
           <fpage>606</fpage>
           <lpage>616</lpage>
         </element-citation>
@@ -1277,6 +1316,7 @@ expression: jats
           <article-title>Cortical Flows Powered by Asymmetrical Contraction Transport PAR Proteins to Establish and Maintain Anterior-Posterior Polarity in the Early C. elegans Embryo</article-title>
           <source>Developmental Cell</source>
           <year>2004</year>
+          <volume>7</volume>
           <fpage>413</fpage>
           <lpage>424</lpage>
         </element-citation>
@@ -1296,6 +1336,7 @@ expression: jats
           <article-title>Morphogenesis of the Polarized Epithelial Cell Phenotype</article-title>
           <source>Science</source>
           <year>1989</year>
+          <volume>245</volume>
           <fpage>718</fpage>
           <lpage>725</lpage>
         </element-citation>
@@ -1323,6 +1364,7 @@ expression: jats
           <article-title>Regulators of Endocytosis Maintain Localized Receptor Tyrosine Kinase Signaling in Guided Migration</article-title>
           <source>Developmental Cell</source>
           <year>2005</year>
+          <volume>9</volume>
           <fpage>197</fpage>
           <lpage>207</lpage>
         </element-citation>
@@ -1354,6 +1396,7 @@ expression: jats
           <article-title>Spatial restriction of receptor tyrosine kinase activity through a polarized endocytic cycle controls border cell migration</article-title>
           <source>Proc. Natl. Acad. Sci. U.S.A</source>
           <year>2010</year>
+          <volume>107</volume>
           <fpage>22558</fpage>
           <lpage>22563</lpage>
         </element-citation>
@@ -1385,6 +1428,7 @@ expression: jats
           <article-title>Endoplasmic reticulum–plasma membrane contact gradients direct cell migration</article-title>
           <source>Nature</source>
           <year>2024</year>
+          <volume>631</volume>
           <fpage>415</fpage>
           <lpage>423</lpage>
         </element-citation>
@@ -1400,6 +1444,7 @@ expression: jats
           <article-title>Cytoskeletal Control of CD36 Diffusion Promotes Its Receptor and Signaling Function</article-title>
           <source>Cell</source>
           <year>2011</year>
+          <volume>146</volume>
           <fpage>593</fpage>
           <lpage>606</lpage>
         </element-citation>
@@ -1415,6 +1460,7 @@ expression: jats
           <article-title>Transmembrane Pickets Connect Cyto- and Pericellular Skeletons Forming Barriers to Receptor Engagement</article-title>
           <source>Cell</source>
           <year>2018</year>
+          <volume>172</volume>
           <fpage>305</fpage>
           <lpage>317</lpage>
         </element-citation>
@@ -1446,6 +1492,7 @@ expression: jats
           <article-title>Phosphatidylinositol 3-kinase signals activate a selective subset of Rac/Rho-dependent effector pathways</article-title>
           <source>Current Biology</source>
           <year>1996</year>
+          <volume>6</volume>
           <fpage>1445</fpage>
           <lpage>1455</lpage>
         </element-citation>
@@ -1461,6 +1508,7 @@ expression: jats
           <article-title>Distinct phosphotyrosines on a growth factor receptor bind to specific molecules that mediate different signaling pathways</article-title>
           <source>Cell</source>
           <year>1992</year>
+          <volume>69</volume>
           <fpage>413</fpage>
           <lpage>423</lpage>
         </element-citation>
@@ -1476,6 +1524,7 @@ expression: jats
           <article-title>Oncogenes and signal transduction</article-title>
           <source>Cell</source>
           <year>1991</year>
+          <volume>64</volume>
           <fpage>281</fpage>
           <lpage>302</lpage>
         </element-citation>
@@ -1491,6 +1540,7 @@ expression: jats
           <article-title>A flagellate-to-amoeboid switch in the closest living relatives of animals</article-title>
           <source>eLife</source>
           <year>2021</year>
+          <volume>10</volume>
           <fpage>e61037</fpage>
         </element-citation>
       </ref>
@@ -1513,6 +1563,7 @@ expression: jats
           <article-title>Roles for Growth Factors in Cancer Progression</article-title>
           <source>Physiology</source>
           <year>2010</year>
+          <volume>25</volume>
           <fpage>85</fpage>
           <lpage>101</lpage>
         </element-citation>
@@ -1532,6 +1583,7 @@ expression: jats
           <article-title>Cancer-associated fibroblasts modulate growth factor signaling and extracellular matrix remodeling to regulate tumor metastasis</article-title>
           <source>Biochemical Society Transactions</source>
           <year>2017</year>
+          <volume>45</volume>
           <fpage>229</fpage>
           <lpage>236</lpage>
         </element-citation>
@@ -1547,6 +1599,7 @@ expression: jats
           <article-title>Expression level of EGFR and MET receptors regulates invasiveness of melanoma cells</article-title>
           <source>J Cellular Molecular Medi</source>
           <year>2019</year>
+          <volume>23</volume>
           <fpage>8453</fpage>
           <lpage>8463</lpage>
         </element-citation>
@@ -1574,6 +1627,7 @@ expression: jats
           <article-title>Targeting EGFR in melanoma – The sea of possibilities to overcome drug resistance</article-title>
           <source>Biochimica et Biophysica Acta (BBA) - Reviews on Cancer</source>
           <year>2022</year>
+          <volume>1877</volume>
           <fpage>188754</fpage>
         </element-citation>
       </ref>
@@ -1588,6 +1642,7 @@ expression: jats
           <article-title>pYtags enable spatiotemporal measurements of receptor tyrosine kinase signaling in living cells</article-title>
           <source>eLife</source>
           <year>2023</year>
+          <volume>12</volume>
           <fpage>e82863</fpage>
         </element-citation>
       </ref>
@@ -1606,6 +1661,7 @@ expression: jats
           <article-title>Visualization of Phosphoinositides That Bind Pleckstrin Homology Domains: Calcium- and Agonist-induced Dynamic Changes and Relationship to Myo-[3H]inositol-labeled Phosphoinositide Pools</article-title>
           <source>The Journal of Cell Biology</source>
           <year>1998</year>
+          <volume>143</volume>
           <fpage>501</fpage>
           <lpage>510</lpage>
         </element-citation>
@@ -1629,6 +1685,7 @@ expression: jats
           <article-title>Receptor-induced transient reduction in plasma membrane PtdIns(4,5)P2 concentration monitored in living cells</article-title>
           <source>Current Biology</source>
           <year>1998</year>
+          <volume>8</volume>
           <fpage>343</fpage>
           <lpage>346</lpage>
         </element-citation>
@@ -1644,6 +1701,7 @@ expression: jats
           <article-title>Activation of Type I Phosphatidylinositol 4-Phosphate 5-Kinase Isoforms by the Rho GTPases, RhoA, Rac1, and Cdc42</article-title>
           <source>Journal of Biological Chemistry</source>
           <year>2004</year>
+          <volume>279</volume>
           <fpage>7840</fpage>
           <lpage>7849</lpage>
         </element-citation>
@@ -1659,6 +1717,7 @@ expression: jats
           <article-title>Spatiotemporal Control of Intracellular Phase Transitions Using Light-Activated optoDroplets</article-title>
           <source>Cell</source>
           <year>2017</year>
+          <volume>168</volume>
           <fpage>159</fpage>
           <lpage>171</lpage>
         </element-citation>
@@ -1674,6 +1733,8 @@ expression: jats
           <article-title>Substratum stiffness regulates Erk signaling dynamics through receptor-level control</article-title>
           <source>Cell Reports</source>
           <year>2021</year>
+          <volume>37</volume>
+          <issue>110181</issue>
         </element-citation>
       </ref>
       <ref id="c58">
@@ -1703,6 +1764,7 @@ expression: jats
           <article-title>LOV (light, oxygen, or voltage) domains of the blue-light photoreceptor phototropin (nph1): Binding sites for the chromophore flavin mononucleotide</article-title>
           <source>Proc. Natl. Acad. Sci. U.S.A</source>
           <year>1999</year>
+          <volume>96</volume>
           <fpage>8779</fpage>
           <lpage>8783</lpage>
         </element-citation>
@@ -1726,6 +1788,7 @@ expression: jats
           <article-title>Structural Basis of a Phototropin Light Switch</article-title>
           <source>Science</source>
           <year>2003</year>
+          <volume>301</volume>
           <fpage>1541</fpage>
           <lpage>1544</lpage>
         </element-citation>
@@ -1741,6 +1804,7 @@ expression: jats
           <article-title>A genetically encoded photoactivatable Rac controls the motility of living cells</article-title>
           <source>Nature</source>
           <year>2009</year>
+          <volume>461</volume>
           <fpage>104</fpage>
           <lpage>108</lpage>
         </element-citation>
@@ -1760,6 +1824,7 @@ expression: jats
           <article-title>Currents through the fusion pore that forms during exocytosis of a secretory vesicle</article-title>
           <source>Nature</source>
           <year>1987</year>
+          <volume>328</volume>
           <fpage>814</fpage>
           <lpage>817</lpage>
         </element-citation>
@@ -1783,6 +1848,7 @@ expression: jats
           <article-title>EGF receptor trafficking: consequences for signaling and cancer</article-title>
           <source>Trends in Cell Biology</source>
           <year>2014</year>
+          <volume>24</volume>
           <fpage>26</fpage>
           <lpage>34</lpage>
         </element-citation>
@@ -1806,6 +1872,7 @@ expression: jats
           <article-title>Patterning and polarization of cells by intracellular flows</article-title>
           <source>Current Opinion in Cell Biology</source>
           <year>2020</year>
+          <volume>62</volume>
           <fpage>123</fpage>
           <lpage>134</lpage>
         </element-citation>
@@ -1825,6 +1892,7 @@ expression: jats
           <article-title>Regulation from within: the cytoskeleton in transmembrane signaling</article-title>
           <source>Trends in Cell Biology</source>
           <year>2012</year>
+          <volume>22</volume>
           <fpage>515</fpage>
           <lpage>526</lpage>
         </element-citation>
@@ -1840,6 +1908,7 @@ expression: jats
           <article-title>The nucleus measures shape changes for cellular proprioception to control dynamic cell behavior</article-title>
           <source>Science</source>
           <year>2020</year>
+          <volume>370</volume>
         </element-citation>
       </ref>
       <ref id="c66">
@@ -1865,6 +1934,7 @@ expression: jats
           <article-title>Survey of cancer cell anatomy in nonadhesive confinement reveals a role for filamin-A and fascin-1 in leader bleb–based migration</article-title>
           <source>MBoC</source>
           <year>2021</year>
+          <volume>32</volume>
           <fpage>1772</fpage>
           <lpage>1791</lpage>
         </element-citation>
@@ -1880,6 +1950,7 @@ expression: jats
           <article-title>Dynamics of putative raft-associated proteins at the cell surface</article-title>
           <source>The Journal of Cell Biology</source>
           <year>2004</year>
+          <volume>165</volume>
           <fpage>735</fpage>
           <lpage>746</lpage>
         </element-citation>
@@ -1911,6 +1982,7 @@ expression: jats
           <article-title>Membrane-proximal F-actin restricts local membrane protrusions and directs cell migration</article-title>
           <source>Science</source>
           <year>2020</year>
+          <volume>368</volume>
           <fpage>1205</fpage>
           <lpage>1210</lpage>
         </element-citation>
@@ -1926,6 +1998,7 @@ expression: jats
           <article-title>Moesin orchestrates cortical polarity of melanoma tumour cells to initiate 3D invasion</article-title>
           <source>Journal of Cell Science</source>
           <year>2009</year>
+          <volume>122</volume>
           <fpage>3492</fpage>
           <lpage>3501</lpage>
         </element-citation>
@@ -1941,6 +2014,7 @@ expression: jats
           <article-title>Diverse matrix metalloproteinase functions regulate cancer amoeboid migration</article-title>
           <source>Nat Commun</source>
           <year>2014</year>
+          <volume>5</volume>
           <fpage>4255</fpage>
         </element-citation>
       </ref>
@@ -1955,6 +2029,7 @@ expression: jats
           <article-title>Contractility of the cell rear drives invasion of breast tumor cells in 3D Matrigel</article-title>
           <source>Proc. Natl. Acad. Sci. U.S.A</source>
           <year>2011</year>
+          <volume>108</volume>
           <fpage>1943</fpage>
           <lpage>1948</lpage>
         </element-citation>
@@ -1974,6 +2049,7 @@ expression: jats
           <article-title>Integrin signalling in directed cell migration</article-title>
           <source>Biology of the Cell</source>
           <year>2006</year>
+          <volume>98</volume>
           <fpage>547</fpage>
           <lpage>555</lpage>
         </element-citation>
@@ -1993,6 +2069,7 @@ expression: jats
           <article-title>Actin microfilament dynamics in locomoting cells</article-title>
           <source>Nature</source>
           <year>1991</year>
+          <volume>352</volume>
           <fpage>126</fpage>
           <lpage>131</lpage>
         </element-citation>
@@ -2020,6 +2097,7 @@ expression: jats
           <article-title>Myosin Drives Retrograde F-Actin Flow in Neuronal Growth Cones</article-title>
           <source>Neuron</source>
           <year>1996</year>
+          <volume>16</volume>
           <fpage>769</fpage>
           <lpage>782</lpage>
         </element-citation>
@@ -2035,6 +2113,7 @@ expression: jats
           <article-title>Actin-Membrane Release Initiates Cell Protrusions</article-title>
           <source>Developmental Cell</source>
           <year>2020</year>
+          <volume>55</volume>
           <fpage>723</fpage>
           <lpage>736</lpage>
         </element-citation>
@@ -2050,6 +2129,7 @@ expression: jats
           <article-title>Rac1-Dependent Phosphorylation and Focal Adhesion Recruitment of Myosin IIA Regulates Migration and Mechanosensing</article-title>
           <source>Current Biology</source>
           <year>2015</year>
+          <volume>25</volume>
           <fpage>175</fpage>
           <lpage>186</lpage>
         </element-citation>
@@ -2073,6 +2153,7 @@ expression: jats
           <article-title>CD44: From adhesion molecules to signalling regulators</article-title>
           <source>Nat Rev Mol Cell Biol</source>
           <year>2003</year>
+          <volume>4</volume>
           <fpage>33</fpage>
           <lpage>45</lpage>
         </element-citation>
@@ -2096,6 +2177,7 @@ expression: jats
           <article-title>Signaling Properties of Hyaluronan Receptors</article-title>
           <source>Journal of Biological Chemistry</source>
           <year>2002</year>
+          <volume>277</volume>
           <fpage>4589</fpage>
           <lpage>4592</lpage>
         </element-citation>
@@ -2111,6 +2193,7 @@ expression: jats
           <article-title>Single-molecule analysis of epidermal growth factor binding on the surface of living cells</article-title>
           <source>EMBO J</source>
           <year>2006</year>
+          <volume>25</volume>
           <fpage>4215</fpage>
           <lpage>4222</lpage>
         </element-citation>
@@ -2126,6 +2209,7 @@ expression: jats
           <article-title>Confined migration promotes cancer metastasis through resistance to anoikis and increased invasiveness</article-title>
           <source>eLife</source>
           <year>2022</year>
+          <volume>11</volume>
           <fpage>e73150</fpage>
         </element-citation>
       </ref>
@@ -2140,6 +2224,7 @@ expression: jats
           <article-title>Blebs promote cell survival by assembling oncogenic signalling hubs</article-title>
           <source>Nature</source>
           <year>2023</year>
+          <volume>615</volume>
           <fpage>517</fpage>
           <lpage>525</lpage>
         </element-citation>
@@ -2171,6 +2256,7 @@ expression: jats
           <article-title>Methods for Two-Dimensional Cell Confinement</article-title>
           <source>Methods in Cell Biology</source>
           <year>2014</year>
+          <volume>121</volume>
           <fpage>213</fpage>
           <lpage>229</lpage>
         </element-citation>
@@ -2194,6 +2280,7 @@ expression: jats
           <article-title>Methods for Cell and Particle Tracking</article-title>
           <source>Methods in Enzymology</source>
           <year>2012</year>
+          <volume>504</volume>
           <fpage>183</fpage>
           <lpage>200</lpage>
         </element-citation>
@@ -2213,6 +2300,7 @@ expression: jats
           <article-title>Quantitative and unbiased analysis of directional persistence in cell migration</article-title>
           <source>Nat Protoc</source>
           <year>2014</year>
+          <volume>9</volume>
           <fpage>1931</fpage>
           <lpage>1943</lpage>
         </element-citation>
@@ -2228,6 +2316,7 @@ expression: jats
           <article-title>EasyFRAP-web: a web-based tool for the analysis of fluorescence recovery after photobleaching data</article-title>
           <source>Nucleic Acids Research</source>
           <year>2018</year>
+          <volume>46</volume>
           <fpage>W467</fpage>
           <lpage>W472</lpage>
         </element-citation>
@@ -2243,6 +2332,7 @@ expression: jats
           <article-title>Theoretical analysis of fluorescence photobleaching recovery experiments</article-title>
           <source>Biophysical Journal</source>
           <year>1983</year>
+          <volume>41</volume>
           <fpage>95</fpage>
           <lpage>97</lpage>
         </element-citation>
@@ -2270,6 +2360,7 @@ expression: jats
           <article-title>Simplified Equation to Extract Diffusion Coefficients from Confocal FRAP Data</article-title>
           <source>Traffic</source>
           <year>2012</year>
+          <volume>13</volume>
           <fpage>1589</fpage>
           <lpage>1600</lpage>
         </element-citation>
@@ -2289,6 +2380,8 @@ expression: jats
           <article-title>Particle Image Velocimetry for MATLAB: Accuracy and enhanced algorithms in PIVlab</article-title>
           <source>JORS</source>
           <year>2021</year>
+          <volume>9</volume>
+          <issue>12</issue>
         </element-citation>
       </ref>
     </ref-list>

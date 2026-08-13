@@ -7,9 +7,6 @@ expression: info.losses
 //article/back/ref-list/@id: 1
 //article/back/ref-list/ref/mixed-citation/@id: 70
 //article/back/ref-list/ref/mixed-citation/italic: 30
-"//article/back/ref-list/ref/mixed-citation/pub-id[@pub-id-type='pmid']": 40
-//article/back/ref-list/ref/mixed-citation/publisher-loc: 2
-//article/back/ref-list/ref/mixed-citation/publisher-name: 2
 //article/back/ref-list/ref/mixed-citation/source/@lang: 67
 //article/back/ref-list/ref/mixed-citation/string-name/suffix: 1
 //article/back/ref-list/ref/mixed-citation/string-name/text(): 300

@@ -406,6 +406,8 @@ expression: jats
           <article-title>The nested assembly of plant–animal mutualistic networks</article-title>
           <source>Proceedings of the National Academy of Sciences</source>
           <year>2003</year>
+          <volume>100</volume>
+          <issue>16</issue>
           <fpage>9383</fpage>
           <lpage>9387</lpage>
         </element-citation>
@@ -433,6 +435,8 @@ expression: jats
           <article-title>The modularity of pollination networks</article-title>
           <source>Proceedings of the National Academy of Sciences</source>
           <year>2007</year>
+          <volume>104</volume>
+          <issue>50</issue>
           <fpage>19891</fpage>
           <lpage>19896</lpage>
         </element-citation>
@@ -468,6 +472,8 @@ expression: jats
           <article-title>The architecture of mutualistic networks minimizes competition and increases biodiversity</article-title>
           <source>Nature</source>
           <year>2009</year>
+          <volume>458</volume>
+          <issue>7241</issue>
           <fpage>1018</fpage>
           <lpage>1020</lpage>
         </element-citation>
@@ -495,6 +501,8 @@ expression: jats
           <article-title>Emergence of structural and dynamical properties of ecological mutualistic networks</article-title>
           <source>Nature</source>
           <year>2013</year>
+          <volume>500</volume>
+          <issue>7463</issue>
           <fpage>449</fpage>
         </element-citation>
       </ref>
@@ -529,6 +537,8 @@ expression: jats
           <article-title>Predicting the stability of large structured food webs</article-title>
           <source>Nature Communications</source>
           <year>2015</year>
+          <volume>6</volume>
+          <issue>1</issue>
           <fpage>7842</fpage>
         </element-citation>
       </ref>
@@ -551,6 +561,8 @@ expression: jats
           <article-title>Modularity and stability in ecological communities</article-title>
           <source>Nature Communications</source>
           <year>2016</year>
+          <volume>7</volume>
+          <issue>1</issue>
           <fpage>1</fpage>
           <lpage>10</lpage>
         </element-citation>
@@ -570,6 +582,8 @@ expression: jats
           <article-title>Network structural properties mediate the stability of mutualistic communities</article-title>
           <source>Ecology Letters</source>
           <year>2008</year>
+          <volume>11</volume>
+          <issue>3</issue>
           <fpage>208</fpage>
           <lpage>216</lpage>
           <pub-id pub-id-type="doi">10.1111/j.1461-0248.2007.01137.x</pub-id>
@@ -590,6 +604,8 @@ expression: jats
           <article-title>Stability of ecological communities and the architecture of mutualistic and trophic networks</article-title>
           <source>Science</source>
           <year>2010</year>
+          <volume>329</volume>
+          <issue>5993</issue>
           <fpage>853</fpage>
           <lpage>856</lpage>
         </element-citation>
@@ -609,6 +625,8 @@ expression: jats
           <article-title>Stability criteria for complex ecosystems</article-title>
           <source>Nature</source>
           <year>2012</year>
+          <volume>483</volume>
+          <issue>7388</issue>
           <fpage>205</fpage>
         </element-citation>
       </ref>
@@ -627,6 +645,8 @@ expression: jats
           <article-title>Compartmentalization increases food-web persistence</article-title>
           <source>Proceedings of the National Academy of Sciences</source>
           <year>2011</year>
+          <volume>108</volume>
+          <issue>9</issue>
           <fpage>3648</fpage>
           <lpage>3652</lpage>
           <pub-id pub-id-type="doi">10.1073/pnas.1014353108</pub-id>
@@ -651,6 +671,7 @@ expression: jats
           <article-title>The ghost of nestedness in ecological networks</article-title>
           <source>Nature Communications</source>
           <year>2013</year>
+          <volume>4</volume>
           <fpage>1391</fpage>
         </element-citation>
       </ref>
@@ -673,6 +694,8 @@ expression: jats
           <article-title>On the structural stability of mutualistic systems</article-title>
           <source>Science</source>
           <year>2014</year>
+          <volume>345</volume>
+          <issue>6195</issue>
           <fpage>1253497</fpage>
         </element-citation>
       </ref>
@@ -699,6 +722,8 @@ expression: jats
           <article-title>Nested species interactions promote feasibility over stability during the assembly of a pollinator community</article-title>
           <source>Ecology and Evolution</source>
           <year>2015</year>
+          <volume>6</volume>
+          <issue>4</issue>
           <fpage>1007</fpage>
         </element-citation>
       </ref>
@@ -717,6 +742,8 @@ expression: jats
           <article-title>Mutualism supports biodiversity when the direct competition is weak</article-title>
           <source>Nature Communications</source>
           <year>2017</year>
+          <volume>8</volume>
+          <issue>1</issue>
           <fpage>1</fpage>
           <lpage>13</lpage>
         </element-citation>
@@ -744,8 +771,11 @@ expression: jats
           <article-title>Nestedness in complex networks: Observation, emergence, and implications</article-title>
           <source>Physics Reports</source>
           <year>2019</year>
+          <volume>813</volume>
           <fpage>1</fpage>
           <lpage>90</lpage>
+          <pub-id pub-id-type="doi">10.1016/j.physrep.2019.04.001</pub-id>
+          <ext-link ext-link-type="uri" xlink:href="https://doi.org/10.1016/j.physrep.2019.04.001">https://doi.org/10.1016/j.physrep.2019.04.001</ext-link>
         </element-citation>
       </ref>
       <ref id="c16">
@@ -763,6 +793,8 @@ expression: jats
           <article-title>Null model analysis of species nestedness patterns</article-title>
           <source>Ecology</source>
           <year>2007</year>
+          <volume>88</volume>
+          <issue>7</issue>
           <fpage>1824</fpage>
           <lpage>1831</lpage>
         </element-citation>
@@ -786,6 +818,8 @@ expression: jats
           <article-title>A consumer’s guide to nestedness analysis</article-title>
           <source>Oikos</source>
           <year>2009</year>
+          <volume>118</volume>
+          <issue>1</issue>
           <fpage>3</fpage>
           <lpage>17</lpage>
         </element-citation>
@@ -802,7 +836,8 @@ expression: jats
               <given-names>G R</given-names>
             </name>
           </person-group>
-          <article-title>Null models in ecology</article-title>
+          <source>Null models in ecology</source>
+          <publisher-name>Smithsonian Institution Press</publisher-name>
           <year>1996</year>
         </element-citation>
       </ref>
@@ -821,6 +856,8 @@ expression: jats
           <article-title>Statistical challenges in null model analysis</article-title>
           <source>Oikos</source>
           <year>2012</year>
+          <volume>121</volume>
+          <issue>2</issue>
           <fpage>171</fpage>
           <lpage>180</lpage>
         </element-citation>
@@ -844,6 +881,7 @@ expression: jats
           <article-title>FALCON: a software package for analysis of nestedness in bipartite networks</article-title>
           <source>F1000Research</source>
           <year>2014</year>
+          <volume>3</volume>
         </element-citation>
       </ref>
       <ref id="c21">
@@ -861,6 +899,8 @@ expression: jats
           <article-title>On the methods to assess significance in nestedness analyses</article-title>
           <source>Theory in Biosciences</source>
           <year>2014</year>
+          <volume>133</volume>
+          <issue>3-4</issue>
           <fpage>179</fpage>
           <lpage>186</lpage>
         </element-citation>
@@ -880,6 +920,8 @@ expression: jats
           <article-title>Swap and fill algorithms in null model analysis: rethinking the knight’s tour</article-title>
           <source>Oecologia</source>
           <year>2001</year>
+          <volume>129</volume>
+          <issue>2</issue>
           <fpage>281</fpage>
           <lpage>291</lpage>
         </element-citation>
@@ -895,6 +937,8 @@ expression: jats
           <article-title>Overlap in resource use, and interspecific competition</article-title>
           <source>Oecologia</source>
           <year>1974</year>
+          <volume>17</volume>
+          <issue>3</issue>
           <fpage>245</fpage>
           <lpage>256</lpage>
         </element-citation>
@@ -914,6 +958,8 @@ expression: jats
           <article-title>The assembly of species communities: chance or competition?</article-title>
           <source>Ecology</source>
           <year>1979</year>
+          <volume>60</volume>
+          <issue>6</issue>
           <fpage>1132</fpage>
           <lpage>1140</lpage>
         </element-citation>
@@ -933,6 +979,8 @@ expression: jats
           <article-title>Randomization of presence–absence matrices: comments and new algorithms</article-title>
           <source>Ecology</source>
           <year>2004</year>
+          <volume>85</volume>
+          <issue>1</issue>
           <fpage>86</fpage>
           <lpage>92</lpage>
         </element-citation>
@@ -964,6 +1012,8 @@ expression: jats
           <article-title>A fast and unbiased procedure to randomize ecological binary matrices with fixed row and column totals</article-title>
           <source>Nature Communications</source>
           <year>2014</year>
+          <volume>5</volume>
+          <issue>1</issue>
           <fpage>1</fpage>
           <lpage>9</lpage>
         </element-citation>
@@ -983,6 +1033,8 @@ expression: jats
           <article-title>Exact sampling and counting for fixed-margin matrices</article-title>
           <source>The Annals of Statistics</source>
           <year>2013</year>
+          <volume>41</volume>
+          <issue>3</issue>
           <fpage>1569</fpage>
           <lpage>1592</lpage>
         </element-citation>
@@ -1006,6 +1058,8 @@ expression: jats
           <article-title>Uniform sampling of bipartite graphs with degrees in prescribed intervals</article-title>
           <source>Journal of Complex Networks</source>
           <year>2018</year>
+          <volume>6</volume>
+          <issue>6</issue>
           <fpage>833</fpage>
           <lpage>858</lpage>
         </element-citation>
@@ -1025,7 +1079,9 @@ expression: jats
           <article-title>Generating uniformly distributed random networks</article-title>
           <source>Physical Review E</source>
           <year>2005</year>
-          <fpage>56708</fpage>
+          <volume>72</volume>
+          <issue>5</issue>
+          <fpage>056708</fpage>
         </element-citation>
       </ref>
       <ref id="c30">
@@ -1039,6 +1095,8 @@ expression: jats
           <article-title>Null model analysis of species co-occurrence patterns</article-title>
           <source>Ecology</source>
           <year>2000</year>
+          <volume>81</volume>
+          <issue>9</issue>
           <fpage>2606</fpage>
           <lpage>2621</lpage>
         </element-citation>
@@ -1066,6 +1124,8 @@ expression: jats
           <article-title>Indices, graphs and null models: analyzing bipartite ecological networks</article-title>
           <source>The Open Ecology Journal</source>
           <year>2009</year>
+          <volume>2</volume>
+          <issue>1</issue>
         </element-citation>
       </ref>
       <ref id="c32">
@@ -1095,6 +1155,8 @@ expression: jats
           <article-title>The ambiguity of nestedness under soft and hard constraints</article-title>
           <source>Scientific Reports</source>
           <year>2020</year>
+          <volume>10</volume>
+          <issue>1</issue>
           <fpage>1</fpage>
           <lpage>13</lpage>
         </element-citation>
@@ -1111,7 +1173,7 @@ expression: jats
               <given-names>H</given-names>
             </name>
           </person-group>
-          <article-title>Synthetic matrix ensemble for nestedness analysis</article-title>
+          <source>Synthetic matrix ensemble for nestedness analysis</source>
           <year>2015</year>
         </element-citation>
       </ref>
@@ -1134,6 +1196,8 @@ expression: jats
           <article-title>Nestedness versus modularity in ecological networks: two sides of the same coin?</article-title>
           <source>Journal of Animal Ecology</source>
           <year>2010</year>
+          <volume>79</volume>
+          <issue>4</issue>
           <fpage>811</fpage>
           <lpage>817</lpage>
         </element-citation>
@@ -1149,6 +1213,8 @@ expression: jats
           <article-title>Identifying compartments in presence–absence matrices and bipartite networks: insights into modularity measures</article-title>
           <source>Journal of Biogeography</source>
           <year>2013</year>
+          <volume>40</volume>
+          <issue>4</issue>
           <fpage>759</fpage>
           <lpage>768</lpage>
         </element-citation>
@@ -1180,6 +1246,8 @@ expression: jats
           <article-title>Structure in plant–animal interaction assemblages</article-title>
           <source>Oikos</source>
           <year>2006</year>
+          <volume>113</volume>
+          <issue>1</issue>
           <fpage>174</fpage>
           <lpage>184</lpage>
         </element-citation>
@@ -1211,6 +1279,8 @@ expression: jats
           <article-title>Statistical structure of host–phage interactions</article-title>
           <source>Proceedings of the National Academy of Sciences</source>
           <year>2011</year>
+          <volume>108</volume>
+          <issue>28</issue>
           <fpage>E288</fpage>
           <lpage>E297</lpage>
         </element-citation>
@@ -1238,7 +1308,9 @@ expression: jats
           <article-title>Revealing In-Block Nestedness: detection and benchmarking</article-title>
           <source>Physical Review E</source>
           <year>2018</year>
-          <fpage>62302</fpage>
+          <volume>96</volume>
+          <issue>6</issue>
+          <fpage>062302</fpage>
         </element-citation>
       </ref>
       <ref id="c39">
@@ -1263,6 +1335,7 @@ expression: jats
           </person-group>
           <article-title>Hybrid structural arrangements mediate stability and feasibility in mutualistic networks</article-title>
           <year>2021</year>
+          <ext-link ext-link-type="uri" xlink:href="https://arxiv.org/pdf/2105.09191.pdf">https://arxiv.org/pdf/2105.09191.pdf</ext-link>
         </element-citation>
       </ref>
       <ref id="c40">
@@ -1288,6 +1361,10 @@ expression: jats
           <article-title>Mutualistic networks emerging from adaptive niche-based interactions</article-title>
           <source>Nature Communications</source>
           <year>2020</year>
+          <volume>11</volume>
+          <issue>1</issue>
+          <pub-id pub-id-type="doi">10.1038/s41467-020-19154-5</pub-id>
+          <ext-link ext-link-type="uri" xlink:href="https://doi.org/10.1038/s41467-020-19154-5">https://doi.org/10.1038/s41467-020-19154-5</ext-link>
         </element-citation>
       </ref>
       <ref id="c41">
@@ -1309,6 +1386,8 @@ expression: jats
           <article-title>An ecological approach to structural flexibility in online communication systems</article-title>
           <source>Nature Communications</source>
           <year>2021</year>
+          <volume>12</volume>
+          <issue>1</issue>
           <fpage>1</fpage>
           <lpage>11</lpage>
         </element-citation>
@@ -1377,6 +1456,8 @@ expression: jats
           <article-title>Nested subsets and the structure of insular mammalian faunas and archipelagos</article-title>
           <source>Biological Journal of the Linnean Society</source>
           <year>1986</year>
+          <volume>28</volume>
+          <issue>1-2</issue>
           <fpage>65</fpage>
           <lpage>82</lpage>
         </element-citation>
@@ -1408,8 +1489,12 @@ expression: jats
           <article-title>The topology of interbank payment flows</article-title>
           <source>Physica A: Statistical Mechanics and its Applications</source>
           <year>2007</year>
+          <volume>379</volume>
+          <issue>1</issue>
           <fpage>317</fpage>
           <lpage>333</lpage>
+          <pub-id pub-id-type="doi">10.1016/j.physa.2006.11.093</pub-id>
+          <ext-link ext-link-type="uri" xlink:href="https://doi.org/10.1016/j.physa.2006.11.093">https://doi.org/10.1016/j.physa.2006.11.093</ext-link>
         </element-citation>
       </ref>
       <ref id="c47">
@@ -1431,8 +1516,12 @@ expression: jats
           <article-title>Nestedness in networks: A theoretical model and some applications</article-title>
           <source>Theoretical Economics</source>
           <year>2014</year>
+          <volume>9</volume>
+          <issue>3</issue>
           <fpage>695</fpage>
           <lpage>752</lpage>
+          <pub-id pub-id-type="doi">10.3982/TE1348</pub-id>
+          <ext-link ext-link-type="uri" xlink:href="https://doi.org/10.3982/TE1348">https://doi.org/10.3982/TE1348</ext-link>
         </element-citation>
       </ref>
       <ref id="c48">
@@ -1458,7 +1547,11 @@ expression: jats
           <article-title>Detecting early signs of the 2007–2008 crisis in the world trade</article-title>
           <source>Scientific Reports</source>
           <year>2016</year>
+          <volume>6</volume>
+          <issue>1</issue>
           <fpage>30286</fpage>
+          <pub-id pub-id-type="doi">10.1038/srep30286</pub-id>
+          <ext-link ext-link-type="uri" xlink:href="https://doi.org/10.1038/srep30286">https://doi.org/10.1038/srep30286</ext-link>
         </element-citation>
       </ref>
       <ref id="c49">
@@ -1484,6 +1577,7 @@ expression: jats
           <article-title>Emergence of consensus as a modular-to-nested transition in communication dynamics</article-title>
           <source>Scientific Reports</source>
           <year>2017</year>
+          <volume>7</volume>
           <fpage>41673</fpage>
         </element-citation>
       </ref>
@@ -1506,6 +1600,8 @@ expression: jats
           <article-title>Measuring nestedness: A comparative study of the performance of different metrics</article-title>
           <source>Ecology and Evolution</source>
           <year>2020</year>
+          <volume>10</volume>
+          <issue>21</issue>
           <fpage>11906</fpage>
           <lpage>11921</lpage>
         </element-citation>
@@ -1533,8 +1629,12 @@ expression: jats
           <article-title>Graphs for which the least eigenvalue is minimal, II</article-title>
           <source>Linear Algebra and its Applications</source>
           <year>2008</year>
+          <volume>429</volume>
+          <issue>8</issue>
           <fpage>2168</fpage>
           <lpage>2179</lpage>
+          <pub-id pub-id-type="doi">10.1016/j.laa.2008.06.018</pub-id>
+          <ext-link ext-link-type="uri" xlink:href="https://doi.org/10.1016/j.laa.2008.06.018">https://doi.org/10.1016/j.laa.2008.06.018</ext-link>
         </element-citation>
       </ref>
       <ref id="c52">
@@ -1556,6 +1656,7 @@ expression: jats
           <article-title>On the first eigenvalue of bipartite graphs</article-title>
           <source>arXiv preprint</source>
           <year>2008</year>
+          <pub-id pub-id-type="arxiv">0809.1615</pub-id>
         </element-citation>
       </ref>
       <ref id="c53">
@@ -1573,6 +1674,8 @@ expression: jats
           <article-title>The measure of order and disorder in the distribution of species in fragmented habitat</article-title>
           <source>Oecologia</source>
           <year>1993</year>
+          <volume>96</volume>
+          <issue>3</issue>
           <fpage>373</fpage>
           <lpage>382</lpage>
         </element-citation>
@@ -1604,6 +1707,8 @@ expression: jats
           <article-title>A consistent metric for nestedness analysis in ecological systems: reconciling concept and measurement</article-title>
           <source>Oikos</source>
           <year>2008</year>
+          <volume>117</volume>
+          <issue>8</issue>
           <fpage>1227</fpage>
           <lpage>1239</lpage>
         </element-citation>
@@ -1627,6 +1732,8 @@ expression: jats
           <article-title>Weighted-interaction nestedness estimator (WINE): a new estimator to calculate over frequency matrices</article-title>
           <source>Environmental Modelling &amp; Software</source>
           <year>2009</year>
+          <volume>24</volume>
+          <issue>11</issue>
           <fpage>1342</fpage>
           <lpage>1346</lpage>
         </element-citation>
@@ -1646,6 +1753,8 @@ expression: jats
           <article-title>A straightforward computational approach for measuring nestedness using quantitative matrices</article-title>
           <source>Environmental Modelling &amp; Software</source>
           <year>2011</year>
+          <volume>26</volume>
+          <issue>2</issue>
           <fpage>173</fpage>
           <lpage>178</lpage>
         </element-citation>
@@ -1669,6 +1778,7 @@ expression: jats
           <article-title>A general framework for analyzing beta diversity, nestedness and related community-level phenomena based on abundance data</article-title>
           <source>Ecological Complexity</source>
           <year>2013</year>
+          <volume>15</volume>
           <fpage>52</fpage>
           <lpage>61</lpage>
         </element-citation>
@@ -1684,6 +1794,8 @@ expression: jats
           <article-title>An information flow model for conflict and fission in small groups</article-title>
           <source>Journal of Anthropological Research</source>
           <year>1977</year>
+          <volume>33</volume>
+          <issue>4</issue>
           <fpage>452</fpage>
           <lpage>473</lpage>
         </element-citation>
@@ -1703,6 +1815,7 @@ expression: jats
           <article-title>Functional cartography of complex metabolic networks</article-title>
           <source>Nature</source>
           <year>2005</year>
+          <volume>433</volume>
           <fpage>895</fpage>
           <lpage>900</lpage>
         </element-citation>
@@ -1737,6 +1850,8 @@ expression: jats
           <article-title>Community detection in graphs</article-title>
           <source>Physics Reports</source>
           <year>2010</year>
+          <volume>486</volume>
+          <issue>3-5</issue>
           <fpage>75</fpage>
           <lpage>174</lpage>
         </element-citation>
@@ -1756,6 +1871,8 @@ expression: jats
           <article-title>Semantic Networks: Structure and Dynamics</article-title>
           <source>Entropy</source>
           <year>2010</year>
+          <volume>12</volume>
+          <issue>5</issue>
           <fpage>1264</fpage>
           <lpage>1302</lpage>
           <pub-id pub-id-type="doi">10.3390/e12051264</pub-id>
@@ -1776,6 +1893,7 @@ expression: jats
           <article-title>Community detection in networks: A user guide</article-title>
           <source>Physics Reports</source>
           <year>2016</year>
+          <volume>659</volume>
           <fpage>1</fpage>
           <lpage>44</lpage>
           <pub-id pub-id-type="doi">10.1016/j.physrep.2016.09.002</pub-id>
@@ -1796,7 +1914,9 @@ expression: jats
           <article-title>Finding and evaluating community structure in networks</article-title>
           <source>Physical Review E</source>
           <year>2004</year>
-          <fpage>26113</fpage>
+          <volume>69</volume>
+          <issue>2</issue>
+          <fpage>026113</fpage>
         </element-citation>
       </ref>
       <ref id="c65">
@@ -1822,6 +1942,8 @@ expression: jats
           <article-title>Macro-and mesoscale pattern interdependencies in complex networks</article-title>
           <source>Journal of the Royal Society Interface</source>
           <year>2019</year>
+          <volume>16</volume>
+          <issue>159</issue>
           <fpage>20190553</fpage>
         </element-citation>
       </ref>
@@ -1852,6 +1974,8 @@ expression: jats
           <article-title>Online division of labour: emergent structures in Open Source Software</article-title>
           <source>Scientific Reports</source>
           <year>2019</year>
+          <volume>9</volume>
+          <issue>1</issue>
           <fpage>1</fpage>
           <lpage>11</lpage>
         </element-citation>
@@ -1875,6 +1999,8 @@ expression: jats
           <article-title>Multi-scale structure and geographic drivers of cross-infection within marine bacteria and phages</article-title>
           <source>The ISME Journal</source>
           <year>2013</year>
+          <volume>7</volume>
+          <issue>3</issue>
           <fpage>520</fpage>
           <lpage>532</lpage>
         </element-citation>
@@ -1902,6 +2028,8 @@ expression: jats
           <article-title>Invariant antagonistic network structure despite high spatial and temporal turnover of interactions</article-title>
           <source>Ecography</source>
           <year>2017</year>
+          <volume>40</volume>
+          <issue>11</issue>
           <fpage>1315</fpage>
           <lpage>1324</lpage>
         </element-citation>
@@ -1929,18 +2057,21 @@ expression: jats
           <article-title>Do asynchronies in extinction debt affect the structure of trophic networks? A case study of antagonistic butterfly larvae–plant networks</article-title>
           <source>Oikos</source>
           <year>2018</year>
+          <volume>127</volume>
+          <issue>6</issue>
           <fpage>803</fpage>
           <lpage>813</lpage>
         </element-citation>
       </ref>
       <ref id="c70">
-        <element-citation publication-type="journal">
+        <element-citation publication-type="website">
           <person-group person-group-type="author">
-            <collab>Web of Life</collab>
+            <collab>Web of Life: ecological networks database</collab>
           </person-group>
           <article-title>ecological networks database</article-title>
           <source>http://www.web-of-life.es/</source>
           <year>2012</year>
+          <ext-link ext-link-type="uri" xlink:href="http://www.web-of-life.es/">http://www.web-of-life.es/</ext-link>
         </element-citation>
       </ref>
       <ref id="c71">
@@ -1958,6 +2089,8 @@ expression: jats
           <article-title>Factors contributing to non-randomness in species co-occurrences on islands</article-title>
           <source>Oecologia</source>
           <year>1982</year>
+          <volume>52</volume>
+          <issue>1</issue>
           <fpage>75</fpage>
           <lpage>84</lpage>
         </element-citation>
@@ -1981,7 +2114,9 @@ expression: jats
           <article-title>Breaking the spell of nestedness: The entropic origin of nestedness in mutualistic systems</article-title>
           <source>Physical Review X</source>
           <year>2019</year>
-          <fpage>31024</fpage>
+          <volume>9</volume>
+          <issue>3</issue>
+          <fpage>031024</fpage>
         </element-citation>
       </ref>
       <ref id="c73">
@@ -2003,10 +2138,12 @@ expression: jats
               <surname>Pimm</surname>
               <given-names>S L</given-names>
             </name>
+            <collab>others</collab>
           </person-group>
           <article-title>On nestedness in ecological networks</article-title>
           <source>Evolutionary Ecology Research</source>
           <year>2010</year>
+          <volume>12</volume>
           <fpage>35</fpage>
           <lpage>46</lpage>
         </element-citation>
@@ -2030,6 +2167,8 @@ expression: jats
           <article-title>Bi-dimensional null model analysis of presence-absence binary matrices</article-title>
           <source>Ecology</source>
           <year>2018</year>
+          <volume>99</volume>
+          <issue>1</issue>
           <fpage>103</fpage>
           <lpage>115</lpage>
         </element-citation>
@@ -2049,6 +2188,8 @@ expression: jats
           <article-title>Null models for species co-occurrence patterns: assessing bias and minimum iteration number for the sequential swap</article-title>
           <source>Ecography</source>
           <year>2006</year>
+          <volume>29</volume>
+          <issue>5</issue>
           <fpage>786</fpage>
           <lpage>792</lpage>
         </element-citation>
@@ -2064,7 +2205,9 @@ expression: jats
           <article-title>Proof of uniform sampling of binary matrices with fixed row sums and column sums for the fast Curveball algorithm</article-title>
           <source>Physical Review E</source>
           <year>2015</year>
-          <fpage>42812</fpage>
+          <volume>91</volume>
+          <issue>4</issue>
+          <fpage>042812</fpage>
         </element-citation>
       </ref>
       <ref id="c77">
@@ -2082,7 +2225,9 @@ expression: jats
           <article-title>Analytical maximum-likelihood method to detect patterns in real networks</article-title>
           <source>New Journal of Physics</source>
           <year>2011</year>
-          <fpage>83001</fpage>
+          <volume>13</volume>
+          <issue>8</issue>
+          <fpage>083001</fpage>
         </element-citation>
       </ref>
       <ref id="c78">
@@ -2108,6 +2253,8 @@ expression: jats
           <article-title>Randomizing bipartite networks: the case of the World Trade Web</article-title>
           <source>Scientific Reports</source>
           <year>2015</year>
+          <volume>5</volume>
+          <issue>1</issue>
           <fpage>1</fpage>
           <lpage>18</lpage>
         </element-citation>
