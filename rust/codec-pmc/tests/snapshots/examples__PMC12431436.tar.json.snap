@@ -92,7 +92,8 @@ expression: article
       "emails": [
         "aonuma@jikei.ac.jp",
         "kanuka@jikei.ac.jp"
-      ]
+      ],
+      "jobTitle": "Conceptualization"
     },
     {
       "type": "Person",
@@ -107,7 +108,8 @@ expression: article
       ],
       "givenNames": [
         "Aboubacar"
-      ]
+      ],
+      "jobTitle": "Data curation"
     },
     {
       "type": "Person",
@@ -122,7 +124,8 @@ expression: article
       ],
       "givenNames": [
         "Jian-Chiuan"
-      ]
+      ],
+      "jobTitle": "Methodology"
     },
     {
       "type": "Person",
@@ -141,7 +144,8 @@ expression: article
       ],
       "givenNames": [
         "Manabu"
-      ]
+      ],
+      "jobTitle": "Investigation"
     },
     {
       "type": "Person",
@@ -161,7 +165,8 @@ expression: article
       ],
       "givenNames": [
         "Erisha"
-      ]
+      ],
+      "jobTitle": "Resources"
     },
     {
       "type": "Person",
@@ -180,7 +185,8 @@ expression: article
       ],
       "givenNames": [
         "Hidetoshi"
-      ]
+      ],
+      "jobTitle": "Resources"
     },
     {
       "type": "Person",
@@ -200,7 +206,8 @@ expression: article
       ],
       "givenNames": [
         "Itoe"
-      ]
+      ],
+      "jobTitle": "Resources"
     },
     {
       "type": "Person",
@@ -219,7 +226,8 @@ expression: article
       ],
       "givenNames": [
         "Taichi"
-      ]
+      ],
+      "jobTitle": "Resources"
     },
     {
       "type": "Person",
@@ -238,7 +246,8 @@ expression: article
       ],
       "givenNames": [
         "Tatsuya"
-      ]
+      ],
+      "jobTitle": "Resources"
     },
     {
       "type": "Person",
@@ -257,7 +266,8 @@ expression: article
       ],
       "givenNames": [
         "Kayoko"
-      ]
+      ],
+      "jobTitle": "Investigation"
     },
     {
       "type": "Person",
@@ -272,7 +282,8 @@ expression: article
       ],
       "givenNames": [
         "Masayuki"
-      ]
+      ],
+      "jobTitle": "Resources"
     },
     {
       "type": "Person",
@@ -287,7 +298,8 @@ expression: article
       ],
       "givenNames": [
         "Chun-Hong"
-      ]
+      ],
+      "jobTitle": "Resources"
     },
     {
       "type": "Person",
@@ -302,7 +314,8 @@ expression: article
       ],
       "givenNames": [
         "Athanase"
-      ]
+      ],
+      "jobTitle": "Data curation"
     },
     {
       "type": "Person",
@@ -326,7 +339,8 @@ expression: article
       "emails": [
         "aonuma@jikei.ac.jp",
         "kanuka@jikei.ac.jp"
-      ]
+      ],
+      "jobTitle": "Conceptualization"
     }
   ],
   "datePublished": {
@@ -3722,8 +3736,7 @@ expression: article
                       }
                     }
                   ],
-                  "target": "http://www.biolasco.com.tw",
-                  "jatsExtLinkType": "uri"
+                  "target": "http://www.biolasco.com.tw"
                 },
                 {
                   "type": "Text",
@@ -3916,7 +3929,8 @@ expression: article
                     {
                       "type": "TableCell",
                       "cellType": "HeaderCell",
-                      "content": []
+                      "content": [],
+                      "horizontalAlignment": "AlignLeft"
                     },
                     {
                       "type": "TableCell",
@@ -3934,7 +3948,8 @@ expression: article
                           ]
                         }
                       ],
-                      "columnSpan": 2
+                      "columnSpan": 2,
+                      "horizontalAlignment": "AlignLeft"
                     }
                   ],
                   "rowType": "HeaderRow"
@@ -3956,7 +3971,8 @@ expression: article
                             }
                           ]
                         }
-                      ]
+                      ],
+                      "horizontalAlignment": "AlignLeft"
                     },
                     {
                       "type": "TableCell",
@@ -3983,7 +3999,8 @@ expression: article
                             }
                           ]
                         }
-                      ]
+                      ],
+                      "horizontalAlignment": "AlignLeft"
                     },
                     {
                       "type": "TableCell",
@@ -4010,7 +4027,8 @@ expression: article
                             }
                           ]
                         }
-                      ]
+                      ],
+                      "horizontalAlignment": "AlignLeft"
                     }
                   ]
                 },
@@ -4031,7 +4049,8 @@ expression: article
                             }
                           ]
                         }
-                      ]
+                      ],
+                      "horizontalAlignment": "AlignLeft"
                     },
                     {
                       "type": "TableCell",
@@ -4047,7 +4066,8 @@ expression: article
                             }
                           ]
                         }
-                      ]
+                      ],
+                      "horizontalAlignment": "AlignLeft"
                     },
                     {
                       "type": "TableCell",
@@ -4063,7 +4083,8 @@ expression: article
                             }
                           ]
                         }
-                      ]
+                      ],
+                      "horizontalAlignment": "AlignLeft"
                     }
                   ]
                 },
@@ -4084,7 +4105,8 @@ expression: article
                             }
                           ]
                         }
-                      ]
+                      ],
+                      "horizontalAlignment": "AlignLeft"
                     },
                     {
                       "type": "TableCell",
@@ -4100,7 +4122,8 @@ expression: article
                             }
                           ]
                         }
-                      ]
+                      ],
+                      "horizontalAlignment": "AlignLeft"
                     },
                     {
                       "type": "TableCell",
@@ -4116,7 +4139,8 @@ expression: article
                             }
                           ]
                         }
-                      ]
+                      ],
+                      "horizontalAlignment": "AlignLeft"
                     }
                   ]
                 },
@@ -4137,7 +4161,8 @@ expression: article
                             }
                           ]
                         }
-                      ]
+                      ],
+                      "horizontalAlignment": "AlignLeft"
                     },
                     {
                       "type": "TableCell",
@@ -4153,7 +4178,8 @@ expression: article
                             }
                           ]
                         }
-                      ]
+                      ],
+                      "horizontalAlignment": "AlignLeft"
                     },
                     {
                       "type": "TableCell",
@@ -4169,7 +4195,8 @@ expression: article
                             }
                           ]
                         }
-                      ]
+                      ],
+                      "horizontalAlignment": "AlignLeft"
                     }
                   ]
                 },
@@ -4190,7 +4217,8 @@ expression: article
                             }
                           ]
                         }
-                      ]
+                      ],
+                      "horizontalAlignment": "AlignLeft"
                     },
                     {
                       "type": "TableCell",
@@ -4206,7 +4234,8 @@ expression: article
                             }
                           ]
                         }
-                      ]
+                      ],
+                      "horizontalAlignment": "AlignLeft"
                     },
                     {
                       "type": "TableCell",
@@ -4222,7 +4251,8 @@ expression: article
                             }
                           ]
                         }
-                      ]
+                      ],
+                      "horizontalAlignment": "AlignLeft"
                     }
                   ]
                 },
@@ -4243,7 +4273,8 @@ expression: article
                             }
                           ]
                         }
-                      ]
+                      ],
+                      "horizontalAlignment": "AlignLeft"
                     },
                     {
                       "type": "TableCell",
@@ -4259,7 +4290,8 @@ expression: article
                             }
                           ]
                         }
-                      ]
+                      ],
+                      "horizontalAlignment": "AlignLeft"
                     },
                     {
                       "type": "TableCell",
@@ -4275,7 +4307,8 @@ expression: article
                             }
                           ]
                         }
-                      ]
+                      ],
+                      "horizontalAlignment": "AlignLeft"
                     }
                   ]
                 },
@@ -4296,7 +4329,8 @@ expression: article
                             }
                           ]
                         }
-                      ]
+                      ],
+                      "horizontalAlignment": "AlignLeft"
                     },
                     {
                       "type": "TableCell",
@@ -4312,7 +4346,8 @@ expression: article
                             }
                           ]
                         }
-                      ]
+                      ],
+                      "horizontalAlignment": "AlignLeft"
                     },
                     {
                       "type": "TableCell",
@@ -4328,7 +4363,8 @@ expression: article
                             }
                           ]
                         }
-                      ]
+                      ],
+                      "horizontalAlignment": "AlignLeft"
                     }
                   ]
                 },
@@ -4349,7 +4385,8 @@ expression: article
                             }
                           ]
                         }
-                      ]
+                      ],
+                      "horizontalAlignment": "AlignLeft"
                     },
                     {
                       "type": "TableCell",
@@ -4365,7 +4402,8 @@ expression: article
                             }
                           ]
                         }
-                      ]
+                      ],
+                      "horizontalAlignment": "AlignLeft"
                     },
                     {
                       "type": "TableCell",
@@ -4381,7 +4419,8 @@ expression: article
                             }
                           ]
                         }
-                      ]
+                      ],
+                      "horizontalAlignment": "AlignLeft"
                     }
                   ]
                 }
@@ -4615,7 +4654,8 @@ expression: article
                     {
                       "type": "TableCell",
                       "cellType": "HeaderCell",
-                      "content": []
+                      "content": [],
+                      "horizontalAlignment": "AlignLeft"
                     },
                     {
                       "type": "TableCell",
@@ -4633,7 +4673,8 @@ expression: article
                           ]
                         }
                       ],
-                      "columnSpan": 2
+                      "columnSpan": 2,
+                      "horizontalAlignment": "AlignLeft"
                     },
                     {
                       "type": "TableCell",
@@ -4651,7 +4692,8 @@ expression: article
                           ]
                         }
                       ],
-                      "columnSpan": 2
+                      "columnSpan": 2,
+                      "horizontalAlignment": "AlignLeft"
                     }
                   ],
                   "rowType": "HeaderRow"
@@ -4673,7 +4715,8 @@ expression: article
                             }
                           ]
                         }
-                      ]
+                      ],
+                      "horizontalAlignment": "AlignLeft"
                     },
                     {
                       "type": "TableCell",
@@ -4689,7 +4732,8 @@ expression: article
                             }
                           ]
                         }
-                      ]
+                      ],
+                      "horizontalAlignment": "AlignLeft"
                     },
                     {
                       "type": "TableCell",
@@ -4705,7 +4749,8 @@ expression: article
                             }
                           ]
                         }
-                      ]
+                      ],
+                      "horizontalAlignment": "AlignLeft"
                     },
                     {
                       "type": "TableCell",
@@ -4721,7 +4766,8 @@ expression: article
                             }
                           ]
                         }
-                      ]
+                      ],
+                      "horizontalAlignment": "AlignLeft"
                     },
                     {
                       "type": "TableCell",
@@ -4737,7 +4783,8 @@ expression: article
                             }
                           ]
                         }
-                      ]
+                      ],
+                      "horizontalAlignment": "AlignLeft"
                     }
                   ]
                 },
@@ -4769,7 +4816,8 @@ expression: article
                             }
                           ]
                         }
-                      ]
+                      ],
+                      "horizontalAlignment": "AlignLeft"
                     },
                     {
                       "type": "TableCell",
@@ -4785,7 +4833,8 @@ expression: article
                             }
                           ]
                         }
-                      ]
+                      ],
+                      "horizontalAlignment": "AlignLeft"
                     },
                     {
                       "type": "TableCell",
@@ -4801,7 +4850,8 @@ expression: article
                             }
                           ]
                         }
-                      ]
+                      ],
+                      "horizontalAlignment": "AlignLeft"
                     },
                     {
                       "type": "TableCell",
@@ -4817,7 +4867,8 @@ expression: article
                             }
                           ]
                         }
-                      ]
+                      ],
+                      "horizontalAlignment": "AlignLeft"
                     },
                     {
                       "type": "TableCell",
@@ -4833,7 +4884,8 @@ expression: article
                             }
                           ]
                         }
-                      ]
+                      ],
+                      "horizontalAlignment": "AlignLeft"
                     }
                   ]
                 },
@@ -4865,7 +4917,8 @@ expression: article
                             }
                           ]
                         }
-                      ]
+                      ],
+                      "horizontalAlignment": "AlignLeft"
                     },
                     {
                       "type": "TableCell",
@@ -4881,7 +4934,8 @@ expression: article
                             }
                           ]
                         }
-                      ]
+                      ],
+                      "horizontalAlignment": "AlignLeft"
                     },
                     {
                       "type": "TableCell",
@@ -4897,7 +4951,8 @@ expression: article
                             }
                           ]
                         }
-                      ]
+                      ],
+                      "horizontalAlignment": "AlignLeft"
                     },
                     {
                       "type": "TableCell",
@@ -4913,7 +4968,8 @@ expression: article
                             }
                           ]
                         }
-                      ]
+                      ],
+                      "horizontalAlignment": "AlignLeft"
                     },
                     {
                       "type": "TableCell",
@@ -4929,7 +4985,8 @@ expression: article
                             }
                           ]
                         }
-                      ]
+                      ],
+                      "horizontalAlignment": "AlignLeft"
                     }
                   ]
                 },
@@ -4961,7 +5018,8 @@ expression: article
                             }
                           ]
                         }
-                      ]
+                      ],
+                      "horizontalAlignment": "AlignLeft"
                     },
                     {
                       "type": "TableCell",
@@ -4977,7 +5035,8 @@ expression: article
                             }
                           ]
                         }
-                      ]
+                      ],
+                      "horizontalAlignment": "AlignLeft"
                     },
                     {
                       "type": "TableCell",
@@ -4993,7 +5052,8 @@ expression: article
                             }
                           ]
                         }
-                      ]
+                      ],
+                      "horizontalAlignment": "AlignLeft"
                     },
                     {
                       "type": "TableCell",
@@ -5009,7 +5069,8 @@ expression: article
                             }
                           ]
                         }
-                      ]
+                      ],
+                      "horizontalAlignment": "AlignLeft"
                     },
                     {
                       "type": "TableCell",
@@ -5025,7 +5086,8 @@ expression: article
                             }
                           ]
                         }
-                      ]
+                      ],
+                      "horizontalAlignment": "AlignLeft"
                     }
                   ]
                 },
@@ -5057,7 +5119,8 @@ expression: article
                             }
                           ]
                         }
-                      ]
+                      ],
+                      "horizontalAlignment": "AlignLeft"
                     },
                     {
                       "type": "TableCell",
@@ -5073,7 +5136,8 @@ expression: article
                             }
                           ]
                         }
-                      ]
+                      ],
+                      "horizontalAlignment": "AlignLeft"
                     },
                     {
                       "type": "TableCell",
@@ -5089,7 +5153,8 @@ expression: article
                             }
                           ]
                         }
-                      ]
+                      ],
+                      "horizontalAlignment": "AlignLeft"
                     },
                     {
                       "type": "TableCell",
@@ -5105,7 +5170,8 @@ expression: article
                             }
                           ]
                         }
-                      ]
+                      ],
+                      "horizontalAlignment": "AlignLeft"
                     },
                     {
                       "type": "TableCell",
@@ -5121,7 +5187,8 @@ expression: article
                             }
                           ]
                         }
-                      ]
+                      ],
+                      "horizontalAlignment": "AlignLeft"
                     }
                   ]
                 },
@@ -5153,7 +5220,8 @@ expression: article
                             }
                           ]
                         }
-                      ]
+                      ],
+                      "horizontalAlignment": "AlignLeft"
                     },
                     {
                       "type": "TableCell",
@@ -5169,7 +5237,8 @@ expression: article
                             }
                           ]
                         }
-                      ]
+                      ],
+                      "horizontalAlignment": "AlignLeft"
                     },
                     {
                       "type": "TableCell",
@@ -5185,7 +5254,8 @@ expression: article
                             }
                           ]
                         }
-                      ]
+                      ],
+                      "horizontalAlignment": "AlignLeft"
                     },
                     {
                       "type": "TableCell",
@@ -5201,7 +5271,8 @@ expression: article
                             }
                           ]
                         }
-                      ]
+                      ],
+                      "horizontalAlignment": "AlignLeft"
                     },
                     {
                       "type": "TableCell",
@@ -5217,7 +5288,8 @@ expression: article
                             }
                           ]
                         }
-                      ]
+                      ],
+                      "horizontalAlignment": "AlignLeft"
                     }
                   ]
                 },
@@ -5249,7 +5321,8 @@ expression: article
                             }
                           ]
                         }
-                      ]
+                      ],
+                      "horizontalAlignment": "AlignLeft"
                     },
                     {
                       "type": "TableCell",
@@ -5265,7 +5338,8 @@ expression: article
                             }
                           ]
                         }
-                      ]
+                      ],
+                      "horizontalAlignment": "AlignLeft"
                     },
                     {
                       "type": "TableCell",
@@ -5281,7 +5355,8 @@ expression: article
                             }
                           ]
                         }
-                      ]
+                      ],
+                      "horizontalAlignment": "AlignLeft"
                     },
                     {
                       "type": "TableCell",
@@ -5297,7 +5372,8 @@ expression: article
                             }
                           ]
                         }
-                      ]
+                      ],
+                      "horizontalAlignment": "AlignLeft"
                     },
                     {
                       "type": "TableCell",
@@ -5313,7 +5389,8 @@ expression: article
                             }
                           ]
                         }
-                      ]
+                      ],
+                      "horizontalAlignment": "AlignLeft"
                     }
                   ]
                 },
@@ -5345,7 +5422,8 @@ expression: article
                             }
                           ]
                         }
-                      ]
+                      ],
+                      "horizontalAlignment": "AlignLeft"
                     },
                     {
                       "type": "TableCell",
@@ -5361,7 +5439,8 @@ expression: article
                             }
                           ]
                         }
-                      ]
+                      ],
+                      "horizontalAlignment": "AlignLeft"
                     },
                     {
                       "type": "TableCell",
@@ -5377,7 +5456,8 @@ expression: article
                             }
                           ]
                         }
-                      ]
+                      ],
+                      "horizontalAlignment": "AlignLeft"
                     },
                     {
                       "type": "TableCell",
@@ -5393,7 +5473,8 @@ expression: article
                             }
                           ]
                         }
-                      ]
+                      ],
+                      "horizontalAlignment": "AlignLeft"
                     },
                     {
                       "type": "TableCell",
@@ -5409,7 +5490,8 @@ expression: article
                             }
                           ]
                         }
-                      ]
+                      ],
+                      "horizontalAlignment": "AlignLeft"
                     }
                   ]
                 },
@@ -5441,7 +5523,8 @@ expression: article
                             }
                           ]
                         }
-                      ]
+                      ],
+                      "horizontalAlignment": "AlignLeft"
                     },
                     {
                       "type": "TableCell",
@@ -5457,7 +5540,8 @@ expression: article
                             }
                           ]
                         }
-                      ]
+                      ],
+                      "horizontalAlignment": "AlignLeft"
                     },
                     {
                       "type": "TableCell",
@@ -5473,7 +5557,8 @@ expression: article
                             }
                           ]
                         }
-                      ]
+                      ],
+                      "horizontalAlignment": "AlignLeft"
                     },
                     {
                       "type": "TableCell",
@@ -5489,7 +5574,8 @@ expression: article
                             }
                           ]
                         }
-                      ]
+                      ],
+                      "horizontalAlignment": "AlignLeft"
                     },
                     {
                       "type": "TableCell",
@@ -5505,7 +5591,8 @@ expression: article
                             }
                           ]
                         }
-                      ]
+                      ],
+                      "horizontalAlignment": "AlignLeft"
                     }
                   ]
                 }
@@ -5574,7 +5661,8 @@ expression: article
                             }
                           ]
                         }
-                      ]
+                      ],
+                      "horizontalAlignment": "AlignLeft"
                     },
                     {
                       "type": "TableCell",
@@ -5591,7 +5679,8 @@ expression: article
                             }
                           ]
                         }
-                      ]
+                      ],
+                      "horizontalAlignment": "AlignLeft"
                     },
                     {
                       "type": "TableCell",
@@ -5608,7 +5697,8 @@ expression: article
                             }
                           ]
                         }
-                      ]
+                      ],
+                      "horizontalAlignment": "AlignLeft"
                     },
                     {
                       "type": "TableCell",
@@ -5625,7 +5715,8 @@ expression: article
                             }
                           ]
                         }
-                      ]
+                      ],
+                      "horizontalAlignment": "AlignLeft"
                     },
                     {
                       "type": "TableCell",
@@ -5642,7 +5733,8 @@ expression: article
                             }
                           ]
                         }
-                      ]
+                      ],
+                      "horizontalAlignment": "AlignLeft"
                     },
                     {
                       "type": "TableCell",
@@ -5659,7 +5751,8 @@ expression: article
                             }
                           ]
                         }
-                      ]
+                      ],
+                      "horizontalAlignment": "AlignLeft"
                     },
                     {
                       "type": "TableCell",
@@ -5676,7 +5769,8 @@ expression: article
                             }
                           ]
                         }
-                      ]
+                      ],
+                      "horizontalAlignment": "AlignLeft"
                     }
                   ],
                   "rowType": "HeaderRow"
@@ -5698,7 +5792,8 @@ expression: article
                             }
                           ]
                         }
-                      ]
+                      ],
+                      "horizontalAlignment": "AlignLeft"
                     },
                     {
                       "type": "TableCell",
@@ -5714,7 +5809,8 @@ expression: article
                             }
                           ]
                         }
-                      ]
+                      ],
+                      "horizontalAlignment": "AlignLeft"
                     },
                     {
                       "type": "TableCell",
@@ -5730,7 +5826,8 @@ expression: article
                             }
                           ]
                         }
-                      ]
+                      ],
+                      "horizontalAlignment": "AlignLeft"
                     },
                     {
                       "type": "TableCell",
@@ -5746,7 +5843,8 @@ expression: article
                             }
                           ]
                         }
-                      ]
+                      ],
+                      "horizontalAlignment": "AlignLeft"
                     },
                     {
                       "type": "TableCell",
@@ -5762,7 +5860,8 @@ expression: article
                             }
                           ]
                         }
-                      ]
+                      ],
+                      "horizontalAlignment": "AlignLeft"
                     },
                     {
                       "type": "TableCell",
@@ -5778,7 +5877,8 @@ expression: article
                             }
                           ]
                         }
-                      ]
+                      ],
+                      "horizontalAlignment": "AlignLeft"
                     },
                     {
                       "type": "TableCell",
@@ -5795,12 +5895,19 @@ expression: article
                             {
                               "type": "Text",
                               "value": {
+                                "string": " "
+                              }
+                            },
+                            {
+                              "type": "Text",
+                              "value": {
                                 "string": " (11.06–53.82)"
                               }
                             }
                           ]
                         }
-                      ]
+                      ],
+                      "horizontalAlignment": "AlignLeft"
                     }
                   ]
                 },
@@ -5821,7 +5928,8 @@ expression: article
                             }
                           ]
                         }
-                      ]
+                      ],
+                      "horizontalAlignment": "AlignLeft"
                     },
                     {
                       "type": "TableCell",
@@ -5837,7 +5945,8 @@ expression: article
                             }
                           ]
                         }
-                      ]
+                      ],
+                      "horizontalAlignment": "AlignLeft"
                     },
                     {
                       "type": "TableCell",
@@ -5853,7 +5962,8 @@ expression: article
                             }
                           ]
                         }
-                      ]
+                      ],
+                      "horizontalAlignment": "AlignLeft"
                     },
                     {
                       "type": "TableCell",
@@ -5869,7 +5979,8 @@ expression: article
                             }
                           ]
                         }
-                      ]
+                      ],
+                      "horizontalAlignment": "AlignLeft"
                     },
                     {
                       "type": "TableCell",
@@ -5885,7 +5996,8 @@ expression: article
                             }
                           ]
                         }
-                      ]
+                      ],
+                      "horizontalAlignment": "AlignLeft"
                     },
                     {
                       "type": "TableCell",
@@ -5901,7 +6013,8 @@ expression: article
                             }
                           ]
                         }
-                      ]
+                      ],
+                      "horizontalAlignment": "AlignLeft"
                     },
                     {
                       "type": "TableCell",
@@ -5918,12 +6031,19 @@ expression: article
                             {
                               "type": "Text",
                               "value": {
+                                "string": " "
+                              }
+                            },
+                            {
+                              "type": "Text",
+                              "value": {
                                 "string": " (13.70–77.61)"
                               }
                             }
                           ]
                         }
-                      ]
+                      ],
+                      "horizontalAlignment": "AlignLeft"
                     }
                   ]
                 },
@@ -5944,7 +6064,8 @@ expression: article
                             }
                           ]
                         }
-                      ]
+                      ],
+                      "horizontalAlignment": "AlignLeft"
                     },
                     {
                       "type": "TableCell",
@@ -5960,7 +6081,8 @@ expression: article
                             }
                           ]
                         }
-                      ]
+                      ],
+                      "horizontalAlignment": "AlignLeft"
                     },
                     {
                       "type": "TableCell",
@@ -5976,7 +6098,8 @@ expression: article
                             }
                           ]
                         }
-                      ]
+                      ],
+                      "horizontalAlignment": "AlignLeft"
                     },
                     {
                       "type": "TableCell",
@@ -5992,7 +6115,8 @@ expression: article
                             }
                           ]
                         }
-                      ]
+                      ],
+                      "horizontalAlignment": "AlignLeft"
                     },
                     {
                       "type": "TableCell",
@@ -6008,7 +6132,8 @@ expression: article
                             }
                           ]
                         }
-                      ]
+                      ],
+                      "horizontalAlignment": "AlignLeft"
                     },
                     {
                       "type": "TableCell",
@@ -6024,7 +6149,8 @@ expression: article
                             }
                           ]
                         }
-                      ]
+                      ],
+                      "horizontalAlignment": "AlignLeft"
                     },
                     {
                       "type": "TableCell",
@@ -6041,12 +6167,19 @@ expression: article
                             {
                               "type": "Text",
                               "value": {
+                                "string": " "
+                              }
+                            },
+                            {
+                              "type": "Text",
+                              "value": {
                                 "string": " (1.94–150.42)"
                               }
                             }
                           ]
                         }
-                      ]
+                      ],
+                      "horizontalAlignment": "AlignLeft"
                     }
                   ]
                 },
@@ -6067,7 +6200,8 @@ expression: article
                             }
                           ]
                         }
-                      ]
+                      ],
+                      "horizontalAlignment": "AlignLeft"
                     },
                     {
                       "type": "TableCell",
@@ -6083,7 +6217,8 @@ expression: article
                             }
                           ]
                         }
-                      ]
+                      ],
+                      "horizontalAlignment": "AlignLeft"
                     },
                     {
                       "type": "TableCell",
@@ -6099,7 +6234,8 @@ expression: article
                             }
                           ]
                         }
-                      ]
+                      ],
+                      "horizontalAlignment": "AlignLeft"
                     },
                     {
                       "type": "TableCell",
@@ -6115,11 +6251,13 @@ expression: article
                             }
                           ]
                         }
-                      ]
+                      ],
+                      "horizontalAlignment": "AlignLeft"
                     },
                     {
                       "type": "TableCell",
-                      "content": []
+                      "content": [],
+                      "horizontalAlignment": "AlignLeft"
                     },
                     {
                       "type": "TableCell",
@@ -6135,11 +6273,13 @@ expression: article
                             }
                           ]
                         }
-                      ]
+                      ],
+                      "horizontalAlignment": "AlignLeft"
                     },
                     {
                       "type": "TableCell",
-                      "content": []
+                      "content": [],
+                      "horizontalAlignment": "AlignLeft"
                     }
                   ]
                 }
@@ -6565,7 +6705,8 @@ expression: article
                             }
                           ]
                         }
-                      ]
+                      ],
+                      "horizontalAlignment": "AlignLeft"
                     },
                     {
                       "type": "TableCell",
@@ -6582,7 +6723,8 @@ expression: article
                             }
                           ]
                         }
-                      ]
+                      ],
+                      "horizontalAlignment": "AlignLeft"
                     }
                   ],
                   "rowType": "HeaderRow"
@@ -6604,7 +6746,8 @@ expression: article
                             }
                           ]
                         }
-                      ]
+                      ],
+                      "horizontalAlignment": "AlignLeft"
                     },
                     {
                       "type": "TableCell",
@@ -6620,7 +6763,8 @@ expression: article
                             }
                           ]
                         }
-                      ]
+                      ],
+                      "horizontalAlignment": "AlignLeft"
                     }
                   ]
                 },
@@ -6641,7 +6785,8 @@ expression: article
                             }
                           ]
                         }
-                      ]
+                      ],
+                      "horizontalAlignment": "AlignLeft"
                     },
                     {
                       "type": "TableCell",
@@ -6657,7 +6802,8 @@ expression: article
                             }
                           ]
                         }
-                      ]
+                      ],
+                      "horizontalAlignment": "AlignLeft"
                     }
                   ]
                 },
@@ -6678,7 +6824,8 @@ expression: article
                             }
                           ]
                         }
-                      ]
+                      ],
+                      "horizontalAlignment": "AlignLeft"
                     },
                     {
                       "type": "TableCell",
@@ -6694,7 +6841,8 @@ expression: article
                             }
                           ]
                         }
-                      ]
+                      ],
+                      "horizontalAlignment": "AlignLeft"
                     }
                   ]
                 },
@@ -6715,7 +6863,8 @@ expression: article
                             }
                           ]
                         }
-                      ]
+                      ],
+                      "horizontalAlignment": "AlignLeft"
                     },
                     {
                       "type": "TableCell",
@@ -6731,7 +6880,8 @@ expression: article
                             }
                           ]
                         }
-                      ]
+                      ],
+                      "horizontalAlignment": "AlignLeft"
                     }
                   ]
                 },
@@ -6752,7 +6902,8 @@ expression: article
                             }
                           ]
                         }
-                      ]
+                      ],
+                      "horizontalAlignment": "AlignLeft"
                     },
                     {
                       "type": "TableCell",
@@ -6768,7 +6919,8 @@ expression: article
                             }
                           ]
                         }
-                      ]
+                      ],
+                      "horizontalAlignment": "AlignLeft"
                     }
                   ]
                 },
@@ -6789,7 +6941,8 @@ expression: article
                             }
                           ]
                         }
-                      ]
+                      ],
+                      "horizontalAlignment": "AlignLeft"
                     },
                     {
                       "type": "TableCell",
@@ -6805,7 +6958,8 @@ expression: article
                             }
                           ]
                         }
-                      ]
+                      ],
+                      "horizontalAlignment": "AlignLeft"
                     }
                   ]
                 }
@@ -6997,8 +7151,7 @@ expression: article
                       }
                     }
                   ],
-                  "target": "https://www.openstreetmap.org/copyright",
-                  "jatsExtLinkType": "uri"
+                  "target": "https://www.openstreetmap.org/copyright"
                 },
                 {
                   "type": "Text",
@@ -9107,7 +9260,8 @@ expression: article
       ],
       "givenNames": [
         "Jisheng"
-      ]
+      ],
+      "jobTitle": "Editor"
     }
   ],
   "dateReceived": {
@@ -9122,12 +9276,13 @@ expression: article
     {
       "type": "Organization",
       "name": "Japan Agency for Medical Research and Development",
-      "url": "http://dx.doi.org/10.13039/100009619"
-    },
-    {
-      "type": "Organization",
-      "name": "Japan Agency for Medical Research and Development",
-      "url": "http://dx.doi.org/10.13039/100009619"
+      "identifiers": [
+        {
+          "type": "PropertyValue",
+          "propertyId": "funder-id",
+          "value": "http://dx.doi.org/10.13039/100009619"
+        }
+      ]
     },
     {
       "type": "Organization",
@@ -9136,11 +9291,176 @@ expression: article
     {
       "type": "Organization",
       "name": "Kurozumi Medical Foundation",
-      "url": "http://dx.doi.org/10.13039/501100008660"
+      "identifiers": [
+        {
+          "type": "PropertyValue",
+          "propertyId": "funder-id",
+          "value": "http://dx.doi.org/10.13039/501100008660"
+        }
+      ]
+    }
+  ],
+  "fundedBy": [
+    {
+      "type": "MonetaryGrant",
+      "id": "award001",
+      "identifiers": [
+        {
+          "type": "PropertyValue",
+          "propertyId": "award-id",
+          "value": "JP17jm0510002h0003"
+        }
+      ],
+      "fundedItems": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Kanuka"
+          ],
+          "givenNames": [
+            "Hirotaka"
+          ]
+        }
+      ],
+      "funders": [
+        {
+          "type": "Organization",
+          "name": "Japan Agency for Medical Research and Development",
+          "identifiers": [
+            {
+              "type": "PropertyValue",
+              "propertyId": "funder-id",
+              "value": "http://dx.doi.org/10.13039/100009619"
+            }
+          ]
+        }
+      ]
     },
     {
-      "type": "Organization",
-      "name": "Jikei University"
+      "type": "MonetaryGrant",
+      "id": "award002",
+      "identifiers": [
+        {
+          "type": "PropertyValue",
+          "propertyId": "award-id",
+          "value": "JP22wm0225026h0001"
+        }
+      ],
+      "fundedItems": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Kanuka"
+          ],
+          "givenNames": [
+            "Hirotaka"
+          ]
+        }
+      ],
+      "funders": [
+        {
+          "type": "Organization",
+          "name": "Japan Agency for Medical Research and Development",
+          "identifiers": [
+            {
+              "type": "PropertyValue",
+              "propertyId": "funder-id",
+              "value": "http://dx.doi.org/10.13039/100009619"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "MonetaryGrant",
+      "id": "award003",
+      "identifiers": [
+        {
+          "type": "PropertyValue",
+          "propertyId": "award-id",
+          "value": "Jikei University Research Grant for the Career Development of Female Researchers with Children"
+        }
+      ],
+      "fundedItems": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Aonuma"
+          ],
+          "givenNames": [
+            "Hiroka"
+          ]
+        }
+      ],
+      "funders": [
+        {
+          "type": "Organization",
+          "name": "Jikei University"
+        }
+      ]
+    },
+    {
+      "type": "MonetaryGrant",
+      "id": "award004",
+      "identifiers": [
+        {
+          "type": "PropertyValue",
+          "propertyId": "award-id",
+          "value": "NA"
+        }
+      ],
+      "fundedItems": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Aonuma"
+          ],
+          "givenNames": [
+            "Hiroka"
+          ]
+        }
+      ],
+      "funders": [
+        {
+          "type": "Organization",
+          "name": "Kurozumi Medical Foundation",
+          "identifiers": [
+            {
+              "type": "PropertyValue",
+              "propertyId": "funder-id",
+              "value": "http://dx.doi.org/10.13039/501100008660"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "MonetaryGrant",
+      "id": "award005",
+      "identifiers": [
+        {
+          "type": "PropertyValue",
+          "propertyId": "award-id",
+          "value": "The Jikei University Graduate Research Fund"
+        }
+      ],
+      "fundedItems": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Kanuka"
+          ],
+          "givenNames": [
+            "Hirotaka"
+          ]
+        }
+      ],
+      "funders": [
+        {
+          "type": "Organization",
+          "name": "Jikei University"
+        }
+      ]
     }
   ],
   "isPartOf": {
@@ -9207,5 +9527,12 @@ expression: article
   "copyrightStatement": "© 2025 Aonuma et al",
   "copyrightYear": "2025",
   "copyrightHolder": "Aonuma et al",
-  "licenseText": "This is an open access article distributed under the terms of the Creative Commons Attribution License, which permits unrestricted use, distribution, and reproduction in any medium, provided the original author and source are credited."
+  "licenseText": "This is an open access article distributed under the terms of the Creative Commons Attribution License, which permits unrestricted use, distribution, and reproduction in any medium, provided the original author and source are credited.",
+  "authorNotes": [
+    {
+      "id": "coi001",
+      "type": "COI-statement",
+      "text": "Competing Interests: The authors have declared that no competing interests exist."
+    }
+  ]
 }

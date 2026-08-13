@@ -2831,6 +2831,25 @@ expression: article
       "name": "National Institute of Health"
     }
   ],
+  "fundedBy": [
+    {
+      "type": "MonetaryGrant",
+      "id": "funding-1",
+      "identifiers": [
+        {
+          "type": "PropertyValue",
+          "propertyId": "award-id",
+          "value": "2R15AR068583-02"
+        }
+      ],
+      "funders": [
+        {
+          "type": "Organization",
+          "name": "National Institute of Health"
+        }
+      ]
+    }
+  ],
   "isPartOf": {
     "type": "Periodical",
     "name": "bioRxiv",

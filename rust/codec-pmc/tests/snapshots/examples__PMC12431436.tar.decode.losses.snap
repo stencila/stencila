@@ -9,16 +9,16 @@ expression: info.losses
 //article/body/sec/sec/fig/graphic/@position: 4
 //article/body/sec/sec/p/italic/@toggle: 8
 //article/body/sec/sec/table-wrap/@position: 4
-//article/body/sec/sec/table-wrap/table/tbody/tr/td/break: 3
+//article/body/sec/sec/table-wrap/table/colgroup: 4
 //article/body/sec/supplementary-material/@content-type: 3
 //article/body/sec/supplementary-material/@position: 3
 //article/front/article-meta/abstract/p/italic/@toggle: 3
-//article/front/article-meta/aff: 7
-//article/front/article-meta/author-notes: 1
-//article/front/article-meta/contrib-group/role: 32
+//article/front/article-meta/author-notes/corresp: 1
+//article/front/article-meta/contrib-group/contrib/role: 17
 //article/front/article-meta/counts/fig-count: 1
 //article/front/article-meta/counts/page-count: 1
 //article/front/article-meta/counts/table-count: 1
 "//article/front/article-meta/custom-meta-group/custom-meta[meta-name='Data Availability']": 1
+//article/front/article-meta/funding-group/funding-statement: 1
 //article/front/article-meta/title-group/italic/@toggle: 1
 //article/processing-meta: 1

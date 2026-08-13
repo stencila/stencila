@@ -5326,6 +5326,25 @@ expression: article
       "name": "European Union"
     }
   ],
+  "fundedBy": [
+    {
+      "type": "MonetaryGrant",
+      "id": "funding-1",
+      "identifiers": [
+        {
+          "type": "PropertyValue",
+          "propertyId": "award-id",
+          "value": "101070430"
+        }
+      ],
+      "funders": [
+        {
+          "type": "Organization",
+          "name": "European Union"
+        }
+      ]
+    }
+  ],
   "keywords": [
     "unaligned data",
     "longitudinal",

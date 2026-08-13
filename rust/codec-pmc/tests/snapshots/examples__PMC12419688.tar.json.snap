@@ -1959,8 +1959,7 @@ expression: article
                         }
                       ],
                       "target": "http://browser.planteome.org/amigo/search/ontology?q=TO:0000071",
-                      "title": "anthocyanin content",
-                      "jatsExtLinkType": "uri"
+                      "title": "anthocyanin content"
                     },
                     {
                       "type": "Text",
@@ -2001,8 +2000,7 @@ expression: article
                         }
                       ],
                       "target": "http://tools.gramene.org/search?query=AT4G28610",
-                      "title": "PHR1",
-                      "jatsExtLinkType": "uri"
+                      "title": "PHR1"
                     },
                     {
                       "type": "Text",
@@ -2037,8 +2035,7 @@ expression: article
                         }
                       ],
                       "target": "http://bar.utoronto.ca/thalemine/keywordSearchResults.do?searchTerm=AT4G28610&searchSubmit=GO",
-                      "title": "PHR1",
-                      "jatsExtLinkType": "uri"
+                      "title": "PHR1"
                     },
                     {
                       "type": "Text",
