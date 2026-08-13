@@ -715,23 +715,11 @@ fn decode_code(path: &str, node: &Node, losses: &mut Losses, depth: u8) -> Block
 fn decode_disp_formula(path: &str, node: &Node, losses: &mut Losses, _depth: u8) -> Block {
     let id = node.attribute("id").map(String::from);
 
-    let mut code: Cord = node
-        .attribute("code")
-        .and_then(|code| code.into())
-        .unwrap_or_default()
-        .into();
-
-    let mut math_language = node.attribute("language").map(|lang| lang.to_string());
-
-    if code.is_empty()
-        && let Some(mathml) = node
-            .children()
-            .find(|child| child.tag_name().name() == "math")
-            .and_then(|node| serialize_node(node).ok())
-    {
-        code = mathml.into();
-        math_language = Some("mathml".into());
-    }
+    let FormulaMath {
+        code,
+        math_language,
+        mathml,
+    } = decode_formula_math(node);
 
     record_attrs_lost(path, node, ["id", "code", "language"], losses);
 
@@ -761,11 +749,69 @@ fn decode_disp_formula(path: &str, node: &Node, losses: &mut Losses, _depth: u8)
         label,
         label_automatically,
         options: Box::new(MathBlockOptions {
+            mathml,
             images,
             ..Default::default()
         }),
         ..Default::default()
     })
+}
+
+/// The math of a `<disp-formula>` or `<inline-formula>`
+struct FormulaMath {
+    code: Cord,
+    math_language: Option<String>,
+    mathml: Option<String>,
+}
+
+/// Decode the math of a formula
+///
+/// JATS states math as MathML, as TeX, or as both within `<alternatives>`, so
+/// both are searched for among the descendants. TeX is preferred as the `code`
+/// because it is what an author wrote; MathML is kept as well, in `mathml`, so
+/// that it does not have to be derived from the TeX again.
+fn decode_formula_math(node: &Node) -> FormulaMath {
+    // Stencila's own attributes, which are only present when the JATS was
+    // encoded from a math language that JATS has no element for
+    let code = node.attribute("code").unwrap_or_default().to_string();
+    let math_language = node.attribute("language").map(String::from);
+    if !code.is_empty() {
+        return FormulaMath {
+            code: code.into(),
+            math_language,
+            mathml: None,
+        };
+    }
+
+    let descendant = |name: &str| {
+        node.descendants()
+            .find(|child| child.is_element() && child.tag_name().name() == name)
+    };
+
+    let mathml = descendant("math").and_then(|node| serialize_node(node).ok());
+    let tex = descendant("tex-math")
+        .and_then(|node| node.text())
+        .map(str::trim)
+        .filter(|tex| !tex.is_empty())
+        .map(String::from);
+
+    match (tex, mathml) {
+        (Some(tex), mathml) => FormulaMath {
+            code: tex.into(),
+            math_language: Some("tex".into()),
+            mathml,
+        },
+        (None, Some(mathml)) => FormulaMath {
+            code: mathml.clone().into(),
+            math_language: Some("mathml".into()),
+            mathml: Some(mathml),
+        },
+        (None, None) => FormulaMath {
+            code: Cord::default(),
+            math_language,
+            mathml: None,
+        },
+    }
 }
 
 /// Decode a `<list>` to a Stencila [`Block::List`]
@@ -1328,20 +1374,14 @@ fn decode_footnote(path: &str, node: &Node, losses: &mut Losses) -> Inline {
 
 /// Decode a `<inline-formula>` to a [`Inline::MathInline`]
 fn decode_inline_formula(path: &str, node: &Node, losses: &mut Losses) -> Inline {
-    let mut code = node.attribute("code").unwrap_or_default().to_string();
-    let mut lang = node.attribute("language");
+    let id = node.attribute("id").map(String::from);
+    let FormulaMath {
+        code,
+        math_language,
+        mathml,
+    } = decode_formula_math(node);
 
-    record_attrs_lost(path, node, ["code", "language"], losses);
-
-    if code.is_empty()
-        && let Some(mathml) = node
-            .children()
-            .find(|child| child.tag_name().name() == "math")
-            .and_then(|node| serialize_node(node).ok())
-    {
-        code = mathml;
-        lang = Some("mathml");
-    }
+    record_attrs_lost(path, node, ["id", "code", "language"], losses);
 
     let images = if code.is_empty() {
         let images = node
@@ -1355,9 +1395,11 @@ fn decode_inline_formula(path: &str, node: &Node, losses: &mut Losses) -> Inline
     };
 
     Inline::MathInline(MathInline {
-        code: code.into(),
-        math_language: lang.map(String::from),
+        id,
+        code,
+        math_language,
         options: Box::new(MathInlineOptions {
+            mathml,
             images,
             ..Default::default()
         }),

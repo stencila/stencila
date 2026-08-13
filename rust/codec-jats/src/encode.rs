@@ -265,31 +265,81 @@ fn write_indent<W: std::io::Write>(writer: &mut Writer<W>, depth: usize) -> Resu
 }
 
 /// Recursively serialise a `roxmltree::Node` (and its subtree) to XML.
+///
+/// The serialized fragment stands on its own: the prefix of every name is kept
+/// and the namespaces that the subtree uses are declared on its root, so that
+/// content such as MathML remains valid wherever it is put again.
 pub(super) fn serialize_node(node: XmlNode) -> Result<String> {
     let mut writer = Writer::new(Cursor::new(Vec::new()));
-    write_node(&mut writer, node)?;
+    write_node(&mut writer, node, true)?;
     let bytes = writer.into_inner().into_inner();
     Ok(String::from_utf8(bytes).expect("UTF-8 in quick-xml writer"))
 }
 
+/// The qualified name of a node or attribute, with the prefix that it was
+/// written with
+fn qualified_name(element: &XmlNode, namespace: Option<&str>, name: &str) -> String {
+    match namespace.and_then(|namespace| element.lookup_prefix(namespace)) {
+        Some(prefix) if !prefix.is_empty() => [prefix, ":", name].concat(),
+        _ => name.to_string(),
+    }
+}
+
+/// The namespaces used by an element and its descendants
+fn used_namespaces<'input>(
+    node: &XmlNode<'input, 'input>,
+) -> Vec<(Option<&'input str>, &'input str)> {
+    let mut used: Vec<(Option<&str>, &str)> = Vec::new();
+    for descendant in node.descendants().filter(XmlNode::is_element) {
+        let namespaces = descendant
+            .tag_name()
+            .namespace()
+            .into_iter()
+            .chain(descendant.attributes().filter_map(|a| a.namespace()));
+        for namespace in namespaces {
+            if used.iter().any(|(.., uri)| *uri == namespace) {
+                continue;
+            }
+            if let Some(namespace) = descendant
+                .namespaces()
+                .find(|candidate| candidate.uri() == namespace)
+            {
+                used.push((namespace.name(), namespace.uri()));
+            }
+        }
+    }
+    used
+}
+
 /// Internal helper that writes one node and all descendants.
-fn write_node<W: std::io::Write>(w: &mut Writer<W>, node: XmlNode) -> Result<()> {
+fn write_node<W: std::io::Write>(w: &mut Writer<W>, node: XmlNode, root: bool) -> Result<()> {
     match node.node_type() {
         XmlNodeType::Element => {
             // <elem …attrs…>
-            let mut start = BytesStart::new(node.tag_name().name());
+            let name = qualified_name(&node, node.tag_name().namespace(), node.tag_name().name());
+            let mut start = BytesStart::new(name.clone());
+            if root {
+                for (prefix, uri) in used_namespaces(&node) {
+                    let declaration = match prefix {
+                        Some(prefix) => ["xmlns:", prefix].concat(),
+                        None => "xmlns".to_string(),
+                    };
+                    start.push_attribute((declaration.as_bytes(), uri.as_bytes()));
+                }
+            }
             for a in node.attributes() {
-                start.push_attribute((a.name().as_bytes(), a.value().as_bytes()));
+                let name = qualified_name(&node, a.namespace(), a.name());
+                start.push_attribute((name.as_bytes(), a.value().as_bytes()));
             }
             w.write_event(Event::Start(start))?;
 
             // children
             for child in node.children() {
-                write_node(w, child)?;
+                write_node(w, child, false)?;
             }
 
             // </elem>
-            let end = BytesEnd::new(node.tag_name().name());
+            let end = BytesEnd::new(name);
             w.write_event(Event::End(end))?;
         }
 

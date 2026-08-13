@@ -265,6 +265,27 @@ impl JatsCodec for ImageObject {
     }
 }
 
+impl ImageObject {
+    /// Emit the image as a JATS `<graphic>`
+    ///
+    /// JATS distinguishes an image that is part of a run of text from one that
+    /// stands on its own, which are `<inline-graphic>` and `<graphic>`
+    /// respectively, so a block level image is emitted with this rather than
+    /// with `to_jats`.
+    pub fn to_jats_graphic(&self, context: &mut JatsEncodeContext) {
+        jats_media_losses!("ImageObject", self, context, thumbnail);
+        context.merge_losses(lost_options!(self, title));
+        encode_jats_media(
+            context,
+            "graphic",
+            &self.content_url,
+            self.media_type.as_deref(),
+            None,
+            self.caption.as_ref(),
+        );
+    }
+}
+
 impl DomCodec for ImageObject {
     fn to_dom(&self, context: &mut DomEncodeContext) {
         context.enter_node(self.node_type(), self.node_id());

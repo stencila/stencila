@@ -54,6 +54,7 @@ mod island;
 mod link;
 mod list;
 mod list_item;
+mod math;
 mod math_block;
 mod math_inline;
 mod media_objects;

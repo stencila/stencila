@@ -2,27 +2,43 @@ use stencila_codec_info::lost_options;
 
 use crate::{MathInline, prelude::*};
 
+use super::math::{encode_jats_math, encodes_as_jats_math};
+
 impl JatsCodec for MathInline {
     fn to_jats(&self, context: &mut JatsEncodeContext) {
-        context
-            .enter_elem("inline-formula")
-            .push_attr("code", self.code.as_str());
-        if let Some(lang) = &self.math_language {
+        // See `MathBlock::to_jats` for why the source is not always emitted as
+        // an attribute
+        let recoverable = encodes_as_jats_math(self.math_language.as_deref(), &self.code);
+
+        context.enter_elem("inline-formula");
+        if !recoverable {
+            context.push_attr("code", self.code.as_str());
+        }
+        if let Some(id) = &self.id {
+            context.push_attr("id", id);
+        }
+        if let Some(lang) = &self.math_language
+            && !recoverable
+        {
             context.push_attr("language", lang);
         }
 
-        if let Some(mathml) = &self.options.mathml {
-            context.enter_elem("mml:math").push_xml(mathml).exit_elem();
+        encode_jats_math(
+            &self.code,
+            self.math_language.as_deref(),
+            self.options.mathml.as_deref(),
+            context,
+        );
+
+        for image in self.options.images.iter().flatten() {
+            image.to_jats(context);
         }
 
-        context
-            .exit_elem()
-            .merge_losses(lost_options!(self, id))
-            .merge_losses(lost_options!(
-                self.options,
-                compilation_digest,
-                compilation_messages
-            ));
+        context.exit_elem().merge_losses(lost_options!(
+            self.options,
+            compilation_digest,
+            compilation_messages
+        ));
     }
 }
 

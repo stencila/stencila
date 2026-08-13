@@ -2,6 +2,8 @@ use stencila_codec_info::lost_options;
 
 use crate::{MathBlock, MessageLevel, prelude::*};
 
+use super::math::{encode_jats_math, encodes_as_jats_math};
+
 impl MathBlock {
     pub fn has_warnings_errors_or_exceptions(&self) -> bool {
         self.options
@@ -19,13 +21,20 @@ impl MathBlock {
 
 impl JatsCodec for MathBlock {
     fn to_jats(&self, context: &mut JatsEncodeContext) {
-        context
-            .enter_elem("disp-formula")
-            .push_attr("code", self.code.as_str());
+        // The math is emitted as JATS elements below; the source is only kept in
+        // attributes of Stencila's own when JATS has no element for its language
+        let recoverable = encodes_as_jats_math(self.math_language.as_deref(), &self.code);
+
+        context.enter_elem("disp-formula");
+        if !recoverable {
+            context.push_attr("code", self.code.as_str());
+        }
         if let Some(id) = &self.id {
             context.push_attr("id", id);
         }
-        if let Some(lang) = &self.math_language {
+        if let Some(lang) = &self.math_language
+            && !recoverable
+        {
             context.push_attr("language", lang);
         }
 
@@ -38,8 +47,15 @@ impl JatsCodec for MathBlock {
             context.enter_elem("label").push_text(label).exit_elem();
         }
 
-        if let Some(mathml) = &self.options.mathml {
-            context.enter_elem("mml:math").push_xml(mathml).exit_elem();
+        encode_jats_math(
+            &self.code,
+            self.math_language.as_deref(),
+            self.options.mathml.as_deref(),
+            context,
+        );
+
+        for image in self.options.images.iter().flatten() {
+            image.to_jats_graphic(context);
         }
 
         context.exit_elem().merge_losses(lost_options!(

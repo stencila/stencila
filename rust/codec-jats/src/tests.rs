@@ -270,6 +270,95 @@ async fn funding_and_awards_roundtrip() -> Result<()> {
     Ok(())
 }
 
+/// MathML should be emitted as namespaced XML and mean the same after decoding
+/// it again
+#[tokio::test]
+async fn mathml_roundtrip() -> Result<()> {
+    let jats = r#"
+        <article xmlns:mml="http://www.w3.org/1998/Math/MathML">
+          <body>
+            <p>Because <inline-formula id="if1"><mml:math id="m1"><mml:mi>x</mml:mi></mml:math></inline-formula> holds.</p>
+            <p>
+              <disp-formula id="df1">
+                <label>(1)</label>
+                <alternatives>
+                  <tex-math>E = mc^2</tex-math>
+                  <mml:math id="m2" display="block"><mml:mi>E</mml:mi></mml:math>
+                </alternatives>
+              </disp-formula>
+            </p>
+          </body>
+        </article>
+    "#;
+
+    let (node, ..) = JatsCodec.from_str(jats, None).await?;
+    let (encoded, ..) = JatsCodec
+        .to_string(
+            &node,
+            Some(EncodeOptions {
+                compact: Some(true),
+                ..Default::default()
+            }),
+        )
+        .await?;
+
+    // The MathML is real elements rather than an attribute that only Stencila
+    // can read, and it carries the namespace that makes it MathML
+    assert!(
+        encoded.contains(
+            r#"<mml:math xmlns:mml="http://www.w3.org/1998/Math/MathML" id="m1"><mml:mi>x</mml:mi></mml:math>"#
+        ),
+        "MathML not emitted as namespaced XML: {encoded}"
+    );
+    assert!(
+        !encoded.contains("code=\"&lt;"),
+        "math source emitted as an escaped attribute: {encoded}"
+    );
+
+    // Where a source states the math both ways, both survive
+    assert!(encoded.contains("<tex-math>E = mc^2</tex-math>"));
+    assert!(encoded.contains(r#"<disp-formula id="df1">"#));
+    assert!(encoded.contains("<label>(1)</label>"));
+
+    // Decoding the emitted JATS gives the same math again
+    let (again, ..) = JatsCodec.from_str(&encoded, None).await?;
+    assert_eq!(again, node);
+
+    Ok(())
+}
+
+/// A formula stated only as an image should keep that image
+#[tokio::test]
+async fn formula_images_are_preserved() -> Result<()> {
+    let jats = r#"
+        <article xmlns:xlink="http://www.w3.org/1999/xlink">
+          <body>
+            <p>
+              <disp-formula id="eqn1"><graphic xlink:href="eqn1.gif"/></disp-formula>
+            </p>
+          </body>
+        </article>
+    "#;
+
+    let (node, ..) = JatsCodec.from_str(jats, None).await?;
+    let (encoded, ..) = JatsCodec
+        .to_string(
+            &node,
+            Some(EncodeOptions {
+                compact: Some(true),
+                ..Default::default()
+            }),
+        )
+        .await?;
+
+    assert!(
+        encoded.contains(r#"<graphic xlink:href="eqn1.gif"></graphic>"#),
+        "formula image dropped: {encoded}"
+    );
+
+    Ok(())
+}
+
 /// Front and back matter should be emitted in the locations expected by JATS consumers.
 #[tokio::test]
 async fn article_front_and_back_matter() -> Result<()> {

@@ -7951,6 +7951,7 @@ expression: article
                     },
                     {
                       "type": "MathInline",
+                      "id": "inline-formula-1",
                       "code": {
                         "string": ""
                       },
@@ -7969,6 +7970,7 @@ expression: article
                     },
                     {
                       "type": "MathInline",
+                      "id": "inline-formula-2",
                       "code": {
                         "string": ""
                       },
@@ -8650,6 +8652,7 @@ expression: article
                     },
                     {
                       "type": "MathInline",
+                      "id": "inline-formula-3",
                       "code": {
                         "string": ""
                       },
@@ -10261,6 +10264,7 @@ expression: article
                 },
                 {
                   "type": "MathInline",
+                  "id": "inline-formula-4",
                   "code": {
                     "string": ""
                   },
@@ -12003,6 +12007,7 @@ expression: article
                     },
                     {
                       "type": "MathInline",
+                      "id": "inline-formula-5",
                       "code": {
                         "string": ""
                       },
@@ -15874,6 +15879,7 @@ expression: article
                 },
                 {
                   "type": "MathInline",
+                  "id": "inline-formula-6",
                   "code": {
                     "string": ""
                   },
@@ -15927,6 +15933,7 @@ expression: article
                 },
                 {
                   "type": "MathInline",
+                  "id": "inline-formula-7",
                   "code": {
                     "string": ""
                   },
@@ -16813,6 +16820,7 @@ expression: article
                 },
                 {
                   "type": "MathInline",
+                  "id": "inline-formula-8",
                   "code": {
                     "string": ""
                   },
@@ -18212,6 +18220,7 @@ expression: article
                 },
                 {
                   "type": "MathInline",
+                  "id": "inline-formula-9",
                   "code": {
                     "string": ""
                   },
@@ -18465,6 +18474,7 @@ expression: article
                 },
                 {
                   "type": "MathInline",
+                  "id": "inline-formula-10",
                   "code": {
                     "string": ""
                   },
