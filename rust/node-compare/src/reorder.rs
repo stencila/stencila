@@ -1,0 +1,118 @@
+//! Reorder observations within aligned sibling scopes
+//!
+//! Changed relative order is reported; absolute index shifts are not. Inserting one
+//! early sibling must not mark every later sibling as moved, so movement is never
+//! inferred from raw index inequality.
+//!
+//! Within each aligned sibling scope — one property of one pair of aligned parents —
+//! the paired positions are mapped and a canonical maximum order-preserving subset is
+//! derived. A reorder is emitted for exactly those pairs that lie outside that subset.
+//! Every pairwise inversion is deliberately *not* emitted, because that can be
+//! quadratic in the number of pairs; this is linear.
+//!
+//! A reorder observation is a statement about two snapshots, not a claim about
+//! historical editing causation: it means the pair lies outside the canonical
+//! preserved-order subset for its scope.
+
+use crate::{
+    align::Aligned,
+    alignment::NodeRef,
+    comparison::Difference,
+    error::CompareResult,
+    increasing::{maximum_increasing, symmetric_key},
+    projection::{Item, OccurrenceId, Projection},
+    sequence::Step,
+};
+
+/// Derive the reorder observations of an alignment
+pub(crate) fn derive(
+    left: &Projection,
+    right: &Projection,
+    aligned: &Aligned,
+) -> CompareResult<Vec<Difference>> {
+    let mut differences = Vec::new();
+
+    for scope in &aligned.properties {
+        let left_parent = left.occurrence(scope.left_parent)?;
+        let right_parent = right.occurrence(scope.right_parent)?;
+
+        // Only structured items become correspondences, so only they can be reordered;
+        // a scalar item of a mixed collection is an indexed value observation instead
+        let mut pairs: Vec<(usize, usize)> = Vec::new();
+        let mut occurrences: Vec<(OccurrenceId, OccurrenceId)> = Vec::new();
+        for step in &scope.steps {
+            let Step::Pair {
+                left: left_index,
+                right: right_index,
+            } = *step
+            else {
+                continue;
+            };
+            let (Some(Item::Structured(left_id)), Some(Item::Structured(right_id))) = (
+                item(left_parent, scope.property, left_index),
+                item(right_parent, scope.property, right_index),
+            ) else {
+                continue;
+            };
+            pairs.push((left_index, right_index));
+            occurrences.push((*left_id, *right_id));
+        }
+
+        if pairs.len() < 2 {
+            continue;
+        }
+
+        // The steps are in sequence order, but reconciliation may have appended pairs
+        // that cross them, so sort before selecting
+        let mut order: Vec<usize> = (0..pairs.len()).collect();
+        order.sort_by_key(|index| pairs[*index]);
+        let sorted: Vec<(usize, usize)> = order.iter().map(|index| pairs[*index]).collect();
+
+        let preserved = maximum_increasing(&sorted, |index| symmetric_key(sorted[index]));
+        let mut in_order = vec![false; sorted.len()];
+        for index in preserved {
+            in_order[index] = true;
+        }
+
+        let left_scope = Some(NodeRef::new(
+            left_parent.path.clone(),
+            left_parent.node_type,
+        ));
+        let right_scope = Some(NodeRef::new(
+            right_parent.path.clone(),
+            right_parent.node_type,
+        ));
+
+        for (position, original) in order.iter().enumerate() {
+            if in_order[position] {
+                continue;
+            }
+            let (left_id, right_id) = occurrences[*original];
+            let left_occurrence = left.occurrence(left_id)?;
+            let right_occurrence = right.occurrence(right_id)?;
+
+            differences.push(Difference::Reordered {
+                left: NodeRef::new(left_occurrence.path.clone(), left_occurrence.node_type),
+                right: NodeRef::new(right_occurrence.path.clone(), right_occurrence.node_type),
+                left_scope: left_scope.clone(),
+                right_scope: right_scope.clone(),
+                property: scope.property,
+            });
+        }
+    }
+
+    Ok(differences)
+}
+
+/// The item at a position of a property of an occurrence
+fn item(
+    occurrence: &crate::projection::Occurrence,
+    property: stencila_node_type::NodeProperty,
+    index: usize,
+) -> Option<&Item> {
+    occurrence
+        .properties
+        .iter()
+        .find(|projected| projected.decl.property == property)
+        .and_then(|projected| projected.items.get(index))
+}

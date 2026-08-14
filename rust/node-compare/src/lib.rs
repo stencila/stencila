@@ -22,8 +22,10 @@ mod differences;
 mod error;
 mod features;
 mod fingerprint;
+mod increasing;
 mod options;
 mod policy;
+mod reorder;
 mod scalar;
 mod sequence;
 mod text;
@@ -98,7 +100,8 @@ pub fn compare_with_options(
     let aligned = Aligner::new(&left, &left_features, &right, &right_features, options).align()?;
 
     // Differences are derived only after the final alignment is complete
-    let differences = differences::derive(&left, &right, &aligned)?;
+    let mut differences = differences::derive(&left, &right, &aligned)?;
+    differences.extend(reorder::derive(&left, &right, &aligned)?);
 
     Ok(Comparison::new(aligned.alignment, differences))
 }
