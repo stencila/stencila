@@ -104,11 +104,26 @@ pub(crate) struct Aligner<'projection> {
     /// How each repeated property of each paired parent was aligned
     properties: Vec<PropertyAlignment>,
 
-    /// The left occurrences already covered, used to enforce complete, single coverage
-    left_covered: HashSet<OccurrenceId>,
+    /// The left occurrences claimed by a pair
+    left_paired: HashSet<OccurrenceId>,
 
-    /// The right occurrences already covered
-    right_covered: HashSet<OccurrenceId>,
+    /// The right occurrences claimed by a pair
+    right_paired: HashSet<OccurrenceId>,
+
+    /// The maximal left subtree roots with no counterpart yet
+    ///
+    /// Deferred rather than recorded immediately, so that reconciliation can still
+    /// pair them before the alignment is finalized.
+    left_deferred: Vec<(OccurrenceId, UnmatchedReason)>,
+
+    /// The maximal right subtree roots with no counterpart yet
+    right_deferred: Vec<(OccurrenceId, UnmatchedReason)>,
+
+    /// The left occurrences recorded as one-sided
+    left_emitted: HashSet<OccurrenceId>,
+
+    /// The right occurrences recorded as one-sided
+    right_emitted: HashSet<OccurrenceId>,
 
     /// The candidate cells consumed by sequence alignment so far
     cells_used: usize,
@@ -132,15 +147,27 @@ impl<'projection> Aligner<'projection> {
             correspondences: Vec::new(),
             pairs: Vec::new(),
             properties: Vec::new(),
-            left_covered: HashSet::new(),
-            right_covered: HashSet::new(),
+            left_paired: HashSet::new(),
+            right_paired: HashSet::new(),
+            left_deferred: Vec::new(),
+            right_deferred: Vec::new(),
+            left_emitted: HashSet::new(),
+            right_emitted: HashSet::new(),
             cells_used: 0,
         }
     }
 
     /// Align the two projections
     pub fn align(mut self) -> CompareResult<Aligned> {
+        // Local first: align within already paired parents and corresponding
+        // properties, so that ordinary insertions, deletions and local reordering never
+        // trigger unrelated whole-document matches
         self.align_roots()?;
+
+        // Only then look outside the parent, and only on strong, unique evidence
+        self.reconcile()?;
+
+        self.emit_one_sided()?;
         self.check_coverage()?;
 
         Ok(Aligned {
@@ -204,20 +231,24 @@ impl<'projection> Aligner<'projection> {
 
         match (left_root, right_root) {
             (Root::Structured(left), Root::Structured(right)) => {
-                self.left_covered.insert(left);
-                self.right_covered.insert(right);
+                self.left_paired.insert(left);
+                self.right_paired.insert(right);
                 self.pairs.push((left, right));
                 self.align_properties(left, right)?;
             }
             (Root::Structured(left), Root::Scalar(..)) => {
-                // The structured root is paired with the scalar root, but nothing
-                // below it has a counterpart
-                self.left_covered.insert(left);
-                self.one_sided_descendants(Side::Left, left, None)?;
+                // The structured root is paired with the scalar root, but its contents
+                // are not forced into a structural comparison
+                self.left_paired.insert(left);
+                for child in crate::policy::children(self.left, left)? {
+                    self.defer(Side::Left, child, UnmatchedReason::NoCompatibleCandidate)?;
+                }
             }
             (Root::Scalar(..), Root::Structured(right)) => {
-                self.right_covered.insert(right);
-                self.one_sided_descendants(Side::Right, right, None)?;
+                self.right_paired.insert(right);
+                for child in crate::policy::children(self.right, right)? {
+                    self.defer(Side::Right, child, UnmatchedReason::NoCompatibleCandidate)?;
+                }
             }
             (Root::Scalar(..), Root::Scalar(..)) => {}
         }
@@ -279,18 +310,12 @@ impl<'projection> Aligner<'projection> {
                 (Some(left), Some(right)) => {
                     self.pair(*left, *right, MatchRule::SingularProperty, Vec::new())?
                 }
-                (Some(left), None) => self.one_sided(
-                    Side::Left,
-                    *left,
-                    UnmatchedReason::NoCompatibleCandidate,
-                    None,
-                )?,
-                (None, Some(right)) => self.one_sided(
-                    Side::Right,
-                    *right,
-                    UnmatchedReason::NoCompatibleCandidate,
-                    None,
-                )?,
+                (Some(left), None) => {
+                    self.defer(Side::Left, *left, UnmatchedReason::NoCompatibleCandidate)?
+                }
+                (None, Some(right)) => {
+                    self.defer(Side::Right, *right, UnmatchedReason::NoCompatibleCandidate)?
+                }
                 (None, None) => {}
             }
             return Ok(());
@@ -352,7 +377,7 @@ impl<'projection> Aligner<'projection> {
         )?;
 
         let segments = segments(&anchors, left_kinds.len(), right_kinds.len());
-        self.charge_cells(&segments, left, right)?;
+        self.charge_cells(&segments, (left_parent, left), (right_parent, right))?;
 
         let costs = Costs {
             pair: &|left_index, right_index| {
@@ -387,6 +412,64 @@ impl<'projection> Aligner<'projection> {
             }
         }
 
+        // Within-scope reconciliation, before anything outside the parent is
+        // considered: the items this order-preserving alignment left over may still
+        // carry a unique explicit id, or be a verified unique exact subtree. Those
+        // pairs are allowed to cross the preserved alignment, and are retained as
+        // reordered correspondences.
+        let leftover = |steps: &[Step], is_left: bool| -> Vec<usize> {
+            steps
+                .iter()
+                .filter_map(|step| match (step, is_left) {
+                    (Step::LeftGap { left }, true) => Some(*left),
+                    (Step::RightGap { right }, false) => Some(*right),
+                    _ => None,
+                })
+                .filter(|index| {
+                    let items = if is_left { &left.items } else { &right.items };
+                    matches!(items.get(*index), Some(Item::Structured(..)))
+                })
+                .collect()
+        };
+        let left_leftover = leftover(&steps, true);
+        let right_leftover = leftover(&steps, false);
+
+        let reconciled = anchors::find_crossing(
+            &pick(&anchor_candidates(&left_kinds), &left_leftover),
+            &pick(&anchor_candidates(&right_kinds), &right_leftover),
+            &|left_index, right_index| {
+                compatible(left_leftover[left_index], right_leftover[right_index])
+            },
+            &|left_index, right_index| {
+                verified_eq(left_leftover[left_index], right_leftover[right_index])
+            },
+        )?;
+
+        let mut reconciled_rules: HashMap<(usize, usize), MatchRule> = HashMap::new();
+        if !reconciled.is_empty() {
+            let mut left_taken = HashSet::new();
+            let mut right_taken = HashSet::new();
+            for anchor in &reconciled {
+                let (left_index, right_index) =
+                    (left_leftover[anchor.left], right_leftover[anchor.right]);
+                left_taken.insert(left_index);
+                right_taken.insert(right_index);
+                reconciled_rules.insert((left_index, right_index), anchor.rule);
+            }
+            steps.retain(|step| match step {
+                Step::LeftGap { left } => !left_taken.contains(left),
+                Step::RightGap { right } => !right_taken.contains(right),
+                Step::Pair { .. } => true,
+            });
+            for (left_index, right_index) in reconciled_rules.keys() {
+                steps.push(Step::Pair {
+                    left: *left_index,
+                    right: *right_index,
+                });
+            }
+            steps.sort_by_key(step_key);
+        }
+
         // A one-sided item either had no compatible candidate at all, or had some but
         // the gap cost less than every one of them
         let left_candidates = has_candidate(&left_kinds, &right_kinds, &compatible, Side::Left)?;
@@ -413,6 +496,7 @@ impl<'projection> Aligner<'projection> {
                     };
                     let rule = rules
                         .get(&(left_index, right_index))
+                        .or_else(|| reconciled_rules.get(&(left_index, right_index)))
                         .copied()
                         .unwrap_or(MatchRule::SequenceAlignment);
                     let candidate = pair_cost(
@@ -425,22 +509,12 @@ impl<'projection> Aligner<'projection> {
                 }
                 Step::LeftGap { left: index } => {
                     if let Item::Structured(id) = &left.items[index] {
-                        self.one_sided(
-                            Side::Left,
-                            *id,
-                            unmatched_reason(left_candidates[index]),
-                            None,
-                        )?;
+                        self.defer(Side::Left, *id, unmatched_reason(left_candidates[index]))?;
                     }
                 }
                 Step::RightGap { right: index } => {
                     if let Item::Structured(id) = &right.items[index] {
-                        self.one_sided(
-                            Side::Right,
-                            *id,
-                            unmatched_reason(right_candidates[index]),
-                            None,
-                        )?;
+                        self.defer(Side::Right, *id, unmatched_reason(right_candidates[index]))?;
                     }
                 }
             }
@@ -464,8 +538,8 @@ impl<'projection> Aligner<'projection> {
     fn charge_cells(
         &mut self,
         segments: &[(Range<usize>, Range<usize>)],
-        left: &ProjectedProperty,
-        right: &ProjectedProperty,
+        left: (OccurrenceId, &ProjectedProperty),
+        right: (OccurrenceId, &ProjectedProperty),
     ) -> CompareResult<()> {
         let required: usize = segments
             .iter()
@@ -475,8 +549,10 @@ impl<'projection> Aligner<'projection> {
         self.cells_used = self.cells_used.saturating_add(required);
         if self.cells_used > self.options.alignment_cell_budget {
             return Err(CompareError::BudgetExhausted {
-                left_path: NodePath::from(left.decl.property),
-                right_path: NodePath::from(right.decl.property),
+                left_path: property_path(self.left, left.0, left.1.decl.property)?,
+                right_path: property_path(self.right, right.0, right.1.decl.property)?,
+                // Cumulative across the whole alignment, because the budget is for the
+                // run rather than for any one property
                 required: self.cells_used,
                 allowed: self.options.alignment_cell_budget,
             });
@@ -492,7 +568,7 @@ impl<'projection> Aligner<'projection> {
         property: &ProjectedProperty,
     ) -> CompareResult<()> {
         for id in structured_items(property) {
-            self.one_sided(side, id, UnmatchedReason::NoCompatibleCandidate, None)?;
+            self.defer(side, id, UnmatchedReason::NoCompatibleCandidate)?;
         }
 
         Ok(())
@@ -506,18 +582,18 @@ impl<'projection> Aligner<'projection> {
         rule: MatchRule,
         evidence: Vec<MatchEvidence>,
     ) -> CompareResult<()> {
-        if !self.left_covered.insert(left) {
+        if !self.left_paired.insert(left) {
             return Err(CompareError::Invariant {
                 message: format!(
-                    "The left occurrence at `{path}` is covered more than once",
+                    "The left occurrence at `{path}` is paired more than once",
                     path = self.left.occurrence(left)?.path
                 ),
             });
         }
-        if !self.right_covered.insert(right) {
+        if !self.right_paired.insert(right) {
             return Err(CompareError::Invariant {
                 message: format!(
-                    "The right occurrence at `{path}` is covered more than once",
+                    "The right occurrence at `{path}` is paired more than once",
                     path = self.right.occurrence(right)?.path
                 ),
             });
@@ -560,13 +636,194 @@ impl<'projection> Aligner<'projection> {
         self.align_properties(left, right)
     }
 
-    /// Record a one-sided occurrence and every structured occurrence below it
+    /// Reconcile the occurrences that local alignment left unmatched
+    ///
+    /// Only after every parent has been aligned locally is it safe to look outside the
+    /// parent, and then only on strong, unique evidence: a unique matching non-empty
+    /// explicit schema `id`, or a unique, fully verified equal identity-neutral
+    /// subtree. Fuzzy text similarity is deliberately not used across parents:
+    /// repeated boilerplate and short scholarly passages make a false cross-parent move
+    /// more damaging than leaving a modified move unmatched, so a modified, id-less
+    /// candidate is left as two one-sided records.
+    ///
+    /// Maximal unmatched subtree roots are reconciled first, parents before
+    /// descendants, so that the descendants of one coherent moved subtree are not
+    /// scattered across unrelated parents. A second, bounded pass then exposes the
+    /// children of the roots that could not be reconciled, so that a strongly
+    /// identified child can still move out of a removed container.
+    fn reconcile(&mut self) -> CompareResult<()> {
+        let left_roots = self.unmatched_roots(Side::Left);
+        let right_roots = self.unmatched_roots(Side::Right);
+        self.reconcile_candidates(&left_roots, &right_roots)?;
+
+        let left_exposed = self.unmatched_exposed(Side::Left)?;
+        let right_exposed = self.unmatched_exposed(Side::Right)?;
+        self.reconcile_candidates(&left_exposed, &right_exposed)?;
+
+        Ok(())
+    }
+
+    /// The maximal unmatched subtree roots of a side, parents before descendants
+    fn unmatched_roots(&self, side: Side) -> Vec<OccurrenceId> {
+        let deferred = match side {
+            Side::Left => &self.left_deferred,
+            Side::Right => &self.right_deferred,
+        };
+
+        // Projection order lists a parent before its descendants, so sorting by id
+        // reconciles parents first
+        let mut roots: Vec<OccurrenceId> = deferred
+            .iter()
+            .map(|(id, ..)| *id)
+            .filter(|id| !self.is_paired(side, *id))
+            .collect();
+        roots.sort_unstable();
+        roots.dedup();
+        roots
+    }
+
+    /// The roots that could not be reconciled, together with their unmatched children
+    ///
+    /// The roots are exposed again alongside their children because a container may
+    /// have been removed on one side while its child survived on the other, in which
+    /// case the surviving child is a root on its own side and a child on the other.
+    fn unmatched_exposed(&self, side: Side) -> CompareResult<Vec<OccurrenceId>> {
+        let projection = self.projection(side);
+
+        let mut exposed = Vec::new();
+        for root in self.unmatched_roots(side) {
+            exposed.push(root);
+            for child in crate::policy::children(projection, root)? {
+                if !self.is_paired(side, child) {
+                    exposed.push(child);
+                }
+            }
+        }
+
+        Ok(exposed)
+    }
+
+    /// Pair the candidates that carry strong, unique evidence of being the same subtree
+    fn reconcile_candidates(
+        &mut self,
+        left: &[OccurrenceId],
+        right: &[OccurrenceId],
+    ) -> CompareResult<()> {
+        if left.is_empty() || right.is_empty() {
+            return Ok(());
+        }
+
+        let (left_projection, right_projection) = (self.left, self.right);
+
+        // The identity-neutral fingerprint excludes the explicit `id`, so that editing
+        // an `id` cannot hide an otherwise exact move
+        let candidates = |ids: &[OccurrenceId],
+                          features: &FeatureSet|
+         -> CompareResult<Vec<Option<anchors::Candidate>>> {
+            ids.iter()
+                .map(|id| {
+                    let features = features.get(*id)?;
+                    Ok(Some(anchors::Candidate {
+                        explicit_id: features.explicit_id.clone(),
+                        fingerprint: features.identity_neutral_fingerprint,
+                        node_type: Some(features.node_type),
+                    }))
+                })
+                .collect()
+        };
+        let left_candidates = candidates(left, self.left_features)?;
+        let right_candidates = candidates(right, self.right_features)?;
+
+        let compatible = |_: usize, _: usize| Ok(true);
+        let verified_eq = |left_index: usize, right_index: usize| -> CompareResult<bool> {
+            // Fingerprint equality is verified against the projected subtree rather
+            // than trusted
+            left_projection.eq_subtrees_identity_neutral(
+                left[left_index],
+                right_projection,
+                right[right_index],
+            )
+        };
+
+        let anchors = anchors::find_crossing(
+            &left_candidates,
+            &right_candidates,
+            &compatible,
+            &verified_eq,
+        )?;
+
+        for anchor in anchors {
+            let (left_id, right_id) = (left[anchor.left], right[anchor.right]);
+            if self.is_paired(Side::Left, left_id) || self.is_paired(Side::Right, right_id) {
+                continue;
+            }
+
+            let signal = match anchor.rule {
+                MatchRule::UniqueId => AlignmentSignal::ExplicitId,
+                _ => AlignmentSignal::IdentityNeutralFingerprint,
+            };
+            self.pair(
+                left_id,
+                right_id,
+                MatchRule::CrossParentReconciliation,
+                vec![MatchEvidence {
+                    signal,
+                    value: EvidenceValue::Boolean { value: true },
+                    contribution: AlignmentCost::ZERO,
+                }],
+            )?;
+        }
+
+        Ok(())
+    }
+
+    /// Defer an occurrence that has no counterpart yet
+    ///
+    /// Deferred rather than recorded at once, because reconciliation may still pair it:
+    /// a subtree that moved to a different parent is only recognisable after the local
+    /// alignment of every parent has finished.
+    fn defer(
+        &mut self,
+        side: Side,
+        id: OccurrenceId,
+        reason: UnmatchedReason,
+    ) -> CompareResult<()> {
+        match side {
+            Side::Left => self.left_deferred.push((id, reason)),
+            Side::Right => self.right_deferred.push((id, reason)),
+        }
+
+        Ok(())
+    }
+
+    /// Record every occurrence that reconciliation did not pair
     ///
     /// A one-sided subtree emits a record for every structured descendant, not only
     /// the subtree root, so that a consumer can count any structured descendants of
     /// interest. Each record names its nearest one-sided ancestor, so that a
-    /// presentation layer can collapse the subtree again.
-    fn one_sided(
+    /// presentation layer can collapse the subtree again. A descendant that was itself
+    /// reconciled — a strongly identified child that moved out of a removed container —
+    /// is skipped, along with everything below it, because it was aligned in its new
+    /// context instead.
+    fn emit_one_sided(&mut self) -> CompareResult<()> {
+        for side in [Side::Left, Side::Right] {
+            let deferred = match side {
+                Side::Left => self.left_deferred.clone(),
+                Side::Right => self.right_deferred.clone(),
+            };
+            for (id, reason) in deferred {
+                if self.is_paired(side, id) || self.is_emitted(side, id) {
+                    continue;
+                }
+                self.emit_subtree(side, id, reason, None)?;
+            }
+        }
+
+        Ok(())
+    }
+
+    /// Record an occurrence, and everything below it, as one-sided
+    fn emit_subtree(
         &mut self,
         side: Side,
         id: OccurrenceId,
@@ -576,14 +833,14 @@ impl<'projection> Aligner<'projection> {
         let projection = self.projection(side);
         let node_ref = self.node_ref(projection, id)?;
 
-        let covered = match side {
-            Side::Left => self.left_covered.insert(id),
-            Side::Right => self.right_covered.insert(id),
+        let fresh = match side {
+            Side::Left => self.left_emitted.insert(id),
+            Side::Right => self.right_emitted.insert(id),
         };
-        if !covered {
+        if !fresh {
             return Err(CompareError::Invariant {
                 message: format!(
-                    "The {side} occurrence at `{path}` is covered more than once",
+                    "The {side} occurrence at `{path}` is recorded more than once",
                     path = node_ref.path
                 ),
             });
@@ -602,27 +859,35 @@ impl<'projection> Aligner<'projection> {
             },
         });
 
-        self.one_sided_descendants(side, id, Some(node_ref))
-    }
-
-    /// Record the structured descendants of an occurrence as one-sided
-    fn one_sided_descendants(
-        &mut self,
-        side: Side,
-        id: OccurrenceId,
-        ancestor: Option<NodeRef>,
-    ) -> CompareResult<()> {
-        let children = crate::policy::children(self.projection(side), id)?;
-        for child in children {
-            self.one_sided(
+        for child in crate::policy::children(projection, id)? {
+            if self.is_paired(side, child) {
+                continue;
+            }
+            self.emit_subtree(
                 side,
                 child,
                 UnmatchedReason::NoCompatibleCandidate,
-                ancestor.clone(),
+                Some(node_ref.clone()),
             )?;
         }
 
         Ok(())
+    }
+
+    /// Whether an occurrence was paired
+    fn is_paired(&self, side: Side, id: OccurrenceId) -> bool {
+        match side {
+            Side::Left => self.left_paired.contains(&id),
+            Side::Right => self.right_paired.contains(&id),
+        }
+    }
+
+    /// Whether an occurrence was already recorded as one-sided
+    fn is_emitted(&self, side: Side, id: OccurrenceId) -> bool {
+        match side {
+            Side::Left => self.left_emitted.contains(&id),
+            Side::Right => self.right_emitted.contains(&id),
+        }
     }
 
     /// The projection for a side
@@ -639,12 +904,9 @@ impl<'projection> Aligner<'projection> {
     /// left out. A violation is a bug, and returns an error rather than a partial
     /// artifact.
     fn check_coverage(&self) -> CompareResult<()> {
-        for (side, projection, covered) in [
-            (Side::Left, self.left, &self.left_covered),
-            (Side::Right, self.right, &self.right_covered),
-        ] {
+        for (side, projection) in [(Side::Left, self.left), (Side::Right, self.right)] {
             for occurrence in projection.occurrences() {
-                if !covered.contains(&occurrence.id) {
+                if !self.is_paired(side, occurrence.id) && !self.is_emitted(side, occurrence.id) {
                     return Err(CompareError::Invariant {
                         message: format!(
                             "The {side} occurrence at `{path}` is not covered by the alignment",
@@ -656,6 +918,37 @@ impl<'projection> Aligner<'projection> {
         }
 
         Ok(())
+    }
+}
+
+/// The path of a property of an occurrence
+fn property_path(
+    projection: &Projection,
+    id: OccurrenceId,
+    property: NodeProperty,
+) -> CompareResult<NodePath> {
+    let mut path = projection.occurrence(id)?.path.clone();
+    path.push_back(stencila_node_path::NodeSlot::Property(property));
+    Ok(path)
+}
+
+/// The candidates at the given positions
+fn pick(
+    candidates: &[Option<anchors::Candidate>],
+    positions: &[usize],
+) -> Vec<Option<anchors::Candidate>> {
+    positions
+        .iter()
+        .map(|position| candidates.get(*position).cloned().flatten())
+        .collect()
+}
+
+/// The key used to keep the steps of a sequence alignment in sequence order
+fn step_key(step: &Step) -> (usize, usize) {
+    match step {
+        Step::Pair { left, right } => (*left, *right),
+        Step::LeftGap { left } => (*left, usize::MAX),
+        Step::RightGap { right } => (usize::MAX, *right),
     }
 }
 

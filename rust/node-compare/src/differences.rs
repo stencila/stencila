@@ -37,6 +37,7 @@ pub(crate) fn derive(
     let mut differ = Differ {
         left,
         right,
+        pairing: aligned.pairs.iter().copied().collect(),
         property_alignments: aligned
             .properties
             .iter()
@@ -57,6 +58,7 @@ pub(crate) fn derive(
     differ.derive_roots()?;
     for (left, right) in &aligned.pairs {
         differ.derive_pair(*left, *right)?;
+        differ.derive_parent(*left, *right)?;
     }
 
     Ok(differ.differences)
@@ -65,6 +67,9 @@ pub(crate) fn derive(
 struct Differ<'projection> {
     left: &'projection Projection,
     right: &'projection Projection,
+
+    /// The counterpart of each left occurrence
+    pairing: HashMap<OccurrenceId, OccurrenceId>,
 
     /// The completed collection alignment of each repeated property of each pair
     property_alignments: HashMap<(OccurrenceId, OccurrenceId, NodeProperty), &'projection [Step]>,
@@ -138,6 +143,46 @@ impl Differ<'_> {
                 },
             });
         }
+
+        Ok(())
+    }
+
+    /// Report a pair whose aligned parents, or containing properties, differ
+    ///
+    /// Movement is never inferred from raw index inequality: inserting one early
+    /// sibling shifts every later sibling's index without moving any of them, and only
+    /// a change of *aligned* parent or of containing property is a move.
+    fn derive_parent(&mut self, left: OccurrenceId, right: OccurrenceId) -> CompareResult<()> {
+        let left_occurrence = self.left.occurrence(left)?;
+        let right_occurrence = self.right.occurrence(right)?;
+
+        let same_parent = match (left_occurrence.parent, right_occurrence.parent) {
+            (None, None) => true,
+            (Some(left_parent), Some(right_parent)) => {
+                self.pairing.get(&left_parent) == Some(&right_parent)
+            }
+            _ => false,
+        };
+        let same_property = left_occurrence.parent_property == right_occurrence.parent_property;
+
+        if same_parent && same_property {
+            return Ok(());
+        }
+
+        let parent_ref = |projection: &Projection, parent: Option<OccurrenceId>| {
+            parent
+                .map(|parent| self.node_ref(projection, parent))
+                .transpose()
+        };
+
+        self.differences.push(Difference::ParentChanged {
+            left: self.node_ref(self.left, left)?,
+            right: self.node_ref(self.right, right)?,
+            left_parent: parent_ref(self.left, left_occurrence.parent)?,
+            right_parent: parent_ref(self.right, right_occurrence.parent)?,
+            left_property: left_occurrence.parent_property,
+            right_property: right_occurrence.parent_property,
+        });
 
         Ok(())
     }

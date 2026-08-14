@@ -18,7 +18,7 @@
 //! deterministic maximum non-crossing subset is used for the local ordered alignment.
 //! The identities that were dropped can be reconciled afterwards as reorders.
 
-use std::collections::HashMap;
+use std::collections::BTreeMap;
 
 use stencila_node_type::NodeType;
 
@@ -77,6 +77,25 @@ pub struct Candidate {
 /// `compatible` decides whether two positions may be paired at all, and `verified_eq`
 /// confirms that two positions with equal fingerprints really do hold equal subtrees.
 pub fn find(
+    left: &[Option<Candidate>],
+    right: &[Option<Candidate>],
+    compatible: &dyn Fn(usize, usize) -> CompareResult<bool>,
+    verified_eq: &dyn Fn(usize, usize) -> CompareResult<bool>,
+) -> CompareResult<Vec<Anchor>> {
+    Ok(non_crossing(find_crossing(
+        left,
+        right,
+        compatible,
+        verified_eq,
+    )?))
+}
+
+/// Find the compulsory anchors between two sequences, including any that cross
+///
+/// Used where crossing is allowed: reconciling the items a local order-preserving
+/// alignment left over, within the same sibling scope, where a strong identity that
+/// crosses the preserved order is exactly what a reorder looks like.
+pub fn find_crossing(
     left: &[Option<Candidate>],
     right: &[Option<Candidate>],
     compatible: &dyn Fn(usize, usize) -> CompareResult<bool>,
@@ -146,19 +165,21 @@ pub fn find(
 
     anchors.sort_by_key(|anchor| (anchor.left, anchor.right));
 
-    Ok(non_crossing(anchors))
+    Ok(anchors)
 }
 
 /// The positions of the values that occur exactly once
 fn unique_positions<Key, Extract>(
     candidates: &[Option<Candidate>],
     extract: Extract,
-) -> HashMap<Key, usize>
+) -> BTreeMap<Key, usize>
 where
-    Key: std::hash::Hash + Eq,
+    Key: Ord,
     Extract: Fn(&Candidate) -> Option<Key>,
 {
-    let mut counts: HashMap<Key, (usize, usize)> = HashMap::new();
+    // Ordered rather than hashed, so that iteration order — and therefore the anchors
+    // taken when two of them contend for the same position — cannot vary between runs
+    let mut counts: BTreeMap<Key, (usize, usize)> = BTreeMap::new();
     for (index, candidate) in candidates.iter().enumerate() {
         let Some(candidate) = candidate else { continue };
         let Some(key) = extract(candidate) else {

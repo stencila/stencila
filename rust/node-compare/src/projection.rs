@@ -35,6 +35,7 @@ use stencila_schema::{InspectNode, InspectValue, PropertyDecl, ScalarRef};
 
 use crate::{
     error::{CompareError, CompareResult, Side},
+    fingerprint::Identity,
     scalar::ScalarValue,
 };
 
@@ -426,7 +427,20 @@ impl Projection {
         other: &Projection,
         right: OccurrenceId,
     ) -> CompareResult<bool> {
-        self.eq_occurrence(left, other, right)
+        self.eq_occurrence_with(left, other, right, Identity::Included)
+    }
+
+    /// Whether two projected subtrees are equal apart from their explicit `id`s
+    ///
+    /// Identity-neutral equality is what makes an otherwise exact move recognisable
+    /// even when its `id` was edited along the way.
+    pub fn eq_subtrees_identity_neutral(
+        &self,
+        left: OccurrenceId,
+        other: &Projection,
+        right: OccurrenceId,
+    ) -> CompareResult<bool> {
+        self.eq_occurrence_with(left, other, right, Identity::Neutral)
     }
 
     fn eq_occurrence(
@@ -434,6 +448,16 @@ impl Projection {
         left: OccurrenceId,
         other: &Projection,
         right: OccurrenceId,
+    ) -> CompareResult<bool> {
+        self.eq_occurrence_with(left, other, right, Identity::Included)
+    }
+
+    fn eq_occurrence_with(
+        &self,
+        left: OccurrenceId,
+        other: &Projection,
+        right: OccurrenceId,
+        identity: Identity,
     ) -> CompareResult<bool> {
         let left = self.occurrence(left)?;
         let right = other.occurrence(right)?;
@@ -443,6 +467,10 @@ impl Projection {
         }
 
         for (left, right) in left.properties.iter().zip(right.properties.iter()) {
+            if identity == Identity::Neutral && left.decl.property == NodeProperty::Id {
+                continue;
+            }
+
             if left.decl != right.decl
                 || left.presence != right.presence
                 || left.items.len() != right.items.len()
@@ -454,7 +482,7 @@ impl Projection {
                 let equal = match (left, right) {
                     (Item::Scalar(left), Item::Scalar(right)) => left == right,
                     (Item::Structured(left), Item::Structured(right)) => {
-                        self.eq_occurrence(*left, other, *right)?
+                        self.eq_occurrence_with(*left, other, *right, identity)?
                     }
                     _ => false,
                 };

@@ -254,11 +254,16 @@ fn crossing_anchors_resolve_deterministically() -> Result<()> {
     let again = align(&left, &right)?;
     assert_eq!(first, again, "repeated runs differ");
 
-    // Only a non-crossing subset can be aligned in order; the rest are gaps until
-    // reorder reconciliation takes them up
-    let pairs = content_pairs(&first);
-    assert!(!pairs.is_empty());
-    assert!(pairs.windows(2).all(|pair| pair[0].1 < pair[1].1));
+    // Only a non-crossing subset can be aligned in order, but within-scope
+    // reconciliation then takes up the exact identities that had to be dropped, so
+    // every paragraph ends up paired and none is left one-sided
+    let mut pairs = content_pairs(&first);
+    pairs.sort();
+    assert_eq!(pairs, vec![(0, 2), (1, 1), (2, 0)]);
+    assert!(!first.has_one_sided());
+
+    // Swapping the inputs and inverting still yields the same artifact
+    assert_eq!(align(&right, &left)?.invert(), first);
 
     Ok(())
 }

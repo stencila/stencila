@@ -75,6 +75,14 @@ pub struct PropertyDecl {
 
     /// The kind of value the property holds
     pub kind: ValueKind,
+
+    /// The name of the schema type that fills the property's slot
+    ///
+    /// For a union this is the name of the union itself — `Inline`, `Block`, `Node` —
+    /// which is what makes two slots comparable: `Paragraph.content` and
+    /// `Article.content` are both a required, repeated union named `content`, but one
+    /// holds inlines and the other blocks, and only this distinguishes them.
+    pub slot: &'static str,
 }
 
 /// One property of a value: what the schema declares, plus what the value holds

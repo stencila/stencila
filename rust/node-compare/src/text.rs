@@ -17,6 +17,17 @@ use crate::alignment::AlignmentCost;
 /// The size of the character n-grams used for similarity
 const GRAM_SIZE: usize = 3;
 
+/// The greatest number of characters of an occurrence's text used for matching
+///
+/// Candidate scoring is linear in the compared text sizes, and the number of candidate
+/// pairs is bounded by the cell budget, so bounding the text as well is what turns the
+/// budget into a bound on work rather than merely on cells. A section's worth of text
+/// is far more than similarity needs to tell two candidates apart.
+///
+/// This bounds only the *matching* signal. The value policy still compares the whole
+/// of every string exactly, so truncation cannot hide a value difference.
+const MAX_MATCH_CHARACTERS: usize = 1024;
+
 /// Normalize text for matching
 pub fn normalize(text: &str) -> String {
     let mut normalized = String::with_capacity(text.len());
@@ -57,7 +68,7 @@ pub struct Grams {
 impl Grams {
     /// The n-grams of a normalized string
     pub fn new(normalized: &str) -> Self {
-        let characters: Vec<char> = normalized.chars().collect();
+        let characters: Vec<char> = normalized.chars().take(MAX_MATCH_CHARACTERS).collect();
 
         // Explicit short-string handling: a string shorter than one n-gram has no
         // n-grams at all, so it is compared as a whole

@@ -110,6 +110,10 @@ pub fn compatible(
 ) -> bool {
     match (left, right) {
         (CandidateKind::Structured(left), CandidateKind::Structured(right)) => {
+            // Two items of the same type are compatible wherever they are. Two items
+            // of different types are compatible only when the property is declared
+            // identically on both sides — same cardinality, same union — so that both
+            // variants really are valid for the same schema slot.
             left.node_type == right.node_type
                 || (left_decl == right_decl && left_decl.kind == ValueKind::Union)
         }

@@ -90,6 +90,8 @@ struct FieldShape<'ty> {
     /// The type used to determine the value kind, with `Option` and `Vec` peeled off
     /// (`Box` is left in place because its `InspectType` impl delegates)
     inner: &'ty Type,
+    /// The name of the schema type that fills the slot, with `Box` peeled off too
+    slot: String,
 }
 
 fn field_shape(ty: &Type) -> FieldShape<'_> {
@@ -101,10 +103,29 @@ fn field_shape(ty: &Type) -> FieldShape<'_> {
         Some(inner) => (true, inner),
         None => (false, ty),
     };
+    let mut slot = ty;
+    while let Some(inner) = unwrap_type(slot, "Box") {
+        slot = inner;
+    }
+
     FieldShape {
         required,
         repeated,
         inner: ty,
+        slot: type_name(slot),
+    }
+}
+
+/// The name of a type, for use as a slot name
+fn type_name(ty: &Type) -> String {
+    match ty {
+        Type::Path(path) => path
+            .path
+            .segments
+            .last()
+            .map(|segment| segment.ident.to_string())
+            .unwrap_or_default(),
+        _ => String::new(),
     }
 }
 
@@ -143,6 +164,7 @@ fn derive_struct(type_attr: TypeAttr) -> TokenStream {
             required,
             repeated,
             inner,
+            slot,
         } = field_shape(&field.ty);
 
         let decl = quote! {
@@ -151,6 +173,7 @@ fn derive_struct(type_attr: TypeAttr) -> TokenStream {
                 required: #required,
                 repeated: #repeated,
                 kind: <#inner as InspectType>::VALUE_KIND,
+                slot: #slot,
             }
         };
 

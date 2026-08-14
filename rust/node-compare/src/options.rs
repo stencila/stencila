@@ -7,8 +7,12 @@ use serde::{Deserialize, Serialize};
 /// Chosen so that ordinary documents align without any tuning, while a pathological
 /// input fails with an explicit error rather than running for an unbounded time. Exact
 /// anchors partition sequences into smaller gaps before the dynamic program runs, so
-/// the budget is reached only by genuinely ambiguous collections.
-pub const DEFAULT_ALIGNMENT_CELL_BUDGET: usize = 4_000_000;
+/// the budget is reached only by genuinely ambiguous collections: a thousand mutually
+/// unrecognisable siblings in one property is already at the limit.
+///
+/// Together with the bound on how much text a single candidate comparison examines,
+/// this bounds the work of an alignment and not merely its cell count.
+pub const DEFAULT_ALIGNMENT_CELL_BUDGET: usize = 1_000_000;
 
 /// Operational options for aligning and comparing nodes
 ///

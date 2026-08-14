@@ -10,7 +10,7 @@
 use stencila_node_type::{NodeProperty, NodeType};
 
 use crate::{
-    error::CompareResult,
+    error::{CompareError, CompareResult},
     fingerprint::{self, Identity},
     projection::{Item, OccurrenceId, Presence, Projection},
     scalar::ScalarValue,
@@ -116,7 +116,7 @@ impl FeatureSet {
     pub fn get(&self, id: OccurrenceId) -> CompareResult<&Features> {
         self.features
             .get(id)
-            .ok_or_else(|| crate::error::CompareError::Invariant {
+            .ok_or_else(|| CompareError::Invariant {
                 message: format!("No features for the occurrence with id {id}"),
             })
     }
@@ -166,10 +166,15 @@ fn subtree_text(
                 }
                 Item::Scalar(..) => {}
                 Item::Structured(child) => {
-                    if let Some(child) = computed.get(*child) {
-                        text.push_str(child);
-                        text.push(' ');
-                    }
+                    let Some(child) = computed.get(*child) else {
+                        return Err(CompareError::Invariant {
+                            message: format!(
+                                "The text of the child of the occurrence with id {id}                                  has not been computed"
+                            ),
+                        });
+                    };
+                    text.push_str(child);
+                    text.push(' ');
                 }
             }
         }
