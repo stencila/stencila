@@ -17,6 +17,8 @@
 mod align;
 mod alignment;
 mod anchors;
+mod comparison;
+mod differences;
 mod error;
 mod features;
 mod fingerprint;
@@ -32,6 +34,9 @@ pub use alignment::{
     AlgorithmInfo, Alignment, AlignmentCost, AlignmentFormatVersion, AlignmentSignal,
     Correspondence, EvidenceValue, MatchEvidence, MatchInfo, MatchRule, NodeRef, PairCost,
     UnmatchedReason,
+};
+pub use comparison::{
+    Comparison, ComparisonFormatVersion, Difference, PropertyPresence, ValueLocation, ValueState,
 };
 pub use error::{CompareError, CompareResult, Side};
 pub use options::{CompareOptions, DEFAULT_ALIGNMENT_CELL_BUDGET};
@@ -69,4 +74,43 @@ pub fn align_with_options(
             .align()?
             .alignment,
     )
+}
+
+/// Compare two nodes
+///
+/// Returns the alignment of the two nodes, plus sparse, atomic observations about how
+/// their paired occurrences differ. Neither node is presumed correct.
+pub fn compare(left: &Node, right: &Node) -> CompareResult<Comparison> {
+    compare_with_options(left, right, &CompareOptions::default())
+}
+
+/// Compare two nodes, with options
+pub fn compare_with_options(
+    left: &Node,
+    right: &Node,
+    options: &CompareOptions,
+) -> CompareResult<Comparison> {
+    let left = Projection::new(left, Side::Left)?;
+    let left_features = FeatureSet::new(&left)?;
+    let right = Projection::new(right, Side::Right)?;
+    let right_features = FeatureSet::new(&right)?;
+
+    let aligned = Aligner::new(&left, &left_features, &right, &right_features, options).align()?;
+
+    // Differences are derived only after the final alignment is complete
+    let differences = differences::derive(&left, &right, &aligned)?;
+
+    Ok(Comparison::new(aligned.alignment, differences))
+}
+
+/// Whether the canonical projections of two nodes are exactly equal
+///
+/// Equality is defined by the canonical projections, not by Rust's `PartialEq`: it
+/// covers every declared schema property except the intrinsic implementation
+/// machinery described in [`projection`].
+pub fn projections_equal(left: &Node, right: &Node) -> CompareResult<bool> {
+    let left = Projection::new(left, Side::Left)?;
+    let right = Projection::new(right, Side::Right)?;
+
+    left.eq_canonically(&right)
 }
