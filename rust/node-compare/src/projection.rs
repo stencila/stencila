@@ -44,6 +44,15 @@ use crate::{
 /// produced by the same representation rules.
 pub const PROJECTION_VERSION: &str = "1";
 
+/// The greatest nesting depth the projection will represent
+///
+/// Operational rather than semantic: the projection and the algorithms over it descend
+/// recursively, so a pathologically deep input would exhaust the stack. The limit is
+/// far beyond any real document — a scholarly article nests a few tens of levels at
+/// most — and exceeding it returns [`CompareError::DepthExceeded`] rather than
+/// aborting the process.
+pub const MAX_DEPTH: usize = 128;
+
 /// An index into a [`Projection`]'s arena of occurrences
 pub type OccurrenceId = usize;
 
@@ -110,6 +119,12 @@ pub struct Occurrence {
 
     /// The declared properties of this occurrence
     pub properties: Vec<ProjectedProperty>,
+
+    /// The number of structured occurrences in this subtree, including this one
+    ///
+    /// Precomputed, in one pass, so that algorithms which need the size of a subtree
+    /// neither recurse nor recompute it.
+    pub subtree_size: i64,
 }
 
 /// The projected root
@@ -147,13 +162,50 @@ impl Projection {
             root: Root::Scalar(ScalarValue::Null),
         };
 
-        let root = match projection.project(node, NodePath::new(), None, None, None)? {
+        let root = match projection.project(node, NodePath::new(), None, None, None, 0)? {
             Item::Structured(id) => Root::Structured(id),
             Item::Scalar(value) => Root::Scalar(value),
         };
         projection.root = root;
+        projection.compute_subtree_sizes();
 
         Ok(projection)
+    }
+
+    /// Fill in the size of every subtree
+    ///
+    /// Projection is depth first, so a parent always precedes its descendants and one
+    /// reverse pass suffices. Being iterative, it also keeps the cost linear and adds
+    /// no recursion depth.
+    fn compute_subtree_sizes(&mut self) {
+        for id in (0..self.occurrences.len()).rev() {
+            let mut size = 1;
+            for property in &self.occurrences[id].properties {
+                for item in &property.items {
+                    if let Item::Structured(child) = item {
+                        size += self.occurrences[*child].subtree_size;
+                    }
+                }
+            }
+            self.occurrences[id].subtree_size = size;
+        }
+    }
+
+    /// The node type of the projected root
+    ///
+    /// The selected roots always receive a root correspondence, so a scalar root needs
+    /// a node type too. Every `Node` variant has one; a scalar that can only appear as
+    /// a property value, such as a schema enum, does not and cannot be a root.
+    pub fn root_node_type(&self) -> CompareResult<NodeType> {
+        match &self.root {
+            Root::Structured(id) => Ok(self.occurrence(*id)?.node_type),
+            Root::Scalar(value) => value.node_type().ok_or_else(|| CompareError::Invariant {
+                message: format!(
+                    "The {side} root is a scalar that cannot be a node",
+                    side = self.side
+                ),
+            }),
+        }
     }
 
     /// Which of the two caller-selected inputs this projection is of
@@ -191,7 +243,17 @@ impl Projection {
         parent: Option<OccurrenceId>,
         parent_property: Option<NodeProperty>,
         parent_index: Option<usize>,
+        depth: usize,
     ) -> CompareResult<Item> {
+        if depth > MAX_DEPTH {
+            return Err(CompareError::DepthExceeded {
+                side: self.side,
+                path,
+                depth,
+                allowed: MAX_DEPTH,
+            });
+        }
+
         // A value with a node type is a structured occurrence. Union enums report the
         // node type of their selected branch, so they add no occurrence of their own,
         // and neither do flattened `*Options` containers, which report no node type
@@ -206,11 +268,18 @@ impl Projection {
                 parent_property,
                 parent_index,
                 properties: Vec::new(),
+                subtree_size: 1,
             });
 
             let mut properties = Vec::new();
             for property in node.properties() {
-                properties.push(self.project_property(property.decl, property.value, &path, id)?);
+                properties.push(self.project_property(
+                    property.decl,
+                    property.value,
+                    &path,
+                    id,
+                    depth,
+                )?);
             }
             self.occurrences[id].properties = properties;
 
@@ -234,6 +303,7 @@ impl Projection {
         value: InspectValue<'_>,
         path: &NodePath,
         parent: OccurrenceId,
+        depth: usize,
     ) -> CompareResult<ProjectedProperty> {
         let mut property_path = path.clone();
         property_path.push_back(NodeSlot::Property(decl.property));
@@ -241,8 +311,14 @@ impl Projection {
         let (presence, items) = match value {
             InspectValue::Absent => (Presence::Absent, Vec::new()),
             InspectValue::One(node) => {
-                let item =
-                    self.project(node, property_path, Some(parent), Some(decl.property), None)?;
+                let item = self.project(
+                    node,
+                    property_path,
+                    Some(parent),
+                    Some(decl.property),
+                    None,
+                    depth + 1,
+                )?;
                 (Presence::Present, vec![item])
             }
             InspectValue::Many(nodes) => {
@@ -256,6 +332,7 @@ impl Projection {
                         Some(parent),
                         Some(decl.property),
                         Some(index),
+                        depth + 1,
                     )?);
                 }
                 (Presence::Present, items)

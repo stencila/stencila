@@ -14,19 +14,51 @@
 //! actual, false positive, and false negative belongs in an adapter over these
 //! artifacts, not in this crate.
 
+mod align;
+mod alignment;
 mod error;
 mod options;
+mod policy;
 mod scalar;
 
 pub mod projection;
 
+pub use alignment::{
+    AlgorithmInfo, Alignment, AlignmentCost, AlignmentFormatVersion, AlignmentSignal,
+    Correspondence, EvidenceValue, MatchEvidence, MatchInfo, MatchRule, NodeRef, PairCost,
+    UnmatchedReason,
+};
 pub use error::{CompareError, CompareResult, Side};
 pub use options::{CompareOptions, DEFAULT_ALIGNMENT_CELL_BUDGET};
 pub use scalar::{CanonicalNumber, ScalarValue};
 
 use stencila_schema::Node;
 
-use crate::projection::Projection;
+use crate::{align::Aligner, projection::Projection};
+
+/// Align two nodes
+///
+/// Returns a complete, symmetric correspondence between the structured occurrences of
+/// the two nodes. Neither node is presumed correct.
+///
+/// Does not accept a caller-supplied alignment, because without binding an alignment
+/// to hashes of its inputs, stale paths could silently be applied to the wrong
+/// snapshots.
+pub fn align(left: &Node, right: &Node) -> CompareResult<Alignment> {
+    align_with_options(left, right, &CompareOptions::default())
+}
+
+/// Align two nodes, with options
+pub fn align_with_options(
+    left: &Node,
+    right: &Node,
+    options: &CompareOptions,
+) -> CompareResult<Alignment> {
+    let left = Projection::new(left, Side::Left)?;
+    let right = Projection::new(right, Side::Right)?;
+
+    Aligner::new(&left, &right, options).align()
+}
 
 /// Whether the canonical projections of two nodes are exactly equal
 ///

@@ -70,6 +70,21 @@ pub enum CompareError {
         expected: NodeType,
     },
 
+    /// A node is nested more deeply than the projection can represent
+    ///
+    /// An operational limit, not a semantic one: it exists so that a pathologically
+    /// deep input returns an error rather than exhausting the stack, which is the one
+    /// outcome the all-or-nothing rule cannot express.
+    #[error(
+        "The {side} node at path `{path}` is nested {depth} levels deep, but the limit is {allowed}"
+    )]
+    DepthExceeded {
+        side: Side,
+        path: NodePath,
+        depth: usize,
+        allowed: usize,
+    },
+
     /// An internal policy produced a result that violates its contract
     #[error("The {policy} policy produced an invalid result: {message}")]
     InvalidPolicyResult { policy: String, message: String },

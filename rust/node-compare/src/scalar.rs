@@ -12,6 +12,8 @@ use std::{
 
 use serde::{Deserialize, Deserializer, Serialize, Serializer, de};
 
+use stencila_node_type::NodeType;
+
 /// A canonical floating point number
 ///
 /// Ordinary IEEE `f64` equality is neither reflexive (`NaN != NaN`) nor able to
@@ -238,6 +240,24 @@ where
 }
 
 impl ScalarValue {
+    /// The node type of this scalar, when it is one a `Node` can be
+    ///
+    /// Every primitive `Node` variant has a node type. A schema enum does not: it can
+    /// only appear as a property value.
+    pub fn node_type(&self) -> Option<NodeType> {
+        Some(match self {
+            Self::Null => NodeType::Null,
+            Self::Boolean { .. } => NodeType::Boolean,
+            Self::Integer { .. } => NodeType::Integer,
+            Self::UnsignedInteger { .. } => NodeType::UnsignedInteger,
+            Self::Number { .. } => NodeType::Number,
+            Self::String { .. } => NodeType::String,
+            Self::Array { .. } => NodeType::Array,
+            Self::Object { .. } => NodeType::Object,
+            Self::Enum { .. } => return None,
+        })
+    }
+
     /// Create a string scalar
     pub fn string<S: Into<String>>(value: S) -> Self {
         Self::String {
