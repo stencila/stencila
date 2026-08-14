@@ -8,6 +8,13 @@ mod prelude;
 mod types;
 pub use types::*;
 
+mod inspect;
+pub use inspect::*;
+
+#[rustfmt::skip]
+mod inspect_declared;
+pub use inspect_declared::*;
+
 mod patch;
 pub use patch::*;
 

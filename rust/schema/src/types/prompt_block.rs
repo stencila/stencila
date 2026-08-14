@@ -20,7 +20,7 @@ use super::timestamp::Timestamp;
 /// A preview of a rendered prompt at a location in a document.
 #[skip_serializing_none]
 #[serde_as]
-#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, ProbeNode, StripNode, WalkNode, WriteNode, ReadNode, PatchNode, DomCodec, HtmlCodec, JatsCodec, LatexCodec, TextCodec)]
+#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, InspectNode, ProbeNode, StripNode, WalkNode, WriteNode, ReadNode, PatchNode, DomCodec, HtmlCodec, JatsCodec, LatexCodec, TextCodec)]
 #[serde(rename_all = "camelCase")]
 #[derive(derive_more::Display)]
 #[display("PromptBlock")]
@@ -87,7 +87,7 @@ pub struct PromptBlock {
 
 #[skip_serializing_none]
 #[serde_as]
-#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, ProbeNode, StripNode, WalkNode, WriteNode, ReadNode, PatchNode, DomCodec, HtmlCodec, JatsCodec, LatexCodec, TextCodec)]
+#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, InspectNode, ProbeNode, StripNode, WalkNode, WriteNode, ReadNode, PatchNode, DomCodec, HtmlCodec, JatsCodec, LatexCodec, TextCodec)]
 #[serde(rename_all = "camelCase")]
 pub struct PromptBlockOptions {
     /// A digest of the content, semantics and dependencies of the node.

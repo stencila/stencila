@@ -162,7 +162,7 @@ use super::walkthrough_step::WalkthroughStep;
 use super::workflow::Workflow;
 
 /// Union type for all types in this schema, including primitives and entities
-#[derive(Debug, strum::Display, Clone, PartialEq, Serialize, Deserialize, ProbeNode, StripNode, WalkNode, WriteNode, SmartDefault, PatchNode, DomCodec, HtmlCodec, JatsCodec, LatexCodec, MarkdownCodec, TextCodec)]
+#[derive(Debug, strum::Display, Clone, PartialEq, Serialize, Deserialize, InspectNode, ProbeNode, StripNode, WalkNode, WriteNode, SmartDefault, PatchNode, DomCodec, HtmlCodec, JatsCodec, LatexCodec, MarkdownCodec, TextCodec)]
 #[serde(untagged)]
 pub enum Node {
     #[default]

@@ -18,7 +18,7 @@ use super::timestamp::Timestamp;
 /// A block that includes content from an external source.
 #[skip_serializing_none]
 #[serde_as]
-#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, ProbeNode, StripNode, WalkNode, WriteNode, ReadNode, PatchNode, DomCodec, HtmlCodec, JatsCodec, TextCodec)]
+#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, InspectNode, ProbeNode, StripNode, WalkNode, WriteNode, ReadNode, PatchNode, DomCodec, HtmlCodec, JatsCodec, TextCodec)]
 #[serde(rename_all = "camelCase")]
 #[cfg_attr(feature = "proptest", derive(Arbitrary))]
 #[derive(derive_more::Display)]
@@ -88,7 +88,7 @@ pub struct IncludeBlock {
 
 #[skip_serializing_none]
 #[serde_as]
-#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, ProbeNode, StripNode, WalkNode, WriteNode, ReadNode, PatchNode, DomCodec, HtmlCodec, JatsCodec, TextCodec)]
+#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, InspectNode, ProbeNode, StripNode, WalkNode, WriteNode, ReadNode, PatchNode, DomCodec, HtmlCodec, JatsCodec, TextCodec)]
 #[serde(rename_all = "camelCase")]
 #[cfg_attr(feature = "proptest", derive(Arbitrary))]
 pub struct IncludeBlockOptions {

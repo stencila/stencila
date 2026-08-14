@@ -30,7 +30,7 @@ use super::worktree_status::WorktreeStatus;
 /// An AI agent definition.
 #[skip_serializing_none]
 #[serde_as]
-#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, ProbeNode, StripNode, WalkNode, WriteNode, ReadNode, PatchNode, DomCodec, HtmlCodec, JatsCodec, LatexCodec, TextCodec)]
+#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, InspectNode, ProbeNode, StripNode, WalkNode, WriteNode, ReadNode, PatchNode, DomCodec, HtmlCodec, JatsCodec, LatexCodec, TextCodec)]
 #[serde(rename_all = "camelCase")]
 #[derive(derive_more::Display)]
 #[display("Agent")]
@@ -131,7 +131,7 @@ pub struct Agent {
 
 #[skip_serializing_none]
 #[serde_as]
-#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, ProbeNode, StripNode, WalkNode, WriteNode, ReadNode, PatchNode, DomCodec, HtmlCodec, JatsCodec, LatexCodec, TextCodec)]
+#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, InspectNode, ProbeNode, StripNode, WalkNode, WriteNode, ReadNode, PatchNode, DomCodec, HtmlCodec, JatsCodec, LatexCodec, TextCodec)]
 #[serde(rename_all = "camelCase")]
 pub struct AgentOptions {
     /// Alternate names (aliases) for the item.

@@ -12129,6 +12129,22 @@ dependencies = [
 ]
 
 [[package]]
+name = "stencila-node-compare"
+version = "0.0.0"
+dependencies = [
+ "eyre",
+ "insta",
+ "itertools 0.14.0",
+ "pretty_assertions",
+ "serde",
+ "serde_json",
+ "stencila-node-path",
+ "stencila-node-type",
+ "stencila-schema",
+ "thiserror 2.0.18",
+]
+
+[[package]]
 name = "stencila-node-contains"
 version = "0.0.0"
 dependencies = [
@@ -12207,6 +12223,17 @@ dependencies = [
  "eyre",
  "rand 0.10.1",
  "serde_with",
+]
+
+[[package]]
+name = "stencila-node-inspect-derive"
+version = "0.0.0"
+dependencies = [
+ "Inflector",
+ "darling 0.23.0",
+ "proc-macro2",
+ "quote",
+ "syn 2.0.117",
 ]
 
 [[package]]
@@ -12646,6 +12673,7 @@ dependencies = [
  "stencila-images",
  "stencila-layout-lang",
  "stencila-node-id",
+ "stencila-node-inspect-derive",
  "stencila-node-patch-derive",
  "stencila-node-path",
  "stencila-node-probe-derive",

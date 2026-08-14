@@ -41,7 +41,7 @@ use super::worktree_status::WorktreeStatus;
 /// An article, including news and scholarly articles.
 #[skip_serializing_none]
 #[serde_as]
-#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, ProbeNode, StripNode, WalkNode, WriteNode, ReadNode, PatchNode, HtmlCodec, TextCodec)]
+#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, InspectNode, ProbeNode, StripNode, WalkNode, WriteNode, ReadNode, PatchNode, HtmlCodec, TextCodec)]
 #[serde(rename_all = "camelCase")]
 #[cfg_attr(feature = "proptest", derive(Arbitrary))]
 #[derive(derive_more::Display)]
@@ -149,7 +149,7 @@ pub struct Article {
 
 #[skip_serializing_none]
 #[serde_as]
-#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, ProbeNode, StripNode, WalkNode, WriteNode, ReadNode, PatchNode, HtmlCodec, TextCodec)]
+#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, InspectNode, ProbeNode, StripNode, WalkNode, WriteNode, ReadNode, PatchNode, HtmlCodec, TextCodec)]
 #[serde(rename_all = "camelCase")]
 #[cfg_attr(feature = "proptest", derive(Arbitrary))]
 pub struct ArticleOptions {

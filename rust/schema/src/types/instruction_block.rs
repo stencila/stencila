@@ -24,7 +24,7 @@ use super::unsigned_integer::UnsignedInteger;
 /// An instruction to edit some block content.
 #[skip_serializing_none]
 #[serde_as]
-#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, ProbeNode, StripNode, WalkNode, WriteNode, ReadNode, HtmlCodec, JatsCodec, LatexCodec, TextCodec)]
+#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, InspectNode, ProbeNode, StripNode, WalkNode, WriteNode, ReadNode, HtmlCodec, JatsCodec, LatexCodec, TextCodec)]
 #[serde(rename_all = "camelCase")]
 #[cfg_attr(feature = "proptest", derive(Arbitrary))]
 #[derive(derive_more::Display)]
@@ -104,7 +104,7 @@ pub struct InstructionBlock {
 
 #[skip_serializing_none]
 #[serde_as]
-#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, ProbeNode, StripNode, WalkNode, WriteNode, ReadNode, HtmlCodec, JatsCodec, LatexCodec, TextCodec)]
+#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, InspectNode, ProbeNode, StripNode, WalkNode, WriteNode, ReadNode, HtmlCodec, JatsCodec, LatexCodec, TextCodec)]
 #[serde(rename_all = "camelCase")]
 #[cfg_attr(feature = "proptest", derive(Arbitrary))]
 pub struct InstructionBlockOptions {

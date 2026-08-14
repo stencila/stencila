@@ -390,6 +390,47 @@ pub(crate) fn node_type_properties(node_type: &NodeType) -> Vec<NodeProperty> {{
         )
         .await?;
 
+        // Create a mapping between node type and the properties reported for it by
+        // the generated `InspectType` implementation. Comparing this to
+        // `node_type_properties` above is how a newly generated schema field that is
+        // invisible to introspection is caught.
+        let inspect_declared = self
+            .schemas
+            .iter()
+            .filter(|(.., schema)| {
+                !schema.r#abstract && schema.is_object() && !schema.properties.is_empty()
+            })
+            .map(|(title, ..)| {
+                format!("NodeType::{title} => <{title} as InspectType>::declared_properties()")
+            })
+            .join(",\n        ");
+        write(
+            dest.join("inspect_declared.rs"),
+            format!(
+                r#"{GENERATED_COMMENT}
+
+use stencila_node_type::NodeType;
+
+use crate::inspect::{{InspectType, PropertyDecl}};
+use crate::types::*;
+
+/// The properties that the generated `InspectType` implementation reports for a
+/// node type
+///
+/// Returns `None` for node types that are not schema objects, such as the primitive
+/// node types.
+pub fn inspect_declared_properties(node_type: NodeType) -> Option<Vec<PropertyDecl>> {{
+    Some(match node_type {{
+        {inspect_declared},
+        _ => return None
+    }})
+}}
+
+"#
+            ),
+        )
+        .await?;
+
         Ok(())
     }
 
@@ -494,6 +535,7 @@ pub(crate) fn node_type_properties(node_type: &NodeType) -> Vec<NodeProperty> {{
             "PartialEq",
             "Serialize",
             "Deserialize",
+            "InspectNode",
             "ProbeNode",
             "StripNode",
             "WalkNode",
@@ -1333,6 +1375,7 @@ impl {name} {{
             "PartialEq",
             "Serialize",
             "Deserialize",
+            "InspectNode",
             "ProbeNode",
             "StripNode",
             "WalkNode",

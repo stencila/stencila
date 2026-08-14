@@ -7,7 +7,7 @@ use super::software_source_code::SoftwareSourceCode;
 use super::string::String;
 
 /// [`SoftwareApplication`] or [`SoftwareSourceCode`] or [`String`]
-#[derive(Debug, strum::Display, Clone, PartialEq, Serialize, Deserialize, ProbeNode, StripNode, WalkNode, WriteNode, SmartDefault, ReadNode, PatchNode, DomCodec, HtmlCodec, JatsCodec, LatexCodec, MarkdownCodec, TextCodec)]
+#[derive(Debug, strum::Display, Clone, PartialEq, Serialize, Deserialize, InspectNode, ProbeNode, StripNode, WalkNode, WriteNode, SmartDefault, ReadNode, PatchNode, DomCodec, HtmlCodec, JatsCodec, LatexCodec, MarkdownCodec, TextCodec)]
 #[serde(untagged)]
 pub enum SoftwareApplicationOrSoftwareSourceCodeOrString {
     #[default]

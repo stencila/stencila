@@ -46,6 +46,7 @@ stencila-format = { path = "../format" }
 stencila-images = { path = "../images" }
 stencila-layout-lang = { path = "../layout-lang" }
 stencila-node-id = { path = "../node-id" }
+stencila-node-inspect-derive = { path = "../node-inspect-derive" }
 stencila-node-patch-derive = { path = "../node-patch-derive" }
 stencila-node-path = { path = "../node-path" }
 stencila-node-probe-derive = { path = "../node-probe-derive" }

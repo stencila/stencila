@@ -1,0 +1,19 @@
+[package]
+name = "stencila-node-inspect-derive"
+version = "0.0.0"
+edition = "2024"
+license.workspace = true
+repository.workspace = true
+
+[lib]
+proc-macro = true
+
+[dependencies]
+Inflector = { workspace = true }
+darling = { workspace = true }
+proc-macro2 = { workspace = true }
+quote = { workspace = true }
+syn = { workspace = true }
+
+[lints]
+workspace = true

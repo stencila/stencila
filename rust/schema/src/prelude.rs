@@ -19,6 +19,7 @@ pub use stencila_codec_markdown_trait::{MarkdownCodec, MarkdownEncodeContext, Ma
 pub use stencila_codec_text_trait::TextCodec;
 pub use stencila_format::Format;
 pub use stencila_node_id::{NodeId, NodeUid};
+pub use stencila_node_inspect_derive::InspectNode;
 pub use stencila_node_patch_derive::PatchNode;
 pub use stencila_node_path::{NodePath, NodeSlot};
 pub use stencila_node_probe_derive::ProbeNode;
@@ -28,6 +29,9 @@ pub use stencila_node_type::{ContentType, NodeProperty, NodeType};
 pub use stencila_node_walk_derive::WalkNode;
 
 pub use crate::deserialize::*;
+pub use crate::inspect::{
+    InspectNode, InspectProperty, InspectType, InspectValue, PropertyDecl, ScalarRef, ValueKind,
+};
 pub use crate::patch::{Patch, PatchContext, PatchNode, PatchOp, PatchValue};
 pub use crate::probe::{NodeSet, ProbeNode};
 pub use crate::walk::{Visitor, VisitorAsync, VisitorMut, WalkNode};

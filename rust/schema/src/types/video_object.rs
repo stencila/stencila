@@ -28,7 +28,7 @@ use super::worktree_status::WorktreeStatus;
 /// A video file.
 #[skip_serializing_none]
 #[serde_as]
-#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, ProbeNode, StripNode, WalkNode, WriteNode, ReadNode, PatchNode, HtmlCodec, LatexCodec, TextCodec)]
+#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, InspectNode, ProbeNode, StripNode, WalkNode, WriteNode, ReadNode, PatchNode, HtmlCodec, LatexCodec, TextCodec)]
 #[serde(rename_all = "camelCase")]
 #[cfg_attr(feature = "proptest", derive(Arbitrary))]
 #[derive(derive_more::Display)]
@@ -100,7 +100,7 @@ pub struct VideoObject {
 
 #[skip_serializing_none]
 #[serde_as]
-#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, ProbeNode, StripNode, WalkNode, WriteNode, ReadNode, PatchNode, HtmlCodec, LatexCodec, TextCodec)]
+#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, InspectNode, ProbeNode, StripNode, WalkNode, WriteNode, ReadNode, PatchNode, HtmlCodec, LatexCodec, TextCodec)]
 #[serde(rename_all = "camelCase")]
 #[cfg_attr(feature = "proptest", derive(Arbitrary))]
 pub struct VideoObjectOptions {
