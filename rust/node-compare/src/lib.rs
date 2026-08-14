@@ -1,0 +1,41 @@
+//! Schema-native comparison of Stencila Schema nodes
+//!
+//! This crate compares any two [`stencila_schema::Node`] trees and produces two
+//! versioned artifacts:
+//!
+//! 1. an alignment: a complete, symmetric correspondence between the structured
+//!    occurrences of the two trees;
+//! 2. a comparison: that alignment plus sparse, atomic observations about differences
+//!    between paired occurrences.
+//!
+//! It is deliberately independent of source formats, document regions, benchmark
+//! metrics, and presentation. Neither side is presumed correct: they are the *left*
+//! and *right* snapshots the caller selected. Evaluative terminology such as expected,
+//! actual, false positive, and false negative belongs in an adapter over these
+//! artifacts, not in this crate.
+
+mod error;
+mod options;
+mod scalar;
+
+pub mod projection;
+
+pub use error::{CompareError, CompareResult, Side};
+pub use options::{CompareOptions, DEFAULT_ALIGNMENT_CELL_BUDGET};
+pub use scalar::{CanonicalNumber, ScalarValue};
+
+use stencila_schema::Node;
+
+use crate::projection::Projection;
+
+/// Whether the canonical projections of two nodes are exactly equal
+///
+/// Equality is defined by the canonical projections, not by Rust's `PartialEq`: it
+/// covers every declared schema property except the intrinsic implementation
+/// machinery described in [`projection`].
+pub fn projections_equal(left: &Node, right: &Node) -> CompareResult<bool> {
+    let left = Projection::new(left, Side::Left)?;
+    let right = Projection::new(right, Side::Right)?;
+
+    left.eq_canonically(&right)
+}

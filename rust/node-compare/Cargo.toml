@@ -1,0 +1,22 @@
+[package]
+name = "stencila-node-compare"
+version = "0.0.0"
+edition = "2024"
+license.workspace = true
+repository.workspace = true
+
+[dependencies]
+serde = { workspace = true }
+stencila-node-path = { path = "../node-path" }
+stencila-node-type = { path = "../node-type" }
+stencila-schema = { path = "../schema" }
+thiserror = { workspace = true }
+
+[dev-dependencies]
+eyre = { workspace = true }
+insta = { workspace = true }
+pretty_assertions = { workspace = true }
+serde_json = { workspace = true }
+
+[lints]
+workspace = true

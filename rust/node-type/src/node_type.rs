@@ -1,12 +1,12 @@
 // Generated file; do not edit. See `schema-gen` crate.
 
 use eyre::{bail, Report};
-use serde::Serialize;
+use serde::{Deserialize, Serialize};
 use strum::{Display, EnumIter, EnumString};
 
 use stencila_node_id::NodeId;
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash, Serialize, Display, EnumString, EnumIter)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash, Serialize, Deserialize, Display, EnumString, EnumIter)]
 pub enum NodeType {
     Null,
     Boolean,

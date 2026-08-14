@@ -12134,7 +12134,6 @@ version = "0.0.0"
 dependencies = [
  "eyre",
  "insta",
- "itertools 0.14.0",
  "pretty_assertions",
  "serde",
  "serde_json",
