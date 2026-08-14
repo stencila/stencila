@@ -11,6 +11,7 @@ stencila-node-path = { path = "../node-path" }
 stencila-node-type = { path = "../node-type" }
 stencila-schema = { path = "../schema" }
 thiserror = { workspace = true }
+unicode-normalization = { workspace = true }
 
 [dev-dependencies]
 eyre = { workspace = true }

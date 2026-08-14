@@ -16,10 +16,15 @@
 
 mod align;
 mod alignment;
+mod anchors;
 mod error;
+mod features;
+mod fingerprint;
 mod options;
 mod policy;
 mod scalar;
+mod sequence;
+mod text;
 
 pub mod projection;
 
@@ -34,7 +39,7 @@ pub use scalar::{CanonicalNumber, ScalarValue};
 
 use stencila_schema::Node;
 
-use crate::{align::Aligner, projection::Projection};
+use crate::{align::Aligner, features::FeatureSet, projection::Projection};
 
 /// Align two nodes
 ///
@@ -55,19 +60,13 @@ pub fn align_with_options(
     options: &CompareOptions,
 ) -> CompareResult<Alignment> {
     let left = Projection::new(left, Side::Left)?;
+    let left_features = FeatureSet::new(&left)?;
     let right = Projection::new(right, Side::Right)?;
+    let right_features = FeatureSet::new(&right)?;
 
-    Aligner::new(&left, &right, options).align()
-}
-
-/// Whether the canonical projections of two nodes are exactly equal
-///
-/// Equality is defined by the canonical projections, not by Rust's `PartialEq`: it
-/// covers every declared schema property except the intrinsic implementation
-/// machinery described in [`projection`].
-pub fn projections_equal(left: &Node, right: &Node) -> CompareResult<bool> {
-    let left = Projection::new(left, Side::Left)?;
-    let right = Projection::new(right, Side::Right)?;
-
-    left.eq_canonically(&right)
+    Ok(
+        Aligner::new(&left, &left_features, &right, &right_features, options)
+            .align()?
+            .alignment,
+    )
 }

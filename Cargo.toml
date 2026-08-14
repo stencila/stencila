@@ -90,6 +90,7 @@ toml_edit = "0.25.11"
 tracing = { version = "0.1.44", features = ["log"] }
 tracing-error = "0.2.1"
 tracing-subscriber = { version = "0.3.23", features = ["env-filter", "json"] }
+unicode-normalization = "0.1.24"
 unicode-width = "0.2.2"
 url = { version = "2.5.8", features = ["serde"] }
 uuid = { version = "1.23.1", features = ["v4", "v7"] }

@@ -416,6 +416,19 @@ impl Projection {
         }
     }
 
+    /// Whether two projected subtrees are exactly equal
+    ///
+    /// Fingerprints are accelerators, never equality proofs, so a fingerprint match
+    /// must always be settled by this before it is treated as an exact identity.
+    pub fn eq_subtrees(
+        &self,
+        left: OccurrenceId,
+        other: &Projection,
+        right: OccurrenceId,
+    ) -> CompareResult<bool> {
+        self.eq_occurrence(left, other, right)
+    }
+
     fn eq_occurrence(
         &self,
         left: OccurrenceId,
