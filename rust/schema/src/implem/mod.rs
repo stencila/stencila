@@ -8,6 +8,7 @@ mod article;
 mod author;
 mod author_role;
 mod author_role_author;
+mod author_role_name;
 mod block;
 mod boundary;
 mod call_argument;

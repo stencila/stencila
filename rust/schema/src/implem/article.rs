@@ -1,10 +1,11 @@
 use std::collections::BTreeMap;
 
 use crate::{
-    Article, Author, AuthorRoleAuthor, Block, CreativeWorkType, CreativeWorkVariant,
-    CreativeWorkVariantOrString, DateTime, GrantOrMonetaryGrant, Heading, Inline, Organization,
-    Periodical, Person, PersonOrOrganization, PostalAddressOrString, Primitive,
-    PropertyValueOrString, PublicationIssue, RawBlock, Reference, SectionType, Text, ThingVariant,
+    Article, Author, AuthorRoleAuthor, AuthorRoleName, Block, CreativeWorkType,
+    CreativeWorkVariant, CreativeWorkVariantOrString, DateTime, GrantOrMonetaryGrant, Heading,
+    Inline, Organization, Periodical, Person, PersonOrOrganization, PostalAddressOrString,
+    Primitive, PropertyValueOrString, PublicationIssue, RawBlock, Reference, SectionType, Text,
+    ThingVariant,
     prelude::*,
     replicate,
     shortcuts::{h1, t},
@@ -1065,6 +1066,7 @@ fn encode_publisher(publisher: &PersonOrOrganization, context: &mut JatsEncodeCo
 
 fn encode_article_author(
     author: &Author,
+    roles: &[AuthorRoleName],
     contrib_type: &str,
     affiliations: &BTreeMap<String, String>,
     context: &mut JatsEncodeContext,
@@ -1073,17 +1075,17 @@ fn encode_article_author(
         .enter_elem("contrib")
         .push_attr("contrib-type", contrib_type);
 
-    let (person, role, encoded) = match author {
+    let (person, encoded) = match author {
         Author::Person(person) => {
             add_person_losses(person, true, context);
-            (Some(person), None, encode_person_name(person, context))
+            (Some(person), encode_person_name(person, context))
         }
         Author::Organization(organization) => {
             let encoded = organization_name(organization).is_some_and(|name| {
                 context.enter_elem("collab").push_text(name).exit_elem();
                 true
             });
-            (None, None, encoded)
+            (None, encoded)
         }
         Author::SoftwareApplication(software) => {
             let name = software.name.trim();
@@ -1093,23 +1095,19 @@ fn encode_article_author(
                 context.enter_elem("collab").push_text(name).exit_elem();
                 true
             };
-            (None, None, encoded)
+            (None, encoded)
         }
         Author::AuthorRole(author_role) => match &author_role.author {
             AuthorRoleAuthor::Person(person) => {
                 add_person_losses(person, true, context);
-                (
-                    Some(person),
-                    Some(author_role.role_name.to_string()),
-                    encode_person_name(person, context),
-                )
+                (Some(person), encode_person_name(person, context))
             }
             AuthorRoleAuthor::Organization(organization) => {
                 let encoded = organization_name(organization).is_some_and(|name| {
                     context.enter_elem("collab").push_text(name).exit_elem();
                     true
                 });
-                (None, Some(author_role.role_name.to_string()), encoded)
+                (None, encoded)
             }
             AuthorRoleAuthor::SoftwareApplication(software) => {
                 let name = software.name.trim();
@@ -1119,11 +1117,11 @@ fn encode_article_author(
                     context.enter_elem("collab").push_text(name).exit_elem();
                     true
                 };
-                (None, Some(author_role.role_name.to_string()), encoded)
+                (None, encoded)
             }
             AuthorRoleAuthor::Thing(..) => {
                 context.add_loss("AuthorRole.author");
-                (None, Some(author_role.role_name.to_string()), false)
+                (None, false)
             }
         },
     };
@@ -1178,16 +1176,31 @@ fn encode_article_author(
             }
         }
     }
+    // A CRediT contributor role is emitted with the vocabulary attributes
+    // that JATS4R requires, one `<role>` per role; other roles (e.g. the
+    // Stencila workflow roles) are emitted as the role name alone
+    for role_name in roles {
+        if let (Some(term), Some(uri)) = (role_name.credit_name(), role_name.credit_uri()) {
+            context
+                .enter_elem("role")
+                .push_attr("vocab", "credit")
+                .push_attr("vocab-identifier", "https://credit.niso.org/")
+                .push_attr("vocab-term", term)
+                .push_attr("vocab-term-identifier", &uri)
+                .push_text(term)
+                .exit_elem();
+        } else {
+            encode_text_element(context, "role", &role_name.to_string());
+        }
+    }
     // The role that a person had, e.g. `Reviewing Editor`, is held as their job
-    // title because the schema has no role of its own for a contributor
-    if let Some(role) = role.or_else(|| {
-        person
-            .and_then(|person| person.options.job_title.as_deref())
-            .map(str::trim)
-            .filter(|role| !role.is_empty())
-            .map(String::from)
-    }) {
-        encode_text_element(context, "role", &role);
+    // title because the schema has no free text role of its own for a contributor
+    if let Some(role) = person
+        .and_then(|person| person.options.job_title.as_deref())
+        .map(str::trim)
+        .filter(|role| !role.is_empty())
+    {
+        encode_text_element(context, "role", role);
     }
     if let Some(address) = person.and_then(|person| person.options.address.as_ref()) {
         let address = address_parts(address).join(", ");
@@ -1427,8 +1440,24 @@ fn encode_contrib_group(
     if contrib_type != "author" {
         context.push_attr("content-type", contrib_type);
     }
-    for contributor in contributors {
-        encode_article_author(contributor, contrib_type, &affiliations, context);
+    // Consecutive `AuthorRole`s with the same author are one contributor with
+    // several roles (e.g. CRediT contributor roles), so are emitted as a
+    // single `<contrib>` with one `<role>` element per role
+    let mut index = 0;
+    while let Some(contributor) = contributors.get(index) {
+        let mut roles = Vec::new();
+        if let Author::AuthorRole(author_role) = contributor {
+            roles.push(author_role.role_name);
+            while let Some(Author::AuthorRole(next)) = contributors.get(index + 1) {
+                if next.author != author_role.author {
+                    break;
+                }
+                roles.push(next.role_name);
+                index += 1;
+            }
+        }
+        encode_article_author(contributor, &roles, contrib_type, &affiliations, context);
+        index += 1;
     }
     for organization in organizations {
         if let Some(id) = affiliations.get(&affiliation_key(organization)) {

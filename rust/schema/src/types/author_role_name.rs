@@ -39,4 +39,72 @@ pub enum AuthorRoleName {
 
     /// The author is a `SoftwareApplication` that made linting fixes to code.
     Linter,
+
+    /// Ideas; formulation or evolution of overarching research goals and aims.
+    Conceptualization,
+
+    /// Management activities to annotate (produce metadata), scrub data and maintain research data (including software code, where it is necessary for interpreting the data itself) for initial use and later re-use.
+    #[serde(alias = "Data curation")]
+    DataCuration,
+
+    /// Application of statistical, mathematical, computational, or other formal techniques to analyse or synthesize study data.
+    #[serde(alias = "Formal analysis")]
+    FormalAnalysis,
+
+    /// Acquisition of the financial support for the project leading to this publication.
+    #[serde(alias = "Funding acquisition")]
+    FundingAcquisition,
+
+    /// Conducting a research and investigation process, specifically performing the experiments, or data/evidence collection.
+    Investigation,
+
+    /// Development or design of methodology; creation of models.
+    Methodology,
+
+    /// Management and coordination responsibility for the research activity planning and execution.
+    #[serde(alias = "Project administration")]
+    ProjectAdministration,
+
+    /// Provision of study materials, reagents, materials, patients, laboratory samples, animals, instrumentation, computing resources, or other analysis tools.
+    Resources,
+
+    /// Programming, software development; designing computer programs; implementation of the computer code and supporting algorithms; testing of existing code components.
+    Software,
+
+    /// Oversight and leadership responsibility for the research activity planning and execution, including mentorship external to the core team.
+    Supervision,
+
+    /// Verification, whether as a part of the activity or separate, of the overall replication/reproducibility of results/experiments and other research outputs.
+    Validation,
+
+    /// Preparation, creation and/or presentation of the published work, specifically visualization/data presentation.
+    Visualization,
+
+    /// Preparation, creation and/or presentation of the published work, specifically writing the initial draft (including substantive translation).
+    #[serde(alias = "Writing – original draft")]
+    WritingOriginalDraft,
+
+    /// Preparation, creation and/or presentation of the published work by those from the original research group, specifically critical review, commentary or revision – including pre- or post-publication stages.
+    #[serde(alias = "Writing – review & editing")]
+    WritingReviewEditing,
+}
+
+impl AuthorRoleName {
+    /// Metadata for variants in the CRediT vocabulary.
+    pub(crate) const CREDIT_METADATA: &'static [(Self, &'static str, &'static str)] = &[
+        (Self::Conceptualization, "credit:conceptualization", "Conceptualization"),
+        (Self::DataCuration, "credit:data-curation", "Data curation"),
+        (Self::FormalAnalysis, "credit:formal-analysis", "Formal analysis"),
+        (Self::FundingAcquisition, "credit:funding-acquisition", "Funding acquisition"),
+        (Self::Investigation, "credit:investigation", "Investigation"),
+        (Self::Methodology, "credit:methodology", "Methodology"),
+        (Self::ProjectAdministration, "credit:project-administration", "Project administration"),
+        (Self::Resources, "credit:resources", "Resources"),
+        (Self::Software, "credit:software", "Software"),
+        (Self::Supervision, "credit:supervision", "Supervision"),
+        (Self::Validation, "credit:validation", "Validation"),
+        (Self::Visualization, "credit:visualization", "Visualization"),
+        (Self::WritingOriginalDraft, "credit:writing-original-draft", "Writing – original draft"),
+        (Self::WritingReviewEditing, "credit:writing-review-editing", "Writing – review & editing")
+    ];
 }

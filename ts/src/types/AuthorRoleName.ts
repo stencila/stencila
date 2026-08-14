@@ -13,6 +13,20 @@ export type AuthorRoleName =
   'Generator' |
   'Executor' |
   'Formatter' |
-  'Linter';
+  'Linter' |
+  'Conceptualization' |
+  'DataCuration' |
+  'FormalAnalysis' |
+  'FundingAcquisition' |
+  'Investigation' |
+  'Methodology' |
+  'ProjectAdministration' |
+  'Resources' |
+  'Software' |
+  'Supervision' |
+  'Validation' |
+  'Visualization' |
+  'WritingOriginalDraft' |
+  'WritingReviewEditing';
 
 

@@ -1200,6 +1200,39 @@ impl {title} {{
             .or(variants.first().map(|(variant, ..)| variant.clone()));
 
         let mut unit_variants = true;
+        let variant_metadata = variants
+            .iter()
+            .filter_map(|(variant, is_type, schema)| {
+                if *is_type {
+                    return None;
+                }
+                let jid = schema.jid.as_deref()?;
+                if !jid.starts_with("credit:") {
+                    return None;
+                }
+                let canonical_name = schema
+                    .aliases
+                    .first()
+                    .map_or(variant.as_str(), String::as_str);
+                Some(format!(r#"(Self::{variant}, "{jid}", "{canonical_name}")"#))
+            })
+            .join(",\n        ");
+
+        let variant_metadata = if variant_metadata.is_empty() {
+            String::new()
+        } else {
+            format!(
+                r#"
+
+impl {name} {{
+    /// Metadata for variants in the CRediT vocabulary.
+    pub(crate) const CREDIT_METADATA: &'static [(Self, &'static str, &'static str)] = &[
+        {variant_metadata}
+    ];
+}}"#
+            )
+        };
+
         let variants = variants
             .into_iter()
             .map(|(variant, is_type, variant_schema)| {
@@ -1421,7 +1454,7 @@ use crate::prelude::*;
 {attrs}
 pub enum {name} {{
     {variants}
-}}
+}}{variant_metadata}
 "#
         );
         std::fs::write(path, rust)?;

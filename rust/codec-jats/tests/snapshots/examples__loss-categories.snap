@@ -24,7 +24,7 @@ elife-94334-v1 decode:
   content: 21
   link-or-identifier: 34
   metadata: 7
-  presentation: 98
+  presentation: 109
 elife-94334-v1 encode:
   metadata: 4
 pmc-11518443 decode:
@@ -40,7 +40,7 @@ pmc-12354728 encode:
   link-or-identifier: 3
 pmc-12431436 decode:
   content: 1
-  metadata: 61
+  metadata: 44
   presentation: 198
 pmc-12431436 encode: {}
 pmc-6849754 decode:

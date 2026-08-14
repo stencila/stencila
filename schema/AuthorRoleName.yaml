@@ -12,12 +12,20 @@ $comment: |
   arbitrary free text, the enumeration gives a stable vocabulary for common
   contribution roles.
 
+  The enumeration combines two vocabularies: Stencila's own authoring and
+  AI-workflow roles (e.g. `Writer`, `Generator`, `Verifier`), and the fourteen
+  roles of the [Contributor Roles Taxonomy (CRediT)](https://credit.niso.org/),
+  ANSI/NISO Z39.104-2022 (e.g. `Conceptualization`, `WritingOriginalDraft`).
+  The CRediT variants have `credit:` ids that map to the canonical role URIs
+  so that scholarly contribution roles can be preserved across document
+  formats such as JATS and linked-data workflows.
+
   See [`AuthorRole.roleName`](./author-role.md#rolename) for the property that
   uses this enumeration.
 analogues:
   - name: CRediT taxonomy roles
     url: https://credit.niso.org/
-    notes: Approximate analogue for controlled contributor role vocabularies, though Stencila includes authoring and AI-workflow roles beyond the standard CRediT set.
+    notes: The fourteen CRediT contributor roles (ANSI/NISO Z39.104-2022) are included directly as variants, alongside Stencila's authoring and AI-workflow roles.
 default: Writer
 anyOf:
   - const: Importer
@@ -53,3 +61,70 @@ anyOf:
   - const: Linter
     '@id': stencila:Linter
     description: The author is a `SoftwareApplication` that made linting fixes to code.
+
+  # The fourteen roles of the Contributor Roles Taxonomy (CRediT),
+  # ANSI/NISO Z39.104-2022. Descriptions are the official definitions,
+  # verbatim, from https://credit.niso.org/, and each `credit:` id maps to the
+  # canonical role URI `https://credit.niso.org/contributor-roles/{id}/`.
+
+  - const: Conceptualization
+    '@id': credit:conceptualization
+    description: Ideas; formulation or evolution of overarching research goals and aims.
+
+  - const: DataCuration
+    '@id': credit:data-curation
+    aliases: [Data curation]
+    description: Management activities to annotate (produce metadata), scrub data and maintain research data (including software code, where it is necessary for interpreting the data itself) for initial use and later re-use.
+
+  - const: FormalAnalysis
+    '@id': credit:formal-analysis
+    aliases: [Formal analysis]
+    description: Application of statistical, mathematical, computational, or other formal techniques to analyse or synthesize study data.
+
+  - const: FundingAcquisition
+    '@id': credit:funding-acquisition
+    aliases: [Funding acquisition]
+    description: Acquisition of the financial support for the project leading to this publication.
+
+  - const: Investigation
+    '@id': credit:investigation
+    description: Conducting a research and investigation process, specifically performing the experiments, or data/evidence collection.
+
+  - const: Methodology
+    '@id': credit:methodology
+    description: Development or design of methodology; creation of models.
+
+  - const: ProjectAdministration
+    '@id': credit:project-administration
+    aliases: [Project administration]
+    description: Management and coordination responsibility for the research activity planning and execution.
+
+  - const: Resources
+    '@id': credit:resources
+    description: Provision of study materials, reagents, materials, patients, laboratory samples, animals, instrumentation, computing resources, or other analysis tools.
+
+  - const: Software
+    '@id': credit:software
+    description: Programming, software development; designing computer programs; implementation of the computer code and supporting algorithms; testing of existing code components.
+
+  - const: Supervision
+    '@id': credit:supervision
+    description: Oversight and leadership responsibility for the research activity planning and execution, including mentorship external to the core team.
+
+  - const: Validation
+    '@id': credit:validation
+    description: Verification, whether as a part of the activity or separate, of the overall replication/reproducibility of results/experiments and other research outputs.
+
+  - const: Visualization
+    '@id': credit:visualization
+    description: Preparation, creation and/or presentation of the published work, specifically visualization/data presentation.
+
+  - const: WritingOriginalDraft
+    '@id': credit:writing-original-draft
+    aliases: [Writing – original draft]
+    description: Preparation, creation and/or presentation of the published work, specifically writing the initial draft (including substantive translation).
+
+  - const: WritingReviewEditing
+    '@id': credit:writing-review-editing
+    aliases: [Writing – review & editing]
+    description: Preparation, creation and/or presentation of the published work by those from the original research group, specifically critical review, commentary or revision – including pre- or post-publication stages.

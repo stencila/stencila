@@ -247,7 +247,14 @@ expression: jats
           <email>kanuka@jikei.ac.jp</email>
           <xref ref-type="aff" rid="aff1"></xref>
           <xref ref-type="aff" rid="aff2"></xref>
-          <role>Conceptualization</role>
+          <role vocab="credit" vocab-identifier="https://credit.niso.org/" vocab-term="Conceptualization" vocab-term-identifier="https://credit.niso.org/contributor-roles/conceptualization/">Conceptualization</role>
+          <role vocab="credit" vocab-identifier="https://credit.niso.org/" vocab-term="Data curation" vocab-term-identifier="https://credit.niso.org/contributor-roles/data-curation/">Data curation</role>
+          <role vocab="credit" vocab-identifier="https://credit.niso.org/" vocab-term="Funding acquisition" vocab-term-identifier="https://credit.niso.org/contributor-roles/funding-acquisition/">Funding acquisition</role>
+          <role vocab="credit" vocab-identifier="https://credit.niso.org/" vocab-term="Investigation" vocab-term-identifier="https://credit.niso.org/contributor-roles/investigation/">Investigation</role>
+          <role vocab="credit" vocab-identifier="https://credit.niso.org/" vocab-term="Methodology" vocab-term-identifier="https://credit.niso.org/contributor-roles/methodology/">Methodology</role>
+          <role vocab="credit" vocab-identifier="https://credit.niso.org/" vocab-term="Project administration" vocab-term-identifier="https://credit.niso.org/contributor-roles/project-administration/">Project administration</role>
+          <role vocab="credit" vocab-identifier="https://credit.niso.org/" vocab-term="Visualization" vocab-term-identifier="https://credit.niso.org/contributor-roles/visualization/">Visualization</role>
+          <role vocab="credit" vocab-identifier="https://credit.niso.org/" vocab-term="Writing – original draft" vocab-term-identifier="https://credit.niso.org/contributor-roles/writing-original-draft/">Writing – original draft</role>
         </contrib>
         <contrib contrib-type="author">
           <name>
@@ -255,7 +262,8 @@ expression: jats
             <given-names>Aboubacar</given-names>
           </name>
           <xref ref-type="aff" rid="aff3"></xref>
-          <role>Data curation</role>
+          <role vocab="credit" vocab-identifier="https://credit.niso.org/" vocab-term="Data curation" vocab-term-identifier="https://credit.niso.org/contributor-roles/data-curation/">Data curation</role>
+          <role vocab="credit" vocab-identifier="https://credit.niso.org/" vocab-term="Resources" vocab-term-identifier="https://credit.niso.org/contributor-roles/resources/">Resources</role>
         </contrib>
         <contrib contrib-type="author">
           <name>
@@ -263,7 +271,8 @@ expression: jats
             <given-names>Jian-Chiuan</given-names>
           </name>
           <xref ref-type="aff" rid="aff4"></xref>
-          <role>Methodology</role>
+          <role vocab="credit" vocab-identifier="https://credit.niso.org/" vocab-term="Methodology" vocab-term-identifier="https://credit.niso.org/contributor-roles/methodology/">Methodology</role>
+          <role vocab="credit" vocab-identifier="https://credit.niso.org/" vocab-term="Resources" vocab-term-identifier="https://credit.niso.org/contributor-roles/resources/">Resources</role>
         </contrib>
         <contrib contrib-type="author">
           <name>
@@ -272,7 +281,8 @@ expression: jats
           </name>
           <xref ref-type="aff" rid="aff1"></xref>
           <xref ref-type="aff" rid="aff2"></xref>
-          <role>Investigation</role>
+          <role vocab="credit" vocab-identifier="https://credit.niso.org/" vocab-term="Investigation" vocab-term-identifier="https://credit.niso.org/contributor-roles/investigation/">Investigation</role>
+          <role vocab="credit" vocab-identifier="https://credit.niso.org/" vocab-term="Resources" vocab-term-identifier="https://credit.niso.org/contributor-roles/resources/">Resources</role>
         </contrib>
         <contrib contrib-type="author">
           <name>
@@ -282,7 +292,8 @@ expression: jats
           <contrib-id contrib-id-type="orcid">https://orcid.org/0000-0003-2844-9582</contrib-id>
           <xref ref-type="aff" rid="aff2"></xref>
           <xref ref-type="aff" rid="aff5"></xref>
-          <role>Resources</role>
+          <role vocab="credit" vocab-identifier="https://credit.niso.org/" vocab-term="Resources" vocab-term-identifier="https://credit.niso.org/contributor-roles/resources/">Resources</role>
+          <role vocab="credit" vocab-identifier="https://credit.niso.org/" vocab-term="Visualization" vocab-term-identifier="https://credit.niso.org/contributor-roles/visualization/">Visualization</role>
         </contrib>
         <contrib contrib-type="author">
           <name>
@@ -291,7 +302,8 @@ expression: jats
           </name>
           <xref ref-type="aff" rid="aff1"></xref>
           <xref ref-type="aff" rid="aff2"></xref>
-          <role>Resources</role>
+          <role vocab="credit" vocab-identifier="https://credit.niso.org/" vocab-term="Resources" vocab-term-identifier="https://credit.niso.org/contributor-roles/resources/">Resources</role>
+          <role vocab="credit" vocab-identifier="https://credit.niso.org/" vocab-term="Visualization" vocab-term-identifier="https://credit.niso.org/contributor-roles/visualization/">Visualization</role>
         </contrib>
         <contrib contrib-type="author">
           <name>
@@ -301,7 +313,7 @@ expression: jats
           <contrib-id contrib-id-type="orcid">https://orcid.org/0000-0002-5454-6661</contrib-id>
           <xref ref-type="aff" rid="aff1"></xref>
           <xref ref-type="aff" rid="aff2"></xref>
-          <role>Resources</role>
+          <role vocab="credit" vocab-identifier="https://credit.niso.org/" vocab-term="Resources" vocab-term-identifier="https://credit.niso.org/contributor-roles/resources/">Resources</role>
         </contrib>
         <contrib contrib-type="author">
           <name>
@@ -310,7 +322,7 @@ expression: jats
           </name>
           <xref ref-type="aff" rid="aff1"></xref>
           <xref ref-type="aff" rid="aff2"></xref>
-          <role>Resources</role>
+          <role vocab="credit" vocab-identifier="https://credit.niso.org/" vocab-term="Resources" vocab-term-identifier="https://credit.niso.org/contributor-roles/resources/">Resources</role>
         </contrib>
         <contrib contrib-type="author">
           <name>
@@ -319,7 +331,7 @@ expression: jats
           </name>
           <xref ref-type="aff" rid="aff2"></xref>
           <xref ref-type="aff" rid="aff5"></xref>
-          <role>Resources</role>
+          <role vocab="credit" vocab-identifier="https://credit.niso.org/" vocab-term="Resources" vocab-term-identifier="https://credit.niso.org/contributor-roles/resources/">Resources</role>
         </contrib>
         <contrib contrib-type="author">
           <name>
@@ -328,7 +340,7 @@ expression: jats
           </name>
           <xref ref-type="aff" rid="aff1"></xref>
           <xref ref-type="aff" rid="aff2"></xref>
-          <role>Investigation</role>
+          <role vocab="credit" vocab-identifier="https://credit.niso.org/" vocab-term="Investigation" vocab-term-identifier="https://credit.niso.org/contributor-roles/investigation/">Investigation</role>
         </contrib>
         <contrib contrib-type="author">
           <name>
@@ -336,7 +348,7 @@ expression: jats
             <given-names>Masayuki</given-names>
           </name>
           <xref ref-type="aff" rid="aff6"></xref>
-          <role>Resources</role>
+          <role vocab="credit" vocab-identifier="https://credit.niso.org/" vocab-term="Resources" vocab-term-identifier="https://credit.niso.org/contributor-roles/resources/">Resources</role>
         </contrib>
         <contrib contrib-type="author">
           <name>
@@ -344,7 +356,8 @@ expression: jats
             <given-names>Chun-Hong</given-names>
           </name>
           <xref ref-type="aff" rid="aff4"></xref>
-          <role>Resources</role>
+          <role vocab="credit" vocab-identifier="https://credit.niso.org/" vocab-term="Resources" vocab-term-identifier="https://credit.niso.org/contributor-roles/resources/">Resources</role>
+          <role vocab="credit" vocab-identifier="https://credit.niso.org/" vocab-term="Supervision" vocab-term-identifier="https://credit.niso.org/contributor-roles/supervision/">Supervision</role>
         </contrib>
         <contrib contrib-type="author">
           <name>
@@ -352,7 +365,8 @@ expression: jats
             <given-names>Athanase</given-names>
           </name>
           <xref ref-type="aff" rid="aff3"></xref>
-          <role>Data curation</role>
+          <role vocab="credit" vocab-identifier="https://credit.niso.org/" vocab-term="Data curation" vocab-term-identifier="https://credit.niso.org/contributor-roles/data-curation/">Data curation</role>
+          <role vocab="credit" vocab-identifier="https://credit.niso.org/" vocab-term="Supervision" vocab-term-identifier="https://credit.niso.org/contributor-roles/supervision/">Supervision</role>
         </contrib>
         <contrib contrib-type="author">
           <name>
@@ -364,7 +378,10 @@ expression: jats
           <email>kanuka@jikei.ac.jp</email>
           <xref ref-type="aff" rid="aff1"></xref>
           <xref ref-type="aff" rid="aff2"></xref>
-          <role>Conceptualization</role>
+          <role vocab="credit" vocab-identifier="https://credit.niso.org/" vocab-term="Conceptualization" vocab-term-identifier="https://credit.niso.org/contributor-roles/conceptualization/">Conceptualization</role>
+          <role vocab="credit" vocab-identifier="https://credit.niso.org/" vocab-term="Funding acquisition" vocab-term-identifier="https://credit.niso.org/contributor-roles/funding-acquisition/">Funding acquisition</role>
+          <role vocab="credit" vocab-identifier="https://credit.niso.org/" vocab-term="Supervision" vocab-term-identifier="https://credit.niso.org/contributor-roles/supervision/">Supervision</role>
+          <role vocab="credit" vocab-identifier="https://credit.niso.org/" vocab-term="Writing – review &amp; editing" vocab-term-identifier="https://credit.niso.org/contributor-roles/writing-review-editing/">Writing – review &amp; editing</role>
         </contrib>
         <aff id="aff1">
           <institution-wrap>

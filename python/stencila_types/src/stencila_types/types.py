@@ -94,6 +94,20 @@ class AuthorRoleName(StrEnum):
     Executor = "Executor"
     Formatter = "Formatter"
     Linter = "Linter"
+    Conceptualization = "Conceptualization"
+    DataCuration = "DataCuration"
+    FormalAnalysis = "FormalAnalysis"
+    FundingAcquisition = "FundingAcquisition"
+    Investigation = "Investigation"
+    Methodology = "Methodology"
+    ProjectAdministration = "ProjectAdministration"
+    Resources = "Resources"
+    Software = "Software"
+    Supervision = "Supervision"
+    Validation = "Validation"
+    Visualization = "Visualization"
+    WritingOriginalDraft = "WritingOriginalDraft"
+    WritingReviewEditing = "WritingReviewEditing"
 
 
 class CitationIntent(StrEnum):

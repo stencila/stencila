@@ -6,12 +6,12 @@ use stencila_codec_text_trait::to_text;
 use stencila_codec::{
     Losses,
     stencila_schema::{
-        Array, Article, ArticleOptions, Author, Block, CreativeWorkVariant,
-        CreativeWorkVariantOrString, DateTime, GrantOrMonetaryGrant, Heading, IntegerOrString,
-        MonetaryGrant, Object, Organization, OrganizationOptions, Periodical, Person,
-        PersonOptions, PersonOrOrganization, PostalAddressOrString, Primitive, PropertyValue,
-        PropertyValueOptions, PropertyValueOrString, PublicationIssue, PublicationVolume, Section,
-        SectionType, StringOrNumber, ThingVariant,
+        Array, Article, ArticleOptions, Author, AuthorRole, AuthorRoleName, Block,
+        CreativeWorkVariant, CreativeWorkVariantOrString, DateTime, GrantOrMonetaryGrant, Heading,
+        IntegerOrString, MonetaryGrant, Object, Organization, OrganizationOptions, Periodical,
+        Person, PersonOptions, PersonOrOrganization, PostalAddressOrString, Primitive,
+        PropertyValue, PropertyValueOptions, PropertyValueOrString, PublicationIssue,
+        PublicationVolume, Section, SectionType, StringOrNumber, ThingVariant,
     },
 };
 
@@ -1655,7 +1655,7 @@ fn decode_contrib_group(
             continue;
         }
 
-        let contributor = decode_contrib(
+        let (contributor, credit_roles) = decode_contrib(
             &extend_path(path, tag),
             &child,
             correspondence_emails,
@@ -1663,11 +1663,27 @@ fn decode_contrib_group(
             losses,
         );
         if contrib_type.contains("author") {
-            let author = match contributor {
-                PersonOrOrganization::Person(person) => Author::Person(person),
-                PersonOrOrganization::Organization(org) => Author::Organization(org),
-            };
-            authors.push(author);
+            if credit_roles.is_empty() {
+                let author = match contributor {
+                    PersonOrOrganization::Person(person) => Author::Person(person),
+                    PersonOrOrganization::Organization(org) => Author::Organization(org),
+                };
+                authors.push(author);
+            } else {
+                // A contributor with CRediT roles becomes one `AuthorRole`
+                // per role, each sharing the same author
+                for role_name in credit_roles {
+                    let author_role = match &contributor {
+                        PersonOrOrganization::Person(person) => {
+                            AuthorRole::person(person.clone(), role_name)
+                        }
+                        PersonOrOrganization::Organization(org) => {
+                            AuthorRole::org(org.clone(), role_name)
+                        }
+                    };
+                    authors.push(Author::AuthorRole(author_role));
+                }
+            }
         } else {
             // Allows for variants such as "senior_editor"
             match contributor {
@@ -1700,16 +1716,22 @@ fn contrib_type(node: &Node) -> String {
 }
 
 /// Decode a `<contrib>` element
+///
+/// Returns the contributor and any CRediT contributor roles found in its
+/// `<role>` elements. CRediT roles are only collected for authors, because
+/// they are represented as `AuthorRole`s which `CreativeWork.editors` (a list
+/// of `Person`s) cannot hold; for editors, `<role>` is kept as a job title.
 fn decode_contrib(
     path: &str,
     node: &Node,
     correspondence_emails: &BTreeMap<String, Vec<String>>,
     article_affiliations: &Affiliations,
     losses: &mut Losses,
-) -> PersonOrOrganization {
+) -> (PersonOrOrganization, Vec<AuthorRoleName>) {
     // A contributor is either an author or an editor, so a finer distinction
     // such as `senior_editor` is normalized away and reported
     let contrib_type = contrib_type(node);
+    let is_author = contrib_type.contains("author");
     let not_lost = if matches!(contrib_type.as_str(), "author" | "editor") {
         ["contrib-type", "corresp"].as_slice()
     } else {
@@ -1725,6 +1747,7 @@ fn decode_contrib(
     let mut emails = Vec::new();
     let mut address = None;
     let mut job_title = None;
+    let mut credit_roles = Vec::new();
     let mut affiliations = Vec::new();
 
     for child in node.children() {
@@ -1763,7 +1786,17 @@ fn decode_contrib(
                 &non_empty_text_deep(&child).unwrap_or_default(),
             );
         } else if tag == "role" {
-            if job_title.is_none() {
+            let role = is_author.then(|| decode_credit_role(&child)).flatten();
+            let handled_attrs = if role.is_some() {
+                handled_credit_role_attrs(&child)
+            } else {
+                Default::default()
+            };
+            record_attrs_lost(&extend_path(path, tag), &child, handled_attrs, losses);
+
+            if let Some(role) = role {
+                credit_roles.push(role);
+            } else if job_title.is_none() {
                 job_title = non_empty_text_deep(&child);
             } else {
                 record_node_lost(path, &child, losses);
@@ -1814,31 +1847,113 @@ fn decode_contrib(
     // A `<collab>` names a group rather than a person, and is the only kind of
     // contributor that JATS writes without a personal name
     if family_names.is_none() && given_names.is_none() && name.is_some() {
-        return PersonOrOrganization::Organization(Organization {
-            name,
-            options: Box::new(OrganizationOptions {
+        return (
+            PersonOrOrganization::Organization(Organization {
+                name,
+                options: Box::new(OrganizationOptions {
+                    identifiers,
+                    ..Default::default()
+                }),
+                ..Default::default()
+            }),
+            credit_roles,
+        );
+    }
+
+    (
+        PersonOrOrganization::Person(Person {
+            orcid,
+            family_names,
+            given_names,
+            affiliations,
+            options: Box::new(PersonOptions {
+                name,
                 identifiers,
+                emails,
+                address,
+                job_title,
                 ..Default::default()
             }),
             ..Default::default()
-        });
+        }),
+        credit_roles,
+    )
+}
+
+/// Decode a `<role>` element as a CRediT contributor role, if it is one
+///
+/// Handles both of the styles that publishers use: the JATS 1.2+ vocabulary
+/// attributes recommended by JATS4R (`vocab="credit"` with `@vocab-term` and
+/// `@vocab-term-identifier`), and the earlier style in which `@content-type`
+/// holds the role URI. A `<role>` with no vocabulary attributes is also
+/// recognized when its text is a CRediT term, compared leniently with respect
+/// to case, dash characters, and "&" versus "and".
+fn decode_credit_role(node: &Node) -> Option<AuthorRoleName> {
+    if let Some(role) = node
+        .attribute("vocab-term-identifier")
+        .and_then(AuthorRoleName::from_credit_uri)
+    {
+        return Some(role);
     }
 
-    PersonOrOrganization::Person(Person {
-        orcid,
-        family_names,
-        given_names,
-        affiliations,
-        options: Box::new(PersonOptions {
-            name,
-            identifiers,
-            emails,
-            address,
-            job_title,
-            ..Default::default()
-        }),
-        ..Default::default()
-    })
+    if let Some(role) = node
+        .attribute("content-type")
+        .and_then(AuthorRoleName::from_credit_uri)
+    {
+        return Some(role);
+    }
+
+    if let Some(role) = node
+        .attribute("vocab-term")
+        .and_then(AuthorRoleName::from_credit)
+    {
+        return Some(role);
+    }
+
+    non_empty_text_deep(node)
+        .as_deref()
+        .and_then(AuthorRoleName::from_credit)
+}
+
+/// Get the attributes consumed while decoding a CRediT `<role>`
+fn handled_credit_role_attrs(node: &Node) -> Vec<&'static str> {
+    let mut handled = Vec::new();
+
+    if node
+        .attribute("vocab")
+        .is_some_and(|value| value.eq_ignore_ascii_case("credit"))
+    {
+        handled.push("vocab");
+    }
+    if node
+        .attribute("vocab-identifier")
+        .is_some_and(|value| value.to_ascii_lowercase().contains("credit.niso.org"))
+    {
+        handled.push("vocab-identifier");
+    }
+    if node
+        .attribute("vocab-term-identifier")
+        .and_then(AuthorRoleName::from_credit_uri)
+        .is_some()
+    {
+        handled.push("vocab-term-identifier");
+    }
+    if node
+        .attribute("content-type")
+        .and_then(AuthorRoleName::from_credit_uri)
+        .is_some()
+    {
+        handled.push("content-type");
+    }
+    if node
+        .attribute("vocab-term")
+        .and_then(AuthorRoleName::from_credit)
+        .is_some()
+    {
+        handled.push("vocab-term");
+    }
+
+    handled
 }
 
 /// Decode an `<aff>` element

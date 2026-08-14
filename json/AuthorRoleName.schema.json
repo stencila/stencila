@@ -8,12 +8,12 @@
   ],
   "category": "works",
   "description": "A controlled author contribution role.",
-  "$comment": "This is an enumeration used in Stencila Schema for controlled author contribution\nroles.\n\nIt exists so authorship in Stencila documents can be represented consistently\nacross formats, user interfaces, and provenance workflows. Rather than using\narbitrary free text, the enumeration gives a stable vocabulary for common\ncontribution roles.\n\nSee [`AuthorRole.roleName`](./author-role.md#rolename) for the property that\nuses this enumeration.\n",
+  "$comment": "This is an enumeration used in Stencila Schema for controlled author contribution\nroles.\n\nIt exists so authorship in Stencila documents can be represented consistently\nacross formats, user interfaces, and provenance workflows. Rather than using\narbitrary free text, the enumeration gives a stable vocabulary for common\ncontribution roles.\n\nThe enumeration combines two vocabularies: Stencila's own authoring and\nAI-workflow roles (e.g. `Writer`, `Generator`, `Verifier`), and the fourteen\nroles of the [Contributor Roles Taxonomy (CRediT)](https://credit.niso.org/),\nANSI/NISO Z39.104-2022 (e.g. `Conceptualization`, `WritingOriginalDraft`).\nThe CRediT variants have `credit:` ids that map to the canonical role URIs\nso that scholarly contribution roles can be preserved across document\nformats such as JATS and linked-data workflows.\n\nSee [`AuthorRole.roleName`](./author-role.md#rolename) for the property that\nuses this enumeration.\n",
   "analogues": [
     {
       "name": "CRediT taxonomy roles",
       "url": "https://credit.niso.org/",
-      "notes": "Approximate analogue for controlled contributor role vocabularies, though Stencila includes authoring and AI-workflow roles beyond the standard CRediT set."
+      "notes": "The fourteen CRediT contributor roles (ANSI/NISO Z39.104-2022) are included directly as variants, alongside Stencila's authoring and AI-workflow roles."
     }
   ],
   "required": [
@@ -200,6 +200,94 @@
       "@id": "stencila:Linter",
       "description": "The author is a `SoftwareApplication` that made linting fixes to code.",
       "const": "Linter"
+    },
+    {
+      "@id": "credit:conceptualization",
+      "description": "Ideas; formulation or evolution of overarching research goals and aims.",
+      "const": "Conceptualization"
+    },
+    {
+      "@id": "credit:data-curation",
+      "description": "Management activities to annotate (produce metadata), scrub data and maintain research data (including software code, where it is necessary for interpreting the data itself) for initial use and later re-use.",
+      "aliases": [
+        "Data curation"
+      ],
+      "const": "DataCuration"
+    },
+    {
+      "@id": "credit:formal-analysis",
+      "description": "Application of statistical, mathematical, computational, or other formal techniques to analyse or synthesize study data.",
+      "aliases": [
+        "Formal analysis"
+      ],
+      "const": "FormalAnalysis"
+    },
+    {
+      "@id": "credit:funding-acquisition",
+      "description": "Acquisition of the financial support for the project leading to this publication.",
+      "aliases": [
+        "Funding acquisition"
+      ],
+      "const": "FundingAcquisition"
+    },
+    {
+      "@id": "credit:investigation",
+      "description": "Conducting a research and investigation process, specifically performing the experiments, or data/evidence collection.",
+      "const": "Investigation"
+    },
+    {
+      "@id": "credit:methodology",
+      "description": "Development or design of methodology; creation of models.",
+      "const": "Methodology"
+    },
+    {
+      "@id": "credit:project-administration",
+      "description": "Management and coordination responsibility for the research activity planning and execution.",
+      "aliases": [
+        "Project administration"
+      ],
+      "const": "ProjectAdministration"
+    },
+    {
+      "@id": "credit:resources",
+      "description": "Provision of study materials, reagents, materials, patients, laboratory samples, animals, instrumentation, computing resources, or other analysis tools.",
+      "const": "Resources"
+    },
+    {
+      "@id": "credit:software",
+      "description": "Programming, software development; designing computer programs; implementation of the computer code and supporting algorithms; testing of existing code components.",
+      "const": "Software"
+    },
+    {
+      "@id": "credit:supervision",
+      "description": "Oversight and leadership responsibility for the research activity planning and execution, including mentorship external to the core team.",
+      "const": "Supervision"
+    },
+    {
+      "@id": "credit:validation",
+      "description": "Verification, whether as a part of the activity or separate, of the overall replication/reproducibility of results/experiments and other research outputs.",
+      "const": "Validation"
+    },
+    {
+      "@id": "credit:visualization",
+      "description": "Preparation, creation and/or presentation of the published work, specifically visualization/data presentation.",
+      "const": "Visualization"
+    },
+    {
+      "@id": "credit:writing-original-draft",
+      "description": "Preparation, creation and/or presentation of the published work, specifically writing the initial draft (including substantive translation).",
+      "aliases": [
+        "Writing – original draft"
+      ],
+      "const": "WritingOriginalDraft"
+    },
+    {
+      "@id": "credit:writing-review-editing",
+      "description": "Preparation, creation and/or presentation of the published work by those from the original research group, specifically critical review, commentary or revision – including pre- or post-publication stages.",
+      "aliases": [
+        "Writing – review & editing"
+      ],
+      "const": "WritingReviewEditing"
     }
   ],
   "default": "Writer"

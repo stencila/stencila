@@ -2,10 +2,10 @@ use pretty_assertions::assert_eq;
 use stencila_codec::Losses;
 use stencila_codec::eyre::bail;
 use stencila_codec::stencila_schema::{
-    Article, Author, Block, CompilationDigest, CreativeWorkType, CreativeWorkVariant,
-    CreativeWorkVariantOrString, Date, DateTime, Figure, FigureOptions, Inline, IntegerOrString,
-    Link, Node, NoteType, Organization, Person, PersonOrOrganization, Primitive, PropertyValue,
-    PropertyValueOptions, PropertyValueOrString, Reference, SectionType,
+    Article, Author, AuthorRoleAuthor, AuthorRoleName, Block, CompilationDigest, CreativeWorkType,
+    CreativeWorkVariant, CreativeWorkVariantOrString, Date, DateTime, Figure, FigureOptions,
+    Inline, IntegerOrString, Link, Node, NoteType, Organization, Person, PersonOrOrganization,
+    Primitive, PropertyValue, PropertyValueOptions, PropertyValueOrString, Reference, SectionType,
     shortcuts::{art, aud, h1, img, p, sec, sti, t, vid},
 };
 use stencila_codec_text_trait::to_text;
@@ -199,6 +199,121 @@ async fn contributors_and_affiliations_roundtrip() -> Result<()> {
     ] {
         assert!(jats.contains(expected), "missing {expected} in {jats}");
     }
+
+    Ok(())
+}
+
+/// CRediT contributor roles should decode into `AuthorRole`s, from both the
+/// JATS4R vocabulary-attribute style and the earlier `@content-type` URI
+/// style, and be re-encoded as one `<contrib>` with the JATS4R attributes
+#[tokio::test]
+async fn credit_roles_roundtrip() -> Result<()> {
+    let jats = r#"
+        <article>
+          <front>
+            <article-meta>
+              <contrib-group>
+                <contrib contrib-type="author">
+                  <name><surname>Doe</surname><given-names>Jane</given-names></name>
+                  <role vocab="credit" vocab-identifier="https://credit.niso.org/" vocab-term="Conceptualization" vocab-term-identifier="https://credit.niso.org/contributor-roles/conceptualization/" degree-contribution="Lead">Conceptualization</role>
+                  <role vocab="other" vocab-term-identifier="https://credit.niso.org/contributor-roles/writing-original-draft/">Localized display text</role>
+                </contrib>
+                <contrib contrib-type="author">
+                  <name><surname>Roe</surname><given-names>Richard</given-names></name>
+                  <role content-type="http://credit.niso.org/contributor-roles/data-curation/">Data curation</role>
+                  <role>Writing &#8211; review &amp; editing</role>
+                </contrib>
+                <contrib contrib-type="author">
+                  <name><surname>Poe</surname><given-names>Edgar</given-names></name>
+                  <role vocab-identifier="https://credit.niso.org/" vocab-term="Validation">Localized validation</role>
+                  <role specific-use="employment">research physiotherapist</role>
+                </contrib>
+              </contrib-group>
+            </article-meta>
+          </front>
+        </article>
+    "#;
+
+    let (node, info) = JatsCodec.from_str(jats, None).await?;
+    let Node::Article(article) = &node else {
+        bail!("expected an article")
+    };
+
+    // Each CRediT role becomes an `AuthorRole` sharing the same person: two
+    // per contributor here, matched leniently across dash characters and the
+    // `@content-type` URI style
+    let Some(authors) = article.authors.as_ref() else {
+        bail!("expected authors")
+    };
+    assert_eq!(authors.len(), 5);
+    for (author, family_name, role_name) in [
+        (&authors[0], "Doe", AuthorRoleName::Conceptualization),
+        (&authors[1], "Doe", AuthorRoleName::WritingOriginalDraft),
+        (&authors[2], "Roe", AuthorRoleName::DataCuration),
+        (&authors[3], "Roe", AuthorRoleName::WritingReviewEditing),
+    ] {
+        let Author::AuthorRole(author_role) = author else {
+            bail!("expected an author role")
+        };
+        assert_eq!(author_role.role_name, role_name);
+        let AuthorRoleAuthor::Person(person) = &author_role.author else {
+            bail!("expected a person")
+        };
+        let Some(family_names) = person.family_names.as_ref() else {
+            bail!("expected family names")
+        };
+        assert_eq!(family_names[0], family_name);
+    }
+
+    // A free-text role coexisting with a CRediT role stays on the wrapped person
+    let Author::AuthorRole(author_role) = &authors[4] else {
+        bail!("expected an author role")
+    };
+    assert_eq!(author_role.role_name, AuthorRoleName::Validation);
+    let AuthorRoleAuthor::Person(person) = &author_role.author else {
+        bail!("expected a person")
+    };
+    assert_eq!(
+        person.options.job_title.as_deref(),
+        Some("research physiotherapist")
+    );
+
+    let loss_labels = info
+        .losses
+        .iter()
+        .map(|(label, ..)| label)
+        .collect::<Vec<_>>();
+    for expected in [
+        "//article/front/article-meta/contrib-group/contrib/role/@degree-contribution",
+        "//article/front/article-meta/contrib-group/contrib/role/@specific-use",
+        "//article/front/article-meta/contrib-group/contrib/role/@vocab",
+    ] {
+        assert!(
+            loss_labels.contains(&expected),
+            "missing {expected} in {loss_labels:?}"
+        );
+    }
+
+    let (jats, ..) = JatsCodec
+        .to_string(
+            &node,
+            Some(EncodeOptions {
+                compact: Some(true),
+                ..Default::default()
+            }),
+        )
+        .await?;
+
+    // The roles of one contributor are grouped back into a single `<contrib>`
+    // with the vocabulary attributes and canonical names required by JATS4R
+    for expected in [
+        r#"<role vocab="credit" vocab-identifier="https://credit.niso.org/" vocab-term="Conceptualization" vocab-term-identifier="https://credit.niso.org/contributor-roles/conceptualization/">Conceptualization</role><role vocab="credit" vocab-identifier="https://credit.niso.org/" vocab-term="Writing – original draft" vocab-term-identifier="https://credit.niso.org/contributor-roles/writing-original-draft/">Writing – original draft</role>"#,
+        r#"<role vocab="credit" vocab-identifier="https://credit.niso.org/" vocab-term="Writing – review &amp; editing" vocab-term-identifier="https://credit.niso.org/contributor-roles/writing-review-editing/">Writing – review &amp; editing</role>"#,
+        r#"<role vocab="credit" vocab-identifier="https://credit.niso.org/" vocab-term="Validation" vocab-term-identifier="https://credit.niso.org/contributor-roles/validation/">Validation</role><role>research physiotherapist</role>"#,
+    ] {
+        assert!(jats.contains(expected), "missing {expected} in {jats}");
+    }
+    assert_eq!(jats.matches("<contrib ").count(), 3);
 
     Ok(())
 }

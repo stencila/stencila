@@ -71,276 +71,744 @@ expression: article
   ],
   "authors": [
     {
-      "type": "Person",
-      "orcid": "0009-0000-2244-4292",
-      "affiliations": [
-        {
-          "type": "Organization",
-          "name": "Department of Tropical Medicine, The Jikei University School of Medicine, Tokyo, Japan"
-        },
-        {
-          "type": "Organization",
-          "name": "Center for Medical Entomology, The Jikei University School of Medicine, Tokyo, Japan"
-        }
-      ],
-      "familyNames": [
-        "Aonuma"
-      ],
-      "givenNames": [
-        "Hiroka"
-      ],
-      "emails": [
-        "aonuma@jikei.ac.jp",
-        "kanuka@jikei.ac.jp"
-      ],
-      "jobTitle": "Conceptualization"
+      "type": "AuthorRole",
+      "author": {
+        "type": "Person",
+        "orcid": "0009-0000-2244-4292",
+        "affiliations": [
+          {
+            "type": "Organization",
+            "name": "Department of Tropical Medicine, The Jikei University School of Medicine, Tokyo, Japan"
+          },
+          {
+            "type": "Organization",
+            "name": "Center for Medical Entomology, The Jikei University School of Medicine, Tokyo, Japan"
+          }
+        ],
+        "familyNames": [
+          "Aonuma"
+        ],
+        "givenNames": [
+          "Hiroka"
+        ],
+        "emails": [
+          "aonuma@jikei.ac.jp",
+          "kanuka@jikei.ac.jp"
+        ]
+      },
+      "roleName": "Conceptualization"
     },
     {
-      "type": "Person",
-      "affiliations": [
-        {
-          "type": "Organization",
-          "name": "Laboratoire d’Entomologie Fondamentale et Appliquée, Université Joseph Ki-Zerbo, Ouagadougou, Burkina Faso"
-        }
-      ],
-      "familyNames": [
-        "Sombié"
-      ],
-      "givenNames": [
-        "Aboubacar"
-      ],
-      "jobTitle": "Data curation"
+      "type": "AuthorRole",
+      "author": {
+        "type": "Person",
+        "orcid": "0009-0000-2244-4292",
+        "affiliations": [
+          {
+            "type": "Organization",
+            "name": "Department of Tropical Medicine, The Jikei University School of Medicine, Tokyo, Japan"
+          },
+          {
+            "type": "Organization",
+            "name": "Center for Medical Entomology, The Jikei University School of Medicine, Tokyo, Japan"
+          }
+        ],
+        "familyNames": [
+          "Aonuma"
+        ],
+        "givenNames": [
+          "Hiroka"
+        ],
+        "emails": [
+          "aonuma@jikei.ac.jp",
+          "kanuka@jikei.ac.jp"
+        ]
+      },
+      "roleName": "DataCuration"
     },
     {
-      "type": "Person",
-      "affiliations": [
-        {
-          "type": "Organization",
-          "name": "National Institute of Infectious Diseases and Vaccinology, National Health Research Institutes, Zhunan, Taiwan"
-        }
-      ],
-      "familyNames": [
-        "Li"
-      ],
-      "givenNames": [
-        "Jian-Chiuan"
-      ],
-      "jobTitle": "Methodology"
+      "type": "AuthorRole",
+      "author": {
+        "type": "Person",
+        "orcid": "0009-0000-2244-4292",
+        "affiliations": [
+          {
+            "type": "Organization",
+            "name": "Department of Tropical Medicine, The Jikei University School of Medicine, Tokyo, Japan"
+          },
+          {
+            "type": "Organization",
+            "name": "Center for Medical Entomology, The Jikei University School of Medicine, Tokyo, Japan"
+          }
+        ],
+        "familyNames": [
+          "Aonuma"
+        ],
+        "givenNames": [
+          "Hiroka"
+        ],
+        "emails": [
+          "aonuma@jikei.ac.jp",
+          "kanuka@jikei.ac.jp"
+        ]
+      },
+      "roleName": "FundingAcquisition"
     },
     {
-      "type": "Person",
-      "affiliations": [
-        {
-          "type": "Organization",
-          "name": "Department of Tropical Medicine, The Jikei University School of Medicine, Tokyo, Japan"
-        },
-        {
-          "type": "Organization",
-          "name": "Center for Medical Entomology, The Jikei University School of Medicine, Tokyo, Japan"
-        }
-      ],
-      "familyNames": [
-        "Ote"
-      ],
-      "givenNames": [
-        "Manabu"
-      ],
-      "jobTitle": "Investigation"
+      "type": "AuthorRole",
+      "author": {
+        "type": "Person",
+        "orcid": "0009-0000-2244-4292",
+        "affiliations": [
+          {
+            "type": "Organization",
+            "name": "Department of Tropical Medicine, The Jikei University School of Medicine, Tokyo, Japan"
+          },
+          {
+            "type": "Organization",
+            "name": "Center for Medical Entomology, The Jikei University School of Medicine, Tokyo, Japan"
+          }
+        ],
+        "familyNames": [
+          "Aonuma"
+        ],
+        "givenNames": [
+          "Hiroka"
+        ],
+        "emails": [
+          "aonuma@jikei.ac.jp",
+          "kanuka@jikei.ac.jp"
+        ]
+      },
+      "roleName": "Investigation"
     },
     {
-      "type": "Person",
-      "orcid": "0000-0003-2844-9582",
-      "affiliations": [
-        {
-          "type": "Organization",
-          "name": "Center for Medical Entomology, The Jikei University School of Medicine, Tokyo, Japan"
-        },
-        {
-          "type": "Organization",
-          "name": "Laboratory Animal Facilities, The Jikei University School of Medicine, Tokyo, Japan"
-        }
-      ],
-      "familyNames": [
-        "Saiki"
-      ],
-      "givenNames": [
-        "Erisha"
-      ],
-      "jobTitle": "Resources"
+      "type": "AuthorRole",
+      "author": {
+        "type": "Person",
+        "orcid": "0009-0000-2244-4292",
+        "affiliations": [
+          {
+            "type": "Organization",
+            "name": "Department of Tropical Medicine, The Jikei University School of Medicine, Tokyo, Japan"
+          },
+          {
+            "type": "Organization",
+            "name": "Center for Medical Entomology, The Jikei University School of Medicine, Tokyo, Japan"
+          }
+        ],
+        "familyNames": [
+          "Aonuma"
+        ],
+        "givenNames": [
+          "Hiroka"
+        ],
+        "emails": [
+          "aonuma@jikei.ac.jp",
+          "kanuka@jikei.ac.jp"
+        ]
+      },
+      "roleName": "Methodology"
     },
     {
-      "type": "Person",
-      "affiliations": [
-        {
-          "type": "Organization",
-          "name": "Department of Tropical Medicine, The Jikei University School of Medicine, Tokyo, Japan"
-        },
-        {
-          "type": "Organization",
-          "name": "Center for Medical Entomology, The Jikei University School of Medicine, Tokyo, Japan"
-        }
-      ],
-      "familyNames": [
-        "Ichimura"
-      ],
-      "givenNames": [
-        "Hidetoshi"
-      ],
-      "jobTitle": "Resources"
+      "type": "AuthorRole",
+      "author": {
+        "type": "Person",
+        "orcid": "0009-0000-2244-4292",
+        "affiliations": [
+          {
+            "type": "Organization",
+            "name": "Department of Tropical Medicine, The Jikei University School of Medicine, Tokyo, Japan"
+          },
+          {
+            "type": "Organization",
+            "name": "Center for Medical Entomology, The Jikei University School of Medicine, Tokyo, Japan"
+          }
+        ],
+        "familyNames": [
+          "Aonuma"
+        ],
+        "givenNames": [
+          "Hiroka"
+        ],
+        "emails": [
+          "aonuma@jikei.ac.jp",
+          "kanuka@jikei.ac.jp"
+        ]
+      },
+      "roleName": "ProjectAdministration"
     },
     {
-      "type": "Person",
-      "orcid": "0000-0002-5454-6661",
-      "affiliations": [
-        {
-          "type": "Organization",
-          "name": "Department of Tropical Medicine, The Jikei University School of Medicine, Tokyo, Japan"
-        },
-        {
-          "type": "Organization",
-          "name": "Center for Medical Entomology, The Jikei University School of Medicine, Tokyo, Japan"
-        }
-      ],
-      "familyNames": [
-        "Iizuka"
-      ],
-      "givenNames": [
-        "Itoe"
-      ],
-      "jobTitle": "Resources"
+      "type": "AuthorRole",
+      "author": {
+        "type": "Person",
+        "orcid": "0009-0000-2244-4292",
+        "affiliations": [
+          {
+            "type": "Organization",
+            "name": "Department of Tropical Medicine, The Jikei University School of Medicine, Tokyo, Japan"
+          },
+          {
+            "type": "Organization",
+            "name": "Center for Medical Entomology, The Jikei University School of Medicine, Tokyo, Japan"
+          }
+        ],
+        "familyNames": [
+          "Aonuma"
+        ],
+        "givenNames": [
+          "Hiroka"
+        ],
+        "emails": [
+          "aonuma@jikei.ac.jp",
+          "kanuka@jikei.ac.jp"
+        ]
+      },
+      "roleName": "Visualization"
     },
     {
-      "type": "Person",
-      "affiliations": [
-        {
-          "type": "Organization",
-          "name": "Department of Tropical Medicine, The Jikei University School of Medicine, Tokyo, Japan"
-        },
-        {
-          "type": "Organization",
-          "name": "Center for Medical Entomology, The Jikei University School of Medicine, Tokyo, Japan"
-        }
-      ],
-      "familyNames": [
-        "Odagawa"
-      ],
-      "givenNames": [
-        "Taichi"
-      ],
-      "jobTitle": "Resources"
+      "type": "AuthorRole",
+      "author": {
+        "type": "Person",
+        "orcid": "0009-0000-2244-4292",
+        "affiliations": [
+          {
+            "type": "Organization",
+            "name": "Department of Tropical Medicine, The Jikei University School of Medicine, Tokyo, Japan"
+          },
+          {
+            "type": "Organization",
+            "name": "Center for Medical Entomology, The Jikei University School of Medicine, Tokyo, Japan"
+          }
+        ],
+        "familyNames": [
+          "Aonuma"
+        ],
+        "givenNames": [
+          "Hiroka"
+        ],
+        "emails": [
+          "aonuma@jikei.ac.jp",
+          "kanuka@jikei.ac.jp"
+        ]
+      },
+      "roleName": "WritingOriginalDraft"
     },
     {
-      "type": "Person",
-      "affiliations": [
-        {
-          "type": "Organization",
-          "name": "Center for Medical Entomology, The Jikei University School of Medicine, Tokyo, Japan"
-        },
-        {
-          "type": "Organization",
-          "name": "Laboratory Animal Facilities, The Jikei University School of Medicine, Tokyo, Japan"
-        }
-      ],
-      "familyNames": [
-        "Sakurai"
-      ],
-      "givenNames": [
-        "Tatsuya"
-      ],
-      "jobTitle": "Resources"
+      "type": "AuthorRole",
+      "author": {
+        "type": "Person",
+        "affiliations": [
+          {
+            "type": "Organization",
+            "name": "Laboratoire d’Entomologie Fondamentale et Appliquée, Université Joseph Ki-Zerbo, Ouagadougou, Burkina Faso"
+          }
+        ],
+        "familyNames": [
+          "Sombié"
+        ],
+        "givenNames": [
+          "Aboubacar"
+        ]
+      },
+      "roleName": "DataCuration"
     },
     {
-      "type": "Person",
-      "affiliations": [
-        {
-          "type": "Organization",
-          "name": "Department of Tropical Medicine, The Jikei University School of Medicine, Tokyo, Japan"
-        },
-        {
-          "type": "Organization",
-          "name": "Center for Medical Entomology, The Jikei University School of Medicine, Tokyo, Japan"
-        }
-      ],
-      "familyNames": [
-        "Yamaji"
-      ],
-      "givenNames": [
-        "Kayoko"
-      ],
-      "jobTitle": "Investigation"
+      "type": "AuthorRole",
+      "author": {
+        "type": "Person",
+        "affiliations": [
+          {
+            "type": "Organization",
+            "name": "Laboratoire d’Entomologie Fondamentale et Appliquée, Université Joseph Ki-Zerbo, Ouagadougou, Burkina Faso"
+          }
+        ],
+        "familyNames": [
+          "Sombié"
+        ],
+        "givenNames": [
+          "Aboubacar"
+        ]
+      },
+      "roleName": "Resources"
     },
     {
-      "type": "Person",
-      "affiliations": [
-        {
-          "type": "Organization",
-          "name": "Department of Virology 1, National Institute of Infectious Diseases, Tokyo, Japan"
-        }
-      ],
-      "familyNames": [
-        "Saijo"
-      ],
-      "givenNames": [
-        "Masayuki"
-      ],
-      "jobTitle": "Resources"
+      "type": "AuthorRole",
+      "author": {
+        "type": "Person",
+        "affiliations": [
+          {
+            "type": "Organization",
+            "name": "National Institute of Infectious Diseases and Vaccinology, National Health Research Institutes, Zhunan, Taiwan"
+          }
+        ],
+        "familyNames": [
+          "Li"
+        ],
+        "givenNames": [
+          "Jian-Chiuan"
+        ]
+      },
+      "roleName": "Methodology"
     },
     {
-      "type": "Person",
-      "affiliations": [
-        {
-          "type": "Organization",
-          "name": "National Institute of Infectious Diseases and Vaccinology, National Health Research Institutes, Zhunan, Taiwan"
-        }
-      ],
-      "familyNames": [
-        "Chen"
-      ],
-      "givenNames": [
-        "Chun-Hong"
-      ],
-      "jobTitle": "Resources"
+      "type": "AuthorRole",
+      "author": {
+        "type": "Person",
+        "affiliations": [
+          {
+            "type": "Organization",
+            "name": "National Institute of Infectious Diseases and Vaccinology, National Health Research Institutes, Zhunan, Taiwan"
+          }
+        ],
+        "familyNames": [
+          "Li"
+        ],
+        "givenNames": [
+          "Jian-Chiuan"
+        ]
+      },
+      "roleName": "Resources"
     },
     {
-      "type": "Person",
-      "affiliations": [
-        {
-          "type": "Organization",
-          "name": "Laboratoire d’Entomologie Fondamentale et Appliquée, Université Joseph Ki-Zerbo, Ouagadougou, Burkina Faso"
-        }
-      ],
-      "familyNames": [
-        "Badolo"
-      ],
-      "givenNames": [
-        "Athanase"
-      ],
-      "jobTitle": "Data curation"
+      "type": "AuthorRole",
+      "author": {
+        "type": "Person",
+        "affiliations": [
+          {
+            "type": "Organization",
+            "name": "Department of Tropical Medicine, The Jikei University School of Medicine, Tokyo, Japan"
+          },
+          {
+            "type": "Organization",
+            "name": "Center for Medical Entomology, The Jikei University School of Medicine, Tokyo, Japan"
+          }
+        ],
+        "familyNames": [
+          "Ote"
+        ],
+        "givenNames": [
+          "Manabu"
+        ]
+      },
+      "roleName": "Investigation"
     },
     {
-      "type": "Person",
-      "orcid": "0000-0003-0432-6510",
-      "affiliations": [
-        {
-          "type": "Organization",
-          "name": "Department of Tropical Medicine, The Jikei University School of Medicine, Tokyo, Japan"
-        },
-        {
-          "type": "Organization",
-          "name": "Center for Medical Entomology, The Jikei University School of Medicine, Tokyo, Japan"
-        }
-      ],
-      "familyNames": [
-        "Kanuka"
-      ],
-      "givenNames": [
-        "Hirotaka"
-      ],
-      "emails": [
-        "aonuma@jikei.ac.jp",
-        "kanuka@jikei.ac.jp"
-      ],
-      "jobTitle": "Conceptualization"
+      "type": "AuthorRole",
+      "author": {
+        "type": "Person",
+        "affiliations": [
+          {
+            "type": "Organization",
+            "name": "Department of Tropical Medicine, The Jikei University School of Medicine, Tokyo, Japan"
+          },
+          {
+            "type": "Organization",
+            "name": "Center for Medical Entomology, The Jikei University School of Medicine, Tokyo, Japan"
+          }
+        ],
+        "familyNames": [
+          "Ote"
+        ],
+        "givenNames": [
+          "Manabu"
+        ]
+      },
+      "roleName": "Resources"
+    },
+    {
+      "type": "AuthorRole",
+      "author": {
+        "type": "Person",
+        "orcid": "0000-0003-2844-9582",
+        "affiliations": [
+          {
+            "type": "Organization",
+            "name": "Center for Medical Entomology, The Jikei University School of Medicine, Tokyo, Japan"
+          },
+          {
+            "type": "Organization",
+            "name": "Laboratory Animal Facilities, The Jikei University School of Medicine, Tokyo, Japan"
+          }
+        ],
+        "familyNames": [
+          "Saiki"
+        ],
+        "givenNames": [
+          "Erisha"
+        ]
+      },
+      "roleName": "Resources"
+    },
+    {
+      "type": "AuthorRole",
+      "author": {
+        "type": "Person",
+        "orcid": "0000-0003-2844-9582",
+        "affiliations": [
+          {
+            "type": "Organization",
+            "name": "Center for Medical Entomology, The Jikei University School of Medicine, Tokyo, Japan"
+          },
+          {
+            "type": "Organization",
+            "name": "Laboratory Animal Facilities, The Jikei University School of Medicine, Tokyo, Japan"
+          }
+        ],
+        "familyNames": [
+          "Saiki"
+        ],
+        "givenNames": [
+          "Erisha"
+        ]
+      },
+      "roleName": "Visualization"
+    },
+    {
+      "type": "AuthorRole",
+      "author": {
+        "type": "Person",
+        "affiliations": [
+          {
+            "type": "Organization",
+            "name": "Department of Tropical Medicine, The Jikei University School of Medicine, Tokyo, Japan"
+          },
+          {
+            "type": "Organization",
+            "name": "Center for Medical Entomology, The Jikei University School of Medicine, Tokyo, Japan"
+          }
+        ],
+        "familyNames": [
+          "Ichimura"
+        ],
+        "givenNames": [
+          "Hidetoshi"
+        ]
+      },
+      "roleName": "Resources"
+    },
+    {
+      "type": "AuthorRole",
+      "author": {
+        "type": "Person",
+        "affiliations": [
+          {
+            "type": "Organization",
+            "name": "Department of Tropical Medicine, The Jikei University School of Medicine, Tokyo, Japan"
+          },
+          {
+            "type": "Organization",
+            "name": "Center for Medical Entomology, The Jikei University School of Medicine, Tokyo, Japan"
+          }
+        ],
+        "familyNames": [
+          "Ichimura"
+        ],
+        "givenNames": [
+          "Hidetoshi"
+        ]
+      },
+      "roleName": "Visualization"
+    },
+    {
+      "type": "AuthorRole",
+      "author": {
+        "type": "Person",
+        "orcid": "0000-0002-5454-6661",
+        "affiliations": [
+          {
+            "type": "Organization",
+            "name": "Department of Tropical Medicine, The Jikei University School of Medicine, Tokyo, Japan"
+          },
+          {
+            "type": "Organization",
+            "name": "Center for Medical Entomology, The Jikei University School of Medicine, Tokyo, Japan"
+          }
+        ],
+        "familyNames": [
+          "Iizuka"
+        ],
+        "givenNames": [
+          "Itoe"
+        ]
+      },
+      "roleName": "Resources"
+    },
+    {
+      "type": "AuthorRole",
+      "author": {
+        "type": "Person",
+        "affiliations": [
+          {
+            "type": "Organization",
+            "name": "Department of Tropical Medicine, The Jikei University School of Medicine, Tokyo, Japan"
+          },
+          {
+            "type": "Organization",
+            "name": "Center for Medical Entomology, The Jikei University School of Medicine, Tokyo, Japan"
+          }
+        ],
+        "familyNames": [
+          "Odagawa"
+        ],
+        "givenNames": [
+          "Taichi"
+        ]
+      },
+      "roleName": "Resources"
+    },
+    {
+      "type": "AuthorRole",
+      "author": {
+        "type": "Person",
+        "affiliations": [
+          {
+            "type": "Organization",
+            "name": "Center for Medical Entomology, The Jikei University School of Medicine, Tokyo, Japan"
+          },
+          {
+            "type": "Organization",
+            "name": "Laboratory Animal Facilities, The Jikei University School of Medicine, Tokyo, Japan"
+          }
+        ],
+        "familyNames": [
+          "Sakurai"
+        ],
+        "givenNames": [
+          "Tatsuya"
+        ]
+      },
+      "roleName": "Resources"
+    },
+    {
+      "type": "AuthorRole",
+      "author": {
+        "type": "Person",
+        "affiliations": [
+          {
+            "type": "Organization",
+            "name": "Department of Tropical Medicine, The Jikei University School of Medicine, Tokyo, Japan"
+          },
+          {
+            "type": "Organization",
+            "name": "Center for Medical Entomology, The Jikei University School of Medicine, Tokyo, Japan"
+          }
+        ],
+        "familyNames": [
+          "Yamaji"
+        ],
+        "givenNames": [
+          "Kayoko"
+        ]
+      },
+      "roleName": "Investigation"
+    },
+    {
+      "type": "AuthorRole",
+      "author": {
+        "type": "Person",
+        "affiliations": [
+          {
+            "type": "Organization",
+            "name": "Department of Virology 1, National Institute of Infectious Diseases, Tokyo, Japan"
+          }
+        ],
+        "familyNames": [
+          "Saijo"
+        ],
+        "givenNames": [
+          "Masayuki"
+        ]
+      },
+      "roleName": "Resources"
+    },
+    {
+      "type": "AuthorRole",
+      "author": {
+        "type": "Person",
+        "affiliations": [
+          {
+            "type": "Organization",
+            "name": "National Institute of Infectious Diseases and Vaccinology, National Health Research Institutes, Zhunan, Taiwan"
+          }
+        ],
+        "familyNames": [
+          "Chen"
+        ],
+        "givenNames": [
+          "Chun-Hong"
+        ]
+      },
+      "roleName": "Resources"
+    },
+    {
+      "type": "AuthorRole",
+      "author": {
+        "type": "Person",
+        "affiliations": [
+          {
+            "type": "Organization",
+            "name": "National Institute of Infectious Diseases and Vaccinology, National Health Research Institutes, Zhunan, Taiwan"
+          }
+        ],
+        "familyNames": [
+          "Chen"
+        ],
+        "givenNames": [
+          "Chun-Hong"
+        ]
+      },
+      "roleName": "Supervision"
+    },
+    {
+      "type": "AuthorRole",
+      "author": {
+        "type": "Person",
+        "affiliations": [
+          {
+            "type": "Organization",
+            "name": "Laboratoire d’Entomologie Fondamentale et Appliquée, Université Joseph Ki-Zerbo, Ouagadougou, Burkina Faso"
+          }
+        ],
+        "familyNames": [
+          "Badolo"
+        ],
+        "givenNames": [
+          "Athanase"
+        ]
+      },
+      "roleName": "DataCuration"
+    },
+    {
+      "type": "AuthorRole",
+      "author": {
+        "type": "Person",
+        "affiliations": [
+          {
+            "type": "Organization",
+            "name": "Laboratoire d’Entomologie Fondamentale et Appliquée, Université Joseph Ki-Zerbo, Ouagadougou, Burkina Faso"
+          }
+        ],
+        "familyNames": [
+          "Badolo"
+        ],
+        "givenNames": [
+          "Athanase"
+        ]
+      },
+      "roleName": "Supervision"
+    },
+    {
+      "type": "AuthorRole",
+      "author": {
+        "type": "Person",
+        "orcid": "0000-0003-0432-6510",
+        "affiliations": [
+          {
+            "type": "Organization",
+            "name": "Department of Tropical Medicine, The Jikei University School of Medicine, Tokyo, Japan"
+          },
+          {
+            "type": "Organization",
+            "name": "Center for Medical Entomology, The Jikei University School of Medicine, Tokyo, Japan"
+          }
+        ],
+        "familyNames": [
+          "Kanuka"
+        ],
+        "givenNames": [
+          "Hirotaka"
+        ],
+        "emails": [
+          "aonuma@jikei.ac.jp",
+          "kanuka@jikei.ac.jp"
+        ]
+      },
+      "roleName": "Conceptualization"
+    },
+    {
+      "type": "AuthorRole",
+      "author": {
+        "type": "Person",
+        "orcid": "0000-0003-0432-6510",
+        "affiliations": [
+          {
+            "type": "Organization",
+            "name": "Department of Tropical Medicine, The Jikei University School of Medicine, Tokyo, Japan"
+          },
+          {
+            "type": "Organization",
+            "name": "Center for Medical Entomology, The Jikei University School of Medicine, Tokyo, Japan"
+          }
+        ],
+        "familyNames": [
+          "Kanuka"
+        ],
+        "givenNames": [
+          "Hirotaka"
+        ],
+        "emails": [
+          "aonuma@jikei.ac.jp",
+          "kanuka@jikei.ac.jp"
+        ]
+      },
+      "roleName": "FundingAcquisition"
+    },
+    {
+      "type": "AuthorRole",
+      "author": {
+        "type": "Person",
+        "orcid": "0000-0003-0432-6510",
+        "affiliations": [
+          {
+            "type": "Organization",
+            "name": "Department of Tropical Medicine, The Jikei University School of Medicine, Tokyo, Japan"
+          },
+          {
+            "type": "Organization",
+            "name": "Center for Medical Entomology, The Jikei University School of Medicine, Tokyo, Japan"
+          }
+        ],
+        "familyNames": [
+          "Kanuka"
+        ],
+        "givenNames": [
+          "Hirotaka"
+        ],
+        "emails": [
+          "aonuma@jikei.ac.jp",
+          "kanuka@jikei.ac.jp"
+        ]
+      },
+      "roleName": "Supervision"
+    },
+    {
+      "type": "AuthorRole",
+      "author": {
+        "type": "Person",
+        "orcid": "0000-0003-0432-6510",
+        "affiliations": [
+          {
+            "type": "Organization",
+            "name": "Department of Tropical Medicine, The Jikei University School of Medicine, Tokyo, Japan"
+          },
+          {
+            "type": "Organization",
+            "name": "Center for Medical Entomology, The Jikei University School of Medicine, Tokyo, Japan"
+          }
+        ],
+        "familyNames": [
+          "Kanuka"
+        ],
+        "givenNames": [
+          "Hirotaka"
+        ],
+        "emails": [
+          "aonuma@jikei.ac.jp",
+          "kanuka@jikei.ac.jp"
+        ]
+      },
+      "roleName": "WritingReviewEditing"
     }
   ],
   "datePublished": {
