@@ -5,6 +5,12 @@ edition = "2024"
 license.workspace = true
 repository.workspace = true
 
+[features]
+proptest-min = ["stencila-schema/proptest-min"]
+proptest-low = ["stencila-schema/proptest-low"]
+proptest-high = ["stencila-schema/proptest-high"]
+proptest-max = ["stencila-schema/proptest-max"]
+
 [dependencies]
 serde = { workspace = true }
 stencila-node-path = { path = "../node-path" }
@@ -17,6 +23,7 @@ unicode-normalization = { workspace = true }
 eyre = { workspace = true }
 insta = { workspace = true }
 pretty_assertions = { workspace = true }
+proptest = { workspace = true }
 serde_json = { workspace = true }
 
 [lints]

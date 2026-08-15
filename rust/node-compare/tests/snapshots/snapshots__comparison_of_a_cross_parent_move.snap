@@ -1,0 +1,502 @@
+---
+source: rust/node-compare/tests/snapshots.rs
+expression: "compare(&left, &right)?"
+---
+{
+  "formatVersion": "1",
+  "algorithm": {
+    "name": "stencila-schema-native",
+    "version": "1",
+    "projectionVersion": "1",
+    "policy": "schema-native"
+  },
+  "alignment": {
+    "formatVersion": "1",
+    "algorithm": {
+      "name": "stencila-schema-native",
+      "version": "1",
+      "projectionVersion": "1",
+      "policy": "schema-native"
+    },
+    "correspondences": [
+      {
+        "type": "paired",
+        "left": {
+          "path": [],
+          "nodeType": "Article"
+        },
+        "right": {
+          "path": [],
+          "nodeType": "Article"
+        },
+        "matchInfo": {
+          "rule": "root",
+          "pairCost": 0,
+          "leftGapCost": 9000,
+          "rightGapCost": 9000,
+          "evidence": [
+            {
+              "signal": "nodeType",
+              "value": {
+                "type": "boolean",
+                "value": true
+              },
+              "contribution": 0
+            }
+          ]
+        }
+      },
+      {
+        "type": "paired",
+        "left": {
+          "path": [
+            "content",
+            0
+          ],
+          "nodeType": "Section"
+        },
+        "right": {
+          "path": [
+            "content",
+            0
+          ],
+          "nodeType": "Section"
+        },
+        "matchInfo": {
+          "rule": "uniqueId",
+          "pairCost": 3536,
+          "leftGapCost": 5000,
+          "rightGapCost": 3000,
+          "evidence": [
+            {
+              "signal": "nodeType",
+              "value": {
+                "type": "boolean",
+                "value": true
+              },
+              "contribution": 0
+            },
+            {
+              "signal": "textSimilarity",
+              "value": {
+                "type": "number",
+                "value": 0.659
+              },
+              "contribution": 3536
+            },
+            {
+              "signal": "scalarSignature",
+              "value": {
+                "type": "boolean",
+                "value": true
+              },
+              "contribution": 0
+            }
+          ]
+        }
+      },
+      {
+        "type": "paired",
+        "left": {
+          "path": [
+            "content",
+            0,
+            "content",
+            0
+          ],
+          "nodeType": "Paragraph"
+        },
+        "right": {
+          "path": [
+            "content",
+            0,
+            "content",
+            0
+          ],
+          "nodeType": "Paragraph"
+        },
+        "matchInfo": {
+          "rule": "uniqueId",
+          "pairCost": 0,
+          "leftGapCost": 2000,
+          "rightGapCost": 2000,
+          "evidence": [
+            {
+              "signal": "nodeType",
+              "value": {
+                "type": "boolean",
+                "value": true
+              },
+              "contribution": 0
+            },
+            {
+              "signal": "textSimilarity",
+              "value": {
+                "type": "number",
+                "value": 1.0
+              },
+              "contribution": 0
+            },
+            {
+              "signal": "scalarSignature",
+              "value": {
+                "type": "boolean",
+                "value": true
+              },
+              "contribution": 0
+            }
+          ]
+        }
+      },
+      {
+        "type": "paired",
+        "left": {
+          "path": [
+            "content",
+            0,
+            "content",
+            0,
+            "content",
+            0
+          ],
+          "nodeType": "Text"
+        },
+        "right": {
+          "path": [
+            "content",
+            0,
+            "content",
+            0,
+            "content",
+            0
+          ],
+          "nodeType": "Text"
+        },
+        "matchInfo": {
+          "rule": "verifiedExactFingerprint",
+          "pairCost": 0,
+          "leftGapCost": 1000,
+          "rightGapCost": 1000,
+          "evidence": [
+            {
+              "signal": "nodeType",
+              "value": {
+                "type": "boolean",
+                "value": true
+              },
+              "contribution": 0
+            },
+            {
+              "signal": "textSimilarity",
+              "value": {
+                "type": "number",
+                "value": 1.0
+              },
+              "contribution": 0
+            },
+            {
+              "signal": "scalarSignature",
+              "value": {
+                "type": "boolean",
+                "value": true
+              },
+              "contribution": 0
+            }
+          ]
+        }
+      },
+      {
+        "type": "paired",
+        "left": {
+          "path": [
+            "content",
+            0,
+            "content",
+            1
+          ],
+          "nodeType": "Paragraph"
+        },
+        "right": {
+          "path": [
+            "content",
+            1,
+            "content",
+            1
+          ],
+          "nodeType": "Paragraph"
+        },
+        "matchInfo": {
+          "rule": "crossParentReconciliation",
+          "pairCost": 0,
+          "leftGapCost": 2000,
+          "rightGapCost": 2000,
+          "evidence": [
+            {
+              "signal": "explicitId",
+              "value": {
+                "type": "boolean",
+                "value": true
+              },
+              "contribution": 0
+            }
+          ]
+        }
+      },
+      {
+        "type": "paired",
+        "left": {
+          "path": [
+            "content",
+            0,
+            "content",
+            1,
+            "content",
+            0
+          ],
+          "nodeType": "Text"
+        },
+        "right": {
+          "path": [
+            "content",
+            1,
+            "content",
+            1,
+            "content",
+            0
+          ],
+          "nodeType": "Text"
+        },
+        "matchInfo": {
+          "rule": "verifiedExactFingerprint",
+          "pairCost": 0,
+          "leftGapCost": 1000,
+          "rightGapCost": 1000,
+          "evidence": [
+            {
+              "signal": "nodeType",
+              "value": {
+                "type": "boolean",
+                "value": true
+              },
+              "contribution": 0
+            },
+            {
+              "signal": "textSimilarity",
+              "value": {
+                "type": "number",
+                "value": 1.0
+              },
+              "contribution": 0
+            },
+            {
+              "signal": "scalarSignature",
+              "value": {
+                "type": "boolean",
+                "value": true
+              },
+              "contribution": 0
+            }
+          ]
+        }
+      },
+      {
+        "type": "paired",
+        "left": {
+          "path": [
+            "content",
+            1
+          ],
+          "nodeType": "Section"
+        },
+        "right": {
+          "path": [
+            "content",
+            1
+          ],
+          "nodeType": "Section"
+        },
+        "matchInfo": {
+          "rule": "uniqueId",
+          "pairCost": 3696,
+          "leftGapCost": 3000,
+          "rightGapCost": 5000,
+          "evidence": [
+            {
+              "signal": "nodeType",
+              "value": {
+                "type": "boolean",
+                "value": true
+              },
+              "contribution": 0
+            },
+            {
+              "signal": "textSimilarity",
+              "value": {
+                "type": "number",
+                "value": 0.644
+              },
+              "contribution": 3696
+            },
+            {
+              "signal": "scalarSignature",
+              "value": {
+                "type": "boolean",
+                "value": true
+              },
+              "contribution": 0
+            }
+          ]
+        }
+      },
+      {
+        "type": "paired",
+        "left": {
+          "path": [
+            "content",
+            1,
+            "content",
+            0
+          ],
+          "nodeType": "Paragraph"
+        },
+        "right": {
+          "path": [
+            "content",
+            1,
+            "content",
+            0
+          ],
+          "nodeType": "Paragraph"
+        },
+        "matchInfo": {
+          "rule": "uniqueId",
+          "pairCost": 0,
+          "leftGapCost": 2000,
+          "rightGapCost": 2000,
+          "evidence": [
+            {
+              "signal": "nodeType",
+              "value": {
+                "type": "boolean",
+                "value": true
+              },
+              "contribution": 0
+            },
+            {
+              "signal": "textSimilarity",
+              "value": {
+                "type": "number",
+                "value": 1.0
+              },
+              "contribution": 0
+            },
+            {
+              "signal": "scalarSignature",
+              "value": {
+                "type": "boolean",
+                "value": true
+              },
+              "contribution": 0
+            }
+          ]
+        }
+      },
+      {
+        "type": "paired",
+        "left": {
+          "path": [
+            "content",
+            1,
+            "content",
+            0,
+            "content",
+            0
+          ],
+          "nodeType": "Text"
+        },
+        "right": {
+          "path": [
+            "content",
+            1,
+            "content",
+            0,
+            "content",
+            0
+          ],
+          "nodeType": "Text"
+        },
+        "matchInfo": {
+          "rule": "verifiedExactFingerprint",
+          "pairCost": 0,
+          "leftGapCost": 1000,
+          "rightGapCost": 1000,
+          "evidence": [
+            {
+              "signal": "nodeType",
+              "value": {
+                "type": "boolean",
+                "value": true
+              },
+              "contribution": 0
+            },
+            {
+              "signal": "textSimilarity",
+              "value": {
+                "type": "number",
+                "value": 1.0
+              },
+              "contribution": 0
+            },
+            {
+              "signal": "scalarSignature",
+              "value": {
+                "type": "boolean",
+                "value": true
+              },
+              "contribution": 0
+            }
+          ]
+        }
+      }
+    ]
+  },
+  "differences": [
+    {
+      "type": "parentChanged",
+      "left": {
+        "path": [
+          "content",
+          0,
+          "content",
+          1
+        ],
+        "nodeType": "Paragraph"
+      },
+      "right": {
+        "path": [
+          "content",
+          1,
+          "content",
+          1
+        ],
+        "nodeType": "Paragraph"
+      },
+      "leftParent": {
+        "path": [
+          "content",
+          0
+        ],
+        "nodeType": "Section"
+      },
+      "rightParent": {
+        "path": [
+          "content",
+          1
+        ],
+        "nodeType": "Section"
+      },
+      "leftProperty": "content",
+      "rightProperty": "content"
+    }
+  ]
+}

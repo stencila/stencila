@@ -1,0 +1,305 @@
+---
+source: rust/node-compare/tests/snapshots.rs
+expression: "compare(&left, &right)?"
+---
+{
+  "formatVersion": "1",
+  "algorithm": {
+    "name": "stencila-schema-native",
+    "version": "1",
+    "projectionVersion": "1",
+    "policy": "schema-native"
+  },
+  "alignment": {
+    "formatVersion": "1",
+    "algorithm": {
+      "name": "stencila-schema-native",
+      "version": "1",
+      "projectionVersion": "1",
+      "policy": "schema-native"
+    },
+    "correspondences": [
+      {
+        "type": "paired",
+        "left": {
+          "path": [],
+          "nodeType": "Article"
+        },
+        "right": {
+          "path": [],
+          "nodeType": "Article"
+        },
+        "matchInfo": {
+          "rule": "root",
+          "pairCost": 0,
+          "leftGapCost": 4000,
+          "rightGapCost": 4000,
+          "evidence": [
+            {
+              "signal": "nodeType",
+              "value": {
+                "type": "boolean",
+                "value": true
+              },
+              "contribution": 0
+            }
+          ]
+        }
+      },
+      {
+        "type": "paired",
+        "left": {
+          "path": [
+            "content",
+            0
+          ],
+          "nodeType": "Section"
+        },
+        "right": {
+          "path": [
+            "content",
+            0
+          ],
+          "nodeType": "Section"
+        },
+        "matchInfo": {
+          "rule": "sequenceAlignment",
+          "pairCost": 0,
+          "leftGapCost": 3000,
+          "rightGapCost": 3000,
+          "evidence": [
+            {
+              "signal": "nodeType",
+              "value": {
+                "type": "boolean",
+                "value": true
+              },
+              "contribution": 0
+            },
+            {
+              "signal": "textSimilarity",
+              "value": {
+                "type": "number",
+                "value": 1.0
+              },
+              "contribution": 0
+            },
+            {
+              "signal": "scalarSignature",
+              "value": {
+                "type": "boolean",
+                "value": true
+              },
+              "contribution": 0
+            }
+          ]
+        }
+      },
+      {
+        "type": "paired",
+        "left": {
+          "path": [
+            "content",
+            0,
+            "content",
+            0
+          ],
+          "nodeType": "Paragraph"
+        },
+        "right": {
+          "path": [
+            "content",
+            0,
+            "content",
+            0
+          ],
+          "nodeType": "Heading"
+        },
+        "matchInfo": {
+          "rule": "sequenceAlignment",
+          "pairCost": 2800,
+          "leftGapCost": 2000,
+          "rightGapCost": 2000,
+          "evidence": [
+            {
+              "signal": "nodeType",
+              "value": {
+                "type": "boolean",
+                "value": false
+              },
+              "contribution": 2000
+            },
+            {
+              "signal": "textSimilarity",
+              "value": {
+                "type": "number",
+                "value": 1.0
+              },
+              "contribution": 0
+            },
+            {
+              "signal": "scalarSignature",
+              "value": {
+                "type": "boolean",
+                "value": false
+              },
+              "contribution": 800
+            }
+          ]
+        }
+      },
+      {
+        "type": "paired",
+        "left": {
+          "path": [
+            "content",
+            0,
+            "content",
+            0,
+            "content",
+            0
+          ],
+          "nodeType": "Text"
+        },
+        "right": {
+          "path": [
+            "content",
+            0,
+            "content",
+            0,
+            "content",
+            0
+          ],
+          "nodeType": "Text"
+        },
+        "matchInfo": {
+          "rule": "verifiedExactFingerprint",
+          "pairCost": 0,
+          "leftGapCost": 1000,
+          "rightGapCost": 1000,
+          "evidence": [
+            {
+              "signal": "nodeType",
+              "value": {
+                "type": "boolean",
+                "value": true
+              },
+              "contribution": 0
+            },
+            {
+              "signal": "textSimilarity",
+              "value": {
+                "type": "number",
+                "value": 1.0
+              },
+              "contribution": 0
+            },
+            {
+              "signal": "scalarSignature",
+              "value": {
+                "type": "boolean",
+                "value": true
+              },
+              "contribution": 0
+            }
+          ]
+        }
+      }
+    ]
+  },
+  "differences": [
+    {
+      "type": "nodeTypeChanged",
+      "left": {
+        "path": [
+          "content",
+          0,
+          "content",
+          0
+        ],
+        "nodeType": "Paragraph"
+      },
+      "right": {
+        "path": [
+          "content",
+          0,
+          "content",
+          0
+        ],
+        "nodeType": "Heading"
+      }
+    },
+    {
+      "type": "propertyPresenceChanged",
+      "left": {
+        "path": [
+          "content",
+          0,
+          "content",
+          0
+        ],
+        "nodeType": "Paragraph"
+      },
+      "right": {
+        "path": [
+          "content",
+          0,
+          "content",
+          0
+        ],
+        "nodeType": "Heading"
+      },
+      "property": "label",
+      "leftPresence": "undeclared",
+      "rightPresence": "absent"
+    },
+    {
+      "type": "propertyPresenceChanged",
+      "left": {
+        "path": [
+          "content",
+          0,
+          "content",
+          0
+        ],
+        "nodeType": "Paragraph"
+      },
+      "right": {
+        "path": [
+          "content",
+          0,
+          "content",
+          0
+        ],
+        "nodeType": "Heading"
+      },
+      "property": "labelType",
+      "leftPresence": "undeclared",
+      "rightPresence": "absent"
+    },
+    {
+      "type": "propertyPresenceChanged",
+      "left": {
+        "path": [
+          "content",
+          0,
+          "content",
+          0
+        ],
+        "nodeType": "Paragraph"
+      },
+      "right": {
+        "path": [
+          "content",
+          0,
+          "content",
+          0
+        ],
+        "nodeType": "Heading"
+      },
+      "property": "level",
+      "leftPresence": "undeclared",
+      "rightPresence": "present"
+    }
+  ]
+}

@@ -1,0 +1,1644 @@
+---
+source: rust/node-compare/tests/snapshots.rs
+expression: "compare(&left, &right)?"
+---
+{
+  "formatVersion": "1",
+  "algorithm": {
+    "name": "stencila-schema-native",
+    "version": "1",
+    "projectionVersion": "1",
+    "policy": "schema-native"
+  },
+  "alignment": {
+    "formatVersion": "1",
+    "algorithm": {
+      "name": "stencila-schema-native",
+      "version": "1",
+      "projectionVersion": "1",
+      "policy": "schema-native"
+    },
+    "correspondences": [
+      {
+        "type": "paired",
+        "left": {
+          "path": [],
+          "nodeType": "Article"
+        },
+        "right": {
+          "path": [],
+          "nodeType": "Article"
+        },
+        "matchInfo": {
+          "rule": "root",
+          "pairCost": 0,
+          "leftGapCost": 28000,
+          "rightGapCost": 28000,
+          "evidence": [
+            {
+              "signal": "nodeType",
+              "value": {
+                "type": "boolean",
+                "value": true
+              },
+              "contribution": 0
+            }
+          ]
+        }
+      },
+      {
+        "type": "paired",
+        "left": {
+          "path": [
+            "authors",
+            0
+          ],
+          "nodeType": "Person"
+        },
+        "right": {
+          "path": [
+            "authors",
+            0
+          ],
+          "nodeType": "Person"
+        },
+        "matchInfo": {
+          "rule": "verifiedExactFingerprint",
+          "pairCost": 0,
+          "leftGapCost": 1000,
+          "rightGapCost": 1000,
+          "evidence": [
+            {
+              "signal": "nodeType",
+              "value": {
+                "type": "boolean",
+                "value": true
+              },
+              "contribution": 0
+            },
+            {
+              "signal": "textSimilarity",
+              "value": {
+                "type": "number",
+                "value": 1.0
+              },
+              "contribution": 0
+            },
+            {
+              "signal": "scalarSignature",
+              "value": {
+                "type": "boolean",
+                "value": true
+              },
+              "contribution": 0
+            }
+          ]
+        }
+      },
+      {
+        "type": "paired",
+        "left": {
+          "path": [
+            "content",
+            0
+          ],
+          "nodeType": "Heading"
+        },
+        "right": {
+          "path": [
+            "content",
+            0
+          ],
+          "nodeType": "Heading"
+        },
+        "matchInfo": {
+          "rule": "sequenceAlignment",
+          "pairCost": 632,
+          "leftGapCost": 2000,
+          "rightGapCost": 2000,
+          "evidence": [
+            {
+              "signal": "nodeType",
+              "value": {
+                "type": "boolean",
+                "value": true
+              },
+              "contribution": 0
+            },
+            {
+              "signal": "textSimilarity",
+              "value": {
+                "type": "number",
+                "value": 0.878
+              },
+              "contribution": 632
+            },
+            {
+              "signal": "scalarSignature",
+              "value": {
+                "type": "boolean",
+                "value": true
+              },
+              "contribution": 0
+            }
+          ]
+        }
+      },
+      {
+        "type": "paired",
+        "left": {
+          "path": [
+            "content",
+            0,
+            "content",
+            0
+          ],
+          "nodeType": "Text"
+        },
+        "right": {
+          "path": [
+            "content",
+            0,
+            "content",
+            0
+          ],
+          "nodeType": "Text"
+        },
+        "matchInfo": {
+          "rule": "sequenceAlignment",
+          "pairCost": 316,
+          "leftGapCost": 1000,
+          "rightGapCost": 1000,
+          "evidence": [
+            {
+              "signal": "nodeType",
+              "value": {
+                "type": "boolean",
+                "value": true
+              },
+              "contribution": 0
+            },
+            {
+              "signal": "textSimilarity",
+              "value": {
+                "type": "number",
+                "value": 0.878
+              },
+              "contribution": 316
+            },
+            {
+              "signal": "scalarSignature",
+              "value": {
+                "type": "boolean",
+                "value": true
+              },
+              "contribution": 0
+            }
+          ]
+        }
+      },
+      {
+        "type": "paired",
+        "left": {
+          "path": [
+            "content",
+            1
+          ],
+          "nodeType": "Paragraph"
+        },
+        "right": {
+          "path": [
+            "content",
+            1
+          ],
+          "nodeType": "Paragraph"
+        },
+        "matchInfo": {
+          "rule": "sequenceAlignment",
+          "pairCost": 1568,
+          "leftGapCost": 2000,
+          "rightGapCost": 2000,
+          "evidence": [
+            {
+              "signal": "nodeType",
+              "value": {
+                "type": "boolean",
+                "value": true
+              },
+              "contribution": 0
+            },
+            {
+              "signal": "textSimilarity",
+              "value": {
+                "type": "number",
+                "value": 0.698
+              },
+              "contribution": 1568
+            },
+            {
+              "signal": "scalarSignature",
+              "value": {
+                "type": "boolean",
+                "value": true
+              },
+              "contribution": 0
+            }
+          ]
+        }
+      },
+      {
+        "type": "paired",
+        "left": {
+          "path": [
+            "content",
+            1,
+            "content",
+            0
+          ],
+          "nodeType": "Text"
+        },
+        "right": {
+          "path": [
+            "content",
+            1,
+            "content",
+            0
+          ],
+          "nodeType": "Text"
+        },
+        "matchInfo": {
+          "rule": "sequenceAlignment",
+          "pairCost": 784,
+          "leftGapCost": 1000,
+          "rightGapCost": 1000,
+          "evidence": [
+            {
+              "signal": "nodeType",
+              "value": {
+                "type": "boolean",
+                "value": true
+              },
+              "contribution": 0
+            },
+            {
+              "signal": "textSimilarity",
+              "value": {
+                "type": "number",
+                "value": 0.698
+              },
+              "contribution": 784
+            },
+            {
+              "signal": "scalarSignature",
+              "value": {
+                "type": "boolean",
+                "value": true
+              },
+              "contribution": 0
+            }
+          ]
+        }
+      },
+      {
+        "type": "paired",
+        "left": {
+          "path": [
+            "content",
+            2
+          ],
+          "nodeType": "Figure"
+        },
+        "right": {
+          "path": [
+            "content",
+            2
+          ],
+          "nodeType": "Figure"
+        },
+        "matchInfo": {
+          "rule": "verifiedExactFingerprint",
+          "pairCost": 0,
+          "leftGapCost": 5000,
+          "rightGapCost": 5000,
+          "evidence": [
+            {
+              "signal": "nodeType",
+              "value": {
+                "type": "boolean",
+                "value": true
+              },
+              "contribution": 0
+            },
+            {
+              "signal": "textSimilarity",
+              "value": {
+                "type": "number",
+                "value": 1.0
+              },
+              "contribution": 0
+            },
+            {
+              "signal": "scalarSignature",
+              "value": {
+                "type": "boolean",
+                "value": true
+              },
+              "contribution": 0
+            }
+          ]
+        }
+      },
+      {
+        "type": "paired",
+        "left": {
+          "path": [
+            "content",
+            2,
+            "caption",
+            0
+          ],
+          "nodeType": "Paragraph"
+        },
+        "right": {
+          "path": [
+            "content",
+            2,
+            "caption",
+            0
+          ],
+          "nodeType": "Paragraph"
+        },
+        "matchInfo": {
+          "rule": "verifiedExactFingerprint",
+          "pairCost": 0,
+          "leftGapCost": 2000,
+          "rightGapCost": 2000,
+          "evidence": [
+            {
+              "signal": "nodeType",
+              "value": {
+                "type": "boolean",
+                "value": true
+              },
+              "contribution": 0
+            },
+            {
+              "signal": "textSimilarity",
+              "value": {
+                "type": "number",
+                "value": 1.0
+              },
+              "contribution": 0
+            },
+            {
+              "signal": "scalarSignature",
+              "value": {
+                "type": "boolean",
+                "value": true
+              },
+              "contribution": 0
+            }
+          ]
+        }
+      },
+      {
+        "type": "paired",
+        "left": {
+          "path": [
+            "content",
+            2,
+            "caption",
+            0,
+            "content",
+            0
+          ],
+          "nodeType": "Text"
+        },
+        "right": {
+          "path": [
+            "content",
+            2,
+            "caption",
+            0,
+            "content",
+            0
+          ],
+          "nodeType": "Text"
+        },
+        "matchInfo": {
+          "rule": "verifiedExactFingerprint",
+          "pairCost": 0,
+          "leftGapCost": 1000,
+          "rightGapCost": 1000,
+          "evidence": [
+            {
+              "signal": "nodeType",
+              "value": {
+                "type": "boolean",
+                "value": true
+              },
+              "contribution": 0
+            },
+            {
+              "signal": "textSimilarity",
+              "value": {
+                "type": "number",
+                "value": 1.0
+              },
+              "contribution": 0
+            },
+            {
+              "signal": "scalarSignature",
+              "value": {
+                "type": "boolean",
+                "value": true
+              },
+              "contribution": 0
+            }
+          ]
+        }
+      },
+      {
+        "type": "paired",
+        "left": {
+          "path": [
+            "content",
+            2,
+            "content",
+            0
+          ],
+          "nodeType": "Paragraph"
+        },
+        "right": {
+          "path": [
+            "content",
+            2,
+            "content",
+            0
+          ],
+          "nodeType": "Paragraph"
+        },
+        "matchInfo": {
+          "rule": "verifiedExactFingerprint",
+          "pairCost": 0,
+          "leftGapCost": 2000,
+          "rightGapCost": 2000,
+          "evidence": [
+            {
+              "signal": "nodeType",
+              "value": {
+                "type": "boolean",
+                "value": true
+              },
+              "contribution": 0
+            },
+            {
+              "signal": "textSimilarity",
+              "value": {
+                "type": "number",
+                "value": 1.0
+              },
+              "contribution": 0
+            },
+            {
+              "signal": "scalarSignature",
+              "value": {
+                "type": "boolean",
+                "value": true
+              },
+              "contribution": 0
+            }
+          ]
+        }
+      },
+      {
+        "type": "paired",
+        "left": {
+          "path": [
+            "content",
+            2,
+            "content",
+            0,
+            "content",
+            0
+          ],
+          "nodeType": "Text"
+        },
+        "right": {
+          "path": [
+            "content",
+            2,
+            "content",
+            0,
+            "content",
+            0
+          ],
+          "nodeType": "Text"
+        },
+        "matchInfo": {
+          "rule": "verifiedExactFingerprint",
+          "pairCost": 0,
+          "leftGapCost": 1000,
+          "rightGapCost": 1000,
+          "evidence": [
+            {
+              "signal": "nodeType",
+              "value": {
+                "type": "boolean",
+                "value": true
+              },
+              "contribution": 0
+            },
+            {
+              "signal": "textSimilarity",
+              "value": {
+                "type": "number",
+                "value": 1.0
+              },
+              "contribution": 0
+            },
+            {
+              "signal": "scalarSignature",
+              "value": {
+                "type": "boolean",
+                "value": true
+              },
+              "contribution": 0
+            }
+          ]
+        }
+      },
+      {
+        "type": "paired",
+        "left": {
+          "path": [
+            "content",
+            3
+          ],
+          "nodeType": "Table"
+        },
+        "right": {
+          "path": [
+            "content",
+            3
+          ],
+          "nodeType": "Table"
+        },
+        "matchInfo": {
+          "rule": "verifiedExactFingerprint",
+          "pairCost": 0,
+          "leftGapCost": 15000,
+          "rightGapCost": 15000,
+          "evidence": [
+            {
+              "signal": "nodeType",
+              "value": {
+                "type": "boolean",
+                "value": true
+              },
+              "contribution": 0
+            },
+            {
+              "signal": "textSimilarity",
+              "value": {
+                "type": "number",
+                "value": 1.0
+              },
+              "contribution": 0
+            },
+            {
+              "signal": "scalarSignature",
+              "value": {
+                "type": "boolean",
+                "value": true
+              },
+              "contribution": 0
+            }
+          ]
+        }
+      },
+      {
+        "type": "paired",
+        "left": {
+          "path": [
+            "content",
+            3,
+            "rows",
+            0
+          ],
+          "nodeType": "TableRow"
+        },
+        "right": {
+          "path": [
+            "content",
+            3,
+            "rows",
+            0
+          ],
+          "nodeType": "TableRow"
+        },
+        "matchInfo": {
+          "rule": "verifiedExactFingerprint",
+          "pairCost": 0,
+          "leftGapCost": 7000,
+          "rightGapCost": 7000,
+          "evidence": [
+            {
+              "signal": "nodeType",
+              "value": {
+                "type": "boolean",
+                "value": true
+              },
+              "contribution": 0
+            },
+            {
+              "signal": "textSimilarity",
+              "value": {
+                "type": "number",
+                "value": 1.0
+              },
+              "contribution": 0
+            },
+            {
+              "signal": "scalarSignature",
+              "value": {
+                "type": "boolean",
+                "value": true
+              },
+              "contribution": 0
+            }
+          ]
+        }
+      },
+      {
+        "type": "paired",
+        "left": {
+          "path": [
+            "content",
+            3,
+            "rows",
+            0,
+            "cells",
+            0
+          ],
+          "nodeType": "TableCell"
+        },
+        "right": {
+          "path": [
+            "content",
+            3,
+            "rows",
+            0,
+            "cells",
+            0
+          ],
+          "nodeType": "TableCell"
+        },
+        "matchInfo": {
+          "rule": "verifiedExactFingerprint",
+          "pairCost": 0,
+          "leftGapCost": 3000,
+          "rightGapCost": 3000,
+          "evidence": [
+            {
+              "signal": "nodeType",
+              "value": {
+                "type": "boolean",
+                "value": true
+              },
+              "contribution": 0
+            },
+            {
+              "signal": "textSimilarity",
+              "value": {
+                "type": "number",
+                "value": 1.0
+              },
+              "contribution": 0
+            },
+            {
+              "signal": "scalarSignature",
+              "value": {
+                "type": "boolean",
+                "value": true
+              },
+              "contribution": 0
+            }
+          ]
+        }
+      },
+      {
+        "type": "paired",
+        "left": {
+          "path": [
+            "content",
+            3,
+            "rows",
+            0,
+            "cells",
+            0,
+            "content",
+            0
+          ],
+          "nodeType": "Paragraph"
+        },
+        "right": {
+          "path": [
+            "content",
+            3,
+            "rows",
+            0,
+            "cells",
+            0,
+            "content",
+            0
+          ],
+          "nodeType": "Paragraph"
+        },
+        "matchInfo": {
+          "rule": "verifiedExactFingerprint",
+          "pairCost": 0,
+          "leftGapCost": 2000,
+          "rightGapCost": 2000,
+          "evidence": [
+            {
+              "signal": "nodeType",
+              "value": {
+                "type": "boolean",
+                "value": true
+              },
+              "contribution": 0
+            },
+            {
+              "signal": "textSimilarity",
+              "value": {
+                "type": "number",
+                "value": 1.0
+              },
+              "contribution": 0
+            },
+            {
+              "signal": "scalarSignature",
+              "value": {
+                "type": "boolean",
+                "value": true
+              },
+              "contribution": 0
+            }
+          ]
+        }
+      },
+      {
+        "type": "paired",
+        "left": {
+          "path": [
+            "content",
+            3,
+            "rows",
+            0,
+            "cells",
+            0,
+            "content",
+            0,
+            "content",
+            0
+          ],
+          "nodeType": "Text"
+        },
+        "right": {
+          "path": [
+            "content",
+            3,
+            "rows",
+            0,
+            "cells",
+            0,
+            "content",
+            0,
+            "content",
+            0
+          ],
+          "nodeType": "Text"
+        },
+        "matchInfo": {
+          "rule": "verifiedExactFingerprint",
+          "pairCost": 0,
+          "leftGapCost": 1000,
+          "rightGapCost": 1000,
+          "evidence": [
+            {
+              "signal": "nodeType",
+              "value": {
+                "type": "boolean",
+                "value": true
+              },
+              "contribution": 0
+            },
+            {
+              "signal": "textSimilarity",
+              "value": {
+                "type": "number",
+                "value": 1.0
+              },
+              "contribution": 0
+            },
+            {
+              "signal": "scalarSignature",
+              "value": {
+                "type": "boolean",
+                "value": true
+              },
+              "contribution": 0
+            }
+          ]
+        }
+      },
+      {
+        "type": "paired",
+        "left": {
+          "path": [
+            "content",
+            3,
+            "rows",
+            0,
+            "cells",
+            1
+          ],
+          "nodeType": "TableCell"
+        },
+        "right": {
+          "path": [
+            "content",
+            3,
+            "rows",
+            0,
+            "cells",
+            1
+          ],
+          "nodeType": "TableCell"
+        },
+        "matchInfo": {
+          "rule": "verifiedExactFingerprint",
+          "pairCost": 0,
+          "leftGapCost": 3000,
+          "rightGapCost": 3000,
+          "evidence": [
+            {
+              "signal": "nodeType",
+              "value": {
+                "type": "boolean",
+                "value": true
+              },
+              "contribution": 0
+            },
+            {
+              "signal": "textSimilarity",
+              "value": {
+                "type": "number",
+                "value": 1.0
+              },
+              "contribution": 0
+            },
+            {
+              "signal": "scalarSignature",
+              "value": {
+                "type": "boolean",
+                "value": true
+              },
+              "contribution": 0
+            }
+          ]
+        }
+      },
+      {
+        "type": "paired",
+        "left": {
+          "path": [
+            "content",
+            3,
+            "rows",
+            0,
+            "cells",
+            1,
+            "content",
+            0
+          ],
+          "nodeType": "Paragraph"
+        },
+        "right": {
+          "path": [
+            "content",
+            3,
+            "rows",
+            0,
+            "cells",
+            1,
+            "content",
+            0
+          ],
+          "nodeType": "Paragraph"
+        },
+        "matchInfo": {
+          "rule": "verifiedExactFingerprint",
+          "pairCost": 0,
+          "leftGapCost": 2000,
+          "rightGapCost": 2000,
+          "evidence": [
+            {
+              "signal": "nodeType",
+              "value": {
+                "type": "boolean",
+                "value": true
+              },
+              "contribution": 0
+            },
+            {
+              "signal": "textSimilarity",
+              "value": {
+                "type": "number",
+                "value": 1.0
+              },
+              "contribution": 0
+            },
+            {
+              "signal": "scalarSignature",
+              "value": {
+                "type": "boolean",
+                "value": true
+              },
+              "contribution": 0
+            }
+          ]
+        }
+      },
+      {
+        "type": "paired",
+        "left": {
+          "path": [
+            "content",
+            3,
+            "rows",
+            0,
+            "cells",
+            1,
+            "content",
+            0,
+            "content",
+            0
+          ],
+          "nodeType": "Text"
+        },
+        "right": {
+          "path": [
+            "content",
+            3,
+            "rows",
+            0,
+            "cells",
+            1,
+            "content",
+            0,
+            "content",
+            0
+          ],
+          "nodeType": "Text"
+        },
+        "matchInfo": {
+          "rule": "verifiedExactFingerprint",
+          "pairCost": 0,
+          "leftGapCost": 1000,
+          "rightGapCost": 1000,
+          "evidence": [
+            {
+              "signal": "nodeType",
+              "value": {
+                "type": "boolean",
+                "value": true
+              },
+              "contribution": 0
+            },
+            {
+              "signal": "textSimilarity",
+              "value": {
+                "type": "number",
+                "value": 1.0
+              },
+              "contribution": 0
+            },
+            {
+              "signal": "scalarSignature",
+              "value": {
+                "type": "boolean",
+                "value": true
+              },
+              "contribution": 0
+            }
+          ]
+        }
+      },
+      {
+        "type": "paired",
+        "left": {
+          "path": [
+            "content",
+            3,
+            "rows",
+            1
+          ],
+          "nodeType": "TableRow"
+        },
+        "right": {
+          "path": [
+            "content",
+            3,
+            "rows",
+            1
+          ],
+          "nodeType": "TableRow"
+        },
+        "matchInfo": {
+          "rule": "verifiedExactFingerprint",
+          "pairCost": 0,
+          "leftGapCost": 7000,
+          "rightGapCost": 7000,
+          "evidence": [
+            {
+              "signal": "nodeType",
+              "value": {
+                "type": "boolean",
+                "value": true
+              },
+              "contribution": 0
+            },
+            {
+              "signal": "textSimilarity",
+              "value": {
+                "type": "number",
+                "value": 1.0
+              },
+              "contribution": 0
+            },
+            {
+              "signal": "scalarSignature",
+              "value": {
+                "type": "boolean",
+                "value": true
+              },
+              "contribution": 0
+            }
+          ]
+        }
+      },
+      {
+        "type": "paired",
+        "left": {
+          "path": [
+            "content",
+            3,
+            "rows",
+            1,
+            "cells",
+            0
+          ],
+          "nodeType": "TableCell"
+        },
+        "right": {
+          "path": [
+            "content",
+            3,
+            "rows",
+            1,
+            "cells",
+            0
+          ],
+          "nodeType": "TableCell"
+        },
+        "matchInfo": {
+          "rule": "verifiedExactFingerprint",
+          "pairCost": 0,
+          "leftGapCost": 3000,
+          "rightGapCost": 3000,
+          "evidence": [
+            {
+              "signal": "nodeType",
+              "value": {
+                "type": "boolean",
+                "value": true
+              },
+              "contribution": 0
+            },
+            {
+              "signal": "textSimilarity",
+              "value": {
+                "type": "number",
+                "value": 1.0
+              },
+              "contribution": 0
+            },
+            {
+              "signal": "scalarSignature",
+              "value": {
+                "type": "boolean",
+                "value": true
+              },
+              "contribution": 0
+            }
+          ]
+        }
+      },
+      {
+        "type": "paired",
+        "left": {
+          "path": [
+            "content",
+            3,
+            "rows",
+            1,
+            "cells",
+            0,
+            "content",
+            0
+          ],
+          "nodeType": "Paragraph"
+        },
+        "right": {
+          "path": [
+            "content",
+            3,
+            "rows",
+            1,
+            "cells",
+            0,
+            "content",
+            0
+          ],
+          "nodeType": "Paragraph"
+        },
+        "matchInfo": {
+          "rule": "verifiedExactFingerprint",
+          "pairCost": 0,
+          "leftGapCost": 2000,
+          "rightGapCost": 2000,
+          "evidence": [
+            {
+              "signal": "nodeType",
+              "value": {
+                "type": "boolean",
+                "value": true
+              },
+              "contribution": 0
+            },
+            {
+              "signal": "textSimilarity",
+              "value": {
+                "type": "number",
+                "value": 1.0
+              },
+              "contribution": 0
+            },
+            {
+              "signal": "scalarSignature",
+              "value": {
+                "type": "boolean",
+                "value": true
+              },
+              "contribution": 0
+            }
+          ]
+        }
+      },
+      {
+        "type": "paired",
+        "left": {
+          "path": [
+            "content",
+            3,
+            "rows",
+            1,
+            "cells",
+            0,
+            "content",
+            0,
+            "content",
+            0
+          ],
+          "nodeType": "Text"
+        },
+        "right": {
+          "path": [
+            "content",
+            3,
+            "rows",
+            1,
+            "cells",
+            0,
+            "content",
+            0,
+            "content",
+            0
+          ],
+          "nodeType": "Text"
+        },
+        "matchInfo": {
+          "rule": "verifiedExactFingerprint",
+          "pairCost": 0,
+          "leftGapCost": 1000,
+          "rightGapCost": 1000,
+          "evidence": [
+            {
+              "signal": "nodeType",
+              "value": {
+                "type": "boolean",
+                "value": true
+              },
+              "contribution": 0
+            },
+            {
+              "signal": "textSimilarity",
+              "value": {
+                "type": "number",
+                "value": 1.0
+              },
+              "contribution": 0
+            },
+            {
+              "signal": "scalarSignature",
+              "value": {
+                "type": "boolean",
+                "value": true
+              },
+              "contribution": 0
+            }
+          ]
+        }
+      },
+      {
+        "type": "paired",
+        "left": {
+          "path": [
+            "content",
+            3,
+            "rows",
+            1,
+            "cells",
+            1
+          ],
+          "nodeType": "TableCell"
+        },
+        "right": {
+          "path": [
+            "content",
+            3,
+            "rows",
+            1,
+            "cells",
+            1
+          ],
+          "nodeType": "TableCell"
+        },
+        "matchInfo": {
+          "rule": "verifiedExactFingerprint",
+          "pairCost": 0,
+          "leftGapCost": 3000,
+          "rightGapCost": 3000,
+          "evidence": [
+            {
+              "signal": "nodeType",
+              "value": {
+                "type": "boolean",
+                "value": true
+              },
+              "contribution": 0
+            },
+            {
+              "signal": "textSimilarity",
+              "value": {
+                "type": "number",
+                "value": 1.0
+              },
+              "contribution": 0
+            },
+            {
+              "signal": "scalarSignature",
+              "value": {
+                "type": "boolean",
+                "value": true
+              },
+              "contribution": 0
+            }
+          ]
+        }
+      },
+      {
+        "type": "paired",
+        "left": {
+          "path": [
+            "content",
+            3,
+            "rows",
+            1,
+            "cells",
+            1,
+            "content",
+            0
+          ],
+          "nodeType": "Paragraph"
+        },
+        "right": {
+          "path": [
+            "content",
+            3,
+            "rows",
+            1,
+            "cells",
+            1,
+            "content",
+            0
+          ],
+          "nodeType": "Paragraph"
+        },
+        "matchInfo": {
+          "rule": "verifiedExactFingerprint",
+          "pairCost": 0,
+          "leftGapCost": 2000,
+          "rightGapCost": 2000,
+          "evidence": [
+            {
+              "signal": "nodeType",
+              "value": {
+                "type": "boolean",
+                "value": true
+              },
+              "contribution": 0
+            },
+            {
+              "signal": "textSimilarity",
+              "value": {
+                "type": "number",
+                "value": 1.0
+              },
+              "contribution": 0
+            },
+            {
+              "signal": "scalarSignature",
+              "value": {
+                "type": "boolean",
+                "value": true
+              },
+              "contribution": 0
+            }
+          ]
+        }
+      },
+      {
+        "type": "paired",
+        "left": {
+          "path": [
+            "content",
+            3,
+            "rows",
+            1,
+            "cells",
+            1,
+            "content",
+            0,
+            "content",
+            0
+          ],
+          "nodeType": "Text"
+        },
+        "right": {
+          "path": [
+            "content",
+            3,
+            "rows",
+            1,
+            "cells",
+            1,
+            "content",
+            0,
+            "content",
+            0
+          ],
+          "nodeType": "Text"
+        },
+        "matchInfo": {
+          "rule": "verifiedExactFingerprint",
+          "pairCost": 0,
+          "leftGapCost": 1000,
+          "rightGapCost": 1000,
+          "evidence": [
+            {
+              "signal": "nodeType",
+              "value": {
+                "type": "boolean",
+                "value": true
+              },
+              "contribution": 0
+            },
+            {
+              "signal": "textSimilarity",
+              "value": {
+                "type": "number",
+                "value": 1.0
+              },
+              "contribution": 0
+            },
+            {
+              "signal": "scalarSignature",
+              "value": {
+                "type": "boolean",
+                "value": true
+              },
+              "contribution": 0
+            }
+          ]
+        }
+      },
+      {
+        "type": "paired",
+        "left": {
+          "path": [
+            "references",
+            0
+          ],
+          "nodeType": "Reference"
+        },
+        "right": {
+          "path": [
+            "references",
+            0
+          ],
+          "nodeType": "Reference"
+        },
+        "matchInfo": {
+          "rule": "uniqueId",
+          "pairCost": 0,
+          "leftGapCost": 2000,
+          "rightGapCost": 2000,
+          "evidence": [
+            {
+              "signal": "nodeType",
+              "value": {
+                "type": "boolean",
+                "value": true
+              },
+              "contribution": 0
+            },
+            {
+              "signal": "textSimilarity",
+              "value": {
+                "type": "number",
+                "value": 1.0
+              },
+              "contribution": 0
+            },
+            {
+              "signal": "scalarSignature",
+              "value": {
+                "type": "boolean",
+                "value": true
+              },
+              "contribution": 0
+            }
+          ]
+        }
+      },
+      {
+        "type": "paired",
+        "left": {
+          "path": [
+            "references",
+            0,
+            "title",
+            0
+          ],
+          "nodeType": "Text"
+        },
+        "right": {
+          "path": [
+            "references",
+            0,
+            "title",
+            0
+          ],
+          "nodeType": "Text"
+        },
+        "matchInfo": {
+          "rule": "verifiedExactFingerprint",
+          "pairCost": 0,
+          "leftGapCost": 1000,
+          "rightGapCost": 1000,
+          "evidence": [
+            {
+              "signal": "nodeType",
+              "value": {
+                "type": "boolean",
+                "value": true
+              },
+              "contribution": 0
+            },
+            {
+              "signal": "textSimilarity",
+              "value": {
+                "type": "number",
+                "value": 1.0
+              },
+              "contribution": 0
+            },
+            {
+              "signal": "scalarSignature",
+              "value": {
+                "type": "boolean",
+                "value": true
+              },
+              "contribution": 0
+            }
+          ]
+        }
+      }
+    ]
+  },
+  "differences": [
+    {
+      "type": "valueChanged",
+      "location": {
+        "left": {
+          "path": [
+            "content",
+            0,
+            "content",
+            0
+          ],
+          "nodeType": "Text"
+        },
+        "right": {
+          "path": [
+            "content",
+            0,
+            "content",
+            0
+          ],
+          "nodeType": "Text"
+        },
+        "property": "value",
+        "leftIndex": null,
+        "rightIndex": null
+      },
+      "left": {
+        "type": "one",
+        "value": {
+          "type": "string",
+          "value": "A study of something"
+        }
+      },
+      "right": {
+        "type": "one",
+        "value": {
+          "type": "string",
+          "value": "A study of something else"
+        }
+      }
+    },
+    {
+      "type": "valueChanged",
+      "location": {
+        "left": {
+          "path": [
+            "content",
+            1,
+            "content",
+            0
+          ],
+          "nodeType": "Text"
+        },
+        "right": {
+          "path": [
+            "content",
+            1,
+            "content",
+            0
+          ],
+          "nodeType": "Text"
+        },
+        "property": "value",
+        "leftIndex": null,
+        "rightIndex": null
+      },
+      "left": {
+        "type": "one",
+        "value": {
+          "type": "string",
+          "value": "The measured effect was substantial."
+        }
+      },
+      "right": {
+        "type": "one",
+        "value": {
+          "type": "string",
+          "value": "The measured effect was modest."
+        }
+      }
+    }
+  ]
+}

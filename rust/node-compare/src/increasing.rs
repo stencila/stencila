@@ -11,13 +11,14 @@
 //! key. A key that is a property of the pair rather than of the side it is on makes
 //! the whole selection swap invariant.
 //!
-//! One case admits no swap-invariant answer at all: when the candidate pairs are exact
-//! mirrors of one another and their keys are equal — two pairs `(a, b)` and `(b, a)`
-//! that cannot both be kept — swapping the inputs maps the candidate set onto itself
-//! while exchanging the two pairs, so every maximum subset is the mirror image of
-//! another and none is fixed by the swap. Callers avoid this by supplying a key that
-//! distinguishes the pairs by content; where content is genuinely identical, the two
-//! answers are mirror images and the earlier position is chosen.
+//! One case admits no swap-invariant answer from position alone: when the candidate
+//! pairs are exact mirrors of one another — two pairs `(a, b)` and `(b, a)` that cannot
+//! both be kept — swapping the inputs maps the candidate set onto itself while
+//! exchanging the two pairs, so every maximum subset is the mirror image of another and
+//! none is fixed by the swap. Callers avoid this by extending the key with something
+//! that distinguishes the pairs by content, as [`crate::reorder`] does with an
+//! unordered pair of subtree fingerprints. Where content is genuinely identical too,
+//! the two answers are mirror images of one another and the earlier position is chosen.
 
 /// Choose a maximum subset of pairs whose right positions strictly increase
 ///

@@ -13,12 +13,19 @@
 //! A reorder observation is a statement about two snapshots, not a claim about
 //! historical editing causation: it means the pair lies outside the canonical
 //! preserved-order subset for its scope.
+//!
+//! Where two candidate subsets are equally large, the tie is settled by position and
+//! then by the content of the competing pairs. Position alone is not enough: two pairs
+//! that mirror one another, such as `(1, 2)` and `(2, 1)`, have the same positional key
+//! from either side, so swapping the inputs would otherwise select the mirror image and
+//! report the other pair as reordered.
 
 use crate::{
     align::Aligned,
     alignment::NodeRef,
     comparison::Difference,
     error::CompareResult,
+    features::FeatureSet,
     increasing::{maximum_increasing, symmetric_key},
     projection::{Item, OccurrenceId, Projection},
     sequence::Step,
@@ -27,7 +34,9 @@ use crate::{
 /// Derive the reorder observations of an alignment
 pub(crate) fn derive(
     left: &Projection,
+    left_features: &FeatureSet,
     right: &Projection,
+    right_features: &FeatureSet,
     aligned: &Aligned,
 ) -> CompareResult<Vec<Difference>> {
     let mut differences = Vec::new();
@@ -68,7 +77,22 @@ pub(crate) fn derive(
         order.sort_by_key(|index| pairs[*index]);
         let sorted: Vec<(usize, usize)> = order.iter().map(|index| pairs[*index]).collect();
 
-        let preserved = maximum_increasing(&sorted, |index| symmetric_key(sorted[index]));
+        // The content of each pair, as an unordered pair of subtree fingerprints, so
+        // that it too is unchanged by swapping the two inputs
+        let mut content = Vec::with_capacity(sorted.len());
+        for index in &order {
+            let (left_id, right_id) = occurrences[*index];
+            let left_fingerprint = left_features.get(left_id)?.fingerprint;
+            let right_fingerprint = right_features.get(right_id)?.fingerprint;
+            content.push((
+                left_fingerprint.min(right_fingerprint),
+                left_fingerprint.max(right_fingerprint),
+            ));
+        }
+
+        let preserved = maximum_increasing(&sorted, |index| {
+            (symmetric_key(sorted[index]), content[index])
+        });
         let mut in_order = vec![false; sorted.len()];
         for index in preserved {
             in_order[index] = true;

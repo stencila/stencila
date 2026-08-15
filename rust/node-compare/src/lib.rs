@@ -101,7 +101,13 @@ pub fn compare_with_options(
 
     // Differences are derived only after the final alignment is complete
     let mut differences = differences::derive(&left, &right, &aligned)?;
-    differences.extend(reorder::derive(&left, &right, &aligned)?);
+    differences.extend(reorder::derive(
+        &left,
+        &left_features,
+        &right,
+        &right_features,
+        &aligned,
+    )?);
 
     Ok(Comparison::new(aligned.alignment, differences))
 }
