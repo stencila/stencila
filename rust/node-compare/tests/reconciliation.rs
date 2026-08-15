@@ -241,7 +241,7 @@ fn a_move_is_a_parent_change() -> Result<()> {
     let comparison = compare(&left, &right)?;
 
     let changes: Vec<&Difference> = comparison
-        .differences
+        .differences()
         .iter()
         .filter(|difference| matches!(difference, Difference::ParentChanged { .. }))
         .collect();
@@ -284,7 +284,7 @@ fn an_index_shift_is_not_a_parent_change() -> Result<()> {
 
     assert!(
         !comparison
-            .differences
+            .differences()
             .iter()
             .any(|difference| matches!(difference, Difference::ParentChanged { .. })),
         "inserting an early sibling is not a move"
@@ -302,7 +302,7 @@ fn coverage_holds_after_reconciliation() -> Result<()> {
 
     let mut left_paths = std::collections::HashSet::new();
     let mut right_paths = std::collections::HashSet::new();
-    for correspondence in &alignment.correspondences {
+    for correspondence in alignment.correspondences() {
         if let Some(node) = correspondence.left() {
             assert!(left_paths.insert(node.path.clone()));
         }

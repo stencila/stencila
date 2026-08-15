@@ -14,12 +14,11 @@ use crate::{
     fingerprint::{self, Identity},
     projection::{Item, OccurrenceId, Presence, Projection},
     scalar::ScalarValue,
-    text::{self, Grams},
+    text::{Grams, NormalizedText},
 };
 
 /// The features of one projected occurrence
 #[derive(Debug, Clone)]
-#[allow(dead_code, reason = "read by reconciliation and difference derivation")]
 pub struct Features {
     /// The concrete node type
     pub node_type: NodeType,
@@ -38,23 +37,11 @@ pub struct Features {
     /// The shallow signature of the occurrence's own scalar properties
     pub scalar_signature: u64,
 
-    /// The normalized text extracted from the occurrence and its descendants
-    pub text: String,
-
     /// The character n-grams of that text
     pub grams: Grams,
 
     /// The number of structured occurrences in the subtree, including this one
     pub subtree_size: i64,
-
-    /// The occurrence that contains this one
-    pub parent: Option<OccurrenceId>,
-
-    /// The property of the parent that contains this occurrence
-    pub parent_property: Option<NodeProperty>,
-
-    /// The position of this occurrence within a repeated property of its parent
-    pub position: Option<usize>,
 }
 
 /// The features of every occurrence of a projection, indexed by occurrence id
@@ -74,7 +61,7 @@ impl FeatureSet {
 
         let mut fingerprints = vec![0u64; count];
         let mut identity_neutral = vec![0u64; count];
-        let mut texts: Vec<String> = vec![String::new(); count];
+        let mut texts = vec![NormalizedText::default(); count];
 
         for id in (0..count).rev() {
             fingerprints[id] =
@@ -87,8 +74,7 @@ impl FeatureSet {
         let mut features = Vec::with_capacity(count);
         for id in 0..count {
             let occurrence = projection.occurrence(id)?;
-            let text = text::normalize(&texts[id]);
-            let grams = Grams::new(&text);
+            let grams = Grams::new(texts[id].as_str());
 
             features.push(Features {
                 node_type: occurrence.node_type,
@@ -100,12 +86,8 @@ impl FeatureSet {
                     id,
                     Identity::Included,
                 )?,
-                text,
                 grams,
                 subtree_size: occurrence.subtree_size,
-                parent: occurrence.parent,
-                parent_property: occurrence.parent_property,
-                position: occurrence.parent_index,
             });
         }
 
@@ -149,9 +131,9 @@ fn explicit_id(projection: &Projection, id: OccurrenceId) -> CompareResult<Optio
 fn subtree_text(
     projection: &Projection,
     id: OccurrenceId,
-    computed: &[String],
-) -> CompareResult<String> {
-    let mut text = String::new();
+    computed: &[NormalizedText],
+) -> CompareResult<NormalizedText> {
+    let mut text = NormalizedText::default();
 
     for property in &projection.occurrence(id)?.properties {
         if property.decl.property == NodeProperty::Id || property.presence == Presence::Absent {
@@ -161,8 +143,7 @@ fn subtree_text(
         for item in &property.items {
             match item {
                 Item::Scalar(ScalarValue::String { value }) => {
-                    text.push_str(value);
-                    text.push(' ');
+                    text.append(value);
                 }
                 Item::Scalar(..) => {}
                 Item::Structured(child) => {
@@ -173,8 +154,7 @@ fn subtree_text(
                             ),
                         });
                     };
-                    text.push_str(child);
-                    text.push(' ');
+                    text.append(child.as_str());
                 }
             }
         }

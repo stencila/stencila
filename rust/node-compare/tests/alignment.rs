@@ -6,8 +6,7 @@ use eyre::{Result, bail};
 use pretty_assertions::assert_eq;
 
 use stencila_node_compare::{
-    Alignment, AlignmentFormatVersion, Correspondence, MatchRule, NodeRef, Side, align,
-    projection::{Projection, Root},
+    Alignment, AlignmentFormatVersion, Correspondence, MatchRule, NodeRef, align,
 };
 use stencila_node_path::{NodePath, NodeSlot};
 use stencila_node_type::{NodeProperty, NodeType};
@@ -32,14 +31,14 @@ fn by_left<'alignment>(
     path: &NodePath,
 ) -> Option<&'alignment Correspondence> {
     alignment
-        .correspondences
+        .correspondences()
         .iter()
         .find(|correspondence| correspondence.left().map(|node| &node.path) == Some(path))
 }
 
 /// The number of structured occurrences in a node
 fn occurrence_count(node: &Node) -> Result<usize> {
-    Ok(Projection::new(node, Side::Left)?.occurrences().len())
+    Ok(align(node, node)?.correspondences().len())
 }
 
 /// The two caller-selected roots always receive a deterministic root correspondence
@@ -75,7 +74,7 @@ fn coverage_is_complete_and_single() -> Result<()> {
 
     let mut left_paths = HashSet::new();
     let mut right_paths = HashSet::new();
-    for correspondence in &alignment.correspondences {
+    for correspondence in alignment.correspondences() {
         if let Some(node) = correspondence.left() {
             assert!(
                 left_paths.insert(node.path.clone()),
@@ -248,27 +247,7 @@ fn references_resolve_in_their_projection() -> Result<()> {
 
     let alignment = align(&left, &right)?;
 
-    let left_projection = Projection::new(&left, Side::Left)?;
-    let right_projection = Projection::new(&right, Side::Right)?;
-
-    for correspondence in &alignment.correspondences {
-        for (node, projection) in [
-            (correspondence.left(), &left_projection),
-            (correspondence.right(), &right_projection),
-        ] {
-            let Some(node) = node else { continue };
-
-            // The root reference may be a scalar root; here both roots are structured
-            let resolved = projection
-                .occurrences()
-                .iter()
-                .find(|occurrence| occurrence.path == node.path);
-            let Some(resolved) = resolved else {
-                bail!("Reference to `{}` does not resolve", node.path)
-            };
-            assert_eq!(resolved.node_type, node.node_type);
-        }
-    }
+    alignment.validate(&left, &right)?;
 
     // No UID appears anywhere in the serialized artifact
     let json = serde_json::to_string(&alignment)?;
@@ -285,7 +264,7 @@ fn canonical_ordering_holds() -> Result<()> {
         &art([p([t("Two")])]),
     )?;
 
-    let ordered = |alignment: &Alignment| alignment.correspondences.is_sorted();
+    let ordered = |alignment: &Alignment| alignment.correspondences().is_sorted();
     assert!(ordered(&alignment), "not ordered in memory");
 
     let json = serde_json::to_string(&alignment)?;
@@ -315,11 +294,32 @@ fn swap_and_invert_is_identical() -> Result<()> {
 fn artifact_is_versioned() -> Result<()> {
     let alignment = align(&art([]), &art([]))?;
 
-    assert_eq!(alignment.format_version, AlignmentFormatVersion::V1);
-    assert_eq!(alignment.algorithm.name, "stencila-schema-native");
-    assert_eq!(alignment.algorithm.version, "1");
-    assert_eq!(alignment.algorithm.projection_version, "1");
-    assert_eq!(alignment.algorithm.policy, "schema-native");
+    assert_eq!(alignment.format_version(), AlignmentFormatVersion::V1);
+    assert_eq!(alignment.algorithm().name, "stencila-schema-native");
+    assert_eq!(alignment.algorithm().version, "1");
+    assert_eq!(alignment.algorithm().projection_version, "1");
+    assert_eq!(alignment.algorithm().policy, "schema-native");
+
+    Ok(())
+}
+
+/// Ordering distinguishes correspondences whose paths and match information agree but
+/// whose referenced node types differ
+#[test]
+fn ordering_agrees_with_equality() -> Result<()> {
+    let one = align(&Node::Integer(1), &Node::String("one".to_string()))?
+        .correspondences()
+        .first()
+        .cloned()
+        .ok_or_else(|| eyre::eyre!("expected a correspondence"))?;
+    let other = align(&Node::Number(1.), &Node::Boolean(true))?
+        .correspondences()
+        .first()
+        .cloned()
+        .ok_or_else(|| eyre::eyre!("expected a correspondence"))?;
+
+    assert_ne!(one, other);
+    assert_ne!(one.cmp(&other), std::cmp::Ordering::Equal);
 
     Ok(())
 }
@@ -370,7 +370,7 @@ fn scalar_and_structured_roots_pair() -> Result<()> {
         left: left_ref,
         right: right_ref,
         ..
-    }) = alignment.correspondences.iter().find(|correspondence| {
+    }) = alignment.correspondences().iter().find(|correspondence| {
         matches!(correspondence, Correspondence::Paired { left, .. } if left.path.is_empty())
     }) else {
         bail!("Expected the roots to be paired")
@@ -389,8 +389,9 @@ fn scalar_and_structured_roots_pair() -> Result<()> {
 fn scalar_roots_pair() -> Result<()> {
     let alignment = align(&Node::Integer(1), &Node::String("one".to_string()))?;
 
-    assert_eq!(alignment.correspondences.len(), 1);
-    let Some(Correspondence::Paired { left, right, .. }) = alignment.correspondences.first() else {
+    assert_eq!(alignment.correspondences().len(), 1);
+    let Some(Correspondence::Paired { left, right, .. }) = alignment.correspondences().first()
+    else {
         bail!("Expected the roots to be paired")
     };
     assert_eq!(left.node_type, NodeType::Integer);
@@ -407,11 +408,7 @@ fn occurrence_counts_match() -> Result<()> {
     let right = art([p([t("One")])]);
 
     let alignment = align(&left, &right)?;
-    let Root::Structured(..) = Projection::new(&left, Side::Left)?.root() else {
-        bail!("Expected a structured root")
-    };
-
-    assert_eq!(alignment.correspondences.len(), occurrence_count(&left)?);
+    assert_eq!(alignment.correspondences().len(), occurrence_count(&left)?);
     assert_eq!(
         Article::default().id,
         None,

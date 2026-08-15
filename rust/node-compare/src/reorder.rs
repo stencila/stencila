@@ -116,8 +116,8 @@ pub(crate) fn derive(
             let right_occurrence = right.occurrence(right_id)?;
 
             differences.push(Difference::Reordered {
-                left: NodeRef::new(left_occurrence.path.clone(), left_occurrence.node_type),
-                right: NodeRef::new(right_occurrence.path.clone(), right_occurrence.node_type),
+                left: left_occurrence.node_ref(),
+                right: right_occurrence.node_ref(),
                 left_scope: left_scope.clone(),
                 right_scope: right_scope.clone(),
                 property: scope.property,

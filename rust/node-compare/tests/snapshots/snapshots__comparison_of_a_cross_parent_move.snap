@@ -3,13 +3,7 @@ source: rust/node-compare/tests/snapshots.rs
 expression: "compare(&left, &right)?"
 ---
 {
-  "formatVersion": "1",
-  "algorithm": {
-    "name": "stencila-schema-native",
-    "version": "1",
-    "projectionVersion": "1",
-    "policy": "schema-native"
-  },
+  "formatVersion": "2",
   "alignment": {
     "formatVersion": "1",
     "algorithm": {

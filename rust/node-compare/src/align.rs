@@ -21,7 +21,7 @@
 //! partition.
 
 use std::{
-    collections::{HashMap, HashSet},
+    collections::{BTreeSet, HashMap, HashSet},
     ops::Range,
 };
 
@@ -42,7 +42,10 @@ use crate::{
         ALGORITHM_NAME, ALGORITHM_VERSION, CandidateKind, POLICY_NAME, gap_cost, item_gap_cost,
         pair_cost,
     },
-    projection::{Item, OccurrenceId, PROJECTION_VERSION, ProjectedProperty, Projection, Root},
+    projection::{
+        Item, OccurrenceId, PROJECTION_VERSION, ProjectedProperty, Projection, PropertyPair, Root,
+        property_union,
+    },
     sequence::{self, Costs, Step, TieKey},
 };
 
@@ -62,7 +65,6 @@ pub(crate) fn algorithm_info() -> AlgorithmInfo {
 /// rather than re-deriving it, and so that the scalar items of a mixed collection,
 /// which never become correspondence records, are still accounted for.
 #[derive(Debug, Clone)]
-#[allow(dead_code, reason = "read by difference and reorder derivation")]
 pub(crate) struct PropertyAlignment {
     pub left_parent: OccurrenceId,
     pub right_parent: OccurrenceId,
@@ -85,6 +87,153 @@ pub(crate) struct Aligned {
     pub properties: Vec<PropertyAlignment>,
 }
 
+/// Coverage state of one projected occurrence while an alignment is built
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+enum Coverage {
+    Uncovered,
+    Paired(Option<OccurrenceId>),
+    OneSided,
+}
+
+/// Builds a complete alignment while keeping occurrence coverage in one source of truth
+struct AlignmentBuilder<'projection> {
+    left: &'projection Projection,
+    right: &'projection Projection,
+    left_coverage: Vec<Coverage>,
+    right_coverage: Vec<Coverage>,
+    correspondences: Vec<Correspondence>,
+}
+
+impl<'projection> AlignmentBuilder<'projection> {
+    fn new(left: &'projection Projection, right: &'projection Projection) -> Self {
+        Self {
+            left,
+            right,
+            left_coverage: vec![Coverage::Uncovered; left.occurrences().len()],
+            right_coverage: vec![Coverage::Uncovered; right.occurrences().len()],
+            correspondences: Vec::new(),
+        }
+    }
+
+    fn pair(
+        &mut self,
+        left: OccurrenceId,
+        right: OccurrenceId,
+        correspondence: Correspondence,
+    ) -> CompareResult<()> {
+        self.require_uncovered(Side::Left, left)?;
+        self.require_uncovered(Side::Right, right)?;
+        self.left_coverage[left] = Coverage::Paired(Some(right));
+        self.right_coverage[right] = Coverage::Paired(Some(left));
+        self.correspondences.push(correspondence);
+        Ok(())
+    }
+
+    fn root_with_scalar(
+        &mut self,
+        side: Side,
+        id: OccurrenceId,
+        correspondence: Correspondence,
+    ) -> CompareResult<()> {
+        self.require_uncovered(side, id)?;
+        self.coverage_mut(side)[id] = Coverage::Paired(None);
+        self.correspondences.push(correspondence);
+        Ok(())
+    }
+
+    fn scalar_roots(&mut self, correspondence: Correspondence) {
+        self.correspondences.push(correspondence);
+    }
+
+    fn one_sided(
+        &mut self,
+        side: Side,
+        id: OccurrenceId,
+        correspondence: Correspondence,
+    ) -> CompareResult<()> {
+        self.require_uncovered(side, id)?;
+        self.coverage_mut(side)[id] = Coverage::OneSided;
+        self.correspondences.push(correspondence);
+        Ok(())
+    }
+
+    fn is_paired(&self, side: Side, id: OccurrenceId) -> bool {
+        matches!(self.coverage(side).get(id), Some(Coverage::Paired(..)))
+    }
+
+    fn is_emitted(&self, side: Side, id: OccurrenceId) -> bool {
+        matches!(self.coverage(side).get(id), Some(Coverage::OneSided))
+    }
+
+    fn finish(self) -> CompareResult<(Alignment, Vec<(OccurrenceId, OccurrenceId)>)> {
+        for (side, projection, coverage) in [
+            (Side::Left, self.left, &self.left_coverage),
+            (Side::Right, self.right, &self.right_coverage),
+        ] {
+            for occurrence in projection.occurrences() {
+                if coverage[occurrence.id] == Coverage::Uncovered {
+                    return Err(CompareError::Invariant {
+                        message: format!(
+                            "The {side} occurrence at `{}` is not covered by the alignment",
+                            occurrence.path
+                        ),
+                    });
+                }
+            }
+        }
+
+        let pairs = self
+            .left_coverage
+            .iter()
+            .enumerate()
+            .filter_map(|(left, coverage)| match coverage {
+                Coverage::Paired(Some(right)) => Some((left, *right)),
+                Coverage::Uncovered | Coverage::Paired(None) | Coverage::OneSided => None,
+            })
+            .collect();
+        let alignment = Alignment::new(algorithm_info(), self.correspondences)?;
+        Ok((alignment, pairs))
+    }
+
+    fn require_uncovered(&self, side: Side, id: OccurrenceId) -> CompareResult<()> {
+        let Some(coverage) = self.coverage(side).get(id) else {
+            return Err(CompareError::Invariant {
+                message: format!("No {side} occurrence with id {id}"),
+            });
+        };
+        if *coverage != Coverage::Uncovered {
+            return Err(CompareError::Invariant {
+                message: format!(
+                    "The {side} occurrence at `{}` is covered more than once",
+                    self.projection(side).occurrence(id)?.path
+                ),
+            });
+        }
+        Ok(())
+    }
+
+    fn coverage(&self, side: Side) -> &[Coverage] {
+        match side {
+            Side::Left => &self.left_coverage,
+            Side::Right => &self.right_coverage,
+        }
+    }
+
+    fn coverage_mut(&mut self, side: Side) -> &mut [Coverage] {
+        match side {
+            Side::Left => &mut self.left_coverage,
+            Side::Right => &mut self.right_coverage,
+        }
+    }
+
+    fn projection(&self, side: Side) -> &Projection {
+        match side {
+            Side::Left => self.left,
+            Side::Right => self.right,
+        }
+    }
+}
+
 /// Aligns two projections
 pub(crate) struct Aligner<'projection> {
     left: &'projection Projection,
@@ -95,20 +244,11 @@ pub(crate) struct Aligner<'projection> {
 
     options: &'projection CompareOptions,
 
-    /// The correspondences established so far
-    correspondences: Vec<Correspondence>,
-
-    /// The paired occurrences, by projection id
-    pairs: Vec<(OccurrenceId, OccurrenceId)>,
+    /// The alignment and occurrence coverage established so far
+    builder: AlignmentBuilder<'projection>,
 
     /// How each repeated property of each paired parent was aligned
     properties: Vec<PropertyAlignment>,
-
-    /// The left occurrences claimed by a pair
-    left_paired: HashSet<OccurrenceId>,
-
-    /// The right occurrences claimed by a pair
-    right_paired: HashSet<OccurrenceId>,
 
     /// The maximal left subtree roots with no counterpart yet
     ///
@@ -118,12 +258,6 @@ pub(crate) struct Aligner<'projection> {
 
     /// The maximal right subtree roots with no counterpart yet
     right_deferred: Vec<(OccurrenceId, UnmatchedReason)>,
-
-    /// The left occurrences recorded as one-sided
-    left_emitted: HashSet<OccurrenceId>,
-
-    /// The right occurrences recorded as one-sided
-    right_emitted: HashSet<OccurrenceId>,
 
     /// The candidate cells consumed by sequence alignment so far
     cells_used: usize,
@@ -144,15 +278,10 @@ impl<'projection> Aligner<'projection> {
             right,
             right_features,
             options,
-            correspondences: Vec::new(),
-            pairs: Vec::new(),
+            builder: AlignmentBuilder::new(left, right),
             properties: Vec::new(),
-            left_paired: HashSet::new(),
-            right_paired: HashSet::new(),
             left_deferred: Vec::new(),
             right_deferred: Vec::new(),
-            left_emitted: HashSet::new(),
-            right_emitted: HashSet::new(),
             cells_used: 0,
         }
     }
@@ -168,19 +297,18 @@ impl<'projection> Aligner<'projection> {
         self.reconcile()?;
 
         self.emit_one_sided()?;
-        self.check_coverage()?;
+        let (alignment, pairs) = self.builder.finish()?;
 
         Ok(Aligned {
-            alignment: Alignment::new(algorithm_info(), self.correspondences),
-            pairs: self.pairs,
+            alignment,
+            pairs,
             properties: self.properties,
         })
     }
 
     /// A reference to a structured occurrence
     fn node_ref(&self, projection: &Projection, id: OccurrenceId) -> CompareResult<NodeRef> {
-        let occurrence = projection.occurrence(id)?;
-        Ok(NodeRef::new(occurrence.path.clone(), occurrence.node_type))
+        Ok(projection.occurrence(id)?.node_ref())
     }
 
     /// A reference to the root of a projection
@@ -189,10 +317,7 @@ impl<'projection> Aligner<'projection> {
     /// the one place where a correspondence record refers to something other than a
     /// structured occurrence.
     fn root_ref(&self, projection: &Projection) -> CompareResult<NodeRef> {
-        Ok(match projection.root() {
-            Root::Structured(id) => self.node_ref(projection, *id)?,
-            Root::Scalar(..) => NodeRef::new(NodePath::new(), projection.root_node_type()?),
-        })
+        projection.root_ref()
     }
 
     /// Pair the two caller-selected roots, then align downwards
@@ -212,7 +337,7 @@ impl<'projection> Aligner<'projection> {
         };
 
         let same_type = left_ref.node_type == right_ref.node_type;
-        self.correspondences.push(Correspondence::Paired {
+        let correspondence = Correspondence::Paired {
             left: left_ref,
             right: right_ref,
             match_info: MatchInfo {
@@ -227,30 +352,30 @@ impl<'projection> Aligner<'projection> {
                     contribution: AlignmentCost::ZERO,
                 }],
             },
-        });
+        };
 
         match (left_root, right_root) {
             (Root::Structured(left), Root::Structured(right)) => {
-                self.left_paired.insert(left);
-                self.right_paired.insert(right);
-                self.pairs.push((left, right));
+                self.builder.pair(left, right, correspondence)?;
                 self.align_properties(left, right)?;
             }
             (Root::Structured(left), Root::Scalar(..)) => {
                 // The structured root is paired with the scalar root, but its contents
                 // are not forced into a structural comparison
-                self.left_paired.insert(left);
+                self.builder
+                    .root_with_scalar(Side::Left, left, correspondence)?;
                 for child in crate::policy::children(self.left, left)? {
                     self.defer(Side::Left, child, UnmatchedReason::NoCompatibleCandidate)?;
                 }
             }
             (Root::Scalar(..), Root::Structured(right)) => {
-                self.right_paired.insert(right);
+                self.builder
+                    .root_with_scalar(Side::Right, right, correspondence)?;
                 for child in crate::policy::children(self.right, right)? {
                     self.defer(Side::Right, child, UnmatchedReason::NoCompatibleCandidate)?;
                 }
             }
-            (Root::Scalar(..), Root::Scalar(..)) => {}
+            (Root::Scalar(..), Root::Scalar(..)) => self.builder.scalar_roots(correspondence),
         }
 
         Ok(())
@@ -261,30 +386,17 @@ impl<'projection> Aligner<'projection> {
         let left_properties = &self.left.occurrence(left)?.properties;
         let right_properties = &self.right.occurrence(right)?.properties;
 
-        let right_by_property: HashMap<NodeProperty, &ProjectedProperty> = right_properties
-            .iter()
-            .map(|property| (property.decl.property, property))
-            .collect();
-        let left_by_property: HashMap<NodeProperty, &ProjectedProperty> = left_properties
-            .iter()
-            .map(|property| (property.decl.property, property))
-            .collect();
-
-        // Properties declared by the left type, in their declared order, then those
-        // declared only by the right type. A cross-type pair has a property union
-        // rather than a single list, and this keeps the traversal deterministic.
-        for left_property in left_properties {
-            let property = left_property.decl.property;
-            match right_by_property.get(&property) {
-                Some(right_property) => {
-                    self.align_property(left, right, left_property, right_property)?
+        for properties in property_union(left_properties, right_properties) {
+            match properties {
+                PropertyPair::Both(left_property, right_property) => {
+                    self.align_property(left, right, left_property, right_property)?;
                 }
-                None => self.one_sided_property(Side::Left, left_property)?,
-            }
-        }
-        for right_property in right_properties {
-            if !left_by_property.contains_key(&right_property.decl.property) {
-                self.one_sided_property(Side::Right, right_property)?;
+                PropertyPair::LeftOnly(property) => {
+                    self.one_sided_property(Side::Left, property)?;
+                }
+                PropertyPair::RightOnly(property) => {
+                    self.one_sided_property(Side::Right, property)?;
+                }
             }
         }
 
@@ -472,8 +584,8 @@ impl<'projection> Aligner<'projection> {
 
         // A one-sided item either had no compatible candidate at all, or had some but
         // the gap cost less than every one of them
-        let left_candidates = has_candidate(&left_kinds, &right_kinds, &compatible, Side::Left)?;
-        let right_candidates = has_candidate(&right_kinds, &left_kinds, &compatible, Side::Right)?;
+        let left_candidates = has_candidates(&left_kinds, &right_kinds, left_decl, right_decl);
+        let right_candidates = has_candidates(&right_kinds, &left_kinds, right_decl, left_decl);
 
         let rules: HashMap<(usize, usize), MatchRule> = anchors
             .iter()
@@ -582,23 +694,6 @@ impl<'projection> Aligner<'projection> {
         rule: MatchRule,
         evidence: Vec<MatchEvidence>,
     ) -> CompareResult<()> {
-        if !self.left_paired.insert(left) {
-            return Err(CompareError::Invariant {
-                message: format!(
-                    "The left occurrence at `{path}` is paired more than once",
-                    path = self.left.occurrence(left)?.path
-                ),
-            });
-        }
-        if !self.right_paired.insert(right) {
-            return Err(CompareError::Invariant {
-                message: format!(
-                    "The right occurrence at `{path}` is paired more than once",
-                    path = self.right.occurrence(right)?.path
-                ),
-            });
-        }
-
         let left_ref = self.node_ref(self.left, left)?;
         let right_ref = self.node_ref(self.right, right)?;
         let same_type = left_ref.node_type == right_ref.node_type;
@@ -620,18 +715,21 @@ impl<'projection> Aligner<'projection> {
                 total.saturating_add(evidence.contribution)
             });
 
-        self.pairs.push((left, right));
-        self.correspondences.push(Correspondence::Paired {
-            left: left_ref,
-            right: right_ref,
-            match_info: MatchInfo {
-                rule,
-                pair_cost,
-                left_gap_cost: gap_cost(self.left, left)?,
-                right_gap_cost: gap_cost(self.right, right)?,
-                evidence,
+        self.builder.pair(
+            left,
+            right,
+            Correspondence::Paired {
+                left: left_ref,
+                right: right_ref,
+                match_info: MatchInfo {
+                    rule,
+                    pair_cost,
+                    left_gap_cost: gap_cost(self.left, left)?,
+                    right_gap_cost: gap_cost(self.right, right)?,
+                    evidence,
+                },
             },
-        });
+        )?;
 
         self.align_properties(left, right)
     }
@@ -841,20 +939,7 @@ impl<'projection> Aligner<'projection> {
         let projection = self.projection(side);
         let node_ref = self.node_ref(projection, id)?;
 
-        let fresh = match side {
-            Side::Left => self.left_emitted.insert(id),
-            Side::Right => self.right_emitted.insert(id),
-        };
-        if !fresh {
-            return Err(CompareError::Invariant {
-                message: format!(
-                    "The {side} occurrence at `{path}` is recorded more than once",
-                    path = node_ref.path
-                ),
-            });
-        }
-
-        self.correspondences.push(match side {
+        let correspondence = match side {
             Side::Left => Correspondence::LeftOnly {
                 left: node_ref.clone(),
                 reason,
@@ -865,7 +950,8 @@ impl<'projection> Aligner<'projection> {
                 reason,
                 nearest_one_sided_ancestor: ancestor,
             },
-        });
+        };
+        self.builder.one_sided(side, id, correspondence)?;
 
         for child in crate::policy::children(projection, id)? {
             if self.is_paired(side, child) {
@@ -884,18 +970,12 @@ impl<'projection> Aligner<'projection> {
 
     /// Whether an occurrence was paired
     fn is_paired(&self, side: Side, id: OccurrenceId) -> bool {
-        match side {
-            Side::Left => self.left_paired.contains(&id),
-            Side::Right => self.right_paired.contains(&id),
-        }
+        self.builder.is_paired(side, id)
     }
 
     /// Whether an occurrence was already recorded as one-sided
     fn is_emitted(&self, side: Side, id: OccurrenceId) -> bool {
-        match side {
-            Side::Left => self.left_emitted.contains(&id),
-            Side::Right => self.right_emitted.contains(&id),
-        }
+        self.builder.is_emitted(side, id)
     }
 
     /// The projection for a side
@@ -904,28 +984,6 @@ impl<'projection> Aligner<'projection> {
             Side::Left => self.left,
             Side::Right => self.right,
         }
-    }
-
-    /// Check that every occurrence on both sides is covered exactly once
-    ///
-    /// Single coverage is enforced as records are added; this checks that nothing was
-    /// left out. A violation is a bug, and returns an error rather than a partial
-    /// artifact.
-    fn check_coverage(&self) -> CompareResult<()> {
-        for (side, projection) in [(Side::Left, self.left), (Side::Right, self.right)] {
-            for occurrence in projection.occurrences() {
-                if !self.is_paired(side, occurrence.id) && !self.is_emitted(side, occurrence.id) {
-                    return Err(CompareError::Invariant {
-                        message: format!(
-                            "The {side} occurrence at `{path}` is not covered by the alignment",
-                            path = occurrence.path
-                        ),
-                    });
-                }
-            }
-        }
-
-        Ok(())
     }
 }
 
@@ -1057,29 +1115,38 @@ fn segments(
 }
 
 /// Whether each item of a sequence had any compatible candidate on the other side
-fn has_candidate(
+///
+/// Compatibility depends only on whether an item is scalar, its concrete node type,
+/// and the two property declarations. Indexing those facts avoids rescanning the full
+/// candidate cross-product after the dynamic program has already completed.
+fn has_candidates(
     kinds: &[CandidateKind<'_>],
     others: &[CandidateKind<'_>],
-    compatible: &dyn Fn(usize, usize) -> CompareResult<bool>,
-    side: Side,
-) -> CompareResult<Vec<bool>> {
-    let mut any = Vec::with_capacity(kinds.len());
-    for index in 0..kinds.len() {
-        let mut found = false;
-        for other in 0..others.len() {
-            let compatible = match side {
-                Side::Left => compatible(index, other)?,
-                Side::Right => compatible(other, index)?,
-            };
-            if compatible {
-                found = true;
-                break;
-            }
-        }
-        any.push(found);
-    }
+    decl: &stencila_schema::PropertyDecl,
+    other_decl: &stencila_schema::PropertyDecl,
+) -> Vec<bool> {
+    let has_scalar = others
+        .iter()
+        .any(|kind| matches!(kind, CandidateKind::Scalar(..)));
+    let structured_types: BTreeSet<_> = others
+        .iter()
+        .filter_map(|kind| match kind {
+            CandidateKind::Structured(features) => Some(features.node_type),
+            CandidateKind::Scalar(..) => None,
+        })
+        .collect();
+    let shared_union = decl == other_decl && decl.kind == stencila_schema::ValueKind::Union;
 
-    Ok(any)
+    kinds
+        .iter()
+        .map(|kind| match kind {
+            CandidateKind::Scalar(..) => has_scalar,
+            CandidateKind::Structured(features) => {
+                (shared_union && !structured_types.is_empty())
+                    || structured_types.contains(&features.node_type)
+            }
+        })
+        .collect()
 }
 
 /// Why an item that a sequence alignment left as a gap has no counterpart

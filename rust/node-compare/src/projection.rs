@@ -25,19 +25,59 @@
 //! outside a `Cord`, execution state, compilation messages — is projected and compared
 //! by default.
 //!
-//! This module is an implementation detail of comparison rather than a stable
-//! artifact contract: it is public so that it can be tested and inspected, but its
-//! shape may change with the projection version.
+//! This module is an implementation detail of comparison rather than a stable artifact
+//! contract. Its observable semantics are exercised through the crate's comparison
+//! interface and its representation rules are covered by internal unit tests.
+
+use std::collections::HashMap;
 
 use stencila_node_path::{NodePath, NodeSlot};
 use stencila_node_type::{NodeProperty, NodeType};
 use stencila_schema::{InspectNode, InspectValue, PropertyDecl, ScalarRef};
 
 use crate::{
+    alignment::NodeRef,
     error::{CompareError, CompareResult, Side},
     fingerprint::Identity,
     scalar::ScalarValue,
 };
+
+/// One member of the deterministic property union of two occurrences
+pub(crate) enum PropertyPair<'projection> {
+    Both(
+        &'projection ProjectedProperty,
+        &'projection ProjectedProperty,
+    ),
+    LeftOnly(&'projection ProjectedProperty),
+    RightOnly(&'projection ProjectedProperty),
+}
+
+/// The properties declared by the left occurrence in declaration order, followed by
+/// properties declared only by the right occurrence
+pub(crate) fn property_union<'projection>(
+    left: &'projection [ProjectedProperty],
+    right: &'projection [ProjectedProperty],
+) -> Vec<PropertyPair<'projection>> {
+    let right_by_property: HashMap<_, _> = right
+        .iter()
+        .map(|property| (property.decl.property, property))
+        .collect();
+    let left_properties: std::collections::HashSet<_> =
+        left.iter().map(|property| property.decl.property).collect();
+
+    left.iter()
+        .map(|left| match right_by_property.get(&left.decl.property) {
+            Some(right) => PropertyPair::Both(left, right),
+            None => PropertyPair::LeftOnly(left),
+        })
+        .chain(
+            right
+                .iter()
+                .filter(|right| !left_properties.contains(&right.decl.property))
+                .map(PropertyPair::RightOnly),
+        )
+        .collect()
+}
 
 /// The version of the projection
 ///
@@ -115,9 +155,6 @@ pub struct Occurrence {
     /// The property of the parent that contains this occurrence
     pub parent_property: Option<NodeProperty>,
 
-    /// The position of this occurrence within a repeated property of its parent
-    pub parent_index: Option<usize>,
-
     /// The declared properties of this occurrence
     pub properties: Vec<ProjectedProperty>,
 
@@ -126,6 +163,13 @@ pub struct Occurrence {
     /// Precomputed, in one pass, so that algorithms which need the size of a subtree
     /// neither recurse nor recompute it.
     pub subtree_size: i64,
+}
+
+impl Occurrence {
+    /// A stable artifact reference to this occurrence
+    pub(crate) fn node_ref(&self) -> NodeRef {
+        NodeRef::new(self.path.clone(), self.node_type)
+    }
 }
 
 /// The projected root
@@ -163,7 +207,7 @@ impl Projection {
             root: Root::Scalar(ScalarValue::Null),
         };
 
-        let root = match projection.project(node, NodePath::new(), None, None, None, 0)? {
+        let root = match projection.project(node, NodePath::new(), None, None, 0)? {
             Item::Structured(id) => Root::Structured(id),
             Item::Scalar(value) => Root::Scalar(value),
         };
@@ -219,6 +263,14 @@ impl Projection {
         &self.root
     }
 
+    /// A stable artifact reference to the projected root
+    pub(crate) fn root_ref(&self) -> CompareResult<NodeRef> {
+        Ok(match self.root() {
+            Root::Structured(id) => self.occurrence(*id)?.node_ref(),
+            Root::Scalar(..) => NodeRef::new(NodePath::new(), self.root_node_type()?),
+        })
+    }
+
     /// All structured occurrences, in projection order
     pub fn occurrences(&self) -> &[Occurrence] {
         &self.occurrences
@@ -243,7 +295,6 @@ impl Projection {
         path: NodePath,
         parent: Option<OccurrenceId>,
         parent_property: Option<NodeProperty>,
-        parent_index: Option<usize>,
         depth: usize,
     ) -> CompareResult<Item> {
         if depth > MAX_DEPTH {
@@ -267,7 +318,6 @@ impl Projection {
                 path: path.clone(),
                 parent,
                 parent_property,
-                parent_index,
                 properties: Vec::new(),
                 subtree_size: 1,
             });
@@ -317,7 +367,6 @@ impl Projection {
                     property_path,
                     Some(parent),
                     Some(decl.property),
-                    None,
                     depth + 1,
                 )?;
                 (Presence::Present, vec![item])
@@ -332,7 +381,6 @@ impl Projection {
                         item_path,
                         Some(parent),
                         Some(decl.property),
-                        Some(index),
                         depth + 1,
                     )?);
                 }
@@ -377,7 +425,11 @@ impl Projection {
                 for (key, primitive) in object.iter() {
                     entries.push((key.clone(), self.primitive_value(primitive, path)?));
                 }
-                ScalarValue::object(entries)
+                ScalarValue::object(entries).map_err(|error| CompareError::Scalar {
+                    side: self.side,
+                    path: path.clone(),
+                    message: error.to_string(),
+                })?
             }
         })
     }
@@ -495,3 +547,7 @@ impl Projection {
         Ok(true)
     }
 }
+
+#[cfg(test)]
+#[path = "projection/tests.rs"]
+mod tests;

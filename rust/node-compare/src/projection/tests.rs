@@ -3,7 +3,7 @@
 use eyre::{Result, bail};
 use pretty_assertions::assert_eq;
 
-use stencila_node_compare::{
+use crate::{
     CanonicalNumber, CompareError, ScalarValue, Side,
     projection::{Item, Occurrence, Presence, Projection, Root},
     projections_equal,
@@ -371,7 +371,7 @@ fn dynamic_values_are_preserved() -> Result<()> {
             ScalarValue::Array {
                 items: vec![ScalarValue::Null]
             }
-        )]))
+        )])?)
     );
 
     Ok(())
@@ -478,7 +478,7 @@ fn object_entries_are_canonical_after_deserialization() -> Result<()> {
     let canonical = ScalarValue::object([
         ("a".to_string(), ScalarValue::Integer { value: 1 }),
         ("b".to_string(), ScalarValue::Integer { value: 2 }),
-    ]);
+    ])?;
 
     let out_of_order = r#"{"type":"object","entries":[["b",{"type":"integer","value":2}],["a",{"type":"integer","value":1}]]}"#;
     assert_eq!(
@@ -487,4 +487,17 @@ fn object_entries_are_canonical_after_deserialization() -> Result<()> {
     );
 
     Ok(())
+}
+
+/// Dynamic objects reject duplicate keys through both construction and deserialization
+#[test]
+fn object_entries_are_unique() {
+    let duplicate = [
+        ("a".to_string(), ScalarValue::Integer { value: 1 }),
+        ("a".to_string(), ScalarValue::Integer { value: 2 }),
+    ];
+    assert!(ScalarValue::object(duplicate).is_err());
+
+    let duplicate = r#"{"type":"object","entries":[["a",{"type":"integer","value":1}],["a",{"type":"integer","value":2}]]}"#;
+    assert!(serde_json::from_str::<ScalarValue>(duplicate).is_err());
 }

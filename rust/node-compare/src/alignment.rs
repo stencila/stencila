@@ -8,14 +8,18 @@
 //! right-oriented or combined view without either hierarchy being baked into the
 //! foundational model.
 
-use std::cmp::Ordering;
+use std::{cmp::Ordering, collections::HashSet};
 
 use serde::{Deserialize, Serialize};
 
 use stencila_node_path::NodePath;
 use stencila_node_type::NodeType;
 
-use crate::scalar::CanonicalNumber;
+use crate::{
+    error::{CompareError, CompareResult, Side},
+    projection::Projection,
+    scalar::CanonicalNumber,
+};
 
 /// The version of the alignment format
 ///
@@ -456,6 +460,53 @@ impl Ord for Correspondence {
         self.sort_key()
             .cmp(&other.sort_key())
             .then_with(|| self.tie_key().cmp(&other.tie_key()))
+            .then_with(|| match (self, other) {
+                (
+                    Self::Paired {
+                        left,
+                        right,
+                        match_info,
+                    },
+                    Self::Paired {
+                        left: other_left,
+                        right: other_right,
+                        match_info: other_match_info,
+                    },
+                ) => (left, right, match_info).cmp(&(other_left, other_right, other_match_info)),
+                (
+                    Self::LeftOnly {
+                        left,
+                        reason,
+                        nearest_one_sided_ancestor,
+                    },
+                    Self::LeftOnly {
+                        left: other_left,
+                        reason: other_reason,
+                        nearest_one_sided_ancestor: other_ancestor,
+                    },
+                ) => (left, reason, nearest_one_sided_ancestor).cmp(&(
+                    other_left,
+                    other_reason,
+                    other_ancestor,
+                )),
+                (
+                    Self::RightOnly {
+                        right,
+                        reason,
+                        nearest_one_sided_ancestor,
+                    },
+                    Self::RightOnly {
+                        right: other_right,
+                        reason: other_reason,
+                        nearest_one_sided_ancestor: other_ancestor,
+                    },
+                ) => (right, reason, nearest_one_sided_ancestor).cmp(&(
+                    other_right,
+                    other_reason,
+                    other_ancestor,
+                )),
+                _ => Ordering::Equal,
+            })
     }
 }
 
@@ -465,37 +516,173 @@ impl Ord for Correspondence {
 /// Every structured occurrence on both sides appears exactly once: either in one
 /// paired correspondence, or in one one-sided correspondence. No occurrence is paired
 /// more than once.
+///
+/// Deserialization restores canonical order and rejects duplicate paths. Call
+/// [`Alignment::validate`] with the original snapshots before trusting a deserialized
+/// artifact's path resolution and complete coverage.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
+#[serde(rename_all = "camelCase", try_from = "AlignmentData")]
 pub struct Alignment {
     /// The version of the alignment format
-    pub format_version: AlignmentFormatVersion,
+    format_version: AlignmentFormatVersion,
 
     /// The algorithm, projection and policy that produced this alignment
-    pub algorithm: AlgorithmInfo,
+    algorithm: AlgorithmInfo,
 
     /// The correspondences, in canonical order
-    pub correspondences: Vec<Correspondence>,
+    correspondences: Vec<Correspondence>,
+}
+
+#[derive(Deserialize)]
+#[serde(rename_all = "camelCase")]
+struct AlignmentData {
+    format_version: AlignmentFormatVersion,
+    algorithm: AlgorithmInfo,
+    correspondences: Vec<Correspondence>,
+}
+
+impl TryFrom<AlignmentData> for Alignment {
+    type Error = CompareError;
+
+    fn try_from(data: AlignmentData) -> Result<Self, Self::Error> {
+        let mut alignment = Self {
+            format_version: data.format_version,
+            algorithm: data.algorithm,
+            correspondences: data.correspondences,
+        };
+        alignment.canonicalize();
+        alignment.validate_local()?;
+        Ok(alignment)
+    }
 }
 
 impl Alignment {
     /// Create an alignment, putting its correspondences into canonical order
-    pub fn new(algorithm: AlgorithmInfo, correspondences: Vec<Correspondence>) -> Self {
+    pub(crate) fn new(
+        algorithm: AlgorithmInfo,
+        correspondences: Vec<Correspondence>,
+    ) -> CompareResult<Self> {
         let mut alignment = Self {
             format_version: AlignmentFormatVersion::V1,
             algorithm,
             correspondences,
         };
         alignment.canonicalize();
-        alignment
+        alignment.validate_local()?;
+        Ok(alignment)
+    }
+
+    /// The version of the alignment format
+    pub fn format_version(&self) -> AlignmentFormatVersion {
+        self.format_version
+    }
+
+    /// The algorithm, projection and policy that produced this alignment
+    pub fn algorithm(&self) -> &AlgorithmInfo {
+        &self.algorithm
+    }
+
+    /// The correspondences, in canonical order
+    pub fn correspondences(&self) -> &[Correspondence] {
+        &self.correspondences
     }
 
     /// Put the correspondences into canonical order
     ///
     /// Canonical ordering is part of the format contract: it holds in memory as well
     /// as after deserialization, and inversion re-canonicalizes.
-    pub fn canonicalize(&mut self) {
+    fn canonicalize(&mut self) {
         self.correspondences.sort();
+    }
+
+    /// Validate the references and complete, single coverage against two snapshots
+    pub fn validate(
+        &self,
+        left: &stencila_schema::Node,
+        right: &stencila_schema::Node,
+    ) -> CompareResult<()> {
+        self.validate_local()?;
+        let left = Projection::new(left, Side::Left)?;
+        let right = Projection::new(right, Side::Right)?;
+        self.validate_projection(&left)?;
+        self.validate_projection(&right)
+    }
+
+    /// Validate invariants that do not require the original snapshots
+    fn validate_local(&self) -> CompareResult<()> {
+        let mut left_paths = HashSet::new();
+        let mut right_paths = HashSet::new();
+        for correspondence in &self.correspondences {
+            if let Some(left) = correspondence.left()
+                && !left_paths.insert(&left.path)
+            {
+                return Err(CompareError::Invariant {
+                    message: format!("The left path `{}` occurs more than once", left.path),
+                });
+            }
+            if let Some(right) = correspondence.right()
+                && !right_paths.insert(&right.path)
+            {
+                return Err(CompareError::Invariant {
+                    message: format!("The right path `{}` occurs more than once", right.path),
+                });
+            }
+        }
+        Ok(())
+    }
+
+    fn validate_projection(&self, projection: &Projection) -> CompareResult<()> {
+        let side = projection.side();
+        let references: Vec<_> = self
+            .correspondences
+            .iter()
+            .filter_map(|correspondence| match side {
+                Side::Left => correspondence.left(),
+                Side::Right => correspondence.right(),
+            })
+            .collect();
+
+        // A scalar root has no projected occurrence, but still has exactly one root
+        // reference in an alignment.
+        if projection.occurrences().is_empty() {
+            let valid = references.len() == 1
+                && references[0].path == NodePath::new()
+                && references[0].node_type == projection.root_node_type()?;
+            if valid {
+                return Ok(());
+            }
+            return Err(CompareError::PathResolution {
+                side,
+                path: NodePath::new(),
+                expected: projection.root_node_type()?,
+            });
+        }
+
+        if references.len() != projection.occurrences().len() {
+            return Err(CompareError::Invariant {
+                message: format!(
+                    "The {side} alignment covers {} occurrences but the projection has {}",
+                    references.len(),
+                    projection.occurrences().len()
+                ),
+            });
+        }
+
+        let resolvable: HashSet<_> = references
+            .iter()
+            .map(|reference| (&reference.path, reference.node_type))
+            .collect();
+        for occurrence in projection.occurrences() {
+            if !resolvable.contains(&(&occurrence.path, occurrence.node_type)) {
+                return Err(CompareError::PathResolution {
+                    side,
+                    path: occurrence.path.clone(),
+                    expected: occurrence.node_type,
+                });
+            }
+        }
+
+        Ok(())
     }
 
     /// Invert this alignment, as though the two inputs had been swapped

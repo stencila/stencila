@@ -1,8 +1,7 @@
 //! Typed errors
 //!
-//! Comparison is all-or-nothing: a projection failure, an invalid policy result,
-//! resource-limit exhaustion, or an invariant violation returns an error and no
-//! partial artifact.
+//! Comparison is all-or-nothing: a projection failure, resource-limit exhaustion, or
+//! an invariant violation returns an error and no partial artifact.
 
 use std::fmt::{self, Display};
 
@@ -84,10 +83,6 @@ pub enum CompareError {
         depth: usize,
         allowed: usize,
     },
-
-    /// An internal policy produced a result that violates its contract
-    #[error("The {policy} policy produced an invalid result: {message}")]
-    InvalidPolicyResult { policy: String, message: String },
 
     /// The alignment of a repeated property needed more candidate cells than the
     /// budget allows

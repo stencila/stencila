@@ -27,7 +27,7 @@ fn content(index: usize) -> NodePath {
 /// The reorder observations of a comparison, as pairs of paths
 fn reorders(comparison: &Comparison) -> Vec<(NodePath, NodePath)> {
     comparison
-        .differences
+        .differences()
         .iter()
         .filter_map(|difference| match difference {
             Difference::Reordered { left, right, .. } => {
@@ -68,7 +68,7 @@ fn a_reorder_locates_its_scope() -> Result<()> {
         right_scope,
         property,
     }) = comparison
-        .differences
+        .differences()
         .iter()
         .find(|difference| matches!(difference, Difference::Reordered { .. }))
     else {

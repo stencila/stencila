@@ -23,7 +23,10 @@ use crate::{
     alignment::NodeRef,
     comparison::{Difference, PropertyPresence, ValueLocation, ValueState},
     error::CompareResult,
-    projection::{Item, OccurrenceId, Presence, ProjectedProperty, Projection, Root},
+    projection::{
+        Item, OccurrenceId, Presence, ProjectedProperty, Projection, PropertyPair, Root,
+        property_union,
+    },
     scalar::ScalarValue,
     sequence::Step,
 };
@@ -80,16 +83,12 @@ struct Differ<'projection> {
 impl Differ<'_> {
     /// A reference to a structured occurrence
     fn node_ref(&self, projection: &Projection, id: OccurrenceId) -> CompareResult<NodeRef> {
-        let occurrence = projection.occurrence(id)?;
-        Ok(NodeRef::new(occurrence.path.clone(), occurrence.node_type))
+        Ok(projection.occurrence(id)?.node_ref())
     }
 
     /// A reference to the root of a projection
     fn root_ref(&self, projection: &Projection) -> CompareResult<NodeRef> {
-        Ok(NodeRef::new(
-            stencila_node_path::NodePath::new(),
-            projection.root_node_type()?,
-        ))
+        projection.root_ref()
     }
 
     /// Compare two roots that are not both structured
@@ -202,41 +201,30 @@ impl Differ<'_> {
         let left_properties = &self.left.occurrence(left)?.properties;
         let right_properties = &self.right.occurrence(right)?.properties;
 
-        let right_by_property: HashMap<NodeProperty, &ProjectedProperty> = right_properties
-            .iter()
-            .map(|property| (property.decl.property, property))
-            .collect();
-        let left_by_property: HashMap<NodeProperty, &ProjectedProperty> = left_properties
-            .iter()
-            .map(|property| (property.decl.property, property))
-            .collect();
-
-        // The compatible property union of the two projected types: a cross-type pair
-        // has properties that only one of its types declares
-        for left_property in left_properties {
-            match right_by_property.get(&left_property.decl.property) {
-                Some(right_property) => self.derive_property(
+        for properties in property_union(left_properties, right_properties) {
+            match properties {
+                PropertyPair::Both(left_property, right_property) => self.derive_property(
                     (left, &left_ref, left_property),
                     (right, &right_ref, right_property),
                 )?,
-                None => self.differences.push(Difference::PropertyPresenceChanged {
-                    left: left_ref.clone(),
-                    right: right_ref.clone(),
-                    property: left_property.decl.property,
-                    left_presence: presence(left_property),
-                    right_presence: PropertyPresence::Undeclared,
-                }),
-            }
-        }
-        for right_property in right_properties {
-            if !left_by_property.contains_key(&right_property.decl.property) {
-                self.differences.push(Difference::PropertyPresenceChanged {
-                    left: left_ref.clone(),
-                    right: right_ref.clone(),
-                    property: right_property.decl.property,
-                    left_presence: PropertyPresence::Undeclared,
-                    right_presence: presence(right_property),
-                });
+                PropertyPair::LeftOnly(property) => {
+                    self.differences.push(Difference::PropertyPresenceChanged {
+                        left: left_ref.clone(),
+                        right: right_ref.clone(),
+                        property: property.decl.property,
+                        left_presence: presence(property),
+                        right_presence: PropertyPresence::Undeclared,
+                    })
+                }
+                PropertyPair::RightOnly(property) => {
+                    self.differences.push(Difference::PropertyPresenceChanged {
+                        left: left_ref.clone(),
+                        right: right_ref.clone(),
+                        property: property.decl.property,
+                        left_presence: PropertyPresence::Undeclared,
+                        right_presence: presence(property),
+                    })
+                }
             }
         }
 

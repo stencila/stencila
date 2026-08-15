@@ -26,27 +26,66 @@ const GRAM_SIZE: usize = 3;
 ///
 /// This bounds only the *matching* signal. The value policy still compares the whole
 /// of every string exactly, so truncation cannot hide a value difference.
-const MAX_MATCH_CHARACTERS: usize = 1024;
+pub(crate) const MAX_MATCH_CHARACTERS: usize = 1024;
+
+/// Incrementally normalized text, bounded to the prefix used for matching
+#[derive(Debug, Clone, Default, PartialEq, Eq)]
+pub(crate) struct NormalizedText {
+    text: String,
+    characters: usize,
+}
+
+impl NormalizedText {
+    /// Append another logical text part, separated from earlier content by one space
+    pub fn append(&mut self, text: &str) {
+        if self.characters >= MAX_MATCH_CHARACTERS {
+            return;
+        }
+
+        let mut pending_space = self.characters > 0;
+        for character in text.nfc() {
+            if character.is_whitespace() {
+                pending_space = self.characters > 0;
+                continue;
+            }
+            if pending_space {
+                self.text.push(' ');
+                self.characters += 1;
+                if self.characters >= MAX_MATCH_CHARACTERS {
+                    break;
+                }
+                pending_space = false;
+            }
+            self.text.push(character);
+            self.characters += 1;
+            if self.characters >= MAX_MATCH_CHARACTERS {
+                break;
+            }
+        }
+    }
+
+    pub fn as_str(&self) -> &str {
+        &self.text
+    }
+}
 
 /// Normalize text for matching
 pub fn normalize(text: &str) -> String {
+    // Public normalization is not truncated; feature extraction uses `NormalizedText`
+    // directly so it never retains text beyond the matching limit.
     let mut normalized = String::with_capacity(text.len());
-
-    // Collapses any run of Unicode whitespace, including the line endings that the
-    // separate line-ending rule would otherwise leave behind, into a single space
     let mut pending_space = false;
     for character in text.nfc() {
         if character.is_whitespace() {
             pending_space = !normalized.is_empty();
-            continue;
+        } else {
+            if pending_space {
+                normalized.push(' ');
+                pending_space = false;
+            }
+            normalized.push(character);
         }
-        if pending_space {
-            normalized.push(' ');
-            pending_space = false;
-        }
-        normalized.push(character);
     }
-
     normalized
 }
 
@@ -160,6 +199,23 @@ mod tests {
 
         // Composed and decomposed forms normalize to the same string
         assert_eq!(normalize("e\u{0301}"), normalize("\u{00e9}"));
+    }
+
+    /// Incremental feature text retains exactly the bounded normalized prefix
+    #[test]
+    fn incremental_normalization_is_bounded() {
+        let left = "a".repeat(700);
+        let right = "b".repeat(700);
+        let mut text = NormalizedText::default();
+        text.append(&left);
+        text.append(&right);
+
+        let expected: String = normalize(&format!("{left} {right}"))
+            .chars()
+            .take(MAX_MATCH_CHARACTERS)
+            .collect();
+        assert_eq!(text.as_str(), expected);
+        assert_eq!(text.as_str().chars().count(), MAX_MATCH_CHARACTERS);
     }
 
     /// Similarity is a multiset Dice coefficient over character trigrams

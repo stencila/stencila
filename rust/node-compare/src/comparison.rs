@@ -13,7 +13,7 @@
 //! factual artifact, and which reduction is wanted varies by use case, so no reduction
 //! belongs here.
 
-use std::cmp::Ordering;
+use std::{cmp::Ordering, collections::HashSet};
 
 use serde::{Deserialize, Serialize};
 
@@ -22,6 +22,7 @@ use stencila_node_type::NodeProperty;
 
 use crate::{
     alignment::{AlgorithmInfo, Alignment, NodeRef},
+    error::{CompareError, CompareResult},
     scalar::ScalarValue,
 };
 
@@ -31,9 +32,11 @@ use crate::{
 /// deliverable in its own right.
 #[derive(Debug, Clone, Copy, Default, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub enum ComparisonFormatVersion {
+    /// Removes the duplicate top-level algorithm information; it is owned by the
+    /// embedded alignment and exposed through [`Comparison::algorithm`]
     #[default]
-    #[serde(rename = "1")]
-    V1,
+    #[serde(rename = "2")]
+    V2,
 }
 
 /// The state of a property on one side of a pair
@@ -315,44 +318,228 @@ impl PartialOrd for Difference {
 
 impl Ord for Difference {
     fn cmp(&self, other: &Self) -> Ordering {
-        self.sort_key().cmp(&other.sort_key())
+        self.sort_key()
+            .cmp(&other.sort_key())
+            .then_with(|| match (self, other) {
+                (
+                    Self::NodeTypeChanged { left, right },
+                    Self::NodeTypeChanged {
+                        left: other_left,
+                        right: other_right,
+                    },
+                ) => (left, right).cmp(&(other_left, other_right)),
+                (
+                    Self::PropertyPresenceChanged {
+                        left,
+                        right,
+                        property,
+                        left_presence,
+                        right_presence,
+                    },
+                    Self::PropertyPresenceChanged {
+                        left: other_left,
+                        right: other_right,
+                        property: other_property,
+                        left_presence: other_left_presence,
+                        right_presence: other_right_presence,
+                    },
+                ) => (left, right, property, left_presence, right_presence).cmp(&(
+                    other_left,
+                    other_right,
+                    other_property,
+                    other_left_presence,
+                    other_right_presence,
+                )),
+                (
+                    Self::ValueChanged {
+                        location,
+                        left,
+                        right,
+                    },
+                    Self::ValueChanged {
+                        location: other_location,
+                        left: other_left,
+                        right: other_right,
+                    },
+                ) => (location, left, right).cmp(&(other_location, other_left, other_right)),
+                (
+                    Self::ParentChanged {
+                        left,
+                        right,
+                        left_parent,
+                        right_parent,
+                        left_property,
+                        right_property,
+                    },
+                    Self::ParentChanged {
+                        left: other_left,
+                        right: other_right,
+                        left_parent: other_left_parent,
+                        right_parent: other_right_parent,
+                        left_property: other_left_property,
+                        right_property: other_right_property,
+                    },
+                ) => (
+                    left,
+                    right,
+                    left_parent,
+                    right_parent,
+                    left_property,
+                    right_property,
+                )
+                    .cmp(&(
+                        other_left,
+                        other_right,
+                        other_left_parent,
+                        other_right_parent,
+                        other_left_property,
+                        other_right_property,
+                    )),
+                (
+                    Self::Reordered {
+                        left,
+                        right,
+                        left_scope,
+                        right_scope,
+                        property,
+                    },
+                    Self::Reordered {
+                        left: other_left,
+                        right: other_right,
+                        left_scope: other_left_scope,
+                        right_scope: other_right_scope,
+                        property: other_property,
+                    },
+                ) => (left, right, left_scope, right_scope, property).cmp(&(
+                    other_left,
+                    other_right,
+                    other_left_scope,
+                    other_right_scope,
+                    other_property,
+                )),
+                _ => Ordering::Equal,
+            })
     }
 }
 
 /// An alignment of two nodes, and the differences between their paired occurrences
+///
+/// Deserialization restores canonical order and verifies that every difference refers
+/// to a pair in the embedded alignment. Call [`Comparison::validate`] with the original
+/// snapshots before trusting a deserialized artifact's complete coverage.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
+#[serde(rename_all = "camelCase", try_from = "ComparisonData")]
 pub struct Comparison {
     /// The version of the comparison format
-    pub format_version: ComparisonFormatVersion,
-
-    /// The algorithm, projection and policy that produced this comparison
-    pub algorithm: AlgorithmInfo,
+    format_version: ComparisonFormatVersion,
 
     /// The alignment the differences were derived from
-    pub alignment: Alignment,
+    alignment: Alignment,
 
     /// The differences, in canonical order
-    pub differences: Vec<Difference>,
+    differences: Vec<Difference>,
+}
+
+#[derive(Deserialize)]
+#[serde(rename_all = "camelCase")]
+struct ComparisonData {
+    format_version: ComparisonFormatVersion,
+    alignment: Alignment,
+    differences: Vec<Difference>,
+}
+
+impl TryFrom<ComparisonData> for Comparison {
+    type Error = CompareError;
+
+    fn try_from(data: ComparisonData) -> Result<Self, Self::Error> {
+        Self::new_with_version(data.format_version, data.alignment, data.differences)
+    }
 }
 
 impl Comparison {
     /// Create a comparison, putting its differences into canonical order
-    pub fn new(alignment: Alignment, differences: Vec<Difference>) -> Self {
+    pub(crate) fn new(alignment: Alignment, differences: Vec<Difference>) -> CompareResult<Self> {
+        Self::new_with_version(ComparisonFormatVersion::V2, alignment, differences)
+    }
+
+    fn new_with_version(
+        format_version: ComparisonFormatVersion,
+        alignment: Alignment,
+        differences: Vec<Difference>,
+    ) -> CompareResult<Self> {
         let mut comparison = Self {
-            format_version: ComparisonFormatVersion::V1,
-            algorithm: alignment.algorithm.clone(),
+            format_version,
             alignment,
             differences,
         };
         comparison.canonicalize();
-        comparison
+        comparison.validate_local()?;
+        Ok(comparison)
+    }
+
+    /// The version of the comparison format
+    pub fn format_version(&self) -> ComparisonFormatVersion {
+        self.format_version
+    }
+
+    /// The algorithm, projection and policy that produced this comparison
+    pub fn algorithm(&self) -> &AlgorithmInfo {
+        self.alignment.algorithm()
+    }
+
+    /// The alignment the differences were derived from
+    pub fn alignment(&self) -> &Alignment {
+        &self.alignment
+    }
+
+    /// The differences, in canonical order
+    pub fn differences(&self) -> &[Difference] {
+        &self.differences
     }
 
     /// Put the differences into canonical order
-    pub fn canonicalize(&mut self) {
-        self.alignment.canonicalize();
+    fn canonicalize(&mut self) {
         self.differences.sort();
+    }
+
+    /// Validate this comparison against the two original snapshots
+    pub fn validate(
+        &self,
+        left: &stencila_schema::Node,
+        right: &stencila_schema::Node,
+    ) -> CompareResult<()> {
+        self.validate_local()?;
+        self.alignment.validate(left, right)
+    }
+
+    fn validate_local(&self) -> CompareResult<()> {
+        let pairs: HashSet<_> = self
+            .alignment
+            .pairs()
+            .map(|(left, right, ..)| (left, right))
+            .collect();
+
+        for difference in &self.differences {
+            if !pairs.contains(&(difference.left(), difference.right())) {
+                return Err(CompareError::Invariant {
+                    message: format!(
+                        "A difference refers to an unpaired correspondence between `{}` and `{}`",
+                        difference.left().path,
+                        difference.right().path
+                    ),
+                });
+            }
+        }
+
+        for duplicates in self.differences.windows(2) {
+            if duplicates[0] == duplicates[1] {
+                return Err(CompareError::Invariant {
+                    message: "The same difference occurs more than once".to_string(),
+                });
+            }
+        }
+
+        Ok(())
     }
 
     /// Whether the two compared nodes are equal
@@ -369,7 +556,6 @@ impl Comparison {
     pub fn invert(self) -> Self {
         let mut inverted = Self {
             format_version: self.format_version,
-            algorithm: self.algorithm,
             alignment: self.alignment.invert(),
             differences: self
                 .differences

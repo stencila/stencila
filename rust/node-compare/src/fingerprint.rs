@@ -240,7 +240,7 @@ fn absorb_scalar(fingerprinter: &mut Fingerprinter, value: &ScalarValue) {
         ScalarValue::Object { entries } => {
             fingerprinter.write_u64(8);
             fingerprinter.write_u64(entries.len() as u64);
-            for (key, value) in entries {
+            for (key, value) in entries.iter() {
                 fingerprinter.write_str(key);
                 absorb_scalar(fingerprinter, value);
             }

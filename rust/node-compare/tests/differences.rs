@@ -25,7 +25,7 @@ fn content(index: usize) -> NodePath {
 /// The differences of a given kind
 fn of_property(comparison: &Comparison, property: NodeProperty) -> Vec<&Difference> {
     comparison
-        .differences
+        .differences()
         .iter()
         .filter(|difference| difference.property() == Some(property))
         .collect()
@@ -82,7 +82,7 @@ fn cord_authorship_is_ignored() -> Result<()> {
     };
 
     let comparison = compare(&Node::Text(plain.clone()), &Node::Text(authored.clone()))?;
-    assert!(comparison.differences.is_empty());
+    assert!(comparison.differences().is_empty());
     assert!(comparison.is_equal());
 
     // A string change is still exact
@@ -131,7 +131,7 @@ fn a_node_type_change_with_equal_shared_content() -> Result<()> {
 
     // The type change is recorded
     let changed: Vec<&Difference> = comparison
-        .differences
+        .differences()
         .iter()
         .filter(|difference| matches!(difference, Difference::NodeTypeChanged { .. }))
         .collect();
@@ -144,7 +144,7 @@ fn a_node_type_change_with_equal_shared_content() -> Result<()> {
     // text produced no difference at all
     assert!(
         comparison
-            .differences
+            .differences()
             .iter()
             .all(|difference| difference.property() != Some(NodeProperty::Value))
     );
@@ -207,7 +207,7 @@ fn structured_properties_recurse() -> Result<()> {
 
     // Exactly one leaf value changed: the paragraph's `content` is not itself recorded
     let values: Vec<&Difference> = comparison
-        .differences
+        .differences()
         .iter()
         .filter(|difference| matches!(difference, Difference::ValueChanged { .. }))
         .collect();
@@ -226,10 +226,10 @@ fn one_sided_occurrences_produce_no_differences() -> Result<()> {
     let comparison = compare(&left, &right)?;
 
     assert!(
-        comparison.differences.is_empty(),
+        comparison.differences().is_empty(),
         "a missing subtree is captured by the alignment alone"
     );
-    assert!(comparison.alignment.has_one_sided());
+    assert!(comparison.alignment().has_one_sided());
     assert!(!comparison.is_equal());
 
     Ok(())
@@ -271,8 +271,8 @@ fn equality_matches_projection_equality() -> Result<()> {
 fn primitive_roots_compare_by_value() -> Result<()> {
     let comparison = compare(&Node::Integer(1), &Node::Integer(2))?;
 
-    assert_eq!(comparison.differences.len(), 1);
-    let Some(Difference::ValueChanged { location, .. }) = comparison.differences.first() else {
+    assert_eq!(comparison.differences().len(), 1);
+    let Some(Difference::ValueChanged { location, .. }) = comparison.differences().first() else {
         bail!("Expected a value change")
     };
     assert_eq!(
@@ -290,9 +290,9 @@ fn primitive_roots_compare_by_value() -> Result<()> {
 fn incompatible_roots_change_type() -> Result<()> {
     let comparison = compare(&Node::Integer(1), &Node::String("one".to_string()))?;
 
-    assert_eq!(comparison.differences.len(), 1);
+    assert_eq!(comparison.differences().len(), 1);
     assert!(matches!(
-        comparison.differences.first(),
+        comparison.differences().first(),
         Some(Difference::NodeTypeChanged { .. })
     ));
 
@@ -307,12 +307,15 @@ fn canonical_ordering_and_inversion() -> Result<()> {
     let right = art([p([t("Uno")]), sec([p([t("Two")])]), p([t("Three")])]);
 
     let comparison = compare(&left, &right)?;
-    assert!(comparison.differences.is_sorted(), "not ordered in memory");
+    assert!(
+        comparison.differences().is_sorted(),
+        "not ordered in memory"
+    );
 
     let json = serde_json::to_string(&comparison)?;
     let round_tripped: Comparison = serde_json::from_str(&json)?;
     assert!(
-        round_tripped.differences.is_sorted(),
+        round_tripped.differences().is_sorted(),
         "not ordered after deserialization"
     );
     assert_eq!(round_tripped, comparison);
@@ -328,9 +331,29 @@ fn canonical_ordering_and_inversion() -> Result<()> {
 fn the_artifact_is_versioned() -> Result<()> {
     let comparison = compare(&art([]), &art([]))?;
 
-    assert_eq!(comparison.format_version, ComparisonFormatVersion::V1);
-    assert_eq!(comparison.algorithm.name, "stencila-schema-native");
-    assert_eq!(comparison.algorithm, comparison.alignment.algorithm);
+    assert_eq!(comparison.format_version(), ComparisonFormatVersion::V2);
+    assert_eq!(comparison.algorithm().name, "stencila-schema-native");
+    assert_eq!(comparison.algorithm(), comparison.alignment().algorithm());
+
+    Ok(())
+}
+
+/// Ordering distinguishes differences whose canonical locations agree but values differ
+#[test]
+fn ordering_agrees_with_equality() -> Result<()> {
+    let one = compare(&Node::Integer(1), &Node::Integer(2))?
+        .differences()
+        .first()
+        .cloned()
+        .ok_or_else(|| eyre::eyre!("expected a difference"))?;
+    let other = compare(&Node::Integer(1), &Node::Integer(3))?
+        .differences()
+        .first()
+        .cloned()
+        .ok_or_else(|| eyre::eyre!("expected a difference"))?;
+
+    assert_ne!(one, other);
+    assert_ne!(one.cmp(&other), std::cmp::Ordering::Equal);
 
     Ok(())
 }

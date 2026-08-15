@@ -12,8 +12,8 @@ use eyre::{Result, bail};
 use pretty_assertions::assert_eq;
 
 use stencila_node_compare::{
-    Alignment, CompareError, CompareOptions, Comparison, Correspondence, Side, align,
-    align_with_options, compare, compare_with_options, projection::Projection, projections_equal,
+    Alignment, CompareError, CompareOptions, Comparison, Correspondence, align, align_with_options,
+    compare, compare_with_options, projections_equal,
 };
 use stencila_node_path::NodePath;
 use stencila_node_type::NodeType;
@@ -129,23 +129,14 @@ fn fixtures() -> Vec<(Node, Node)> {
 
 /// The number of structured occurrences of a node
 fn occurrences(node: &Node) -> Result<usize> {
-    Ok(Projection::new(node, Side::Left)?.occurrences().len())
-}
-
-/// The paths of a projection, by node type
-fn projected(node: &Node) -> Result<Vec<(NodePath, NodeType)>> {
-    Ok(Projection::new(node, Side::Left)?
-        .occurrences()
-        .iter()
-        .map(|occurrence| (occurrence.path.clone(), occurrence.node_type))
-        .collect())
+    Ok(align(node, node)?.correspondences().len())
 }
 
 /// Every projected occurrence appears exactly once, and each side's paths are unique
 fn assert_complete_single_coverage(alignment: &Alignment, left: &Node, right: &Node) -> Result<()> {
     let mut left_paths = Vec::new();
     let mut right_paths = Vec::new();
-    for correspondence in &alignment.correspondences {
+    for correspondence in alignment.correspondences() {
         if let Some(node) = correspondence.left() {
             left_paths.push(node.path.clone());
         }
@@ -154,17 +145,9 @@ fn assert_complete_single_coverage(alignment: &Alignment, left: &Node, right: &N
         }
     }
 
-    // A scalar root has no occurrence of its own but still gets a root correspondence,
-    // so it is counted alongside the structured occurrences
-    let expected = |node: &Node| -> Result<usize> {
-        Ok(match occurrences(node)? {
-            0 => 1,
-            count => count,
-        })
-    };
-
-    assert_eq!(left_paths.len(), expected(left)?, "left coverage");
-    assert_eq!(right_paths.len(), expected(right)?, "right coverage");
+    alignment.validate(left, right)?;
+    assert_eq!(left_paths.len(), occurrences(left)?, "left coverage");
+    assert_eq!(right_paths.len(), occurrences(right)?, "right coverage");
 
     let unique = |paths: &[NodePath]| paths.iter().cloned().collect::<HashSet<_>>().len();
     assert_eq!(unique(&left_paths), left_paths.len(), "left paths unique");
@@ -179,40 +162,7 @@ fn assert_complete_single_coverage(alignment: &Alignment, left: &Node, right: &N
 
 /// Every reference resolves in its own projection, with the node type it records
 fn assert_references_resolve(alignment: &Alignment, left: &Node, right: &Node) -> Result<()> {
-    let sides = [
-        (Side::Left, projected(left)?, left),
-        (Side::Right, projected(right)?, right),
-    ];
-
-    for (side, paths, node) in sides {
-        for correspondence in &alignment.correspondences {
-            let reference = match side {
-                Side::Left => correspondence.left(),
-                Side::Right => correspondence.right(),
-            };
-            let Some(reference) = reference else { continue };
-
-            // The root of a scalar-rooted projection is the one reference that is not
-            // an occurrence: it is the caller-selected root itself
-            if paths.is_empty() && reference.path == NodePath::default() {
-                assert_eq!(
-                    reference.node_type,
-                    Projection::new(node, side)?.root_node_type()?
-                );
-                continue;
-            }
-
-            if !paths.contains(&(reference.path.clone(), reference.node_type)) {
-                bail!(
-                    "The {side} reference to `{path}` does not resolve with node type {node_type}",
-                    path = reference.path,
-                    node_type = reference.node_type
-                );
-            }
-        }
-    }
-
-    Ok(())
+    Ok(alignment.validate(left, right)?)
 }
 
 /// Every projected occurrence appears exactly once, and per-side paths are unique
@@ -249,8 +199,8 @@ fn self_comparison_is_difference_free() -> Result<()> {
         let clone = node.clone();
         for comparison in [compare(&node, &node)?, compare(&node, &clone)?] {
             assert!(comparison.is_equal(), "self comparison has no differences");
-            assert!(comparison.differences.is_empty());
-            for (left, right, ..) in comparison.alignment.pairs() {
+            assert!(comparison.differences().is_empty());
+            for (left, right, ..) in comparison.alignment().pairs() {
                 assert_eq!(left.path, right.path, "self comparison is path identical");
             }
         }
@@ -357,23 +307,67 @@ fn serialization_round_trips_in_canonical_order() -> Result<()> {
     for (left, right) in fixtures() {
         let comparison = compare(&left, &right)?;
 
-        // Canonical ordering is already present in memory
-        let mut canonical = comparison.clone();
-        canonical.canonicalize();
-        assert_eq!(comparison, canonical, "canonically ordered in memory");
+        assert!(comparison.alignment().correspondences().is_sorted());
+        assert!(comparison.differences().is_sorted());
 
         let serialized = serde_json::to_string(&comparison)?;
         let deserialized: Comparison = serde_json::from_str(&serialized)?;
         assert_eq!(deserialized, comparison, "round-trips without change");
 
-        // And after deserialization
-        let mut recanonicalized = deserialized.clone();
-        recanonicalized.canonicalize();
-        assert_eq!(
-            recanonicalized, deserialized,
-            "canonically ordered after deserialization"
-        );
+        assert!(deserialized.alignment().correspondences().is_sorted());
+        assert!(deserialized.differences().is_sorted());
     }
+
+    Ok(())
+}
+
+/// Deserialization restores canonical order even when wire records arrive out of order
+#[test]
+fn deserialization_canonicalizes_artifacts() -> Result<()> {
+    let comparison = compare(&document(0), &document(1))?;
+    let mut value = serde_json::to_value(&comparison)?;
+
+    value["differences"]
+        .as_array_mut()
+        .ok_or_else(|| eyre::eyre!("differences is not an array"))?
+        .reverse();
+    value["alignment"]["correspondences"]
+        .as_array_mut()
+        .ok_or_else(|| eyre::eyre!("correspondences is not an array"))?
+        .reverse();
+
+    let deserialized: Comparison = serde_json::from_value(value)?;
+    assert_eq!(deserialized, comparison);
+
+    Ok(())
+}
+
+/// Duplicate references are rejected during deserialization, and missing references
+/// are rejected when an artifact is validated against its snapshots
+#[test]
+fn deserialization_and_snapshot_validation_enforce_coverage() -> Result<()> {
+    let left = document(0);
+    let right = document(1);
+    let alignment = align(&left, &right)?;
+    let mut value = serde_json::to_value(&alignment)?;
+    let mut duplicate = value.clone();
+    let correspondences = duplicate["correspondences"]
+        .as_array_mut()
+        .ok_or_else(|| eyre::eyre!("correspondences is not an array"))?;
+    correspondences.push(
+        correspondences
+            .first()
+            .cloned()
+            .ok_or_else(|| eyre::eyre!("alignment has no correspondences"))?,
+    );
+    assert!(serde_json::from_value::<Alignment>(duplicate).is_err());
+
+    value["correspondences"]
+        .as_array_mut()
+        .ok_or_else(|| eyre::eyre!("correspondences is not an array"))?
+        .pop();
+    let incomplete: Alignment = serde_json::from_value(value)?;
+    assert!(incomplete.validate(&left, &right).is_err());
 
     Ok(())
 }
@@ -390,7 +384,7 @@ fn one_sided_subtrees_are_exhaustive() -> Result<()> {
     // The removed section, both of its paragraphs and both of their texts are each
     // recorded, rather than only the section
     let left_only = alignment
-        .correspondences
+        .correspondences()
         .iter()
         .filter(|correspondence| matches!(correspondence, Correspondence::LeftOnly { .. }))
         .count();

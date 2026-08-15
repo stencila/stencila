@@ -2,7 +2,7 @@
 
 use eyre::{Result, bail};
 
-use stencila_node_compare::{CompareError, align, projection::MAX_DEPTH};
+use stencila_node_compare::{CompareError, MAX_COMPARISON_DEPTH, align};
 use stencila_schema::{
     Block, Node, Section,
     shortcuts::{p, t},
@@ -20,7 +20,7 @@ fn nested(depth: usize) -> Node {
 /// A deeply, but legally, nested document aligns
 #[test]
 fn deep_nesting_aligns() -> Result<()> {
-    let node = nested(MAX_DEPTH - 4);
+    let node = nested(MAX_COMPARISON_DEPTH - 4);
 
     let alignment = align(&node, &node)?;
     assert!(!alignment.has_one_sided());
@@ -31,12 +31,12 @@ fn deep_nesting_aligns() -> Result<()> {
 /// Nesting beyond the limit returns a typed error, rather than exhausting the stack
 #[test]
 fn excessive_nesting_is_an_error() -> Result<()> {
-    let node = nested(MAX_DEPTH + 10);
+    let node = nested(MAX_COMPARISON_DEPTH + 10);
 
     let Err(CompareError::DepthExceeded { allowed, .. }) = align(&node, &node) else {
         bail!("Expected a depth error")
     };
-    assert_eq!(allowed, MAX_DEPTH);
+    assert_eq!(allowed, MAX_COMPARISON_DEPTH);
 
     Ok(())
 }

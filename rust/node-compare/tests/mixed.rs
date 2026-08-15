@@ -56,7 +56,7 @@ fn pairs(alignment: &Alignment) -> Vec<(NodePath, NodePath)> {
 /// The value differences of a comparison, as location and both states
 fn values(comparison: &Comparison) -> Vec<(Option<usize>, Option<usize>, ValueState, ValueState)> {
     comparison
-        .differences
+        .differences()
         .iter()
         .filter_map(|difference| match difference {
             Difference::ValueChanged {
@@ -105,7 +105,7 @@ fn scalar_items_produce_no_correspondences() -> Result<()> {
 
     // Only the article, the code chunk, the added paragraph and its text are
     // correspondences; the two scalar outputs are not
-    for correspondence in &alignment.correspondences {
+    for correspondence in alignment.correspondences() {
         for node in [correspondence.left(), correspondence.right()]
             .into_iter()
             .flatten()
@@ -133,7 +133,7 @@ fn structured_and_scalar_items_never_pair() -> Result<()> {
     // The paragraph has no counterpart at all, rather than being paired with the
     // string that happens to carry the same text
     let Some(Correspondence::LeftOnly { left, .. }) = alignment
-        .correspondences
+        .correspondences()
         .iter()
         .find(|correspondence| correspondence.left().map(|node| &node.path) == Some(&output(0)))
     else {
@@ -312,7 +312,7 @@ fn a_homogeneous_scalar_property_is_one_difference() -> Result<()> {
     let comparison = compare(&keywords(&["one", "two"]), &keywords(&["one", "three"]))?;
 
     let keyword_differences: Vec<&Difference> = comparison
-        .differences
+        .differences()
         .iter()
         .filter(|difference| difference.property() == Some(NodeProperty::Keywords))
         .collect();
@@ -359,7 +359,7 @@ fn nested_scalars_are_not_occurrences() -> Result<()> {
 
     // The root correspondence is the only record: nothing inside the dynamic object
     // became an occurrence
-    assert_eq!(alignment.correspondences.len(), 1);
+    assert_eq!(alignment.correspondences().len(), 1);
 
     Ok(())
 }
@@ -386,8 +386,8 @@ fn all_roots_align_and_compare() -> Result<()> {
             // The selected roots always receive a root correspondence, whatever their
             // variants, and it always pairs them
             let root = comparison
-                .alignment
-                .correspondences
+                .alignment()
+                .correspondences()
                 .iter()
                 .find(|correspondence| {
                     matches!(correspondence, Correspondence::Paired { left, right, .. }
@@ -410,12 +410,12 @@ fn all_roots_align_and_compare() -> Result<()> {
 fn same_type_primitive_roots_compare_by_value() -> Result<()> {
     let comparison = compare(&Node::Integer(1), &Node::Integer(2))?;
 
-    assert_eq!(comparison.differences.len(), 1);
+    assert_eq!(comparison.differences().len(), 1);
     let Some(Difference::ValueChanged {
         location,
         left,
         right,
-    }) = comparison.differences.first()
+    }) = comparison.differences().first()
     else {
         bail!("Expected a root value difference")
     };
@@ -452,9 +452,9 @@ fn incompatible_roots_change_node_type() -> Result<()> {
         ),
     ] {
         let comparison = compare(&left, &right)?;
-        assert_eq!(comparison.differences.len(), 1);
+        assert_eq!(comparison.differences().len(), 1);
         assert!(matches!(
-            comparison.differences.first(),
+            comparison.differences().first(),
             Some(Difference::NodeTypeChanged { .. })
         ));
     }
@@ -463,19 +463,19 @@ fn incompatible_roots_change_node_type() -> Result<()> {
     // structured root's contents are one-sided rather than compared against the scalar
     let comparison = compare(&Node::Integer(1), &art([p([t("Hello")])]))?;
     let node_types: Vec<&Difference> = comparison
-        .differences
+        .differences()
         .iter()
         .filter(|difference| matches!(difference, Difference::NodeTypeChanged { .. }))
         .collect();
     assert_eq!(node_types.len(), 1);
     assert!(
-        !comparison.differences.iter().any(|difference| matches!(
+        !comparison.differences().iter().any(|difference| matches!(
             difference,
             Difference::PropertyPresenceChanged { .. } | Difference::ValueChanged { .. }
         )),
         "the contents of the structured root are not forced into a comparison"
     );
-    assert!(comparison.alignment.has_one_sided());
+    assert!(comparison.alignment().has_one_sided());
 
     Ok(())
 }
@@ -497,38 +497,15 @@ fn mixed_collections_keep_the_invariants() -> Result<()> {
 
     let comparison = compare(&left, &right)?;
 
-    let mut canonical = comparison.clone();
-    canonical.canonicalize();
-    assert_eq!(comparison, canonical, "already canonically ordered");
+    assert!(comparison.alignment().correspondences().is_sorted());
+    assert!(comparison.differences().is_sorted());
 
     assert_eq!(comparison, compare(&right, &left)?.invert());
 
-    // Every structured occurrence of each side appears exactly once
-    let count = |node: &Node| -> Result<usize> {
-        Ok(stencila_node_compare::projection::Projection::new(
-            node,
-            stencila_node_compare::Side::Left,
-        )?
-        .occurrences()
-        .len())
-    };
-    let left_seen = comparison
-        .alignment
-        .correspondences
-        .iter()
-        .filter(|correspondence| correspondence.left().is_some())
-        .count();
-    let right_seen = comparison
-        .alignment
-        .correspondences
-        .iter()
-        .filter(|correspondence| correspondence.right().is_some())
-        .count();
-    assert_eq!(left_seen, count(&left)?);
-    assert_eq!(right_seen, count(&right)?);
+    comparison.validate(&left, &right)?;
 
     // Presence differences are only about declared properties, never about scalars
-    assert!(!comparison.differences.iter().any(|difference| matches!(
+    assert!(!comparison.differences().iter().any(|difference| matches!(
         difference,
         Difference::PropertyPresenceChanged {
             left_presence: PropertyPresence::Undeclared,

@@ -30,7 +30,7 @@ mod scalar;
 mod sequence;
 mod text;
 
-pub mod projection;
+mod projection;
 
 pub use alignment::{
     AlgorithmInfo, Alignment, AlignmentCost, AlignmentFormatVersion, AlignmentSignal,
@@ -42,7 +42,8 @@ pub use comparison::{
 };
 pub use error::{CompareError, CompareResult, Side};
 pub use options::{CompareOptions, DEFAULT_ALIGNMENT_CELL_BUDGET};
-pub use scalar::{CanonicalNumber, ScalarValue};
+pub use projection::MAX_DEPTH as MAX_COMPARISON_DEPTH;
+pub use scalar::{CanonicalNumber, DuplicateObjectKeyError, ObjectEntries, ScalarValue};
 
 use stencila_schema::Node;
 
@@ -109,7 +110,7 @@ pub fn compare_with_options(
         &aligned,
     )?);
 
-    Ok(Comparison::new(aligned.alignment, differences))
+    Comparison::new(aligned.alignment, differences)
 }
 
 /// Whether the canonical projections of two nodes are exactly equal

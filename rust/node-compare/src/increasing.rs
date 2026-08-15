@@ -34,19 +34,34 @@ where
         return (0..count).collect();
     }
 
-    // The length of the longest increasing chain starting at each pair
+    // The length of the longest increasing chain starting at each pair. Right
+    // positions are distinct, so coordinate-compress them and maintain prefix maxima
+    // over reversed ranks: a prefix then contains exactly the positions greater than
+    // the current one. This is O(n log n), unlike the quadratic pairwise scan it
+    // replaces.
+    let mut right_positions: Vec<usize> = pairs.iter().map(|pair| pair.1).collect();
+    right_positions.sort_unstable();
+
+    let mut maxima = FenwickMax::new(count);
     let mut chain = vec![1usize; count];
     for index in (0..count).rev() {
-        for next in (index + 1)..count {
-            if pairs[next].1 > pairs[index].1 {
-                chain[index] = chain[index].max(chain[next] + 1);
-            }
-        }
+        let rank = right_positions.partition_point(|position| *position < pairs[index].1);
+        let reversed_rank = count - rank;
+        chain[index] = maxima.prefix(reversed_rank - 1) + 1;
+        maxima.update(reversed_rank, chain[index]);
     }
 
     let Some(longest) = chain.iter().copied().max() else {
         return Vec::new();
     };
+
+    // Each chain length is considered exactly once below. Grouping its candidates
+    // keeps the tie-breaking pass linear while selecting exactly the same smallest-key
+    // candidate as the former scan over every remaining pair.
+    let mut by_length = vec![Vec::new(); longest + 1];
+    for (index, length) in chain.iter().copied().enumerate() {
+        by_length[length].push(index);
+    }
 
     let mut chosen = Vec::with_capacity(longest);
     let mut remaining = longest;
@@ -56,9 +71,11 @@ where
         // Among the pairs that can still start a chain of the remaining length,
         // without crossing what has already been chosen, take the one with the
         // smallest key
-        let best = (start..count)
+        let best = by_length[remaining]
+            .iter()
+            .copied()
             .filter(|candidate| {
-                chain[*candidate] == remaining
+                *candidate >= start
                     && previous_right.is_none_or(|right| pairs[*candidate].1 > right)
             })
             .min_by_key(|candidate| key(*candidate));
@@ -73,6 +90,35 @@ where
     chosen
 }
 
+/// Prefix maxima with point updates, backed by a Fenwick tree
+struct FenwickMax {
+    values: Vec<usize>,
+}
+
+impl FenwickMax {
+    fn new(size: usize) -> Self {
+        Self {
+            values: vec![0; size + 1],
+        }
+    }
+
+    fn update(&mut self, mut index: usize, value: usize) {
+        while index < self.values.len() {
+            self.values[index] = self.values[index].max(value);
+            index += index & index.wrapping_neg();
+        }
+    }
+
+    fn prefix(&self, mut index: usize) -> usize {
+        let mut maximum = 0;
+        while index > 0 {
+            maximum = maximum.max(self.values[index]);
+            index &= index - 1;
+        }
+        maximum
+    }
+}
+
 /// A tie-break key that is a property of the pair rather than of either side
 ///
 /// Unchanged by swapping the two inputs, because swapping a pair `(left, right)` into
@@ -84,6 +130,55 @@ pub fn symmetric_key(pair: (usize, usize)) -> (usize, usize) {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    /// The original quadratic formulation, retained only as a small-input oracle
+    fn quadratic(pairs: &[(usize, usize)]) -> Vec<usize> {
+        let count = pairs.len();
+        if count < 2 {
+            return (0..count).collect();
+        }
+
+        let mut chain = vec![1usize; count];
+        for index in (0..count).rev() {
+            for next in (index + 1)..count {
+                if pairs[next].1 > pairs[index].1 {
+                    chain[index] = chain[index].max(chain[next] + 1);
+                }
+            }
+        }
+
+        let longest = chain.iter().copied().max().unwrap_or_default();
+        let mut chosen = Vec::with_capacity(longest);
+        let mut remaining = longest;
+        let mut start = 0usize;
+        let mut previous_right: Option<usize> = None;
+        while remaining > 0 {
+            let best = (start..count)
+                .filter(|candidate| {
+                    chain[*candidate] == remaining
+                        && previous_right.is_none_or(|right| pairs[*candidate].1 > right)
+                })
+                .min_by_key(|candidate| symmetric_key(pairs[*candidate]));
+            let Some(best) = best else { break };
+            chosen.push(best);
+            previous_right = Some(pairs[best].1);
+            start = best + 1;
+            remaining -= 1;
+        }
+        chosen
+    }
+
+    fn visit_permutations(values: &mut [usize], start: usize, visit: &mut impl FnMut(&[usize])) {
+        if start == values.len() {
+            visit(values);
+            return;
+        }
+        for index in start..values.len() {
+            values.swap(start, index);
+            visit_permutations(values, start + 1, visit);
+            values.swap(start, index);
+        }
+    }
 
     /// The chosen subset is of maximum size
     #[test]
@@ -168,5 +263,31 @@ mod tests {
     fn handles_small_inputs() {
         assert!(maximum_increasing(&[], |_| 0usize).is_empty());
         assert_eq!(maximum_increasing(&[(3, 7)], |_| 0usize), vec![0]);
+    }
+
+    /// Large already-ordered inputs remain practical; the former quadratic
+    /// implementation made this case prohibitively expensive despite needing no
+    /// dynamic-programming cells.
+    #[test]
+    fn handles_large_inputs() {
+        let pairs: Vec<_> = (0..50_000).map(|index| (index, index)).collect();
+        let chosen = maximum_increasing(&pairs, |index| symmetric_key(pairs[index]));
+        assert_eq!(chosen.len(), pairs.len());
+    }
+
+    /// The faster implementation preserves the exact former tie-breaking behavior
+    #[test]
+    fn matches_quadratic_selection() {
+        for count in 0..=8 {
+            let mut rights: Vec<_> = (0..count).collect();
+            visit_permutations(&mut rights, 0, &mut |rights| {
+                let pairs: Vec<_> = rights.iter().copied().enumerate().collect();
+                assert_eq!(
+                    maximum_increasing(&pairs, |index| symmetric_key(pairs[index])),
+                    quadratic(&pairs),
+                    "for {pairs:?}"
+                );
+            });
+        }
     }
 }

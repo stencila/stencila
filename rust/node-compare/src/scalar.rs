@@ -11,6 +11,7 @@ use std::{
 };
 
 use serde::{Deserialize, Deserializer, Serialize, Serializer, de};
+use thiserror::Error;
 
 use stencila_node_type::NodeType;
 
@@ -221,22 +222,69 @@ pub enum ScalarValue {
     /// Build one with [`ScalarValue::object`], which establishes that order;
     /// deserialization re-establishes it, so canonical ordering holds in memory as
     /// well as after deserialization.
-    Object {
-        #[serde(deserialize_with = "deserialize_canonical_entries")]
-        entries: Vec<(String, ScalarValue)>,
-    },
+    Object { entries: ObjectEntries },
 }
 
-/// Deserialize the entries of a dynamic object, restoring their canonical order
-fn deserialize_canonical_entries<'de, D>(
-    deserializer: D,
-) -> Result<Vec<(String, ScalarValue)>, D::Error>
-where
-    D: Deserializer<'de>,
-{
-    let mut entries = Vec::<(String, ScalarValue)>::deserialize(deserializer)?;
-    entries.sort_by(|(left, ..), (right, ..)| left.cmp(right));
-    Ok(entries)
+/// An attempt to construct a dynamic object with the same key more than once
+#[derive(Debug, Clone, PartialEq, Eq, Error)]
+#[error("Dynamic object key `{key}` occurs more than once")]
+pub struct DuplicateObjectKeyError {
+    key: String,
+}
+
+impl DuplicateObjectKeyError {
+    /// The key that occurred more than once
+    pub fn key(&self) -> &str {
+        &self.key
+    }
+}
+
+/// Canonically ordered, unique entries of a dynamic object
+#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash, Serialize)]
+#[serde(transparent)]
+pub struct ObjectEntries(Vec<(String, ScalarValue)>);
+
+impl ObjectEntries {
+    fn try_new<I>(entries: I) -> Result<Self, DuplicateObjectKeyError>
+    where
+        I: IntoIterator<Item = (String, ScalarValue)>,
+    {
+        let mut entries: Vec<_> = entries.into_iter().collect();
+        entries.sort_by(|(left, ..), (right, ..)| left.cmp(right));
+        for adjacent in entries.windows(2) {
+            if adjacent[0].0 == adjacent[1].0 {
+                return Err(DuplicateObjectKeyError {
+                    key: adjacent[0].0.clone(),
+                });
+            }
+        }
+        Ok(Self(entries))
+    }
+
+    /// Iterate over the entries in canonical key order
+    pub fn iter(&self) -> impl Iterator<Item = &(String, ScalarValue)> {
+        self.0.iter()
+    }
+
+    /// The number of entries
+    pub fn len(&self) -> usize {
+        self.0.len()
+    }
+
+    /// Whether there are no entries
+    pub fn is_empty(&self) -> bool {
+        self.0.is_empty()
+    }
+}
+
+impl<'de> Deserialize<'de> for ObjectEntries {
+    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
+    where
+        D: Deserializer<'de>,
+    {
+        let entries = Vec::<(String, ScalarValue)>::deserialize(deserializer)?;
+        Self::try_new(entries).map_err(de::Error::custom)
+    }
 }
 
 impl ScalarValue {
@@ -273,12 +321,12 @@ impl ScalarValue {
     }
 
     /// Create an object scalar, canonicalizing the order of its entries
-    pub fn object<I>(entries: I) -> Self
+    pub fn object<I>(entries: I) -> Result<Self, DuplicateObjectKeyError>
     where
         I: IntoIterator<Item = (String, ScalarValue)>,
     {
-        let mut entries: Vec<(String, ScalarValue)> = entries.into_iter().collect();
-        entries.sort_by(|(left, ..), (right, ..)| left.cmp(right));
-        Self::Object { entries }
+        Ok(Self::Object {
+            entries: ObjectEntries::try_new(entries)?,
+        })
     }
 }

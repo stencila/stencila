@@ -118,7 +118,7 @@ fn an_implausible_candidate_is_left_as_two_gaps() -> Result<()> {
 
     // The reason distinguishes a refused candidate from no candidate at all
     let Some(Correspondence::LeftOnly { reason, .. }) = alignment
-        .correspondences
+        .correspondences()
         .iter()
         .find(|correspondence| correspondence.left().map(|node| &node.path) == Some(&content(0)))
     else {
