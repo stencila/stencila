@@ -316,3 +316,43 @@ fn coverage_holds_after_reconciliation() -> Result<()> {
 
     Ok(())
 }
+
+/// A shared explicit id does not pair two differently typed subtrees across parents
+///
+/// Within a sibling scope, two differently typed items may still be compatible when
+/// the property is declared identically on both sides and holds a union. Across
+/// parents there is no such shared declaration to appeal to, so an id alone must not
+/// make an arbitrary cross-type match.
+#[test]
+fn a_cross_parent_pair_is_never_cross_type() -> Result<()> {
+    let left = art([
+        identified_section("first", vec![identified("shared", "A sentence")]),
+        identified_section("second", vec![p([t("Something else entirely")])]),
+    ]);
+    let right = art([
+        identified_section("first", vec![p([t("Something else entirely")])]),
+        identified_section(
+            "second",
+            vec![Block::Section(Section {
+                id: Some("shared".to_string()),
+                ..Section::new(vec![p([t("A sentence")])])
+            })],
+        ),
+    ]);
+
+    let alignment = align(&left, &right)?;
+
+    // The paragraph and the section share an id, but not a type, so neither is paired
+    // with the other
+    for (left, right, ..) in alignment.pairs() {
+        if left.node_type != right.node_type {
+            bail!(
+                "A cross-parent pair joined {left_type} to {right_type}",
+                left_type = left.node_type,
+                right_type = right.node_type
+            )
+        }
+    }
+
+    Ok(())
+}

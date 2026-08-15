@@ -22,7 +22,7 @@ use std::collections::BTreeMap;
 
 use stencila_node_type::NodeType;
 
-use crate::{alignment::MatchRule, error::CompareResult};
+use crate::{alignment::MatchRule, error::CompareResult, increasing::maximum_increasing};
 
 /// A compulsory correspondence between two positions in a sibling scope
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -46,8 +46,8 @@ pub struct Anchor {
 /// A swap-invariant key for an anchor
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord)]
 pub struct AnchorKey {
-    /// A hash of the shared explicit `id`, or zero when the anchor is not by `id`
-    pub identity: u64,
+    /// A hash of the shared explicit `id`, when the anchor is by `id`
+    pub identity: Option<u64>,
 
     /// The shared node type, or `None` for a scalar item
     pub node_type: Option<NodeType>,
@@ -129,7 +129,7 @@ pub fn find_crossing(
             *left_index,
             *right_index,
             MatchRule::UniqueId,
-            hash_id(id),
+            Some(hash_id(id)),
         );
     }
 
@@ -159,7 +159,7 @@ pub fn find_crossing(
             *left_index,
             *right_index,
             MatchRule::VerifiedExactFingerprint,
-            0,
+            None,
         );
     }
 
@@ -207,7 +207,7 @@ fn take(
     left_index: usize,
     right_index: usize,
     rule: MatchRule,
-    identity: u64,
+    identity: Option<u64>,
 ) {
     if left_taken[left_index] || right_taken[right_index] {
         return;
@@ -249,46 +249,15 @@ fn hash_id(id: &str) -> u64 {
 /// Where several subsets are of maximum size, the one whose anchors have the smallest
 /// keys is chosen. Because those keys are swap invariant, so is the choice.
 fn non_crossing(anchors: Vec<Anchor>) -> Vec<Anchor> {
-    let count = anchors.len();
-    if count < 2 {
-        return anchors;
-    }
+    let positions: Vec<(usize, usize)> = anchors
+        .iter()
+        .map(|anchor| (anchor.left, anchor.right))
+        .collect();
 
-    // The length of the longest chain starting at each anchor
-    let mut chain = vec![1usize; count];
-    for index in (0..count).rev() {
-        for next in (index + 1)..count {
-            if anchors[next].right > anchors[index].right {
-                chain[index] = chain[index].max(chain[next] + 1);
-            }
-        }
-    }
-
-    let Some(longest) = chain.iter().copied().max() else {
-        return Vec::new();
-    };
-
-    let mut chosen = Vec::with_capacity(longest);
-    let mut remaining = longest;
-    let mut start = 0usize;
-    let mut previous_right: Option<usize> = None;
-    while remaining > 0 {
-        // Among the anchors that can still start a chain of the remaining length,
-        // without crossing what has already been chosen, take the one with the
-        // smallest key
-        let best = (start..count)
-            .filter(|candidate| {
-                chain[*candidate] == remaining
-                    && previous_right.is_none_or(|right| anchors[*candidate].right > right)
-            })
-            .min_by_key(|candidate| anchors[*candidate].key);
-        let Some(best) = best else { break };
-
-        chosen.push(anchors[best]);
-        previous_right = Some(anchors[best].right);
-        start = best + 1;
-        remaining -= 1;
-    }
+    let mut chosen: Vec<Anchor> = maximum_increasing(&positions, |index| anchors[index].key)
+        .into_iter()
+        .map(|index| anchors[index])
+        .collect();
 
     chosen.sort_by_key(|anchor| (anchor.left, anchor.right));
     chosen

@@ -62,7 +62,7 @@ pub(crate) fn algorithm_info() -> AlgorithmInfo {
 /// rather than re-deriving it, and so that the scalar items of a mixed collection,
 /// which never become correspondence records, are still accounted for.
 #[derive(Debug, Clone)]
-#[allow(dead_code, reason = "read by difference derivation")]
+#[allow(dead_code, reason = "read by difference and reorder derivation")]
 pub(crate) struct PropertyAlignment {
     pub left_parent: OccurrenceId,
     pub right_parent: OccurrenceId,
@@ -734,7 +734,15 @@ impl<'projection> Aligner<'projection> {
         let left_candidates = candidates(left, self.left_features)?;
         let right_candidates = candidates(right, self.right_features)?;
 
-        let compatible = |_: usize, _: usize| Ok(true);
+        // Arbitrary cross-type matches are not allowed here either. Within a sibling
+        // scope, two differently typed items may still be compatible when the property
+        // is declared identically on both sides and holds a union, so that both
+        // variants really are valid for the same slot. Across parents there is no such
+        // shared declaration to appeal to, so the concrete types must agree.
+        let compatible = |left_index: usize, right_index: usize| -> CompareResult<bool> {
+            Ok(self.left_features.get(left[left_index])?.node_type
+                == self.right_features.get(right[right_index])?.node_type)
+        };
         let verified_eq = |left_index: usize, right_index: usize| -> CompareResult<bool> {
             // Fingerprint equality is verified against the projected subtree rather
             // than trusted

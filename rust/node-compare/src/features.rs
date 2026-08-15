@@ -169,7 +169,7 @@ fn subtree_text(
                     let Some(child) = computed.get(*child) else {
                         return Err(CompareError::Invariant {
                             message: format!(
-                                "The text of the child of the occurrence with id {id}                                  has not been computed"
+                                "The text of the occurrence with id {child}, a child of the occurrence with id {id}, has not been computed"
                             ),
                         });
                     };
