@@ -195,6 +195,14 @@ expression: "compare(&left, &right)?"
                 "value": true
               },
               "contribution": 0
+            },
+            {
+              "signal": "canonicalFingerprint",
+              "value": {
+                "type": "string",
+                "value": "166fd2efc8a486c1"
+              },
+              "contribution": 0
             }
           ]
         }

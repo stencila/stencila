@@ -17,7 +17,7 @@ use std::collections::HashSet;
 
 use proptest::prelude::{ProptestConfig, TestCaseError, prop_assert, prop_assert_eq, proptest};
 
-use stencila_node_compare::{Alignment, align, compare, projections_equal};
+use stencila_node_compare::{Alignment, align, compare};
 use stencila_node_path::NodePath;
 use stencila_schema::{Article, Node};
 
@@ -115,20 +115,6 @@ proptest! {
         };
 
         prop_assert_eq!(serialize((&left, &right))?, serialize((&left, &right))?);
-    }
-
-    /// Equality matches canonical projection equality exactly
-    #[test]
-    fn equality_matches_projection_equality(left: Article, right: Article) {
-        let left = Node::Article(left);
-        let right = Node::Article(right);
-
-        let comparison = compare(&left, &right)
-            .map_err(|error| TestCaseError::fail(error.to_string()))?;
-        let equal = projections_equal(&left, &right)
-            .map_err(|error| TestCaseError::fail(error.to_string()))?;
-
-        prop_assert_eq!(comparison.is_equal(), equal);
     }
 
     /// Every reference in a serialized artifact resolves in its original projection

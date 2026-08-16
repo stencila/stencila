@@ -123,8 +123,8 @@ impl<'projection> AlignmentBuilder<'projection> {
     ) -> CompareResult<()> {
         self.require_uncovered(Side::Left, left)?;
         self.require_uncovered(Side::Right, right)?;
-        self.left_coverage[left] = Coverage::Paired(Some(right));
-        self.right_coverage[right] = Coverage::Paired(Some(left));
+        self.left_coverage[left.index()] = Coverage::Paired(Some(right));
+        self.right_coverage[right.index()] = Coverage::Paired(Some(left));
         self.correspondences.push(correspondence);
         Ok(())
     }
@@ -136,7 +136,7 @@ impl<'projection> AlignmentBuilder<'projection> {
         correspondence: Correspondence,
     ) -> CompareResult<()> {
         self.require_uncovered(side, id)?;
-        self.coverage_mut(side)[id] = Coverage::Paired(None);
+        self.coverage_mut(side)[id.index()] = Coverage::Paired(None);
         self.correspondences.push(correspondence);
         Ok(())
     }
@@ -152,17 +152,23 @@ impl<'projection> AlignmentBuilder<'projection> {
         correspondence: Correspondence,
     ) -> CompareResult<()> {
         self.require_uncovered(side, id)?;
-        self.coverage_mut(side)[id] = Coverage::OneSided;
+        self.coverage_mut(side)[id.index()] = Coverage::OneSided;
         self.correspondences.push(correspondence);
         Ok(())
     }
 
     fn is_paired(&self, side: Side, id: OccurrenceId) -> bool {
-        matches!(self.coverage(side).get(id), Some(Coverage::Paired(..)))
+        matches!(
+            self.coverage(side).get(id.index()),
+            Some(Coverage::Paired(..))
+        )
     }
 
     fn is_emitted(&self, side: Side, id: OccurrenceId) -> bool {
-        matches!(self.coverage(side).get(id), Some(Coverage::OneSided))
+        matches!(
+            self.coverage(side).get(id.index()),
+            Some(Coverage::OneSided)
+        )
     }
 
     fn finish(self) -> CompareResult<(Alignment, Vec<(OccurrenceId, OccurrenceId)>)> {
@@ -171,12 +177,14 @@ impl<'projection> AlignmentBuilder<'projection> {
             (Side::Right, self.right, &self.right_coverage),
         ] {
             for occurrence in projection.occurrences() {
-                if coverage[occurrence.id] == Coverage::Uncovered {
-                    return Err(CompareError::Invariant {
-                        message: format!(
-                            "The {side} occurrence at `{}` is not covered by the alignment",
-                            occurrence.path
-                        ),
+                if coverage[occurrence.id.index()] == Coverage::Uncovered {
+                    return Err(CompareError::Completeness {
+                        side,
+                        covered: coverage
+                            .iter()
+                            .filter(|state| **state != Coverage::Uncovered)
+                            .count(),
+                        projected: projection.occurrences().len(),
                     });
                 }
             }
@@ -187,7 +195,7 @@ impl<'projection> AlignmentBuilder<'projection> {
             .iter()
             .enumerate()
             .filter_map(|(left, coverage)| match coverage {
-                Coverage::Paired(Some(right)) => Some((left, *right)),
+                Coverage::Paired(Some(right)) => Some((OccurrenceId::new(left), *right)),
                 Coverage::Uncovered | Coverage::Paired(None) | Coverage::OneSided => None,
             })
             .collect();
@@ -196,17 +204,15 @@ impl<'projection> AlignmentBuilder<'projection> {
     }
 
     fn require_uncovered(&self, side: Side, id: OccurrenceId) -> CompareResult<()> {
-        let Some(coverage) = self.coverage(side).get(id) else {
+        let Some(coverage) = self.coverage(side).get(id.index()) else {
             return Err(CompareError::Invariant {
                 message: format!("No {side} occurrence with id {id}"),
             });
         };
         if *coverage != Coverage::Uncovered {
-            return Err(CompareError::Invariant {
-                message: format!(
-                    "The {side} occurrence at `{}` is covered more than once",
-                    self.projection(side).occurrence(id)?.path
-                ),
+            return Err(CompareError::Uniqueness {
+                side,
+                path: self.projection(side).occurrence(id)?.path.clone(),
             });
         }
         Ok(())
@@ -447,10 +453,12 @@ impl<'projection> Aligner<'projection> {
         let (left_projection, right_projection) = (self.left, self.right);
         let (left_decl, right_decl) = (&left.decl, &right.decl);
 
-        // A homogeneous scalar collection remains one sequence-valued property
+        // A schema-declared homogeneous scalar collection remains one sequence-valued property
         // difference rather than gaining item correspondence records, so there is
         // nothing for sequence alignment to do, and nothing to charge for it
-        if all_scalar(left) && all_scalar(right) {
+        if left.decl.kind == stencila_schema::ValueKind::Scalar
+            && right.decl.kind == stencila_schema::ValueKind::Scalar
+        {
             return Ok(());
         }
 
@@ -547,8 +555,8 @@ impl<'projection> Aligner<'projection> {
         let right_leftover = leftover(&steps, false);
 
         let reconciled = anchors::find_crossing(
-            &pick(&anchor_candidates(&left_kinds), &left_leftover),
-            &pick(&anchor_candidates(&right_kinds), &right_leftover),
+            &select_candidates_at(&anchor_candidates(&left_kinds), &left_leftover),
+            &select_candidates_at(&anchor_candidates(&right_kinds), &right_leftover),
             &|left_index, right_index| {
                 compatible(left_leftover[left_index], right_leftover[right_index])
             },
@@ -617,7 +625,34 @@ impl<'projection> Aligner<'projection> {
                         left_decl,
                         right_decl,
                     );
-                    self.pair(*left_id, *right_id, rule, candidate.evidence)?;
+                    let mut evidence = candidate.evidence;
+                    match rule {
+                        MatchRule::UniqueId => {
+                            if let Some(value) = &self.left_features.get(*left_id)?.explicit_id {
+                                evidence.push(MatchEvidence {
+                                    signal: AlignmentSignal::ExplicitId,
+                                    value: EvidenceValue::String {
+                                        value: value.clone(),
+                                    },
+                                    contribution: AlignmentCost::ZERO,
+                                });
+                            }
+                        }
+                        MatchRule::VerifiedExactFingerprint => {
+                            evidence.push(MatchEvidence {
+                                signal: AlignmentSignal::CanonicalFingerprint,
+                                value: EvidenceValue::String {
+                                    value: format!(
+                                        "{fingerprint:016x}",
+                                        fingerprint = self.left_features.get(*left_id)?.fingerprint
+                                    ),
+                                },
+                                contribution: AlignmentCost::ZERO,
+                            });
+                        }
+                        _ => {}
+                    }
+                    self.pair(*left_id, *right_id, rule, evidence)?;
                 }
                 Step::LeftGap { left: index } => {
                     if let Item::Structured(id) = &left.items[index] {
@@ -999,7 +1034,7 @@ fn property_path(
 }
 
 /// The candidates at the given positions
-fn pick(
+fn select_candidates_at(
     candidates: &[Option<anchors::Candidate>],
     positions: &[usize],
 ) -> Vec<Option<anchors::Candidate>> {
@@ -1016,14 +1051,6 @@ fn step_key(step: &Step) -> (usize, usize) {
         Step::LeftGap { left } => (*left, usize::MAX),
         Step::RightGap { right } => (usize::MAX, *right),
     }
-}
-
-/// Whether every item of a property is a scalar
-fn all_scalar(property: &ProjectedProperty) -> bool {
-    property
-        .items
-        .iter()
-        .all(|item| matches!(item, Item::Scalar(..)))
 }
 
 /// The structured items of a property, in order

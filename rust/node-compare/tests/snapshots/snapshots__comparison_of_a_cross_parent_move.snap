@@ -85,6 +85,14 @@ expression: "compare(&left, &right)?"
                 "value": true
               },
               "contribution": 0
+            },
+            {
+              "signal": "explicitId",
+              "value": {
+                "type": "string",
+                "value": "first"
+              },
+              "contribution": 0
             }
           ]
         }
@@ -136,6 +144,14 @@ expression: "compare(&left, &right)?"
               "value": {
                 "type": "boolean",
                 "value": true
+              },
+              "contribution": 0
+            },
+            {
+              "signal": "explicitId",
+              "value": {
+                "type": "string",
+                "value": "kept"
               },
               "contribution": 0
             }
@@ -193,6 +209,14 @@ expression: "compare(&left, &right)?"
               "value": {
                 "type": "boolean",
                 "value": true
+              },
+              "contribution": 0
+            },
+            {
+              "signal": "canonicalFingerprint",
+              "value": {
+                "type": "string",
+                "value": "afe04c825032ec56"
               },
               "contribution": 0
             }
@@ -289,6 +313,14 @@ expression: "compare(&left, &right)?"
                 "value": true
               },
               "contribution": 0
+            },
+            {
+              "signal": "canonicalFingerprint",
+              "value": {
+                "type": "string",
+                "value": "6a27c3eb0b890440"
+              },
+              "contribution": 0
             }
           ]
         }
@@ -336,6 +368,14 @@ expression: "compare(&left, &right)?"
               "value": {
                 "type": "boolean",
                 "value": true
+              },
+              "contribution": 0
+            },
+            {
+              "signal": "explicitId",
+              "value": {
+                "type": "string",
+                "value": "second"
               },
               "contribution": 0
             }
@@ -389,6 +429,14 @@ expression: "compare(&left, &right)?"
               "value": {
                 "type": "boolean",
                 "value": true
+              },
+              "contribution": 0
+            },
+            {
+              "signal": "explicitId",
+              "value": {
+                "type": "string",
+                "value": "other"
               },
               "contribution": 0
             }
@@ -446,6 +494,14 @@ expression: "compare(&left, &right)?"
               "value": {
                 "type": "boolean",
                 "value": true
+              },
+              "contribution": 0
+            },
+            {
+              "signal": "canonicalFingerprint",
+              "value": {
+                "type": "string",
+                "value": "39038d226f8e52f6"
               },
               "contribution": 0
             }

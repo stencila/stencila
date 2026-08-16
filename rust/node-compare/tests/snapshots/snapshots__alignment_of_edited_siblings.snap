@@ -83,6 +83,14 @@ expression: "align(&left, &right)?"
               "value": true
             },
             "contribution": 0
+          },
+          {
+            "signal": "canonicalFingerprint",
+            "value": {
+              "type": "string",
+              "value": "0447e478bbc0f9af"
+            },
+            "contribution": 0
           }
         ]
       }
@@ -134,6 +142,14 @@ expression: "align(&left, &right)?"
             "value": {
               "type": "boolean",
               "value": true
+            },
+            "contribution": 0
+          },
+          {
+            "signal": "canonicalFingerprint",
+            "value": {
+              "type": "string",
+              "value": "971a05dfc200a4b2"
             },
             "contribution": 0
           }
@@ -185,6 +201,14 @@ expression: "align(&left, &right)?"
               "value": true
             },
             "contribution": 0
+          },
+          {
+            "signal": "canonicalFingerprint",
+            "value": {
+              "type": "string",
+              "value": "56a2abb190844e8f"
+            },
+            "contribution": 0
           }
         ]
       }
@@ -236,6 +260,14 @@ expression: "align(&left, &right)?"
             "value": {
               "type": "boolean",
               "value": true
+            },
+            "contribution": 0
+          },
+          {
+            "signal": "canonicalFingerprint",
+            "value": {
+              "type": "string",
+              "value": "08e42c7117cf27b9"
             },
             "contribution": 0
           }

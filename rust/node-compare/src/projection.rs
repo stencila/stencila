@@ -95,7 +95,27 @@ pub const PROJECTION_VERSION: &str = "1";
 pub const MAX_DEPTH: usize = 128;
 
 /// An index into a [`Projection`]'s arena of occurrences
-pub type OccurrenceId = usize;
+///
+/// Kept distinct from sequence positions so that an item index cannot accidentally be
+/// used to address the occurrence arena.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
+pub(crate) struct OccurrenceId(usize);
+
+impl OccurrenceId {
+    pub(crate) fn new(index: usize) -> Self {
+        Self(index)
+    }
+
+    pub(crate) fn index(self) -> usize {
+        self.0
+    }
+}
+
+impl std::fmt::Display for OccurrenceId {
+    fn fmt(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        self.0.fmt(formatter)
+    }
+}
 
 /// Whether a declared property is present on a value
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
@@ -223,16 +243,16 @@ impl Projection {
     /// reverse pass suffices. Being iterative, it also keeps the cost linear and adds
     /// no recursion depth.
     fn compute_subtree_sizes(&mut self) {
-        for id in (0..self.occurrences.len()).rev() {
+        for index in (0..self.occurrences.len()).rev() {
             let mut size = 1;
-            for property in &self.occurrences[id].properties {
+            for property in &self.occurrences[index].properties {
                 for item in &property.items {
                     if let Item::Structured(child) = item {
-                        size += self.occurrences[*child].subtree_size;
+                        size += self.occurrences[child.index()].subtree_size;
                     }
                 }
             }
-            self.occurrences[id].subtree_size = size;
+            self.occurrences[index].subtree_size = size;
         }
     }
 
@@ -279,7 +299,7 @@ impl Projection {
     /// An occurrence by id
     pub fn occurrence(&self, id: OccurrenceId) -> CompareResult<&Occurrence> {
         self.occurrences
-            .get(id)
+            .get(id.index())
             .ok_or_else(|| CompareError::Invariant {
                 message: format!(
                     "No occurrence with id {id} in the {side} projection",
@@ -311,7 +331,7 @@ impl Projection {
         // and neither do flattened `*Options` containers, which report no node type
         // and whose properties are reported by their owning type.
         if let Some(node_type) = node.node_type() {
-            let id = self.occurrences.len();
+            let id = OccurrenceId::new(self.occurrences.len());
             self.occurrences.push(Occurrence {
                 id,
                 node_type,
@@ -322,17 +342,14 @@ impl Projection {
                 subtree_size: 1,
             });
 
-            let mut properties = Vec::new();
-            for property in node.properties() {
-                properties.push(self.project_property(
-                    property.decl,
-                    property.value,
-                    &path,
-                    id,
-                    depth,
-                )?);
-            }
-            self.occurrences[id].properties = properties;
+            let properties = node
+                .properties()
+                .into_iter()
+                .map(|property| {
+                    self.project_property(property.decl, property.value, &path, id, depth)
+                })
+                .collect::<CompareResult<Vec<_>>>()?;
+            self.occurrences[id.index()].properties = properties;
 
             return Ok(Item::Structured(id));
         }
@@ -372,18 +389,21 @@ impl Projection {
                 (Presence::Present, vec![item])
             }
             InspectValue::Many(nodes) => {
-                let mut items = Vec::with_capacity(nodes.len());
-                for (index, node) in nodes.into_iter().enumerate() {
-                    let mut item_path = property_path.clone();
-                    item_path.push_back(NodeSlot::Index(index));
-                    items.push(self.project(
-                        node,
-                        item_path,
-                        Some(parent),
-                        Some(decl.property),
-                        depth + 1,
-                    )?);
-                }
+                let items = nodes
+                    .into_iter()
+                    .enumerate()
+                    .map(|(index, node)| {
+                        let mut item_path = property_path.clone();
+                        item_path.push_back(NodeSlot::Index(index));
+                        self.project(
+                            node,
+                            item_path,
+                            Some(parent),
+                            Some(decl.property),
+                            depth + 1,
+                        )
+                    })
+                    .collect::<CompareResult<Vec<_>>>()?;
                 (Presence::Present, items)
             }
         };
@@ -414,17 +434,19 @@ impl Projection {
                 variant: variant.to_string(),
             },
             ScalarRef::Array(array) => {
-                let mut items = Vec::with_capacity(array.len());
-                for primitive in array.iter() {
-                    items.push(self.primitive_value(primitive, path)?);
-                }
+                let items = array
+                    .iter()
+                    .map(|primitive| self.primitive_value(primitive, path))
+                    .collect::<CompareResult<Vec<_>>>()?;
                 ScalarValue::Array { items }
             }
             ScalarRef::Object(object) => {
-                let mut entries = Vec::with_capacity(object.len());
-                for (key, primitive) in object.iter() {
-                    entries.push((key.clone(), self.primitive_value(primitive, path)?));
-                }
+                let entries = object
+                    .iter()
+                    .map(|(key, primitive)| {
+                        Ok((key.clone(), self.primitive_value(primitive, path)?))
+                    })
+                    .collect::<CompareResult<Vec<_>>>()?;
                 ScalarValue::object(entries).map_err(|error| CompareError::Scalar {
                     side: self.side,
                     path: path.clone(),
@@ -459,6 +481,7 @@ impl Projection {
     /// Returns an error, rather than reporting inequality, if a projection is
     /// internally inconsistent: an invariant failure must never be answered as a
     /// difference.
+    #[cfg(test)]
     pub fn eq_canonically(&self, other: &Projection) -> CompareResult<bool> {
         match (&self.root, &other.root) {
             (Root::Scalar(left), Root::Scalar(right)) => Ok(left == right),
@@ -495,6 +518,7 @@ impl Projection {
         self.eq_occurrence_with(left, other, right, Identity::Neutral)
     }
 
+    #[cfg(test)]
     fn eq_occurrence(
         &self,
         left: OccurrenceId,

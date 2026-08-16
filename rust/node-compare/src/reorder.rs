@@ -31,6 +31,12 @@ use crate::{
     sequence::Step,
 };
 
+/// A paired item and its positions within an aligned sibling scope
+struct PositionedPair {
+    positions: (usize, usize),
+    occurrences: (OccurrenceId, OccurrenceId),
+}
+
 /// Derive the reorder observations of an alignment
 pub(crate) fn derive(
     left: &Projection,
@@ -47,8 +53,7 @@ pub(crate) fn derive(
 
         // Only structured items become correspondences, so only they can be reordered;
         // a scalar item of a mixed collection is an indexed value observation instead
-        let mut pairs: Vec<(usize, usize)> = Vec::new();
-        let mut occurrences: Vec<(OccurrenceId, OccurrenceId)> = Vec::new();
+        let mut pairs = Vec::new();
         for step in &scope.steps {
             let Step::Pair {
                 left: left_index,
@@ -63,8 +68,10 @@ pub(crate) fn derive(
             ) else {
                 continue;
             };
-            pairs.push((left_index, right_index));
-            occurrences.push((*left_id, *right_id));
+            pairs.push(PositionedPair {
+                positions: (left_index, right_index),
+                occurrences: (*left_id, *right_id),
+            });
         }
 
         if pairs.len() < 2 {
@@ -74,14 +81,15 @@ pub(crate) fn derive(
         // The steps are in sequence order, but reconciliation may have appended pairs
         // that cross them, so sort before selecting
         let mut order: Vec<usize> = (0..pairs.len()).collect();
-        order.sort_by_key(|index| pairs[*index]);
-        let sorted: Vec<(usize, usize)> = order.iter().map(|index| pairs[*index]).collect();
+        order.sort_by_key(|index| pairs[*index].positions);
+        let sorted: Vec<(usize, usize)> =
+            order.iter().map(|index| pairs[*index].positions).collect();
 
         // The content of each pair, as an unordered pair of subtree fingerprints, so
         // that it too is unchanged by swapping the two inputs
         let mut content = Vec::with_capacity(sorted.len());
         for index in &order {
-            let (left_id, right_id) = occurrences[*index];
+            let (left_id, right_id) = pairs[*index].occurrences;
             let left_fingerprint = left_features.get(left_id)?.fingerprint;
             let right_fingerprint = right_features.get(right_id)?.fingerprint;
             content.push((
@@ -111,7 +119,7 @@ pub(crate) fn derive(
             if in_order[position] {
                 continue;
             }
-            let (left_id, right_id) = occurrences[*original];
+            let (left_id, right_id) = pairs[*original].occurrences;
             let left_occurrence = left.occurrence(left_id)?;
             let right_occurrence = right.occurrence(right_id)?;
 

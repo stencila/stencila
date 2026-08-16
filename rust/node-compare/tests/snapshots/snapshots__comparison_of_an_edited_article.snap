@@ -85,6 +85,14 @@ expression: "compare(&left, &right)?"
                 "value": true
               },
               "contribution": 0
+            },
+            {
+              "signal": "canonicalFingerprint",
+              "value": {
+                "type": "string",
+                "value": "8052474cf053cf46"
+              },
+              "contribution": 0
             }
           ]
         }
@@ -338,6 +346,14 @@ expression: "compare(&left, &right)?"
                 "value": true
               },
               "contribution": 0
+            },
+            {
+              "signal": "canonicalFingerprint",
+              "value": {
+                "type": "string",
+                "value": "60d72340b4d4cdcd"
+              },
+              "contribution": 0
             }
           ]
         }
@@ -389,6 +405,14 @@ expression: "compare(&left, &right)?"
               "value": {
                 "type": "boolean",
                 "value": true
+              },
+              "contribution": 0
+            },
+            {
+              "signal": "canonicalFingerprint",
+              "value": {
+                "type": "string",
+                "value": "c43bb059781f6e2a"
               },
               "contribution": 0
             }
@@ -448,6 +472,14 @@ expression: "compare(&left, &right)?"
                 "value": true
               },
               "contribution": 0
+            },
+            {
+              "signal": "canonicalFingerprint",
+              "value": {
+                "type": "string",
+                "value": "4310e7f3207834bb"
+              },
+              "contribution": 0
             }
           ]
         }
@@ -499,6 +531,14 @@ expression: "compare(&left, &right)?"
               "value": {
                 "type": "boolean",
                 "value": true
+              },
+              "contribution": 0
+            },
+            {
+              "signal": "canonicalFingerprint",
+              "value": {
+                "type": "string",
+                "value": "e54118073fc548e4"
               },
               "contribution": 0
             }
@@ -556,6 +596,14 @@ expression: "compare(&left, &right)?"
               "value": {
                 "type": "boolean",
                 "value": true
+              },
+              "contribution": 0
+            },
+            {
+              "signal": "canonicalFingerprint",
+              "value": {
+                "type": "string",
+                "value": "46dd3b212d75ddbc"
               },
               "contribution": 0
             }
@@ -607,6 +655,14 @@ expression: "compare(&left, &right)?"
                 "value": true
               },
               "contribution": 0
+            },
+            {
+              "signal": "canonicalFingerprint",
+              "value": {
+                "type": "string",
+                "value": "6cca01063fe650f8"
+              },
+              "contribution": 0
             }
           ]
         }
@@ -660,6 +716,14 @@ expression: "compare(&left, &right)?"
                 "value": true
               },
               "contribution": 0
+            },
+            {
+              "signal": "canonicalFingerprint",
+              "value": {
+                "type": "string",
+                "value": "c1381408b2ae1698"
+              },
+              "contribution": 0
             }
           ]
         }
@@ -715,6 +779,14 @@ expression: "compare(&left, &right)?"
               "value": {
                 "type": "boolean",
                 "value": true
+              },
+              "contribution": 0
+            },
+            {
+              "signal": "canonicalFingerprint",
+              "value": {
+                "type": "string",
+                "value": "1e11d778ab9cb6e9"
               },
               "contribution": 0
             }
@@ -776,6 +848,14 @@ expression: "compare(&left, &right)?"
               "value": {
                 "type": "boolean",
                 "value": true
+              },
+              "contribution": 0
+            },
+            {
+              "signal": "canonicalFingerprint",
+              "value": {
+                "type": "string",
+                "value": "b0371ff2595f6c47"
               },
               "contribution": 0
             }
@@ -843,6 +923,14 @@ expression: "compare(&left, &right)?"
                 "value": true
               },
               "contribution": 0
+            },
+            {
+              "signal": "canonicalFingerprint",
+              "value": {
+                "type": "string",
+                "value": "575a50377cf9dcda"
+              },
+              "contribution": 0
             }
           ]
         }
@@ -898,6 +986,14 @@ expression: "compare(&left, &right)?"
               "value": {
                 "type": "boolean",
                 "value": true
+              },
+              "contribution": 0
+            },
+            {
+              "signal": "canonicalFingerprint",
+              "value": {
+                "type": "string",
+                "value": "f708cfe17cf74565"
               },
               "contribution": 0
             }
@@ -959,6 +1055,14 @@ expression: "compare(&left, &right)?"
               "value": {
                 "type": "boolean",
                 "value": true
+              },
+              "contribution": 0
+            },
+            {
+              "signal": "canonicalFingerprint",
+              "value": {
+                "type": "string",
+                "value": "f7e936a95cd97dfa"
               },
               "contribution": 0
             }
@@ -1024,6 +1128,14 @@ expression: "compare(&left, &right)?"
               "value": {
                 "type": "boolean",
                 "value": true
+              },
+              "contribution": 0
+            },
+            {
+              "signal": "canonicalFingerprint",
+              "value": {
+                "type": "string",
+                "value": "79301586e89e54d0"
               },
               "contribution": 0
             }
@@ -1079,6 +1191,14 @@ expression: "compare(&left, &right)?"
                 "value": true
               },
               "contribution": 0
+            },
+            {
+              "signal": "canonicalFingerprint",
+              "value": {
+                "type": "string",
+                "value": "fb265079e2a7757e"
+              },
+              "contribution": 0
             }
           ]
         }
@@ -1134,6 +1254,14 @@ expression: "compare(&left, &right)?"
               "value": {
                 "type": "boolean",
                 "value": true
+              },
+              "contribution": 0
+            },
+            {
+              "signal": "canonicalFingerprint",
+              "value": {
+                "type": "string",
+                "value": "1f6c47e887563dbf"
               },
               "contribution": 0
             }
@@ -1195,6 +1323,14 @@ expression: "compare(&left, &right)?"
               "value": {
                 "type": "boolean",
                 "value": true
+              },
+              "contribution": 0
+            },
+            {
+              "signal": "canonicalFingerprint",
+              "value": {
+                "type": "string",
+                "value": "12e6e5d5fcf20714"
               },
               "contribution": 0
             }
@@ -1262,6 +1398,14 @@ expression: "compare(&left, &right)?"
                 "value": true
               },
               "contribution": 0
+            },
+            {
+              "signal": "canonicalFingerprint",
+              "value": {
+                "type": "string",
+                "value": "49f8bec016f6af86"
+              },
+              "contribution": 0
             }
           ]
         }
@@ -1317,6 +1461,14 @@ expression: "compare(&left, &right)?"
               "value": {
                 "type": "boolean",
                 "value": true
+              },
+              "contribution": 0
+            },
+            {
+              "signal": "canonicalFingerprint",
+              "value": {
+                "type": "string",
+                "value": "1ba25742011d5c9b"
               },
               "contribution": 0
             }
@@ -1378,6 +1530,14 @@ expression: "compare(&left, &right)?"
               "value": {
                 "type": "boolean",
                 "value": true
+              },
+              "contribution": 0
+            },
+            {
+              "signal": "canonicalFingerprint",
+              "value": {
+                "type": "string",
+                "value": "58b8f97de17582b7"
               },
               "contribution": 0
             }
@@ -1443,6 +1603,14 @@ expression: "compare(&left, &right)?"
               "value": {
                 "type": "boolean",
                 "value": true
+              },
+              "contribution": 0
+            },
+            {
+              "signal": "canonicalFingerprint",
+              "value": {
+                "type": "string",
+                "value": "58aadc5a6c28bf56"
               },
               "contribution": 0
             }
@@ -1494,6 +1662,14 @@ expression: "compare(&left, &right)?"
                 "value": true
               },
               "contribution": 0
+            },
+            {
+              "signal": "explicitId",
+              "value": {
+                "type": "string",
+                "value": "ref-one"
+              },
+              "contribution": 0
             }
           ]
         }
@@ -1545,6 +1721,14 @@ expression: "compare(&left, &right)?"
               "value": {
                 "type": "boolean",
                 "value": true
+              },
+              "contribution": 0
+            },
+            {
+              "signal": "canonicalFingerprint",
+              "value": {
+                "type": "string",
+                "value": "7835544e93844bd8"
               },
               "contribution": 0
             }

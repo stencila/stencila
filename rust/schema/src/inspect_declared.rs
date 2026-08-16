@@ -164,4 +164,3 @@ pub fn inspect_declared_properties(node_type: NodeType) -> Option<Vec<PropertyDe
         _ => return None
     })
 }
-

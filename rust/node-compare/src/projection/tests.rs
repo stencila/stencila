@@ -8,6 +8,21 @@ use crate::{
     projection::{Item, Occurrence, Presence, Projection, Root},
     projections_equal,
 };
+
+#[cfg(any(
+    feature = "proptest-min",
+    feature = "proptest-low",
+    feature = "proptest-high",
+    feature = "proptest-max"
+))]
+use crate::compare;
+#[cfg(any(
+    feature = "proptest-min",
+    feature = "proptest-low",
+    feature = "proptest-high",
+    feature = "proptest-max"
+))]
+use proptest::prelude::{ProptestConfig, TestCaseError, prop_assert_eq, proptest};
 use stencila_node_path::{NodePath, NodeSlot};
 use stencila_node_type::{NodeProperty, NodeType};
 use stencila_schema::{
@@ -86,6 +101,29 @@ fn equality_is_reflexive() -> Result<()> {
     assert!(projections_equal(&node, &node.clone())?);
 
     Ok(())
+}
+
+#[cfg(any(
+    feature = "proptest-min",
+    feature = "proptest-low",
+    feature = "proptest-high",
+    feature = "proptest-max"
+))]
+proptest! {
+    #![proptest_config(ProptestConfig::with_cases(100))]
+
+    /// Public equality agrees exactly with the internal canonical projection
+    #[test]
+    fn generated_equality_matches_projection(left: stencila_schema::Article, right: stencila_schema::Article) {
+        let left = Node::Article(left);
+        let right = Node::Article(right);
+        let comparison = compare(&left, &right)
+            .map_err(|error| TestCaseError::fail(error.to_string()))?;
+        let equal = projections_equal(&left, &right)
+            .map_err(|error| TestCaseError::fail(error.to_string()))?;
+
+        prop_assert_eq!(comparison.is_equal(), equal);
+    }
 }
 
 /// Union wrappers and `*Options` structs add no occurrences

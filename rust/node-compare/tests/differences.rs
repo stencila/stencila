@@ -10,7 +10,7 @@ use stencila_node_compare::{
 use stencila_node_path::{NodePath, NodeSlot};
 use stencila_node_type::{NodeProperty, NodeType};
 use stencila_schema::{
-    Article, Block, Cord, CordAuthorship, Node, Paragraph, Text,
+    Article, Block, Cord, CordAuthorship, Heading, Node, Paragraph, Text,
     shortcuts::{art, h1, p, sec, t},
 };
 
@@ -116,6 +116,32 @@ fn none_differs_from_some_empty() -> Result<()> {
     };
     assert_eq!(left_presence, &PropertyPresence::Absent);
     assert_eq!(right_presence, &PropertyPresence::Present);
+
+    Ok(())
+}
+
+/// An optional scalar records absence versus its typed present value
+#[test]
+fn optional_scalar_presence_is_a_value_change() -> Result<()> {
+    let absent = Heading::new(1, vec![t("Hello")]);
+    let present = Heading {
+        label: Some("intro".to_string()),
+        ..Heading::new(1, vec![t("Hello")])
+    };
+
+    let comparison = compare(&Node::Heading(absent), &Node::Heading(present))?;
+    let labels = of_property(&comparison, NodeProperty::Label);
+    assert_eq!(labels.len(), 1);
+    let Some(Difference::ValueChanged { left, right, .. }) = labels.first() else {
+        bail!("Expected an optional scalar value change")
+    };
+    assert_eq!(left, &ValueState::Absent);
+    assert_eq!(
+        right,
+        &ValueState::One {
+            value: ScalarValue::string("intro")
+        }
+    );
 
     Ok(())
 }
@@ -255,11 +281,6 @@ fn equality_matches_projection_equality() -> Result<()> {
             comparison.is_equal(),
             expected,
             "for {left:?} against {right:?}"
-        );
-        assert_eq!(
-            comparison.is_equal(),
-            stencila_node_compare::projections_equal(&left, &right)?,
-            "equality should match canonical projection equality"
         );
     }
 

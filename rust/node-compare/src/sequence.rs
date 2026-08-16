@@ -21,7 +21,8 @@
 //!    exactly as much as two gaps, the gaps win.
 //! 3. **Same-type pairs win over cross-type pairs**, because the policy charges a
 //!    cross-type pair more, so the two are never actually tied.
-//! 4. **A stable, content-derived key breaks what remains**: when a left gap and a
+//! 4. **Lower total displacement wins** between alignments of the same cost.
+//! 5. **A stable, content-derived key breaks what remains**: when a left gap and a
 //!    right gap cost the same, the item with the smaller `(node type, fingerprint,
 //!    position)` key is consumed first. That key belongs to the item rather than to
 //!    the side it is on, so swapping the inputs selects the same item and yields the
@@ -31,7 +32,7 @@ use stencila_node_type::NodeType;
 
 use crate::{
     alignment::{AlignmentCost, PairCost},
-    error::CompareResult,
+    error::{CompareError, CompareResult},
 };
 
 /// A stable, content-derived key used as the final tie-break
@@ -94,6 +95,42 @@ enum Choice {
     RightGap,
 }
 
+/// The lexicographic objective minimized by the dynamic program
+///
+/// Policy cost is primary. Total pair displacement is used only when two complete
+/// partial alignments have the same policy cost.
+#[derive(Debug, Clone, Copy, Default, PartialEq, Eq, PartialOrd, Ord)]
+struct Score {
+    cost: AlignmentCost,
+    displacement: usize,
+}
+
+impl Score {
+    fn gap(self, cost: AlignmentCost) -> Self {
+        Self {
+            cost: self.cost.saturating_add(cost),
+            ..self
+        }
+    }
+
+    fn pair(self, cost: AlignmentCost, left: usize, right: usize) -> Self {
+        Self {
+            cost: self.cost.saturating_add(cost),
+            displacement: self.displacement.saturating_add(left.abs_diff(right)),
+        }
+    }
+}
+
+/// Reject a cost outside the sealed policy contract
+fn validate_cost(cost: AlignmentCost, context: &str) -> CompareResult<AlignmentCost> {
+    if cost.units() < 0 {
+        return Err(CompareError::InvalidPolicy {
+            message: format!("{context} returned the negative cost {}", cost.units()),
+        });
+    }
+    Ok(cost)
+}
+
 /// Align two ranges of items, order-preserving, with explicit gaps
 ///
 /// `left` and `right` are the half-open ranges of the two sequences to align. Returns
@@ -113,17 +150,20 @@ pub fn align(
     let width = columns + 1;
     let cell = |row: usize, column: usize| row * width + column;
 
-    let mut total = vec![AlignmentCost::ZERO; (rows + 1) * width];
+    let mut total = vec![Score::default(); (rows + 1) * width];
     let mut choice = vec![Choice::Start; (rows + 1) * width];
 
     for row in 1..=rows {
-        total[cell(row, 0)] =
-            total[cell(row - 1, 0)].saturating_add((costs.left_gap)(left_start + row - 1)?);
+        let gap = validate_cost((costs.left_gap)(left_start + row - 1)?, "left gap policy")?;
+        total[cell(row, 0)] = total[cell(row - 1, 0)].gap(gap);
         choice[cell(row, 0)] = Choice::LeftGap;
     }
     for column in 1..=columns {
-        total[cell(0, column)] =
-            total[cell(0, column - 1)].saturating_add((costs.right_gap)(right_start + column - 1)?);
+        let gap = validate_cost(
+            (costs.right_gap)(right_start + column - 1)?,
+            "right gap policy",
+        )?;
+        total[cell(0, column)] = total[cell(0, column - 1)].gap(gap);
         choice[cell(0, column)] = Choice::RightGap;
     }
 
@@ -132,10 +172,14 @@ pub fn align(
             let left_index = left_start + row - 1;
             let right_index = right_start + column - 1;
 
-            let left_gap =
-                total[cell(row - 1, column)].saturating_add((costs.left_gap)(left_index)?);
-            let right_gap =
-                total[cell(row, column - 1)].saturating_add((costs.right_gap)(right_index)?);
+            let left_gap = total[cell(row - 1, column)].gap(validate_cost(
+                (costs.left_gap)(left_index)?,
+                "left gap policy",
+            )?);
+            let right_gap = total[cell(row, column - 1)].gap(validate_cost(
+                (costs.right_gap)(right_index)?,
+                "right gap policy",
+            )?);
 
             // Between two gaps of equal cost, consume the item with the smaller
             // content-derived key, which is the same item whichever way round the
@@ -153,9 +197,13 @@ pub fn align(
             };
 
             // A pair is taken only when it is strictly better than every alternative,
-            // so pairing that merely ties with two gaps is refused
+            // after lower displacement has resolved equal-cost complete alignments.
+            // A pair that merely ties the same two direct gaps also ties on zero added
+            // displacement, so the already-selected gaps still win.
             if let PairCost::Cost(pair_cost) = (costs.pair)(left_index, right_index)? {
-                let paired = total[cell(row - 1, column - 1)].saturating_add(pair_cost);
+                let pair_cost = validate_cost(pair_cost, "pair policy")?;
+                let paired =
+                    total[cell(row - 1, column - 1)].pair(pair_cost, left_index, right_index);
                 if paired < best_cost {
                     best_cost = paired;
                     best_choice = Choice::Pair;
@@ -202,4 +250,104 @@ pub fn align(
 /// The number of candidate cells that aligning two ranges requires
 pub fn cells(left: usize, right: usize) -> usize {
     left.saturating_mul(right)
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    /// Equal-cost alignments retain the pairs with the least total displacement
+    #[test]
+    fn prefers_lower_displacement() -> CompareResult<()> {
+        let costs = Costs {
+            pair: &|_, _| Ok(PairCost::Cost(AlignmentCost::ZERO)),
+            left_gap: &|_| Ok(AlignmentCost::ONE),
+            right_gap: &|_| Ok(AlignmentCost::ONE),
+            left_key: &|position| {
+                Ok(TieKey {
+                    node_type: None,
+                    fingerprint: 0,
+                    position,
+                })
+            },
+            right_key: &|position| {
+                Ok(TieKey {
+                    node_type: None,
+                    fingerprint: 0,
+                    position,
+                })
+            },
+        };
+
+        assert_eq!(
+            align(0..3, 0..2, &costs)?,
+            vec![
+                Step::Pair { left: 0, right: 0 },
+                Step::Pair { left: 1, right: 1 },
+                Step::LeftGap { left: 2 },
+            ]
+        );
+        assert_eq!(
+            align(0..2, 0..3, &costs)?,
+            vec![
+                Step::Pair { left: 0, right: 0 },
+                Step::Pair { left: 1, right: 1 },
+                Step::RightGap { right: 2 },
+            ]
+        );
+
+        // The crossing pairs are individually cheaper, but selecting one crossing pair
+        // plus two gaps has the same total cost as the two undisplaced diagonal pairs.
+        // The diagonal alignment wins on total displacement.
+        let ambiguous = Costs {
+            pair: &|left, right| {
+                Ok(PairCost::Cost(if left == right {
+                    AlignmentCost::ONE
+                } else {
+                    AlignmentCost::ZERO
+                }))
+            },
+            ..costs
+        };
+        assert_eq!(
+            align(0..2, 0..2, &ambiguous)?,
+            vec![
+                Step::Pair { left: 0, right: 0 },
+                Step::Pair { left: 1, right: 1 },
+            ]
+        );
+
+        Ok(())
+    }
+
+    /// Sealed policies cannot return negative costs
+    #[test]
+    fn rejects_invalid_policy_costs() -> CompareResult<()> {
+        let costs = Costs {
+            pair: &|_, _| Ok(PairCost::Cost(AlignmentCost::from_units(-1))),
+            left_gap: &|_| Ok(AlignmentCost::ONE),
+            right_gap: &|_| Ok(AlignmentCost::ONE),
+            left_key: &|position| {
+                Ok(TieKey {
+                    node_type: None,
+                    fingerprint: 0,
+                    position,
+                })
+            },
+            right_key: &|position| {
+                Ok(TieKey {
+                    node_type: None,
+                    fingerprint: 0,
+                    position,
+                })
+            },
+        };
+
+        assert!(matches!(
+            align(0..1, 0..1, &costs),
+            Err(CompareError::InvalidPolicy { .. })
+        ));
+
+        Ok(())
+    }
 }

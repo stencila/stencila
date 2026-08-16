@@ -112,7 +112,7 @@ pub fn subtree(
                 }
                 Item::Structured(child) => {
                     fingerprinter.write_u64(1);
-                    let Some(child) = computed.get(*child) else {
+                    let Some(child) = computed.get(child.index()) else {
                         return Err(CompareError::Invariant {
                             message: format!(
                                 "The fingerprint of the child of the occurrence at `{path}` \

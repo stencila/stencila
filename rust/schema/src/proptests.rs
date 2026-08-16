@@ -1,12 +1,18 @@
-///! Functions used in type definitions for specifying property-based generation strategies for node types
+//! Functions used in type definitions for specifying property-based generation strategies for node types
 use itertools::interleave;
 pub use proptest_derive::Arbitrary;
 
 pub use proptest::{
     collection::{size_range, vec},
-    option,
     prelude::*,
 };
+
+#[cfg(any(
+    feature = "proptest-low",
+    feature = "proptest-high",
+    feature = "proptest-max"
+))]
+pub use proptest::option;
 
 use crate::*;
 
@@ -87,20 +93,18 @@ fn interleave_inlines(texts: Vec<Inline>, others: Vec<Inline>) -> Vec<Inline> {
             }
         }
 
-        if index == 0 {
-            if let Inline::Text(text) = &mut content[index] {
-                if text.value.starts_with(char::is_whitespace) {
-                    text.value.insert(0, 'A')
-                }
-            }
+        if index == 0
+            && let Inline::Text(text) = &mut content[index]
+            && text.value.starts_with(char::is_whitespace)
+        {
+            text.value.insert(0, 'A')
         }
 
-        if index == content.len() - 1 {
-            if let Inline::Text(text) = &mut content[index] {
-                if text.value.ends_with(char::is_whitespace) {
-                    text.value.push('.')
-                }
-            }
+        if index == content.len() - 1
+            && let Inline::Text(text) = &mut content[index]
+            && text.value.ends_with(char::is_whitespace)
+        {
+            text.value.push('.')
         }
     }
     content

@@ -49,6 +49,43 @@ use stencila_schema::Node;
 
 use crate::{align::Aligner, features::FeatureSet, projection::Projection};
 
+/// Canonical projections and alignment-independent features for both inputs
+struct PreparedInputs {
+    left: Projection,
+    left_features: FeatureSet,
+    right: Projection,
+    right_features: FeatureSet,
+}
+
+impl PreparedInputs {
+    fn new(left: &Node, right: &Node) -> CompareResult<Self> {
+        let left = Projection::new(left, Side::Left)?;
+        let left_features = FeatureSet::new(&left)?;
+        let right = Projection::new(right, Side::Right)?;
+        let right_features = FeatureSet::new(&right)?;
+
+        Ok(Self {
+            left,
+            left_features,
+            right,
+            right_features,
+        })
+    }
+
+    fn aligner<'prepared>(
+        &'prepared self,
+        options: &'prepared CompareOptions,
+    ) -> Aligner<'prepared> {
+        Aligner::new(
+            &self.left,
+            &self.left_features,
+            &self.right,
+            &self.right_features,
+            options,
+        )
+    }
+}
+
 /// Align two nodes
 ///
 /// Returns a complete, symmetric correspondence between the structured occurrences of
@@ -67,16 +104,10 @@ pub fn align_with_options(
     right: &Node,
     options: &CompareOptions,
 ) -> CompareResult<Alignment> {
-    let left = Projection::new(left, Side::Left)?;
-    let left_features = FeatureSet::new(&left)?;
-    let right = Projection::new(right, Side::Right)?;
-    let right_features = FeatureSet::new(&right)?;
-
-    Ok(
-        Aligner::new(&left, &left_features, &right, &right_features, options)
-            .align()?
-            .alignment,
-    )
+    Ok(PreparedInputs::new(left, right)?
+        .aligner(options)
+        .align()?
+        .alignment)
 }
 
 /// Compare two nodes
@@ -93,20 +124,16 @@ pub fn compare_with_options(
     right: &Node,
     options: &CompareOptions,
 ) -> CompareResult<Comparison> {
-    let left = Projection::new(left, Side::Left)?;
-    let left_features = FeatureSet::new(&left)?;
-    let right = Projection::new(right, Side::Right)?;
-    let right_features = FeatureSet::new(&right)?;
-
-    let aligned = Aligner::new(&left, &left_features, &right, &right_features, options).align()?;
+    let prepared = PreparedInputs::new(left, right)?;
+    let aligned = prepared.aligner(options).align()?;
 
     // Differences are derived only after the final alignment is complete
-    let mut differences = differences::derive(&left, &right, &aligned)?;
+    let mut differences = differences::derive(&prepared.left, &prepared.right, &aligned)?;
     differences.extend(reorder::derive(
-        &left,
-        &left_features,
-        &right,
-        &right_features,
+        &prepared.left,
+        &prepared.left_features,
+        &prepared.right,
+        &prepared.right_features,
         &aligned,
     )?);
 
@@ -118,7 +145,8 @@ pub fn compare_with_options(
 /// Equality is defined by the canonical projections, not by Rust's `PartialEq`: it
 /// covers every declared schema property except the intrinsic implementation
 /// machinery described in [`projection`].
-pub fn projections_equal(left: &Node, right: &Node) -> CompareResult<bool> {
+#[cfg(test)]
+fn projections_equal(left: &Node, right: &Node) -> CompareResult<bool> {
     let left = Projection::new(left, Side::Left)?;
     let right = Projection::new(right, Side::Right)?;
 

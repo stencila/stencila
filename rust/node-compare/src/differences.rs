@@ -17,6 +17,7 @@
 use std::collections::HashMap;
 
 use stencila_node_type::NodeProperty;
+use stencila_schema::ValueKind;
 
 use crate::{
     align::Aligned,
@@ -240,6 +241,26 @@ impl Differ<'_> {
         let (left_parent, left_ref, left_property) = left;
         let (right_parent, right_ref, right_property) = right;
 
+        let location = |left_index, right_index| ValueLocation {
+            left: left_ref.clone(),
+            right: right_ref.clone(),
+            property: Some(left_property.decl.property),
+            left_index,
+            right_index,
+        };
+
+        if left_property.presence != right_property.presence
+            && left_property.decl.kind == ValueKind::Scalar
+            && right_property.decl.kind == ValueKind::Scalar
+        {
+            self.differences.push(Difference::ValueChanged {
+                location: location(None, None),
+                left: scalar_property_state(left_property),
+                right: scalar_property_state(right_property),
+            });
+            return Ok(());
+        }
+
         if left_property.presence != right_property.presence {
             self.differences.push(Difference::PropertyPresenceChanged {
                 left: left_ref.clone(),
@@ -253,14 +274,6 @@ impl Differ<'_> {
         if left_property.presence == Presence::Absent {
             return Ok(());
         }
-
-        let location = |left_index, right_index| ValueLocation {
-            left: left_ref.clone(),
-            right: right_ref.clone(),
-            property: Some(left_property.decl.property),
-            left_index,
-            right_index,
-        };
 
         // A singular property holds at most one value, so it is compared directly:
         // structured values are the alignment's business, and only a scalar on one
@@ -280,17 +293,19 @@ impl Differ<'_> {
 
         // A homogeneous repeated scalar property is one atomic difference carrying
         // both complete typed sequences, rather than one difference per item
-        let left_scalars = scalars(left_property);
-        let right_scalars = scalars(right_property);
-        if let (Some(left_values), Some(right_values)) = (&left_scalars, &right_scalars) {
+        if left_property.decl.kind == ValueKind::Scalar
+            && right_property.decl.kind == ValueKind::Scalar
+        {
+            let left_values = scalars(left_property);
+            let right_values = scalars(right_property);
             if left_values != right_values {
                 self.differences.push(Difference::ValueChanged {
                     location: location(None, None),
                     left: ValueState::Many {
-                        values: left_values.clone(),
+                        values: left_values,
                     },
                     right: ValueState::Many {
-                        values: right_values.clone(),
+                        values: right_values,
                     },
                 });
             }
@@ -370,15 +385,28 @@ fn scalar(item: Option<&Item>) -> Option<&ScalarValue> {
 }
 
 /// The values of a property, when every one of its items is a scalar
-fn scalars(property: &ProjectedProperty) -> Option<Vec<ScalarValue>> {
+fn scalars(property: &ProjectedProperty) -> Vec<ScalarValue> {
     property
         .items
         .iter()
-        .map(|item| match item {
+        .filter_map(|item| match item {
             Item::Scalar(value) => Some(value.clone()),
             Item::Structured(..) => None,
         })
         .collect()
+}
+
+/// The value state of a schema-declared scalar property
+fn scalar_property_state(property: &ProjectedProperty) -> ValueState {
+    if property.presence == Presence::Absent {
+        ValueState::Absent
+    } else if property.decl.repeated {
+        ValueState::Many {
+            values: scalars(property),
+        }
+    } else {
+        state(scalar(property.items.first()))
+    }
 }
 
 /// A value state from an optional value

@@ -82,16 +82,16 @@ cover: test-setup
 	cargo llvm-cov test --workspace --no-report
 	
 	cargo llvm-cov test --no-report -p stencila-codecs --features proptest-min --test proptests
-	cargo llvm-cov test --no-report -p stencila-node-compare --features proptest-min --test proptests
+	cargo llvm-cov test --no-report -p stencila-node-compare --features proptest-min --lib --test proptests
 	
 	cargo llvm-cov test --no-report -p stencila-codecs --features proptest-low --test proptests
-	cargo llvm-cov test --no-report -p stencila-node-compare --features proptest-low --test proptests
+	cargo llvm-cov test --no-report -p stencila-node-compare --features proptest-low --lib --test proptests
 	
 	cargo llvm-cov test --no-report -p stencila-codecs --features proptest-high --test proptests
-	cargo llvm-cov test --no-report -p stencila-node-compare --features proptest-high --test proptests
+	cargo llvm-cov test --no-report -p stencila-node-compare --features proptest-high --lib --test proptests
 	
 	cargo llvm-cov test --no-report -p stencila-codecs --features proptest-max --test proptests
-	cargo llvm-cov test --no-report -p stencila-node-compare --features proptest-max --test proptests
+	cargo llvm-cov test --no-report -p stencila-node-compare --features proptest-max --lib --test proptests
 	cargo llvm-cov test --no-report -p stencila-node-store --features proptest-max --test proptests
 	
 	cd .. && cargo llvm-cov report --lcov --output-path lcov.info --ignore-filename-regex '(test)|(rust/schema-gen)|(rust/schema/src/types)|(python/src)|(node/src)'
@@ -101,19 +101,19 @@ proptest: proptest-min proptest-low proptest-high proptest-max
 
 proptest-min:
 	cargo test -p stencila-codecs --features proptest-min --test proptests
-	cargo test -p stencila-node-compare --features proptest-min --test proptests
+	cargo test -p stencila-node-compare --features proptest-min --lib --test proptests
 
 proptest-low:
 	cargo test -p stencila-codecs --features proptest-low --test proptests
-	cargo test -p stencila-node-compare --features proptest-low --test proptests
+	cargo test -p stencila-node-compare --features proptest-low --lib --test proptests
 
 proptest-high:
 	cargo test -p stencila-codecs --features proptest-high --test proptests
-	cargo test -p stencila-node-compare --features proptest-high --test proptests
+	cargo test -p stencila-node-compare --features proptest-high --lib --test proptests
 
 proptest-max:
 	cargo test -p stencila-codecs --features proptest-max --test proptests
-	cargo test -p stencila-node-compare --features proptest-max --test proptests
+	cargo test -p stencila-node-compare --features proptest-max --lib --test proptests
 	cargo test -p stencila-node-store --features proptest-max --test proptests
 
 # Run accessibility tests

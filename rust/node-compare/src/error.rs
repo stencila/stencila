@@ -96,7 +96,34 @@ pub enum CompareError {
         allowed: usize,
     },
 
-    /// An invariant of the alignment or comparison was violated
+    /// A sealed alignment or value policy returned a result outside its contract
+    #[error("Invalid internal policy output: {message}")]
+    InvalidPolicy { message: String },
+
+    /// An alignment does not cover every projected occurrence
+    #[error("The {side} alignment covers {covered} occurrences but the projection has {projected}")]
+    Completeness {
+        side: Side,
+        covered: usize,
+        projected: usize,
+    },
+
+    /// An occurrence appears more than once in an alignment
+    #[error("The {side} path `{path}` occurs more than once in the alignment")]
+    Uniqueness { side: Side, path: NodePath },
+
+    /// A result failed the swap-symmetry invariant
+    #[error("The comparison is not swap-symmetric: {message}")]
+    Symmetry { message: String },
+
+    /// A serialized artifact uses a format version this crate does not support
+    #[error("Unsupported {artifact} format version `{version}`")]
+    UnsupportedVersion {
+        artifact: &'static str,
+        version: String,
+    },
+
+    /// An internal invariant without a more specific public category was violated
     #[error("Invariant violated: {message}")]
     Invariant { message: String },
 }

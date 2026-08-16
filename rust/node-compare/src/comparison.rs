@@ -443,7 +443,7 @@ pub struct Comparison {
 #[derive(Deserialize)]
 #[serde(rename_all = "camelCase")]
 struct ComparisonData {
-    format_version: ComparisonFormatVersion,
+    format_version: String,
     alignment: Alignment,
     differences: Vec<Difference>,
 }
@@ -452,7 +452,16 @@ impl TryFrom<ComparisonData> for Comparison {
     type Error = CompareError;
 
     fn try_from(data: ComparisonData) -> Result<Self, Self::Error> {
-        Self::new_with_version(data.format_version, data.alignment, data.differences)
+        let format_version = match data.format_version.as_str() {
+            "2" => ComparisonFormatVersion::V2,
+            version => {
+                return Err(CompareError::UnsupportedVersion {
+                    artifact: "comparison",
+                    version: version.to_string(),
+                });
+            }
+        };
+        Self::new_with_version(format_version, data.alignment, data.differences)
     }
 }
 

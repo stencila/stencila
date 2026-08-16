@@ -198,6 +198,39 @@ fn scalar_items_produce_indexed_value_observations() -> Result<()> {
     Ok(())
 }
 
+/// A union-valued collection remains mixed even when both snapshots currently hold
+/// only scalar branches
+#[test]
+fn scalar_only_union_items_remain_indexed() -> Result<()> {
+    let left = outputs(vec![Node::Integer(1), Node::String("kept".to_string())]);
+    let right = outputs(vec![Node::Integer(2), Node::String("kept".to_string())]);
+
+    let comparison = compare(&left, &right)?;
+    assert_eq!(
+        values(&comparison),
+        vec![
+            (
+                None,
+                Some(0),
+                ValueState::Absent,
+                ValueState::One {
+                    value: ScalarValue::Integer { value: 2 }
+                }
+            ),
+            (
+                Some(0),
+                None,
+                ValueState::One {
+                    value: ScalarValue::Integer { value: 1 }
+                },
+                ValueState::Absent
+            ),
+        ]
+    );
+
+    Ok(())
+}
+
 /// Two wholly dissimilar scalar items are two one-sided observations rather than one
 /// pair, because the same cost model governs scalar and structured items alike
 #[test]

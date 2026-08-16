@@ -13,7 +13,7 @@ use pretty_assertions::assert_eq;
 
 use stencila_node_compare::{
     Alignment, CompareError, CompareOptions, Comparison, Correspondence, align, align_with_options,
-    compare, compare_with_options, projections_equal,
+    compare, compare_with_options,
 };
 use stencila_node_path::NodePath;
 use stencila_node_type::NodeType;
@@ -233,15 +233,11 @@ fn runs_are_byte_for_byte_deterministic() -> Result<()> {
     Ok(())
 }
 
-/// Equality matches canonical projection equality exactly
+/// Equality matches the expected result for representative fixtures
 #[test]
-fn equality_matches_projection_equality() -> Result<()> {
+fn equality_matches_expected_results() -> Result<()> {
     for (left, right) in fixtures() {
-        assert_eq!(
-            compare(&left, &right)?.is_equal(),
-            projections_equal(&left, &right)?,
-            "equality matches canonical projection equality"
-        );
+        assert_eq!(compare(&left, &right)?.is_equal(), left == right);
     }
 
     Ok(())
@@ -367,7 +363,21 @@ fn deserialization_and_snapshot_validation_enforce_coverage() -> Result<()> {
         .ok_or_else(|| eyre::eyre!("correspondences is not an array"))?
         .pop();
     let incomplete: Alignment = serde_json::from_value(value)?;
-    assert!(incomplete.validate(&left, &right).is_err());
+    assert!(matches!(
+        incomplete.validate(&left, &right),
+        Err(CompareError::Completeness { .. })
+    ));
+
+    let mut unsupported = serde_json::to_value(&alignment)?;
+    unsupported["formatVersion"] = serde_json::Value::String("999".to_string());
+    let Err(error) = serde_json::from_value::<Alignment>(unsupported) else {
+        bail!("an unsupported alignment version should fail")
+    };
+    assert!(
+        error
+            .to_string()
+            .contains("Unsupported alignment format version")
+    );
 
     Ok(())
 }

@@ -536,7 +536,7 @@ pub struct Alignment {
 #[derive(Deserialize)]
 #[serde(rename_all = "camelCase")]
 struct AlignmentData {
-    format_version: AlignmentFormatVersion,
+    format_version: String,
     algorithm: AlgorithmInfo,
     correspondences: Vec<Correspondence>,
 }
@@ -545,8 +545,17 @@ impl TryFrom<AlignmentData> for Alignment {
     type Error = CompareError;
 
     fn try_from(data: AlignmentData) -> Result<Self, Self::Error> {
+        let format_version = match data.format_version.as_str() {
+            "1" => AlignmentFormatVersion::V1,
+            version => {
+                return Err(CompareError::UnsupportedVersion {
+                    artifact: "alignment",
+                    version: version.to_string(),
+                });
+            }
+        };
         let mut alignment = Self {
-            format_version: data.format_version,
+            format_version,
             algorithm: data.algorithm,
             correspondences: data.correspondences,
         };
@@ -616,15 +625,17 @@ impl Alignment {
             if let Some(left) = correspondence.left()
                 && !left_paths.insert(&left.path)
             {
-                return Err(CompareError::Invariant {
-                    message: format!("The left path `{}` occurs more than once", left.path),
+                return Err(CompareError::Uniqueness {
+                    side: Side::Left,
+                    path: left.path.clone(),
                 });
             }
             if let Some(right) = correspondence.right()
                 && !right_paths.insert(&right.path)
             {
-                return Err(CompareError::Invariant {
-                    message: format!("The right path `{}` occurs more than once", right.path),
+                return Err(CompareError::Uniqueness {
+                    side: Side::Right,
+                    path: right.path.clone(),
                 });
             }
         }
@@ -659,12 +670,10 @@ impl Alignment {
         }
 
         if references.len() != projection.occurrences().len() {
-            return Err(CompareError::Invariant {
-                message: format!(
-                    "The {side} alignment covers {} occurrences but the projection has {}",
-                    references.len(),
-                    projection.occurrences().len()
-                ),
+            return Err(CompareError::Completeness {
+                side,
+                covered: references.len(),
+                projected: projection.occurrences().len(),
             });
         }
 

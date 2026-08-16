@@ -63,33 +63,35 @@ impl FeatureSet {
         let mut identity_neutral = vec![0u64; count];
         let mut texts = vec![NormalizedText::default(); count];
 
-        for id in (0..count).rev() {
-            fingerprints[id] =
+        for index in (0..count).rev() {
+            let id = OccurrenceId::new(index);
+            fingerprints[index] =
                 fingerprint::subtree(projection, id, Identity::Included, &fingerprints)?;
-            identity_neutral[id] =
+            identity_neutral[index] =
                 fingerprint::subtree(projection, id, Identity::Neutral, &identity_neutral)?;
-            texts[id] = subtree_text(projection, id, &texts)?;
+            texts[index] = subtree_text(projection, id, &texts)?;
         }
 
-        let mut features = Vec::with_capacity(count);
-        for id in 0..count {
-            let occurrence = projection.occurrence(id)?;
-            let grams = Grams::new(texts[id].as_str());
+        let features = (0..count)
+            .map(|index| {
+                let id = OccurrenceId::new(index);
+                let occurrence = projection.occurrence(id)?;
 
-            features.push(Features {
-                node_type: occurrence.node_type,
-                explicit_id: explicit_id(projection, id)?,
-                fingerprint: fingerprints[id],
-                identity_neutral_fingerprint: identity_neutral[id],
-                scalar_signature: fingerprint::scalar_signature(
-                    projection,
-                    id,
-                    Identity::Included,
-                )?,
-                grams,
-                subtree_size: occurrence.subtree_size,
-            });
-        }
+                Ok(Features {
+                    node_type: occurrence.node_type,
+                    explicit_id: explicit_id(projection, id)?,
+                    fingerprint: fingerprints[index],
+                    identity_neutral_fingerprint: identity_neutral[index],
+                    scalar_signature: fingerprint::scalar_signature(
+                        projection,
+                        id,
+                        Identity::Included,
+                    )?,
+                    grams: Grams::new(texts[index].as_str()),
+                    subtree_size: occurrence.subtree_size,
+                })
+            })
+            .collect::<CompareResult<Vec<_>>>()?;
 
         Ok(Self { features })
     }
@@ -97,7 +99,7 @@ impl FeatureSet {
     /// The features of an occurrence
     pub fn get(&self, id: OccurrenceId) -> CompareResult<&Features> {
         self.features
-            .get(id)
+            .get(id.index())
             .ok_or_else(|| CompareError::Invariant {
                 message: format!("No features for the occurrence with id {id}"),
             })
@@ -147,7 +149,7 @@ fn subtree_text(
                 }
                 Item::Scalar(..) => {}
                 Item::Structured(child) => {
-                    let Some(child) = computed.get(*child) else {
+                    let Some(child) = computed.get(child.index()) else {
                         return Err(CompareError::Invariant {
                             message: format!(
                                 "The text of the occurrence with id {child}, a child of the occurrence with id {id}, has not been computed"

@@ -4,8 +4,8 @@ use eyre::{Result, bail};
 use pretty_assertions::assert_eq;
 
 use stencila_node_compare::{
-    Alignment, CompareError, CompareOptions, Correspondence, MatchRule, UnmatchedReason, align,
-    align_with_options,
+    Alignment, AlignmentSignal, CompareError, CompareOptions, Correspondence, MatchRule,
+    UnmatchedReason, align, align_with_options,
 };
 use stencila_node_path::{NodePath, NodeSlot};
 use stencila_node_type::{NodeProperty, NodeType};
@@ -95,6 +95,30 @@ fn deletion_in_the_middle() -> Result<()> {
     Ok(())
 }
 
+/// A deletion at the start does not shift every following match
+#[test]
+fn deletion_at_the_start() -> Result<()> {
+    let left = art([p([t("Zero")]), p([t("One")]), p([t("Two")])]);
+    let right = art([p([t("One")]), p([t("Two")])]);
+
+    let alignment = align(&left, &right)?;
+    assert_eq!(content_pairs(&alignment), vec![(1, 0), (2, 1)]);
+
+    Ok(())
+}
+
+/// A deletion at the end leaves the preceding items paired
+#[test]
+fn deletion_at_the_end() -> Result<()> {
+    let left = art([p([t("One")]), p([t("Two")]), p([t("Three")])]);
+    let right = art([p([t("One")]), p([t("Two")])]);
+
+    let alignment = align(&left, &right)?;
+    assert_eq!(content_pairs(&alignment), vec![(0, 0), (1, 1)]);
+
+    Ok(())
+}
+
 /// An edited item still pairs, because it is more than half similar
 #[test]
 fn an_edited_item_still_pairs() -> Result<()> {
@@ -148,8 +172,16 @@ fn a_unique_id_anchors() -> Result<()> {
     let alpha = alignment
         .pairs()
         .find(|(left, ..)| left.path == content(0))
-        .map(|(.., right, info)| (right.path.clone(), info.rule));
-    assert_eq!(alpha, Some((content(1), MatchRule::UniqueId)));
+        .map(|(.., right, info)| {
+            (
+                right.path.clone(),
+                info.rule,
+                info.evidence
+                    .iter()
+                    .any(|evidence| evidence.signal == AlignmentSignal::ExplicitId),
+            )
+        });
+    assert_eq!(alpha, Some((content(1), MatchRule::UniqueId, true)));
 
     Ok(())
 }
@@ -198,10 +230,18 @@ fn a_unique_exact_subtree_anchors() -> Result<()> {
     let distinctive = alignment
         .pairs()
         .find(|(left, ..)| left.path == content(1))
-        .map(|(.., right, info)| (right.path.clone(), info.rule));
+        .map(|(.., right, info)| {
+            (
+                right.path.clone(),
+                info.rule,
+                info.evidence
+                    .iter()
+                    .any(|evidence| evidence.signal == AlignmentSignal::CanonicalFingerprint),
+            )
+        });
     assert_eq!(
         distinctive,
-        Some((content(2), MatchRule::VerifiedExactFingerprint))
+        Some((content(2), MatchRule::VerifiedExactFingerprint, true))
     );
 
     Ok(())
