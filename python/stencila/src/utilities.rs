@@ -1,16 +1,23 @@
 //! Internal utility functions
 
+use std::sync::LazyLock;
+
 use pyo3::exceptions::{PyRuntimeError, PyValueError};
 use pyo3::prelude::*;
 use serde::{Serialize, de::DeserializeOwned};
 use tokio::runtime::Runtime;
 
-/// Share one async runtime across every synchronous binding.
+/// The runtime that drives the asynchronous native code behind these bindings.
+static RUNTIME: LazyLock<Runtime> =
+    LazyLock::new(|| Runtime::new().expect("unable to create Tokio runtime"));
+
+/// Share one runtime across every binding.
 ///
-/// Reusing the runtime already created for the asynchronous bindings avoids
-/// per-call setup and keeps blocking entry points on the same executor.
+/// Every entry point in this extension is synchronous, so the runtime exists only to
+/// block on the asynchronous crates underneath. Sharing one avoids per-call setup and
+/// keeps all of that work on the same executor.
 pub(crate) fn runtime() -> &'static Runtime {
-    pyo3_async_runtimes::tokio::get_runtime()
+    &RUNTIME
 }
 
 /// Report a caller mistake, such as an unusable argument or malformed payload.

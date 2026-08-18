@@ -1,10 +1,11 @@
-"""Expose conversion, provenance, and credential workflows from the root.
+"""Expose conversion, comparison, and credential workflows.
 
-Keeping graph inspection beside the credentials namespace makes it easy to
-preview the exact assertion that signing will embed.
+Each area of functionality is one module, and every function in them is synchronous.
+Graph inspection sits in the credentials namespace because its purpose is to preview
+the exact assertion that signing will embed.
 """
 
 from . import compare, convert, credentials
-from ._graph import graph
+from ._errors import StencilaError
 
-__all__ = ["compare", "convert", "credentials", "graph"]
+__all__ = ["StencilaError", "compare", "convert", "credentials"]

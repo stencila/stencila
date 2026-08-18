@@ -22,10 +22,6 @@ crate-type = ["cdylib"]
 [dependencies]
 eyre = { workspace = true }
 pyo3 = { version = "0.28.2", features = ["extension-module"] }
-pyo3-async-runtimes = { version = "0.28.0", features = [
-    "attributes",
-    "tokio-runtime",
-] }
 serde_json = { workspace = true }
 serde = { workspace = true, features = ["derive"] }
 stencila-codecs = { path = "../../rust/codecs" }

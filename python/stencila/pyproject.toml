@@ -57,7 +57,6 @@ dev = [
     "maturin>=1.5.1",
     "pip-audit>=2.7.2",
     "pyright>=1.1.369",
-    "pytest-asyncio>=0.23.7",
     "pytest-benchmark>=4.0.0",
     "pytest>=8.2.1",
     "ruff>=0.5.0",
@@ -67,7 +66,6 @@ dev = [
 # Don't run bench files.
 # python_files = ["test_*.py", "bench_*.py"]
 # python_functions = ["test_*", "bench_*"]
-asyncio_mode = "auto"
 
 [tool.coverage.run]
 omit = [
@@ -123,10 +121,11 @@ src = ['python', 'tests']
 # Shadowing python builtins is a bit nasty, but hey.
 "convert.py" = ['A002']
 "compare.py" = ['A002']
+"_stencila.pyi" = ['A002']
 
 
 [tool.pyright]
-include = ["src", "tests"]
+include = ["python"]
 pythonVersion = "3.10"
 venvPath = "."
 venv = ".venv"

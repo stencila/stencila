@@ -4,15 +4,12 @@ Neither side is presumed correct: they are the left and right snapshots that the
 selected. Each pair of functions covers one kind of input -- in-memory nodes, strings,
 or file paths -- and differs only in whether it returns the comparison artifact or a
 human-readable rendering of it.
-
-Comparison is CPU-bound and synchronous, so unlike `stencila.convert` none of these
-functions need to be awaited.
 """
 
 from __future__ import annotations
 
 import json
-from collections.abc import Sequence
+from collections.abc import Callable, Sequence
 from os import PathLike
 from typing import Any, Literal, TypeAlias
 
@@ -21,15 +18,17 @@ from stencila_types.utilities import to_json
 
 from stencila import _stencila
 
+from ._errors import StencilaError
+
 Comparison: TypeAlias = dict[str, Any]
 Report: TypeAlias = Literal["text", "html"]
 
 
-class CompareError(RuntimeError):
+class CompareError(StencilaError):
     """Raised when two documents cannot be compared."""
 
 
-def compare_nodes(
+def nodes(
     left: Node,
     right: Node,
     *,
@@ -60,11 +59,13 @@ def compare_nodes(
         _stencila.compare.nodes,
         to_json(left),
         to_json(right),
-        _options(include, exclude, alignment_cell_budget),
+        include=list(include),
+        exclude=list(exclude),
+        alignment_cell_budget=alignment_cell_budget,
     )
 
 
-def compare_strings(  # noqa: PLR0913
+def strings(  # noqa: PLR0913
     left: str,
     right: str,
     *,
@@ -88,28 +89,26 @@ def compare_strings(  # noqa: PLR0913
     Returns:
         Comparison: The comparison, as a dict.
 
-    See `compare_nodes` for the remaining arguments.
+    See `nodes` for the remaining arguments.
     """
     return _comparison(
         _stencila.compare.strings,
         left,
         right,
-        _options(
-            include,
-            exclude,
-            alignment_cell_budget,
-            left_format=left_format,
-            right_format=right_format,
-        ),
+        left_format=left_format,
+        right_format=right_format,
+        include=list(include),
+        exclude=list(exclude),
+        alignment_cell_budget=alignment_cell_budget,
     )
 
 
-def compare_paths(  # noqa: PLR0913
+def paths(  # noqa: PLR0913
     left: str | PathLike[str],
     right: str | PathLike[str],
     *,
-    left_from: str | None = None,
-    right_from: str | None = None,
+    left_format: str | None = None,
+    right_format: str | None = None,
     include: Sequence[str] = (),
     exclude: Sequence[str] = (),
     alignment_cell_budget: int | None = None,
@@ -122,27 +121,25 @@ def compare_paths(  # noqa: PLR0913
     Args:
         left (str | PathLike): The path of the left document.
         right (str | PathLike): The path of the right document.
-        left_from (Optional[str]): The format of the left document. If not supplied, it
-            is inferred from the path.
-        right_from (Optional[str]): The format of the right document. If not supplied,
+        left_format (Optional[str]): The format of the left document. If not supplied,
             it is inferred from the path.
+        right_format (Optional[str]): The format of the right document. If not
+            supplied, it is inferred from the path.
 
     Returns:
         Comparison: The comparison, as a dict.
 
-    See `compare_nodes` for the remaining arguments.
+    See `nodes` for the remaining arguments.
     """
     return _comparison(
         _stencila.compare.paths,
         str(left),
         str(right),
-        _options(
-            include,
-            exclude,
-            alignment_cell_budget,
-            left_format=left_from,
-            right_format=right_from,
-        ),
+        left_format=left_format,
+        right_format=right_format,
+        include=list(include),
+        exclude=list(exclude),
+        alignment_cell_budget=alignment_cell_budget,
     )
 
 
@@ -171,22 +168,20 @@ def report_nodes(  # noqa: PLR0913
     Returns:
         str: The report.
 
-    See `compare_nodes` for the remaining arguments.
+    See `nodes` for the remaining arguments.
     """
     return _report(
         _stencila.compare.nodes,
         to_json(left),
         to_json(right),
-        _options(
-            include,
-            exclude,
-            alignment_cell_budget,
-            reports=[_format(format)],
-            summary=summary,
-            left_label=left_label,
-            right_label=right_label,
-        ),
         format,
+        include=list(include),
+        exclude=list(exclude),
+        alignment_cell_budget=alignment_cell_budget,
+        reports=[_format(format)],
+        summary=summary,
+        left_label=left_label,
+        right_label=right_label,
     )
 
 
@@ -210,24 +205,22 @@ def report_strings(  # noqa: PLR0913
     Returns:
         str: The report.
 
-    See `compare_strings` and `report_nodes` for the arguments.
+    See `strings` and `report_nodes` for the arguments.
     """
     return _report(
         _stencila.compare.strings,
         left,
         right,
-        _options(
-            include,
-            exclude,
-            alignment_cell_budget,
-            left_format=left_format,
-            right_format=right_format,
-            reports=[_format(format)],
-            summary=summary,
-            left_label=left_label,
-            right_label=right_label,
-        ),
         format,
+        left_format=left_format,
+        right_format=right_format,
+        include=list(include),
+        exclude=list(exclude),
+        alignment_cell_budget=alignment_cell_budget,
+        reports=[_format(format)],
+        summary=summary,
+        left_label=left_label,
+        right_label=right_label,
     )
 
 
@@ -237,8 +230,8 @@ def report_paths(  # noqa: PLR0913
     *,
     format: Report = "text",
     summary: bool = False,
-    left_from: str | None = None,
-    right_from: str | None = None,
+    left_format: str | None = None,
+    right_format: str | None = None,
     include: Sequence[str] = (),
     exclude: Sequence[str] = (),
     alignment_cell_budget: int | None = None,
@@ -251,22 +244,20 @@ def report_paths(  # noqa: PLR0913
     Returns:
         str: The report.
 
-    See `compare_paths` and `report_nodes` for the arguments.
+    See `paths` and `report_nodes` for the arguments.
     """
     return _report(
         _stencila.compare.paths,
         str(left),
         str(right),
-        _options(
-            include,
-            exclude,
-            alignment_cell_budget,
-            left_format=left_from,
-            right_format=right_from,
-            reports=[_format(format)],
-            summary=summary,
-        ),
         format,
+        left_format=left_format,
+        right_format=right_format,
+        include=list(include),
+        exclude=list(exclude),
+        alignment_cell_budget=alignment_cell_budget,
+        reports=[_format(format)],
+        summary=summary,
     )
 
 
@@ -280,7 +271,7 @@ def is_equal(comparison: Comparison) -> bool:
     does to the `stencila compare` exit code.
 
     Args:
-        comparison (Comparison): A comparison, as returned by any of the `compare_`
+        comparison (Comparison): A comparison, as returned by any of the comparison
             functions or read back from a comparison file.
 
     Returns:
@@ -288,31 +279,6 @@ def is_equal(comparison: Comparison) -> bool:
             was made with.
     """
     return _stencila.compare.is_equal(json.dumps(comparison))
-
-
-def _options(
-    include: Sequence[str],
-    exclude: Sequence[str],
-    alignment_cell_budget: int | None,
-    **rest: Any,
-) -> dict[str, Any]:
-    """Assemble the option dict that the native functions take.
-
-    Every key is always present, because the native side reads them positionally out of
-    the mapping rather than treating a missing key as unset.
-    """
-    return {
-        "alignment_cell_budget": alignment_cell_budget,
-        "include": list(include),
-        "exclude": list(exclude),
-        "left_format": None,
-        "right_format": None,
-        "left_label": None,
-        "right_label": None,
-        "reports": None,
-        "summary": None,
-        **rest,
-    }
 
 
 def _format(format: Report) -> str:
@@ -324,7 +290,7 @@ def _format(format: Report) -> str:
 
 
 def _call(
-    native: Any, left: str, right: str, options: dict[str, Any]
+    native: Callable[..., str], left: str, right: str, **options: Any
 ) -> dict[str, Any]:
     """Call a native comparison, reporting failures as `CompareError`.
 
@@ -332,20 +298,38 @@ def _call(
     as a selector that is not in the schema, rather than that comparison failed.
     """
     try:
-        return json.loads(native(left, right, options))
+        return json.loads(native(left, right, **options))
     except RuntimeError as error:
         raise CompareError(str(error)) from error
 
 
 def _comparison(
-    native: Any, left: str, right: str, options: dict[str, Any]
+    native: Callable[..., str], left: str, right: str, **options: Any
 ) -> Comparison:
     """Call a native comparison and return just the artifact."""
-    return _call(native, left, right, options)["comparison"]
+    return _call(native, left, right, **options)["comparison"]
 
 
 def _report(
-    native: Any, left: str, right: str, options: dict[str, Any], format: Report
+    native: Callable[..., str],
+    left: str,
+    right: str,
+    format: Report,
+    **options: Any,
 ) -> str:
     """Call a native comparison and return just the rendering that was asked for."""
-    return _call(native, left, right, options)[format]
+    return _call(native, left, right, **options)[format]
+
+
+__all__ = [
+    "CompareError",
+    "Comparison",
+    "Report",
+    "is_equal",
+    "nodes",
+    "paths",
+    "report_nodes",
+    "report_paths",
+    "report_strings",
+    "strings",
+]

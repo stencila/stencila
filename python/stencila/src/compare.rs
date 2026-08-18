@@ -35,43 +35,38 @@ pub fn module(stencila: &Bound<'_, PyModule>) -> PyResult<()> {
     stencila.add("compare", compare)
 }
 
-/// Comparison options
-#[derive(FromPyObject)]
+/// What a caller asked one comparison to do
+///
+/// Assembled from the keyword arguments of an entry point rather than read out of a
+/// mapping, so that the arguments each entry point actually accepts are declared in one
+/// place and checked by the interpreter.
+#[derive(Default)]
 struct Options {
     /// The maximum number of candidate cells that sequence alignment may use
-    #[pyo3(item)]
     alignment_cell_budget: Option<usize>,
 
     /// Selectors for differences to report
-    #[pyo3(item)]
     include: Option<Vec<String>>,
 
     /// Selectors for differences not to report
-    #[pyo3(item)]
     exclude: Option<Vec<String>>,
 
     /// The format of the left input
-    #[pyo3(item)]
     left_format: Option<String>,
 
     /// The format of the right input
-    #[pyo3(item)]
     right_format: Option<String>,
 
     /// What to call the left side in a report
-    #[pyo3(item)]
     left_label: Option<String>,
 
     /// What to call the right side in a report
-    #[pyo3(item)]
     right_label: Option<String>,
 
     /// Which reports to render: any of "text" and "html"
-    #[pyo3(item)]
     reports: Option<Vec<String>>,
 
     /// Whether reports should stop after the counts
-    #[pyo3(item)]
     summary: Option<bool>,
 }
 
@@ -196,7 +191,34 @@ fn run(left: &Node, right: &Node, options: &Options) -> PyResult<String> {
 
 /// Compare two Stencila Schema nodes
 #[pyfunction]
-fn nodes(py: Python, left: String, right: String, options: Options) -> PyResult<String> {
+#[pyo3(signature = (
+    left, right, *, include=None, exclude=None, alignment_cell_budget=None,
+    reports=None, summary=None, left_label=None, right_label=None
+))]
+#[allow(clippy::too_many_arguments)]
+fn nodes(
+    py: Python,
+    left: String,
+    right: String,
+    include: Option<Vec<String>>,
+    exclude: Option<Vec<String>>,
+    alignment_cell_budget: Option<usize>,
+    reports: Option<Vec<String>>,
+    summary: Option<bool>,
+    left_label: Option<String>,
+    right_label: Option<String>,
+) -> PyResult<String> {
+    let options = Options {
+        include,
+        exclude,
+        alignment_cell_budget,
+        reports,
+        summary,
+        left_label,
+        right_label,
+        ..Default::default()
+    };
+
     py.detach(move || {
         let left: Node = from_json(&left)?;
         let right: Node = from_json(&right)?;
@@ -207,23 +229,55 @@ fn nodes(py: Python, left: String, right: String, options: Options) -> PyResult<
 
 /// Compare two documents in strings
 #[pyfunction]
-fn strings(py: Python, left: String, right: String, options: Options) -> PyResult<String> {
-    py.detach(move || {
-        let (left, right) = runtime().block_on(async {
-            let left = stencila_codecs::from_str(
-                &left,
-                Some(Options::decode_options(options.left_format.as_ref())),
-            )
-            .await?;
-            let right = stencila_codecs::from_str(
-                &right,
-                Some(Options::decode_options(options.right_format.as_ref())),
-            )
-            .await?;
+#[pyo3(signature = (
+    left, right, *, left_format=None, right_format=None, include=None, exclude=None,
+    alignment_cell_budget=None, reports=None, summary=None, left_label=None,
+    right_label=None
+))]
+#[allow(clippy::too_many_arguments)]
+fn strings(
+    py: Python,
+    left: String,
+    right: String,
+    left_format: Option<String>,
+    right_format: Option<String>,
+    include: Option<Vec<String>>,
+    exclude: Option<Vec<String>>,
+    alignment_cell_budget: Option<usize>,
+    reports: Option<Vec<String>>,
+    summary: Option<bool>,
+    left_label: Option<String>,
+    right_label: Option<String>,
+) -> PyResult<String> {
+    let options = Options {
+        left_format,
+        right_format,
+        include,
+        exclude,
+        alignment_cell_budget,
+        reports,
+        summary,
+        left_label,
+        right_label,
+    };
 
-            Ok::<_, eyre::Report>((left, right))
-        })
-        .map_err(runtime_error)?;
+    py.detach(move || {
+        let (left, right) = runtime()
+            .block_on(async {
+                let left = stencila_codecs::from_str(
+                    &left,
+                    Some(Options::decode_options(options.left_format.as_ref())),
+                )
+                .await?;
+                let right = stencila_codecs::from_str(
+                    &right,
+                    Some(Options::decode_options(options.right_format.as_ref())),
+                )
+                .await?;
+
+                Ok::<_, eyre::Report>((left, right))
+            })
+            .map_err(runtime_error)?;
 
         run(&left, &right, &options)
     })
@@ -234,26 +288,57 @@ fn strings(py: Python, left: String, right: String, options: Options) -> PyResul
 /// Unless the caller says otherwise, each side is labelled with its path, which is what
 /// a report of a comparison of two files should say.
 #[pyfunction]
-fn paths(py: Python, left: String, right: String, mut options: Options) -> PyResult<String> {
+#[pyo3(signature = (
+    left, right, *, left_format=None, right_format=None, include=None, exclude=None,
+    alignment_cell_budget=None, reports=None, summary=None, left_label=None,
+    right_label=None
+))]
+#[allow(clippy::too_many_arguments)]
+fn paths(
+    py: Python,
+    left: String,
+    right: String,
+    left_format: Option<String>,
+    right_format: Option<String>,
+    include: Option<Vec<String>>,
+    exclude: Option<Vec<String>>,
+    alignment_cell_budget: Option<usize>,
+    reports: Option<Vec<String>>,
+    summary: Option<bool>,
+    left_label: Option<String>,
+    right_label: Option<String>,
+) -> PyResult<String> {
+    let mut options = Options {
+        left_format,
+        right_format,
+        include,
+        exclude,
+        alignment_cell_budget,
+        reports,
+        summary,
+        left_label,
+        right_label,
+    };
     options.left_label.get_or_insert_with(|| left.clone());
     options.right_label.get_or_insert_with(|| right.clone());
 
     py.detach(move || {
-        let (left, right) = runtime().block_on(async {
-            let left = stencila_codecs::from_path(
-                &PathBuf::from(&left),
-                Some(Options::decode_options(options.left_format.as_ref())),
-            )
-            .await?;
-            let right = stencila_codecs::from_path(
-                &PathBuf::from(&right),
-                Some(Options::decode_options(options.right_format.as_ref())),
-            )
-            .await?;
+        let (left, right) = runtime()
+            .block_on(async {
+                let left = stencila_codecs::from_path(
+                    &PathBuf::from(&left),
+                    Some(Options::decode_options(options.left_format.as_ref())),
+                )
+                .await?;
+                let right = stencila_codecs::from_path(
+                    &PathBuf::from(&right),
+                    Some(Options::decode_options(options.right_format.as_ref())),
+                )
+                .await?;
 
-            Ok::<_, eyre::Report>((left, right))
-        })
-        .map_err(runtime_error)?;
+                Ok::<_, eyre::Report>((left, right))
+            })
+            .map_err(runtime_error)?;
 
         run(&left, &right, &options)
     })

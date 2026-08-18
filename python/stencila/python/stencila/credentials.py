@@ -17,6 +17,7 @@ from typing import Any, Literal, TypeVar
 from stencila import _stencila
 
 from ._context import absolute
+from ._errors import StencilaError
 from ._graph import (
     Profile,
     Provenance,
@@ -24,6 +25,7 @@ from ._graph import (
     ProvenanceNotFoundError,
     _discard,
     _prepare,
+    graph,
 )
 from ._render import UnsupportedPlotError, register_renderer
 from ._types import Graph, graph_from_data
@@ -33,7 +35,7 @@ T = TypeVar("T")
 _CAMEL_BOUNDARY = re.compile(r"(?<!^)(?=[A-Z])")
 
 
-class CredentialsError(RuntimeError):
+class CredentialsError(StencilaError):
     """Raised when credential production or verification fails."""
 
 
@@ -225,7 +227,7 @@ def sign(  # noqa: PLR0913
     )
 
 
-def init(force: bool = False) -> LocalIdentity:
+def init(*, force: bool = False) -> LocalIdentity:
     """Initialize the local identity used for convenient development signing.
 
     The identity is self-signed, so verification can distinguish a valid local
@@ -291,6 +293,7 @@ __all__ = [
     "SignedAsset",
     "UnsupportedPlotError",
     "VerificationReport",
+    "graph",
     "init",
     "inspect",
     "register_renderer",

@@ -17,7 +17,11 @@ _renderers: dict[type, Renderer] = {}
 
 
 class UnsupportedPlotError(TypeError):
-    """Raised when no plot renderer supports an object."""
+    """Raised when no plot renderer supports an object.
+
+    A `TypeError` rather than a `StencilaError`, because an object that no renderer
+    supports is a caller mistake: nothing was attempted and then failed.
+    """
 
 
 def register_renderer(plot_type: type, renderer: Renderer) -> None:

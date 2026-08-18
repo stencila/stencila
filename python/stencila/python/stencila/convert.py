@@ -1,10 +1,32 @@
+"""Encode and decode Stencila documents, and convert between formats.
+
+Decoding and encoding are performed by the native codecs, which release the interpreter
+lock while they work. These functions are synchronous, like the rest of the package: a
+caller who is already inside an event loop should dispatch them with
+`asyncio.to_thread` rather than calling them directly.
+"""
+
+from __future__ import annotations
+
+from collections.abc import Callable
+from os import PathLike
+from typing import Any, TypeVar
+
 from stencila_types.types import Node
 from stencila_types.utilities import from_json, to_json
 
 from stencila import _stencila
 
+from ._errors import StencilaError
 
-async def from_string(string: str, format: str | None = "json") -> Node:
+T = TypeVar("T")
+
+
+class ConvertError(StencilaError):
+    """Raised when a document cannot be decoded, encoded, or converted."""
+
+
+def from_string(string: str, format: str | None = "json") -> Node:
     """
     Decode a Stencila Schema node from a string.
 
@@ -15,25 +37,25 @@ async def from_string(string: str, format: str | None = "json") -> Node:
     Returns:
         Node: A Stencila Schema node.
     """
-    return from_json(await _stencila.convert.from_string(string, {"format": format}))
+    return from_json(_call(_stencila.convert.from_string, string, format=format))
 
 
-async def from_path(path: str, format: str | None = None) -> Node:
+def from_path(path: str | PathLike[str], format: str | None = None) -> Node:
     """
     Decode a Stencila Schema node from a filesystem path.
 
     Args:
-        path (str): The path to decode to a node.
+        path (str | PathLike): The path to decode to a node.
         format (Optional[str]): The format to decode from. If not supplied, it
             is inferred from the path.
 
     Returns:
         Node: A Stencila Schema node.
     """
-    return from_json(await _stencila.convert.from_path(path, {"format": format}))
+    return from_json(_call(_stencila.convert.from_path, str(path), format=format))
 
 
-async def to_string(
+def to_string(
     node: Node,
     *,
     format: str | None = "json",
@@ -53,56 +75,62 @@ async def to_string(
     Returns:
         str: The node encoded as a string in the specified format.
     """
-    return await _stencila.convert.to_string(
-        to_json(node), {"format": format, "standalone": standalone, "compact": compact}
+    return _call(
+        _stencila.convert.to_string,
+        to_json(node),
+        format=format,
+        standalone=standalone,
+        compact=compact,
     )
 
 
-async def to_path(
+def to_path(
     node: Node,
-    path: str,
+    path: str | PathLike[str],
     *,
     format: str | None = None,
     standalone: bool = False,
     compact: bool = False,
-):
+) -> None:
     """
     Encode a Stencila Schema node to a filesystem path.
 
     Args:
         node (Node): The node to encode.
-        path (str): The path to encode the node to.
+        path (str | PathLike): The path to encode the node to.
         format (Optional[str]): The format to encode to. If not supplied, it is
             inferred from the path.
         standalone (bool): Whether to encode as a standalone document. Defaults
             to False.
         compact (bool): Whether to encode in compact form. Defaults to False.
     """
-
-    return await _stencila.convert.to_path(
+    _call(
+        _stencila.convert.to_path,
         to_json(node),
-        path,
-        {"format": format, "standalone": standalone, "compact": compact},
+        str(path),
+        format=format,
+        standalone=standalone,
+        compact=compact,
     )
 
 
-async def from_to(  # noqa: PLR0913
-    input: str | None = None,
-    output: str | None = None,
+def from_to(  # noqa: PLR0913
+    input: str | PathLike[str] | None = None,
+    output: str | PathLike[str] | None = None,
     *,
-    from_format=None,
-    to_format=None,
-    to_standalone=False,
-    to_compact=False,
+    from_format: str | None = None,
+    to_format: str | None = None,
+    to_standalone: bool = False,
+    to_compact: bool = False,
 ) -> str:
     """
     Convert a document from one format to another.
 
     Args:
-        input (Optional[str]): The input path. If not supplied, stdin will be
-            read.
-        output (Optional[str]): The output path. If not supplied, the converted
-            input will be returned.
+        input (Optional[str | PathLike]): The input path. If not supplied, stdin
+            will be read.
+        output (Optional[str | PathLike]): The output path. If not supplied, the
+            converted input will be returned.
         from_format (Optional[str]): The format of the input. If not supplied,
             inferred from the input path.
         to_format (Optional[str]): The format of the output. If not supplied,
@@ -115,9 +143,36 @@ async def from_to(  # noqa: PLR0913
     Returns:
         str: The converted document as a string, or the path to the converted document.
     """
-    return await _stencila.convert.from_to(
-        input if input else "",
-        output if output else "",
-        {"format": from_format},
-        {"format": to_format, "standalone": to_standalone, "compact": to_compact},
+    return _call(
+        _stencila.convert.from_to,
+        str(input) if input is not None else None,
+        str(output) if output is not None else None,
+        from_format=from_format,
+        to_format=to_format,
+        to_standalone=to_standalone,
+        to_compact=to_compact,
     )
+
+
+def _call(native: Callable[..., T], *args: Any, **kwargs: Any) -> T:
+    """Call a native conversion, reporting failures as `ConvertError`.
+
+    A `ValueError` is left alone: it means a node could not be serialized or
+    deserialized, which says something about the argument rather than about the
+    conversion. Note that an unknown format is not one of these: the codecs discover
+    that no codec supports it while converting, so it arrives as a `ConvertError`.
+    """
+    try:
+        return native(*args, **kwargs)
+    except RuntimeError as error:
+        raise ConvertError(str(error)) from error
+
+
+__all__ = [
+    "ConvertError",
+    "from_path",
+    "from_string",
+    "from_to",
+    "to_path",
+    "to_string",
+]

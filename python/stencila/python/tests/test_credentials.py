@@ -8,10 +8,11 @@ import pytest
 import stencila_types.types as T
 from stencila_types.utilities import to_json
 
-from stencila import _stencila, credentials, graph
+from stencila import _stencila, credentials
 from stencila._context import resolve_context
 from stencila._graph import ProvenanceError, _discard, _prepare
 from stencila._render import UnsupportedPlotError, render
+from stencila.credentials import graph
 
 # A 1x1 PNG. Signing embeds a manifest into real image bytes, so the rendered
 # output has to be a decodable image rather than a placeholder.
@@ -198,8 +199,7 @@ def test_inferred_source_line_is_zero_based(tmp_path: Path):
     assert context.source_line == call_line - 1
 
 
-@pytest.mark.asyncio
-async def test_graph_is_typed_and_sync_inside_event_loop(tmp_path: Path):
+def test_graph_is_typed(tmp_path: Path):
     asset = tmp_path / "plot.png"
     asset.write_bytes(b"unsigned image bytes")
     value = graph(asset, workspace=tmp_path, provenance="none")

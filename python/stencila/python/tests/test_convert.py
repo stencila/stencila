@@ -12,7 +12,7 @@ from stencila.convert import from_path, from_string, from_to, to_path, to_string
 
 
 @pytest.mark.skip(reason="failing due to changes in serialization shape of Cord")
-async def test_from_string():
+def test_from_string():
     txt = """{
         type: "Article",
         content: [
@@ -21,7 +21,7 @@ async def test_from_string():
         }
     """
 
-    node = await from_string(txt, format="json5")
+    node = from_string(txt, format="json5")
     assert isinstance(node, T.Article)
     assert isinstance(node.content[0], T.Paragraph)
 
@@ -31,8 +31,8 @@ async def test_from_string():
 
 
 @pytest.mark.skip(reason="failing due to changes in serialization shape of Cord")
-async def test_from_path():
-    node = await from_path("../../examples/conversion/paragraph/paragraph.json")
+def test_from_path():
+    node = from_path("../../examples/conversion/paragraph/paragraph.json")
 
     assert isinstance(node, T.Article)
     assert isinstance(node.content[0], T.Paragraph)
@@ -42,8 +42,8 @@ async def test_from_path():
 
 
 @pytest.mark.skip(reason="failing due to changes python_types, not yet updated")
-async def test_to_string():
-    markdown = await to_string(
+def test_to_string():
+    markdown = to_string(
         T.Article(
             content=[
                 T.Paragraph(
@@ -62,7 +62,7 @@ async def test_to_string():
 
 
 @pytest.mark.skip(reason="failing due to changes in serialization shape of Cord")
-async def test_to_path(tmp_path: Path):
+def test_to_path(tmp_path: Path):
     node = T.Article(
         content=[
             T.Paragraph(
@@ -75,13 +75,13 @@ async def test_to_path(tmp_path: Path):
         ]
     )
     fpath = tmp_path / "file.jats"
-    await to_path(node, str(fpath), format="jats", compact=True)
-    round_tripped = await from_path(str(fpath), format="jats")
+    to_path(node, str(fpath), format="jats", compact=True)
+    round_tripped = from_path(str(fpath), format="jats")
     assert round_tripped == node
 
 
-async def test_from_to(tmp_path: Path):
-    markdown = await from_to(
+def test_from_to(tmp_path: Path):
+    markdown = from_to(
         "../../examples/conversion/paragraph/paragraph.json", to_format="md"
     )
 

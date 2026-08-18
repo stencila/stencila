@@ -39,10 +39,9 @@ Existing assets can be inspected or signed in place, and notebooks can provide
 explicit source context:
 
 ```python
-import stencila
 from stencila import credentials
 
-graph = stencila.graph("figure.png", workspace=".")
+graph = credentials.graph("figure.png", workspace=".")
 signed = credentials.sign(
     "figure.png",
     source="analysis.py",
@@ -133,31 +132,30 @@ class CitationIntent(StrEnum):
 
 ### Conversion
 
-The `convert` module has five functions for encoding and decoding Stencila documents and for converting documents between formats. All functions are `async`.
+The `convert` module has five functions for encoding and decoding Stencila documents and for converting documents between formats. All functions are synchronous, as is every other function in this package.
+
+> [!NOTE]
+> Conversion is performed by native code which releases the interpreter lock while it works, but it will still block the calling thread. If you are inside a running event loop, dispatch these functions with `asyncio.to_thread(from_path, "doc.md")` rather than calling them directly.
 
 #### `from_string`
 
 Use `from_string` to decode a string in a certain format to a Stencila Schema type. Usually you will need to supply the `format` argument (it defaults to JSON). e.g.
 
 ```py
-import asyncio
-
 from stencila.convert import from_string
 
-doc = asyncio.run(
-    from_string(
-        '''{
-            type: "Article",
+doc = from_string(
+    '''{
+        type: "Article",
+        content: [{
+            type: "Paragraph",
             content: [{
-                type: "Paragraph",
-                content: [{
-                    type: "Text",
-                    value: "Hello world"
-                }]
+                type: "Text",
+                value: "Hello world"
             }]
-        }''',
-        format="json5",
-    )
+        }]
+    }''',
+    format="json5",
 )
 ```
 
@@ -166,11 +164,9 @@ doc = asyncio.run(
 Use `from_path` to decode a file system path (usually a file) to a Stencila Schema type. The format can be supplied but if it is not is inferred from the path. e.g.
 
 ```py
-import asyncio
-
 from stencila.convert import from_path
 
-doc = asyncio.run(from_path("doc.jats.xml"))
+doc = from_path("doc.jats.xml")
 ```
 
 #### `to_string`
@@ -178,14 +174,12 @@ doc = asyncio.run(from_path("doc.jats.xml"))
 Use `to_string` to encode a Stencila Schema type to a string. Usually you will want to supply the `format` argument (it defaults to JSON).
 
 ```py
-import asyncio
-
 from stencila.convert import to_string
 from stencila.types import Article, Paragraph, Text
 
 doc = Article([Paragraph([Text("Hello world!")])])
 
-markdown = asyncio.run(to_string(doc, format="md"))
+markdown = to_string(doc, format="md")
 ```
 
 #### `to_path`
@@ -193,14 +187,12 @@ markdown = asyncio.run(to_string(doc, format="md"))
 To encode a Stencila Schema type to a filesystem path, use `to_path`. e.g.
 
 ```py
-import asyncio
-
 from stencila.convert import to_path
 from stencila.types import Article, Paragraph, Text
 
 doc = Article([Paragraph([Text("Hello world!")])])
 
-asyncio.run(to_path(doc, "doc.md"))
+to_path(doc, "doc.md")
 ```
 
 #### `from_to`
@@ -208,15 +200,59 @@ asyncio.run(to_path(doc, "doc.md"))
 Use `from_to` when you want to convert a file to another format (i.e. as a more performant shortcut to combining `from_path` and `to_path`)
 
 ```py
-import asyncio
-
 from stencila.convert import from_to
 
-asyncio.run(from_to("doc.md", "doc.html"))
+from_to("doc.md", "doc.html")
 ```
 
 > [!NOTE]
 > Some of the usage examples above illustrate manually constructing in-memory Python representations of small documents. This is for illustration only and would be unwieldy for large documents. Instead we imagine developers using the `convert.from_string` or `convert.from_path` functions to load documents into memory from other formats, or writing functions to construct documents composed of the Stencila classes.
+
+### Comparison
+
+The `compare` module compares two documents semantically, rather than as text. Each kind
+of input has a function that returns the comparison itself, and one that renders a
+human-readable report of it.
+
+```py
+from stencila.compare import is_equal, paths, report_paths
+
+# A comparison is a value to inspect, and answers whether the two sides are equal
+comparison = paths("original.docx", "roundtripped.md")
+if not is_equal(comparison):
+    print(len(comparison["differences"]), "differences")
+
+# A report is a rendering to show someone, and says "equal" or "different" on its
+# first line
+print(report_paths("original.docx", "roundtripped.md"))
+```
+
+Pick whichever of the two you need. A report function runs its own comparison, so
+calling one to explain the result of the other does the work twice; render the report
+unconditionally, or decide from the comparison and accept the second pass when a
+difference actually turns up.
+
+Use `nodes` and `report_nodes` for in-memory Stencila Schema nodes, and `strings` and
+`report_strings` for documents already in memory as text (supply `left_format` and
+`right_format` for those, since there is no path to infer the format from).
+
+Differences can be filtered with `exclude` (and, alongside it, `include`). A selector is
+a property (`jatsRefType`), a property of one node type (`Link.id`), a node type
+(`Link`), or `*` for everything; the most specific matching selector wins, whatever
+order they are given in.
+
+```py
+comparison = paths("a.md", "b.md", exclude=["id", "Link"])
+```
+
+Reports take `format="text"` (the default) or `format="html"` for a self-contained
+side-by-side page, and `summary=True` to stop after the counts.
+
+### Content Credentials
+
+The `credentials` module signs assets and verifies them, and `credentials.graph` previews
+the provenance assertion that signing would embed. See the introduction above for
+examples.
 
 ## 🛠️ Develop
 
@@ -270,3 +306,11 @@ Most of the types are generated from the Stencila Schema by the Rust [`schema-ge
 #### `convert` module
 
 The `convert` module is implemented in Rust (`src/convert.rs`) with a thin Python wrapper (`python/stencila/convert.py`) to provide documentation and conversion to the types in the `types` module.
+
+#### `compare` module
+
+The `compare` module follows the same split: `src/compare.rs` runs the comparison and renders the reports, and `python/stencila/compare.py` wraps it to accept paths and nodes, and to decode the result.
+
+#### `credentials` module
+
+The `credentials` module is the largest Python layer. `src/credentials.rs` and `src/graph.rs` expose signing, verification, and provenance graphs; `python/stencila/credentials.py` adds the plot handling, with `_graph.py`, `_render.py`, and `_context.py` holding the graph, renderer registry, and caller-context inference that go with it.

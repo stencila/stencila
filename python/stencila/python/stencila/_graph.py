@@ -17,6 +17,7 @@ from typing import Any, Literal, TypeAlias
 from stencila import _stencila
 
 from ._context import absolute, resolve_context
+from ._errors import StencilaError
 from ._render import render
 from ._types import Graph, graph_from_data
 
@@ -24,7 +25,7 @@ Profile: TypeAlias = Literal["public", "private", "full"]
 Provenance: TypeAlias = Literal["auto", "required", "none"]
 
 
-class ProvenanceError(RuntimeError):
+class ProvenanceError(StencilaError):
     """Base error for provenance construction."""
 
 

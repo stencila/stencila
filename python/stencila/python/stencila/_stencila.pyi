@@ -1,51 +1,86 @@
-from typing import TypedDict
+"""Type stubs for the native extension module.
 
-class DecodeOptions(TypedDict):
-    format: str | None
+Every function here is synchronous, takes its options as keyword arguments, and
+returns either a plain value or a JSON string for the public Python layer to decode.
+"""
 
-class EncodeOptions(TypedDict):
-    format: str | None
-    standalone: bool | None
-    compact: bool | None
+# These are actually modules, declared as classes so their members can be typed.
 
-class CompareOptions(TypedDict):
-    alignment_cell_budget: int | None
-    include: list[str] | None
-    exclude: list[str] | None
-    left_format: str | None
-    right_format: str | None
-    left_label: str | None
-    right_label: str | None
-    reports: list[str] | None
-    summary: bool | None
-
-# This is actually a module.
 class compare:  # noqa: N801
     @staticmethod
-    def nodes(left: str, right: str, options: CompareOptions) -> str: ...
+    def nodes(
+        left: str,
+        right: str,
+        *,
+        include: list[str] | None = None,
+        exclude: list[str] | None = None,
+        alignment_cell_budget: int | None = None,
+        reports: list[str] | None = None,
+        summary: bool | None = None,
+        left_label: str | None = None,
+        right_label: str | None = None,
+    ) -> str: ...
     @staticmethod
-    def strings(left: str, right: str, options: CompareOptions) -> str: ...
+    def strings(
+        left: str,
+        right: str,
+        *,
+        left_format: str | None = None,
+        right_format: str | None = None,
+        include: list[str] | None = None,
+        exclude: list[str] | None = None,
+        alignment_cell_budget: int | None = None,
+        reports: list[str] | None = None,
+        summary: bool | None = None,
+        left_label: str | None = None,
+        right_label: str | None = None,
+    ) -> str: ...
     @staticmethod
-    def paths(left: str, right: str, options: CompareOptions) -> str: ...
+    def paths(
+        left: str,
+        right: str,
+        *,
+        left_format: str | None = None,
+        right_format: str | None = None,
+        include: list[str] | None = None,
+        exclude: list[str] | None = None,
+        alignment_cell_budget: int | None = None,
+        reports: list[str] | None = None,
+        summary: bool | None = None,
+        left_label: str | None = None,
+        right_label: str | None = None,
+    ) -> str: ...
     @staticmethod
     def is_equal(comparison: str) -> bool: ...
 
-# This is actually a module.
 class convert:  # noqa: N801
     @staticmethod
-    async def from_string(string: str, options: DecodeOptions) -> str: ...
+    def from_string(string: str, format: str | None = None) -> str: ...
     @staticmethod
-    async def from_path(path: str, options: DecodeOptions) -> str: ...
+    def from_path(path: str, format: str | None = None) -> str: ...
     @staticmethod
-    async def to_string(json: str, options: EncodeOptions) -> str: ...
+    def to_string(
+        json: str,
+        format: str | None = None,
+        standalone: bool | None = None,
+        compact: bool | None = None,
+    ) -> str: ...
     @staticmethod
-    async def to_path(json: str, path: str, options: EncodeOptions) -> str: ...
+    def to_path(
+        json: str,
+        path: str,
+        format: str | None = None,
+        standalone: bool | None = None,
+        compact: bool | None = None,
+    ) -> None: ...
     @staticmethod
-    async def from_to(
-        input: str,  # noqa: A002
-        output: str,
-        decode_options: DecodeOptions,
-        encode_options: EncodeOptions,
+    def from_to(
+        input: str | None = None,
+        output: str | None = None,
+        from_format: str | None = None,
+        to_format: str | None = None,
+        to_standalone: bool | None = None,
+        to_compact: bool | None = None,
     ) -> str: ...
 
 class graph:  # noqa: N801

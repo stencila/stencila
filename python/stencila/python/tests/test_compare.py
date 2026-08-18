@@ -7,19 +7,19 @@ from stencila_types import types as T
 
 from stencila.compare import (
     CompareError,
-    compare_nodes,
-    compare_paths,
-    compare_strings,
     is_equal,
+    nodes,
+    paths,
     report_paths,
     report_strings,
+    strings,
 )
 
 PARAGRAPH = "../../examples/conversion/paragraph/paragraph.json"
 
 
 def test_equal_documents_have_no_differences():
-    comparison = compare_strings(
+    comparison = strings(
         "Hello world", "Hello world", left_format="md", right_format="md"
     )
 
@@ -27,7 +27,7 @@ def test_equal_documents_have_no_differences():
 
 
 def test_changed_text_is_a_value_difference():
-    comparison = compare_strings(
+    comparison = strings(
         "Hello world", "Hello there", left_format="md", right_format="md"
     )
 
@@ -39,8 +39,8 @@ def test_nodes_can_be_compared_in_memory():
     left = T.Article(content=[T.Paragraph(content=[T.Text(value="Hello world")])])
     right = T.Article(content=[T.Paragraph(content=[T.Text(value="Hello there")])])
 
-    assert compare_nodes(left, left)["differences"] == []
-    assert compare_nodes(left, right)["differences"] != []
+    assert nodes(left, left)["differences"] == []
+    assert nodes(left, right)["differences"] != []
 
 
 def test_wholly_unrecognizable_content_is_one_sided_not_different():
@@ -50,7 +50,7 @@ def test_wholly_unrecognizable_content_is_one_sided_not_different():
     left = T.Article(content=[T.Paragraph(content=[T.Text(value="One")])])
     right = T.Article(content=[T.Paragraph(content=[T.Text(value="Two")])])
 
-    comparison = compare_nodes(left, right)
+    comparison = nodes(left, right)
     assert comparison["differences"] == []
 
     kinds = {
@@ -63,15 +63,15 @@ def test_wholly_unrecognizable_content_is_one_sided_not_different():
 
 
 def test_is_equal_follows_the_comparison():
-    equal = compare_strings("Hello", "Hello", left_format="md", right_format="md")
+    equal = strings("Hello", "Hello", left_format="md", right_format="md")
     assert is_equal(equal)
 
-    different = compare_strings("Hello", "Goodbye", left_format="md", right_format="md")
+    different = strings("Hello", "Goodbye", left_format="md", right_format="md")
     assert not is_equal(different)
 
 
 def test_a_document_is_equal_to_itself():
-    comparison = compare_paths(PARAGRAPH, PARAGRAPH)
+    comparison = paths(PARAGRAPH, PARAGRAPH)
 
     assert comparison["differences"] == []
 
@@ -80,9 +80,9 @@ def test_exclude_suppresses_differences():
     left = T.Article(id="one", content=[T.Paragraph(content=[T.Text(value="Hi")])])
     right = T.Article(id="two", content=[T.Paragraph(content=[T.Text(value="Hi")])])
 
-    assert compare_nodes(left, right)["differences"] != []
+    assert nodes(left, right)["differences"] != []
 
-    filtered = compare_nodes(left, right, exclude=["id"])
+    filtered = nodes(left, right, exclude=["id"])
     assert filtered["differences"] == []
     assert filtered["suppressedDifferences"] > 0
     assert is_equal(filtered)
@@ -90,14 +90,12 @@ def test_exclude_suppresses_differences():
 
 def test_unknown_selectors_are_rejected():
     with pytest.raises(ValueError, match="not a property in the Stencila Schema"):
-        compare_strings(
-            "One", "Two", left_format="md", right_format="md", exclude=["nope"]
-        )
+        strings("One", "Two", left_format="md", right_format="md", exclude=["nope"])
 
 
 def test_a_missing_document_is_an_error():
     with pytest.raises(CompareError):
-        compare_paths("does-not-exist.smd", PARAGRAPH)
+        paths("does-not-exist.smd", PARAGRAPH)
 
 
 def test_text_report_names_both_sides():

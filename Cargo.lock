@@ -7888,32 +7888,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "pyo3-async-runtimes"
-version = "0.28.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "9e7364a95bf00e8377bbf9b0f09d7ff9715a29d8fcf93b47d1a967363b973178"
-dependencies = [
- "futures-channel",
- "futures-util",
- "once_cell",
- "pin-project-lite",
- "pyo3",
- "pyo3-async-runtimes-macros",
- "tokio",
-]
-
-[[package]]
-name = "pyo3-async-runtimes-macros"
-version = "0.28.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "c23399970eea9c31d0ac84cee4a9d8dd05f89b1da2f4dd5bb44b32a3f66db4f8"
-dependencies = [
- "proc-macro2",
- "quote",
- "syn 2.0.117",
-]
-
-[[package]]
 name = "pyo3-build-config"
 version = "0.28.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -12612,7 +12586,6 @@ version = "2.15.0"
 dependencies = [
  "eyre",
  "pyo3",
- "pyo3-async-runtimes",
  "serde",
  "serde_json",
  "stencila-codecs",
