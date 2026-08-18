@@ -352,7 +352,7 @@ fn canonical_ordering_and_inversion() -> Result<()> {
 fn the_artifact_is_versioned() -> Result<()> {
     let comparison = compare(&art([]), &art([]))?;
 
-    assert_eq!(comparison.format_version(), ComparisonFormatVersion::V2);
+    assert_eq!(comparison.format_version(), ComparisonFormatVersion::V1);
     assert_eq!(comparison.algorithm().name, "stencila-schema-native");
     assert_eq!(comparison.algorithm(), comparison.alignment().algorithm());
 

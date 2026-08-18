@@ -3,7 +3,7 @@ source: rust/node-compare/tests/snapshots.rs
 expression: "compare(&left, &right)?"
 ---
 {
-  "formatVersion": "2",
+  "formatVersion": "1",
   "alignment": {
     "formatVersion": "1",
     "algorithm": {

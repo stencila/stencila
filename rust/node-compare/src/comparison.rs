@@ -32,11 +32,10 @@ use crate::{
 /// deliverable in its own right.
 #[derive(Debug, Clone, Copy, Default, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub enum ComparisonFormatVersion {
-    /// Removes the duplicate top-level algorithm information; it is owned by the
-    /// embedded alignment and exposed through [`Comparison::algorithm`]
+    /// The initial format
     #[default]
-    #[serde(rename = "2")]
-    V2,
+    #[serde(rename = "1")]
+    V1,
 }
 
 /// The state of a property on one side of a pair
@@ -453,7 +452,7 @@ impl TryFrom<ComparisonData> for Comparison {
 
     fn try_from(data: ComparisonData) -> Result<Self, Self::Error> {
         let format_version = match data.format_version.as_str() {
-            "2" => ComparisonFormatVersion::V2,
+            "1" => ComparisonFormatVersion::V1,
             version => {
                 return Err(CompareError::UnsupportedVersion {
                     artifact: "comparison",
@@ -468,7 +467,7 @@ impl TryFrom<ComparisonData> for Comparison {
 impl Comparison {
     /// Create a comparison, putting its differences into canonical order
     pub(crate) fn new(alignment: Alignment, differences: Vec<Difference>) -> CompareResult<Self> {
-        Self::new_with_version(ComparisonFormatVersion::V2, alignment, differences)
+        Self::new_with_version(ComparisonFormatVersion::V1, alignment, differences)
     }
 
     fn new_with_version(
