@@ -83,8 +83,14 @@ fn derive_struct(type_attr: TypeAttr) -> TokenStream {
     };
 
     let no_match = if has_options {
+        // The property slot was popped before matching, so it has to go back on before
+        // the options struct gets a chance to match it. Without this, no property held
+        // in a generated `*Options` struct is reachable by path at all.
         quote! {
-            self.options.duplicate(path)
+            {
+                path.push_front(NodeSlot::Property(property));
+                self.options.duplicate(path)
+            }
         }
     } else {
         quote! {
