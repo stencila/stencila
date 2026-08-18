@@ -297,6 +297,7 @@ fn an_exact_scalar_item_anchors() -> Result<()> {
     // costs.
     let options = CompareOptions {
         alignment_cell_budget: 1 + 8 + 4,
+        ..Default::default()
     };
     let alignment = align_with_options(&left, &right, &options)?;
 

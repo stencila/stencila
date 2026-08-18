@@ -358,6 +358,7 @@ fn budget_exhaustion_is_an_error() -> Result<()> {
 
     let options = CompareOptions {
         alignment_cell_budget: 100,
+        ..Default::default()
     };
 
     let Err(CompareError::BudgetExhausted {
@@ -387,6 +388,7 @@ fn anchors_keep_the_budget_small() -> Result<()> {
     // Every item is an exact anchor, so no dynamic programming is needed at all
     let options = CompareOptions {
         alignment_cell_budget: 1,
+        ..Default::default()
     };
     let alignment = align_with_options(&left, &right, &options)?;
     assert!(!alignment.has_one_sided());

@@ -21,6 +21,7 @@ mod comparison;
 mod differences;
 mod error;
 mod features;
+mod filter;
 mod fingerprint;
 mod increasing;
 mod options;
@@ -38,9 +39,11 @@ pub use alignment::{
     UnmatchedReason,
 };
 pub use comparison::{
-    Comparison, ComparisonFormatVersion, Difference, PropertyPresence, ValueLocation, ValueState,
+    Comparison, ComparisonFormatVersion, Difference, OneSidedTally, PropertyPresence,
+    ValueLocation, ValueState,
 };
 pub use error::{CompareError, CompareResult, Side};
+pub use filter::{DifferenceFilter, Selector, SelectorError};
 pub use options::{CompareOptions, DEFAULT_ALIGNMENT_CELL_BUDGET};
 pub use projection::MAX_DEPTH as MAX_COMPARISON_DEPTH;
 pub use scalar::{CanonicalNumber, DuplicateObjectKeyError, ObjectEntries, ScalarValue};
@@ -137,7 +140,9 @@ pub fn compare_with_options(
         &aligned,
     )?);
 
-    Comparison::new(aligned.alignment, differences)
+    // Filtering happens after every difference has been derived, so that what a filter
+    // selects can never depend on the order differences were produced in
+    Comparison::new_filtered(aligned.alignment, differences, options.filter.clone())
 }
 
 /// Whether the canonical projections of two nodes are exactly equal

@@ -255,6 +255,7 @@ fn budget_exhaustion_is_a_typed_error() -> Result<()> {
 
     let options = CompareOptions {
         alignment_cell_budget: 100,
+        ..Default::default()
     };
 
     for result in [
@@ -282,6 +283,7 @@ fn successful_runs_stay_within_the_budget() -> Result<()> {
     // the default allows: exceeding it is an error rather than an approximation
     let options = CompareOptions {
         alignment_cell_budget: 0,
+        ..Default::default()
     };
     for (left, right) in fixtures() {
         // Every fixture succeeds under the default budget

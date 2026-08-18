@@ -21,8 +21,9 @@ use stencila_node_path::NodePath;
 use stencila_node_type::NodeProperty;
 
 use crate::{
-    alignment::{AlgorithmInfo, Alignment, NodeRef},
+    alignment::{AlgorithmInfo, Alignment, Correspondence, NodeRef},
     error::{CompareError, CompareResult},
+    filter::DifferenceFilter,
     scalar::ScalarValue,
 };
 
@@ -426,6 +427,13 @@ impl Ord for Difference {
 /// Deserialization restores canonical order and verifies that every difference refers
 /// to a pair in the embedded alignment. Call [`Comparison::validate`] with the original
 /// snapshots before trusting a deserialized artifact's complete coverage.
+///
+/// A comparison may be *filtered*, in which case it reports only the differences its
+/// [`Comparison::filter`] selects. The embedded alignment is unaffected and stays
+/// complete, so a filtered comparison is still a full account of what corresponds; only
+/// the observations about paired occurrences are narrowed. The filter and the number of
+/// differences it suppressed are both carried by the artifact, so a filtered comparison
+/// can never be mistaken for an exhaustive one.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase", try_from = "ComparisonData")]
 pub struct Comparison {
@@ -437,6 +445,52 @@ pub struct Comparison {
 
     /// The differences, in canonical order
     differences: Vec<Difference>,
+
+    /// The filter that selected which differences are reported
+    #[serde(skip_serializing_if = "DifferenceFilter::is_empty")]
+    filter: DifferenceFilter,
+
+    /// How many derived differences the filter suppressed
+    ///
+    /// Stored rather than derived, because the suppressed differences themselves are
+    /// not retained. One-sided suppression is not stored, because the alignment is
+    /// complete and so it can always be recomputed from the filter.
+    #[serde(skip_serializing_if = "is_zero")]
+    suppressed_differences: usize,
+}
+
+/// How many one-sided correspondences a filter reports and suppresses, per side
+///
+/// Indexed by side: `[left, right]`.
+#[derive(Debug, Clone, Copy, Default, PartialEq, Eq)]
+pub struct OneSidedTally {
+    /// The correspondences the filter reports
+    pub reported: [usize; 2],
+
+    /// The correspondences the filter suppresses
+    pub suppressed: [usize; 2],
+}
+
+impl OneSidedTally {
+    /// The left-only and right-only correspondences that are reported
+    pub fn left_only(&self) -> usize {
+        self.reported[0]
+    }
+
+    /// The right-only correspondences that are reported
+    pub fn right_only(&self) -> usize {
+        self.reported[1]
+    }
+
+    /// How many one-sided correspondences the filter suppressed altogether
+    pub fn suppressed_total(&self) -> usize {
+        self.suppressed[0] + self.suppressed[1]
+    }
+}
+
+/// Whether a count is zero, so that an unfiltered comparison serializes unchanged
+fn is_zero(count: &usize) -> bool {
+    *count == 0
 }
 
 #[derive(Deserialize)]
@@ -445,6 +499,10 @@ struct ComparisonData {
     format_version: String,
     alignment: Alignment,
     differences: Vec<Difference>,
+    #[serde(default)]
+    filter: DifferenceFilter,
+    #[serde(default)]
+    suppressed_differences: usize,
 }
 
 impl TryFrom<ComparisonData> for Comparison {
@@ -460,25 +518,71 @@ impl TryFrom<ComparisonData> for Comparison {
                 });
             }
         };
-        Self::new_with_version(format_version, data.alignment, data.differences)
+        Self::new_with_version(
+            format_version,
+            data.alignment,
+            data.differences,
+            data.filter,
+            data.suppressed_differences,
+        )
     }
 }
 
 impl Comparison {
-    /// Create a comparison, putting its differences into canonical order
+    /// Create an unfiltered comparison, putting its differences into canonical order
     pub(crate) fn new(alignment: Alignment, differences: Vec<Difference>) -> CompareResult<Self> {
-        Self::new_with_version(ComparisonFormatVersion::V1, alignment, differences)
+        Self::new_with_version(
+            ComparisonFormatVersion::V1,
+            alignment,
+            differences,
+            DifferenceFilter::none(),
+            0,
+        )
+    }
+
+    /// Create a comparison reporting only the differences a filter selects
+    ///
+    /// The differences are filtered here, rather than while they are derived, so that
+    /// derivation stays a pure function of the alignment and every difference is
+    /// produced before any is hidden.
+    pub(crate) fn new_filtered(
+        alignment: Alignment,
+        differences: Vec<Difference>,
+        filter: DifferenceFilter,
+    ) -> CompareResult<Self> {
+        if filter.is_empty() {
+            return Self::new(alignment, differences);
+        }
+
+        let derived = differences.len();
+        let differences: Vec<Difference> = differences
+            .into_iter()
+            .filter(|difference| filter.allows_difference(difference))
+            .collect();
+        let suppressed = derived - differences.len();
+
+        Self::new_with_version(
+            ComparisonFormatVersion::V1,
+            alignment,
+            differences,
+            filter,
+            suppressed,
+        )
     }
 
     fn new_with_version(
         format_version: ComparisonFormatVersion,
         alignment: Alignment,
         differences: Vec<Difference>,
+        filter: DifferenceFilter,
+        suppressed_differences: usize,
     ) -> CompareResult<Self> {
         let mut comparison = Self {
             format_version,
             alignment,
             differences,
+            filter,
+            suppressed_differences,
         };
         comparison.canonicalize();
         comparison.validate_local()?;
@@ -501,8 +605,79 @@ impl Comparison {
     }
 
     /// The differences, in canonical order
+    ///
+    /// Only those the [`Comparison::filter`] selects, when the comparison is filtered.
     pub fn differences(&self) -> &[Difference] {
         &self.differences
+    }
+
+    /// The filter that selected which differences are reported
+    ///
+    /// Empty when the comparison reports every difference it derived.
+    pub fn filter(&self) -> &DifferenceFilter {
+        &self.filter
+    }
+
+    /// Whether this comparison reports only some of the differences it derived
+    pub fn is_filtered(&self) -> bool {
+        !self.filter.is_empty()
+    }
+
+    /// How many derived differences the filter suppressed
+    pub fn suppressed_differences(&self) -> usize {
+        self.suppressed_differences
+    }
+
+    /// How many one-sided correspondences the filter reports and suppresses
+    ///
+    /// Decided at the root of each one-sided subtree, not per occurrence. Every
+    /// structured descendant of a one-sided occurrence has its own record, so testing
+    /// each against the filter separately would hide an excluded `Link` while still
+    /// reporting the text inside it. A subtree is reported, or hidden, whole.
+    ///
+    /// Recomputed from the complete alignment rather than stored, so that it stays
+    /// correct for a deserialized artifact.
+    pub fn one_sided_tally(&self) -> OneSidedTally {
+        let mut tally = OneSidedTally::default();
+
+        // Correspondences are in canonical order, so on each side the descendants of a
+        // one-sided root immediately follow it and inherit its verdict
+        let mut reporting = [true, true];
+
+        for correspondence in self.alignment.correspondences() {
+            let (side, node, ancestor) = match correspondence {
+                Correspondence::Paired { .. } => continue,
+                Correspondence::LeftOnly {
+                    left,
+                    nearest_one_sided_ancestor,
+                    ..
+                } => (0, left, nearest_one_sided_ancestor),
+                Correspondence::RightOnly {
+                    right,
+                    nearest_one_sided_ancestor,
+                    ..
+                } => (1, right, nearest_one_sided_ancestor),
+            };
+
+            if ancestor.is_none() {
+                reporting[side] = self.filter.allows_node(node);
+            }
+
+            let counts = if reporting[side] {
+                &mut tally.reported
+            } else {
+                &mut tally.suppressed
+            };
+            counts[side] += 1;
+        }
+
+        tally
+    }
+
+    /// Whether any one-sided correspondence survives the filter
+    fn has_reported_one_sided(&self) -> bool {
+        let reported = self.one_sided_tally().reported;
+        reported[0] + reported[1] > 0
     }
 
     /// Put the differences into canonical order
@@ -550,14 +725,32 @@ impl Comparison {
         Ok(())
     }
 
-    /// Whether the two compared nodes are equal
+    /// Whether the two compared nodes are equal, as far as this comparison reports
     ///
     /// Because one-sided structure lives in the alignment rather than in the
     /// differences, the difference list alone is not an equality predicate: equality is
-    /// no one-sided correspondences *and* no differences, which holds exactly when the
-    /// two canonical projections are equal.
+    /// no one-sided correspondences *and* no differences.
+    ///
+    /// For an unfiltered comparison this holds exactly when the two canonical
+    /// projections are equal. For a filtered one it is equality *modulo the filter*:
+    /// the two nodes do not differ in any way the filter reports. That is what makes a
+    /// filter usable as a round-trip gate, and why the artifact carries the filter that
+    /// produced the verdict. Use [`Comparison::is_equal_unfiltered`] for the stricter
+    /// question.
     pub fn is_equal(&self) -> bool {
-        !self.alignment.has_one_sided() && self.differences.is_empty()
+        self.differences.is_empty() && !self.has_reported_one_sided()
+    }
+
+    /// Whether the two compared nodes are equal in every respect, filter or not
+    ///
+    /// Always answerable, even for a filtered comparison: the suppressed differences
+    /// are not retained but their number is, and the embedded alignment is complete
+    /// whatever the filter, so unfiltered equality is exactly no differences derived and
+    /// no one-sided correspondences at all.
+    pub fn is_equal_unfiltered(&self) -> bool {
+        self.differences.is_empty()
+            && self.suppressed_differences == 0
+            && !self.alignment.has_one_sided()
     }
 
     /// Invert this comparison, as though the two inputs had been swapped
@@ -570,6 +763,10 @@ impl Comparison {
                 .into_iter()
                 .map(Difference::invert)
                 .collect(),
+            // A selector matches either side of a pair, so a filter is side-symmetric
+            // and inverts to itself
+            filter: self.filter,
+            suppressed_differences: self.suppressed_differences,
         };
         inverted.canonicalize();
         inverted
