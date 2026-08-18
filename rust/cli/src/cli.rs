@@ -7,7 +7,7 @@ use stencila_server::ServeOptions;
 use stencila_version::STENCILA_VERSION;
 
 use crate::{
-    compile, convert, db, demo, execute, graph, init, lint,
+    compare, compile, convert, db, demo, execute, graph, init, lint,
     logging::{LoggingFormat, LoggingLevel},
     mcp_codemode, merge, new, open, outputs, pull, push, render, site, status, sync, uninstall,
     unwatch, upgrade, watch,
@@ -193,6 +193,9 @@ pub static CLI_AFTER_LONG_HELP: &str = cstr!(
   <dim># Convert a document to another format</dim>
   <b>stencila convert</> <g>input.md</> <g>output.pdf</>
 
+  <dim># Compare two documents</dim>
+  <b>stencila compare</> <g>before.smd</> <g>after.smd</>
+
   <dim># Check available formats</dim>
   <b>stencila formats list</>
 
@@ -262,6 +265,7 @@ pub enum Command {
     Untrack(stencila_document::cli::Untrack),
     Clean(stencila_document::cli::Clean),
     Convert(convert::Cli),
+    Compare(compare::Cli),
     Merge(merge::Cli),
     Sync(sync::Cli),
     Push(push::Cli),
@@ -325,12 +329,21 @@ impl Cli {
     /// to call after error reporting and logging have been setup. This is
     /// useful because then CLI arguments are captured in span traces.
     #[tracing::instrument(skip(self))]
-    pub async fn run(self) -> Result<()> {
+    pub async fn run(self) -> Result<CommandOutcome> {
         tracing::trace!("Running CLI command");
 
         let Some(command) = self.command else {
             bail!("No subcommand provided (TUI should have been launched)")
         };
+
+        // Handled before the following match because, unlike every other command,
+        // it has an outcome that the process exit status depends upon
+        if let Command::Compare(compare) = command {
+            return Ok(match compare.run().await? {
+                compare::CompareOutcome::Equal => CommandOutcome::Success,
+                compare::CompareOutcome::Different => CommandOutcome::Different,
+            });
+        }
 
         match command {
             Command::New(new) => new.run().await,
@@ -409,6 +422,37 @@ impl Cli {
             Command::Lsp => {
                 bail!("The LSP command should already have been run")
             }
+
+            // Handled above, before this match
+            Command::Compare(..) => {
+                bail!("The compare command should already have been run")
+            }
+        }?;
+
+        Ok(CommandOutcome::Success)
+    }
+}
+
+/// The outcome of running a CLI command
+///
+/// Most commands either succeed or fail. `compare` additionally distinguishes
+/// documents that differ, following diff conventions, so that it can exit with 1
+/// without that being an error.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum CommandOutcome {
+    /// The command completed successfully
+    Success,
+
+    /// The compared documents differ
+    Different,
+}
+
+impl CommandOutcome {
+    /// The process exit status for this outcome
+    pub fn exit_code(self) -> i32 {
+        match self {
+            Self::Success => 0,
+            Self::Different => 1,
         }
     }
 }

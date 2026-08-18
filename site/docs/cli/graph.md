@@ -76,6 +76,7 @@ stencila graph . --explain
 | `--explain`               | Report I/O that static analysis could not resolve, instead of serving. Possible values: `true`, `false`.        |
 | `--no-c2pa`               | Do not inspect C2PA content credentials while building workspace graphs. Possible values: `true`, `false`.      |
 | `--no-git-authors`        | Do not include Git commit authors on file-backed workspace graph nodes. Possible values: `true`, `false`.       |
+| `--no-runtime-evidence`   | Do not merge cached evidence from prior traced executions. Possible values: `true`, `false`.                    |
 | `--connected-to`          | Filter projected graph exports to nodes connected to matching nodes.                                            |
 | `--connected-mode`        | How to traverse graph edges for connected-to filtering. Default value: `directed`.                              |
 | `-a, --address`           | The address to serve on. Default value: `127.0.0.1`.                                                            |

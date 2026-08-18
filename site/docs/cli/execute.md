@@ -8,7 +8,7 @@ Execute a document
 # Usage
 
 ```sh
-stencila execute [OPTIONS] <INPUT>
+stencila execute [OPTIONS] <INPUT> [-- <ARGUMENTS>...]
 ```
 
 # Examples
@@ -25,13 +25,17 @@ stencila execute cached.ipynb --force-all
 
 # Execute using the shorthand alias
 stencila exec script.r
+
+# Trace runtime dependencies of a Python script
+stencila execute --trace script.py -- arg1 arg2
 ```
 
 # Arguments
 
-| Name      | Description                          |
-| --------- | ------------------------------------ |
-| `<INPUT>` | The path of the document to execute. |
+| Name          | Description                                           |
+| ------------- | ----------------------------------------------------- |
+| `<INPUT>`     | The path of the document to execute.                  |
+| `[ARGUMENTS]` | Arguments passed unchanged to a traced Python script. |
 
 # Options
 
@@ -53,6 +57,7 @@ stencila exec script.r
 | `--include-structuring` | Structuring operations to include (comma-separated).                                                            |
 | `--exclude-structuring` | Structuring operations to exclude (comma-separated).                                                            |
 | `--citation-style`      | The citation style to assume for text-to-citation structuring.                                                  |
+| `--trace`               | Trace successful runtime resource access in supported kernels. Possible values: `true`, `false`.                |
 | `--ignore-errors`       | Ignore any errors while executing document. Possible values: `true`, `false`.                                   |
 | `--force-all`           | Re-execute all node types regardless of current state. Possible values: `true`, `false`.                        |
 | `--skip-code`           | Skip executing code. Possible values: `true`, `false`.                                                          |

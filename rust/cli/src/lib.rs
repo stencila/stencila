@@ -1,9 +1,10 @@
 #![recursion_limit = "256"]
 
 mod cli;
-pub use crate::cli::{Cli, Command};
+pub use crate::cli::{Cli, Command, CommandOutcome};
 
 mod cloud;
+mod compare;
 mod compile;
 mod convert;
 mod db;
@@ -84,6 +85,7 @@ mod tests {
             ("cli", crate::cli::CLI_AFTER_LONG_HELP),
             ("new", crate::new::CLI_AFTER_LONG_HELP),
             ("convert", crate::convert::CLI_AFTER_LONG_HELP),
+            ("compare", crate::compare::CLI_AFTER_LONG_HELP),
             ("merge", crate::merge::CLI_AFTER_LONG_HELP),
             ("sync", crate::sync::CLI_AFTER_LONG_HELP),
             ("push", crate::push::CLI_AFTER_LONG_HELP),

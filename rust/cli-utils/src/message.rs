@@ -43,7 +43,9 @@ macro_rules! message {
 #[allow(clippy::print_stderr)]
 pub fn message(message: &str) {
     // Check if message contains URLs to determine if we should skip wrapping
-    let contains_url = message.contains("http://") || message.contains("https://");
+    let contains_url = message.contains("http://")
+        || message.contains("https://")
+        || message.contains("file://");
 
     // Extract leading emoji if present
     let (emoji, text) = match extract_leading_emoji(message) {

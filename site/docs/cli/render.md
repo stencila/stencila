@@ -35,6 +35,9 @@ stencila render notebook.md report.pdf --ignore-errors
 # Render and cache a document
 stencila render temp.md output.html --cache
 
+# Render while tracing Python runtime dependencies
+stencila render --trace report.smd report.html
+
 # Spread render with multiple parameter combinations (grid)
 stencila render report.md 'report-{region}-{species}.pdf' -- region=north,south species=ABC,DEF
 
@@ -61,6 +64,7 @@ stencila render report.md 'report-{i}.pdf' --spread=cases --case="region=north s
 | `--spread-max`                  | Maximum number of runs allowed in spread mode (default: 100). Default value: `100`.                             |
 | `--case`                        | Explicit parameter sets for cases mode.                                                                         |
 | `--cache`                       | Cache the document after rendering it. Possible values: `true`, `false`.                                        |
+| `--trace`                       | Trace successful runtime resource access in supported kernels. Possible values: `true`, `false`.                |
 | `--ignore-errors`               | Ignore any errors while executing document. Possible values: `true`, `false`.                                   |
 | `--force-all`                   | Re-execute all node types regardless of current state. Possible values: `true`, `false`.                        |
 | `--skip-code`                   | Skip executing code. Possible values: `true`, `false`.                                                          |

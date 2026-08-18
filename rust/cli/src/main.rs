@@ -91,17 +91,38 @@ async fn main() -> Result<()> {
             upgrade::check(false);
         }
 
-        if let Err(error) = cli.run().await {
-            if error_details == "none" || (error_details == "auto" && !cfg!(debug_assertions)) {
-                message!("💥 <red>{}</>", error);
-                exit(1);
-            } else {
-                return Err(error);
+        // Commands that report an outcome, rather than merely succeeding or
+        // failing, use their own error exit status so that it is distinguishable
+        // from the outcome
+        let error_code = if matches!(cli.command, Some(Command::Compare(..))) {
+            2
+        } else {
+            1
+        };
+
+        let outcome = match cli.run().await {
+            Ok(outcome) => outcome,
+            Err(error) => {
+                if error_details == "none" || (error_details == "auto" && !cfg!(debug_assertions)) {
+                    message!("💥 <red>{}</>", error);
+                } else {
+                    // Same report that returning the error from `main` would render
+                    #[allow(clippy::print_stderr)]
+                    {
+                        eprintln!("Error: {error:?}");
+                    }
+                }
+                exit(error_code);
             }
-        }
+        };
 
         if !skip_upgrade {
             upgrade::notify();
+        }
+
+        let exit_code = outcome.exit_code();
+        if exit_code != 0 {
+            exit(exit_code);
         }
     }
 

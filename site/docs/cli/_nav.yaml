@@ -25,6 +25,7 @@ items:
   - label: "Format & Sync"
     items:
       - "convert"
+      - "compare"
       - "merge"
       - "sync"
       - "push"

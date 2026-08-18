@@ -25,7 +25,7 @@ pub const COMMAND_GROUPS: &[CommandGroup] = &[
     CommandGroup {
         label: "Format & Sync",
         commands: &[
-            "convert", "merge", "sync", "push", "pull", "watch", "unwatch",
+            "convert", "compare", "merge", "sync", "push", "pull", "watch", "unwatch",
         ],
     },
     CommandGroup {

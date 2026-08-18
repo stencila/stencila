@@ -68,6 +68,7 @@ stencila demo document.md --slides "1,3-5,7-"
 | `--slides`              | Specify which slides to demo.                                                                               |
 | `--no-execute`          | Do not execute the document before running the demo. Possible values: `true`, `false`.                      |
 | `--cache`               | Cache the document after executing it. Possible values: `true`, `false`.                                    |
+| `--trace`               | Trace successful runtime resource access in supported kernels. Possible values: `true`, `false`.            |
 | `--ignore-errors`       | Ignore any errors while executing document. Possible values: `true`, `false`.                               |
 | `--force-all`           | Re-execute all node types regardless of current state. Possible values: `true`, `false`.                    |
 | `--skip-code`           | Skip executing code. Possible values: `true`, `false`.                                                      |

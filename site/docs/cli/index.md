@@ -23,6 +23,9 @@ stencila new article.md
 # Convert a document to another format
 stencila convert input.md output.pdf
 
+# Compare two documents
+stencila compare before.smd after.smd
+
 # Check available formats
 stencila formats list
 
@@ -46,6 +49,7 @@ stencila open document.md
 | [`untrack`](untrack.md)               | Stop tracking a document                                             |
 | [`clean`](clean.md)                   | Clean the current workspace                                          |
 | [`convert`](convert.md)               | Convert a document to another format                                 |
+| [`compare`](compare.md)               | Compare two documents                                                |
 | [`merge`](merge.md)                   | Merge changes from another format                                    |
 | [`sync`](sync.md)                     | Synchronize a document between formats                               |
 | [`push`](push.md)                     | Push content to Stencila Cloud and remote services                   |
