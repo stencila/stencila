@@ -39,28 +39,43 @@ fn derive_struct(input: &DeriveInput, data: &DataStruct) -> TokenStream {
 
     // Only treat certain properties as having text content. This avoid string
     // properties like `programmingLanguage` and enums like `List.order` from
-    // being included in text. Use only the one, main "content" field for a struct.
-    let mut fields = TokenStream::new();
-    for field in &data.fields {
-        let Some(field_ident) = &field.ident else {
-            continue;
-        };
-        let field_name = field_ident.to_string();
-        let field_name = field_name.as_str();
+    // being included in text. Use only one field for a struct, chosen from two tiers.
 
-        if matches!(
-            field_name,
-            | "content" // Content of most block and inline types
-                | "items" // List content
-                | "rows" // Table content
-                | "cells" // TableRow content
-                | "code" // Code and math content
-        ) {
-            fields.extend(quote! {
-                let mut text = self.#field_ident.to_text();
-            });
-            break;
-        }
+    // The main content of a type, which is what its text is whenever it has any
+    const CONTENT: &[&str] = &[
+        "content", // Content of most block and inline types
+        "items",   // List content
+        "rows",    // Table content
+        "cells",   // TableRow content
+        "code",    // Code and math content
+    ];
+
+    // Failing that, the property carrying the type's identity, so that a type whose
+    // whole meaning is in a single value or name -- a `Date`, an `Organization`, a
+    // `PropertyValue` -- reads as something rather than as an empty string.
+    const IDENTITY: &[&str] = &[
+        "value", // Date, DateTime, Time, Timestamp, Duration, PropertyValue, ...
+        "name",  // Organization, Periodical, Variable, Parameter, ...
+    ];
+
+    // The tiers are consulted in order, rather than being one list, because several
+    // types declare a `name` before their content -- `Agent`, `File`, `Prompt`, `Skill`
+    // and `Workflow` among them -- and the text of those is their content, not their
+    // name. Within a tier the first matching field in declaration order wins.
+    let field_named_in = |names: &[&str]| {
+        data.fields.iter().find_map(|field| {
+            let field_ident = field.ident.as_ref()?;
+            names
+                .contains(&field_ident.to_string().as_str())
+                .then_some(field_ident)
+        })
+    };
+
+    let mut fields = TokenStream::new();
+    if let Some(field_ident) = field_named_in(CONTENT).or_else(|| field_named_in(IDENTITY)) {
+        fields.extend(quote! {
+            let mut text = self.#field_ident.to_text();
+        });
     }
 
     // Modify end for certain node types to give some whitespace structuring to

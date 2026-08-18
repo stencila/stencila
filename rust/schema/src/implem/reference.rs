@@ -773,3 +773,156 @@ impl MarkdownCodec for Reference {
         context.newline().exit_node().newline();
     }
 }
+
+/// Append a part to a citation string, separated by a space
+fn push_part(text: &mut String, part: &str) {
+    if part.is_empty() {
+        return;
+    }
+    if !text.is_empty() {
+        text.push(' ');
+    }
+    text.push_str(part);
+}
+
+/// Append a part that ends a sentence, so the next part does not run into it
+fn push_sentence(text: &mut String, part: &str) {
+    let part = part.trim();
+    if part.is_empty() {
+        return;
+    }
+    push_part(text, part);
+    if !text.ends_with('.') {
+        text.push('.');
+    }
+}
+
+impl TextCodec for Reference {
+    fn to_text(&self) -> String {
+        // A rendering in the document's citation style, when the reference has one
+        if let Some(content) = &self.options.content {
+            return content.to_text();
+        }
+
+        // The plain text representation, used when the properties of the reference could
+        // not be extracted from it, in which case there is little else to build from
+        if let Some(text) = &self.options.text {
+            return text.trim().to_string();
+        }
+
+        // Otherwise a citation style string is constructed from the properties, in the
+        // same order and shape that the Markdown encoding uses
+        let mut text = String::new();
+
+        if let Some(authors) = &self.authors {
+            push_part(
+                &mut text,
+                &authors
+                    .iter()
+                    .map(|author| author.name())
+                    .collect::<Vec<_>>()
+                    .join(", "),
+            );
+        }
+
+        if let Some(year) = self.date.as_ref().and_then(|date| date.year()) {
+            push_part(&mut text, &format!("({year})"));
+        }
+
+        if let Some(title) = &self.title {
+            push_sentence(&mut text, &title.to_text());
+        }
+
+        // The containing work, such as the journal an article is part of, which renders
+        // through this same implementation
+        if let Some(is_part_of) = &self.is_part_of {
+            push_sentence(&mut text, &is_part_of.to_text());
+        }
+
+        // The most specific identifier the reference has: a DOI, or a URL when it has no
+        // DOI
+        if let Some(doi) = &self.doi {
+            push_part(&mut text, &["https://doi.org/", normalize_doi(doi)].concat());
+        } else if let Some(url) = &self.url {
+            push_part(&mut text, url);
+        }
+
+        text
+    }
+}
+
+#[cfg(test)]
+mod text_tests {
+    use stencila_codec_text_trait::to_text;
+
+    use crate::{Date, Person, Reference, shortcuts::t};
+
+    use super::*;
+
+    /// A reference with an author, year, title, container and DOI
+    fn reference() -> Reference {
+        Reference {
+            authors: Some(vec![Author::Person(Person {
+                family_names: Some(vec!["Smith".to_string()]),
+                given_names: Some(vec!["Jane".to_string()]),
+                ..Default::default()
+            })]),
+            date: Some(Date::new("2020-05-01".to_string())),
+            title: Some(vec![t("A study of things")]),
+            is_part_of: Some(Box::new(Reference {
+                title: Some(vec![t("Journal of Things")]),
+                ..Default::default()
+            })),
+            doi: Some("10.1234/abc".to_string()),
+            ..Default::default()
+        }
+    }
+
+    /// The constructed citation style string
+    #[test]
+    fn text_is_a_citation_style_string() {
+        assert_eq!(
+            to_text(&reference()),
+            "Jane Smith (2020) A study of things. Journal of Things. https://doi.org/10.1234/abc"
+        );
+    }
+
+    /// The URL stands in when there is no DOI
+    #[test]
+    fn text_falls_back_to_the_url() {
+        let mut reference = reference();
+        reference.doi = None;
+        reference.url = Some("https://example.org/study".to_string());
+
+        assert!(
+            to_text(&reference).ends_with("https://example.org/study"),
+            "{}",
+            to_text(&reference)
+        );
+    }
+
+    /// A reference whose properties could not be extracted reads as its `text`
+    #[test]
+    fn text_prefers_the_text_property() {
+        let mut reference = reference();
+        reference.options.text = Some("Smith, J. (2020). A study of things.".to_string());
+
+        assert_eq!(to_text(&reference), "Smith, J. (2020). A study of things.");
+    }
+
+    /// A reference rendered in the document's citation style reads as that rendering
+    #[test]
+    fn text_prefers_rendered_content() {
+        let mut reference = reference();
+        reference.options.text = Some("ignored".to_string());
+        reference.options.content = Some(vec![t("Smith 2020, Journal of Things")]);
+
+        assert_eq!(to_text(&reference), "Smith 2020, Journal of Things");
+    }
+
+    /// A reference with nothing to say says nothing, rather than punctuation
+    #[test]
+    fn text_of_an_empty_reference_is_empty() {
+        assert_eq!(to_text(&Reference::default()), "");
+    }
+}

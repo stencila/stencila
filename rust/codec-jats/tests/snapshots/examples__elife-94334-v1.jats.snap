@@ -1386,7 +1386,7 @@ expression: jats
               <tr>
                 <td align="left" valign="bottom"><p>Antibody</p></td>
                 <td align="left" valign="bottom"><p>Anti-Rad9; (rabbit polyclonal)</p></td>
-                <td align="char" char="." valign="bottom"></td>
+                <td align="char" char="." valign="bottom"><p><xref ref-type="bibr" rid="bib59">Usui et al., 2009</xref></p></td>
                 <td align="left" valign="bottom"><p>N/A</p></td>
                 <td align="left" valign="bottom"><p>WB (1:4000)</p></td>
               </tr>
@@ -1456,7 +1456,7 @@ expression: jats
               <tr>
                 <td align="left" valign="bottom"><p>Strain, strain background (<italic>S. cerevisiae</italic>)</p></td>
                 <td align="left" valign="bottom"><p>JKM179</p></td>
-                <td align="left" valign="bottom"></td>
+                <td align="left" valign="bottom"><p><xref ref-type="bibr" rid="bib25">Lee et al., 1998</xref></p></td>
                 <td align="left" valign="bottom"><p>Yeast strain</p></td>
                 <td align="left" valign="bottom"><p><italic>MATα ade1 leu2-3 lys5 trp1 ::hisG ura3-52 hoΔ  hmlΔ::ADE1 hmr Δ::ADE1 ade3:: GAL::HO</italic></p></td>
               </tr>
@@ -1582,7 +1582,7 @@ expression: jats
               <tr>
                 <td align="left" valign="bottom"><p>Strain, strain background (<italic>S. cerevisiae</italic>)</p></td>
                 <td align="left" valign="bottom"><p>GM180</p></td>
-                <td align="left" valign="bottom"></td>
+                <td align="left" valign="bottom"><p><xref ref-type="bibr" rid="bib37">Memisoglu et al., 2019</xref></p></td>
                 <td align="left" valign="bottom"><p>Yeast strain</p></td>
                 <td align="left" valign="bottom"><p><italic>pGal::Ddc2::LEU2</italic></p></td>
               </tr>
@@ -1638,7 +1638,7 @@ expression: jats
               <tr>
                 <td align="left" valign="bottom"><p>Strain, strain background (<italic>S. cerevisiae</italic>)</p></td>
                 <td align="left" valign="bottom"><p>GM539</p></td>
-                <td align="left" valign="bottom"></td>
+                <td align="left" valign="bottom"><p><xref ref-type="bibr" rid="bib37">Memisoglu et al., 2019</xref></p></td>
                 <td align="left" valign="bottom"><p>Yeast strain</p></td>
                 <td align="left" valign="bottom"><p><italic>Ddc2-9xMyc::KAN</italic></p></td>
               </tr>
@@ -1701,7 +1701,7 @@ expression: jats
               <tr>
                 <td align="left" valign="bottom"><p>Strain, strain background (<italic>S. cerevisiae</italic>)</p></td>
                 <td align="left" valign="bottom"><p>YSL53</p></td>
-                <td align="char" char="." valign="bottom"></td>
+                <td align="char" char="." valign="bottom"><p><xref ref-type="bibr" rid="bib25">Lee et al., 1998</xref></p></td>
                 <td align="left" valign="bottom"><p>Yeast strain</p></td>
                 <td align="left" valign="bottom"><p><italic>HOcse5::URA3</italic></p></td>
               </tr>
@@ -1862,42 +1862,42 @@ expression: jats
               <tr>
                 <td align="left" valign="bottom"><p>Recombinant DNA reagent</p></td>
                 <td align="left" valign="bottom"><p>pKan-9xMyc-AID</p></td>
-                <td align="left" valign="bottom"></td>
+                <td align="left" valign="bottom"><p><xref ref-type="bibr" rid="bib40">Morawska and Ulrich, 2013</xref></p></td>
                 <td align="left" valign="bottom"><p>pJH2892</p></td>
                 <td align="left" valign="bottom"><p>Backbone: pSM409</p></td>
               </tr>
               <tr>
                 <td align="left" valign="bottom"><p>Recombinant DNA reagent</p></td>
                 <td align="left" valign="bottom"><p>pNAT-9xMyc-AID</p></td>
-                <td align="left" valign="bottom"></td>
+                <td align="left" valign="bottom"><p><xref ref-type="bibr" rid="bib40">Morawska and Ulrich, 2013</xref></p></td>
                 <td align="left" valign="bottom"><p>pJH2899</p></td>
                 <td align="left" valign="bottom"><p>Backbone: pSM409</p></td>
               </tr>
               <tr>
                 <td align="left" valign="bottom"><p>Recombinant DNA reagent</p></td>
                 <td align="left" valign="bottom"><p>sTIR1::<italic>URA3</italic></p></td>
-                <td align="left" valign="bottom"></td>
+                <td align="left" valign="bottom"><p><xref ref-type="bibr" rid="bib43">Nishimura et al., 2009</xref></p></td>
                 <td align="left" valign="bottom"><p>pNHK53</p></td>
                 <td align="left" valign="bottom"></td>
               </tr>
               <tr>
                 <td align="left" valign="bottom"><p>Recombinant DNA reagent</p></td>
                 <td align="left" valign="bottom"><p>GAL-DDC2</p></td>
-                <td align="left" valign="bottom"></td>
+                <td align="left" valign="bottom"><p><xref ref-type="bibr" rid="bib45">Paciotti et al., 2000</xref></p></td>
                 <td align="left" valign="bottom"><p>pML100</p></td>
                 <td align="left" valign="bottom"><p>Backbone: pML95</p></td>
               </tr>
               <tr>
                 <td align="left" valign="bottom"><p>Recombinant DNA reagent</p></td>
                 <td align="left" valign="bottom"><p>ADH1-OsTIR1(F74G)</p></td>
-                <td align="left" valign="bottom"></td>
+                <td align="left" valign="bottom"><p><xref ref-type="bibr" rid="bib64">Yesbolatova et al., 2020</xref></p></td>
                 <td align="left" valign="bottom"><p>pMK420</p></td>
                 <td align="left" valign="bottom"></td>
               </tr>
               <tr>
                 <td align="left" valign="bottom"><p>Recombinant DNA reagent</p></td>
                 <td align="left" valign="bottom"><p>bRA90</p></td>
-                <td align="char" char="." valign="bottom"></td>
+                <td align="char" char="." valign="bottom"><p><xref ref-type="bibr" rid="bib2">Anand et al., 2017</xref></p></td>
                 <td align="left" valign="bottom"><p>bRA90</p></td>
                 <td align="left" valign="bottom"></td>
               </tr>
@@ -1918,7 +1918,7 @@ expression: jats
               <tr>
                 <td align="left" valign="bottom"><p>Recombinant DNA reagent</p></td>
                 <td align="left" valign="bottom"><p>pRad9-3HA</p></td>
-                <td align="left" valign="bottom"></td>
+                <td align="left" valign="bottom"><p><xref ref-type="bibr" rid="bib24">Lazzaro et al., 2008</xref></p></td>
                 <td align="left" valign="bottom"><p>pFL36.1</p></td>
                 <td align="left" valign="bottom"><p>Backbone: pRS306</p></td>
               </tr>

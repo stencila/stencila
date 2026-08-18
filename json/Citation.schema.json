@@ -32,6 +32,9 @@
   "markdown": {
     "derive": false
   },
+  "text": {
+    "derive": false
+  },
   "required": [
     "type",
     "target"

@@ -26,6 +26,8 @@ latex:
   derive: false
 markdown:
   derive: false
+text:
+  derive: false
 required:
   - target
 core:

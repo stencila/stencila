@@ -23794,7 +23794,25 @@ expression: article
                 },
                 {
                   "type": "TableCell",
-                  "content": [],
+                  "content": [
+                    {
+                      "type": "Paragraph",
+                      "content": [
+                        {
+                          "type": "Citation",
+                          "target": "bib59",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "Usui et al., 2009"
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ],
                   "horizontalAlignment": "AlignCharacter",
                   "horizontalAlignmentCharacter": ".",
                   "verticalAlignment": "AlignBottom"
@@ -24871,7 +24889,25 @@ expression: article
                 },
                 {
                   "type": "TableCell",
-                  "content": [],
+                  "content": [
+                    {
+                      "type": "Paragraph",
+                      "content": [
+                        {
+                          "type": "Citation",
+                          "target": "bib25",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "Lee et al., 1998"
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ],
                   "horizontalAlignment": "AlignLeft",
                   "verticalAlignment": "AlignBottom"
                 },
@@ -27049,7 +27085,25 @@ expression: article
                 },
                 {
                   "type": "TableCell",
-                  "content": [],
+                  "content": [
+                    {
+                      "type": "Paragraph",
+                      "content": [
+                        {
+                          "type": "Citation",
+                          "target": "bib37",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "Memisoglu et al., 2019"
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ],
                   "horizontalAlignment": "AlignLeft",
                   "verticalAlignment": "AlignBottom"
                 },
@@ -28021,7 +28075,25 @@ expression: article
                 },
                 {
                   "type": "TableCell",
-                  "content": [],
+                  "content": [
+                    {
+                      "type": "Paragraph",
+                      "content": [
+                        {
+                          "type": "Citation",
+                          "target": "bib37",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "Memisoglu et al., 2019"
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ],
                   "horizontalAlignment": "AlignLeft",
                   "verticalAlignment": "AlignBottom"
                 },
@@ -29098,7 +29170,25 @@ expression: article
                 },
                 {
                   "type": "TableCell",
-                  "content": [],
+                  "content": [
+                    {
+                      "type": "Paragraph",
+                      "content": [
+                        {
+                          "type": "Citation",
+                          "target": "bib25",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "Lee et al., 1998"
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ],
                   "horizontalAlignment": "AlignCharacter",
                   "horizontalAlignmentCharacter": ".",
                   "verticalAlignment": "AlignBottom"
@@ -31607,7 +31697,25 @@ expression: article
                 },
                 {
                   "type": "TableCell",
-                  "content": [],
+                  "content": [
+                    {
+                      "type": "Paragraph",
+                      "content": [
+                        {
+                          "type": "Citation",
+                          "target": "bib40",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "Morawska and Ulrich, 2013"
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ],
                   "horizontalAlignment": "AlignLeft",
                   "verticalAlignment": "AlignBottom"
                 },
@@ -31690,7 +31798,25 @@ expression: article
                 },
                 {
                   "type": "TableCell",
-                  "content": [],
+                  "content": [
+                    {
+                      "type": "Paragraph",
+                      "content": [
+                        {
+                          "type": "Citation",
+                          "target": "bib40",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "Morawska and Ulrich, 2013"
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ],
                   "horizontalAlignment": "AlignLeft",
                   "verticalAlignment": "AlignBottom"
                 },
@@ -31784,7 +31910,25 @@ expression: article
                 },
                 {
                   "type": "TableCell",
-                  "content": [],
+                  "content": [
+                    {
+                      "type": "Paragraph",
+                      "content": [
+                        {
+                          "type": "Citation",
+                          "target": "bib43",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "Nishimura et al., 2009"
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ],
                   "horizontalAlignment": "AlignLeft",
                   "verticalAlignment": "AlignBottom"
                 },
@@ -31855,7 +31999,25 @@ expression: article
                 },
                 {
                   "type": "TableCell",
-                  "content": [],
+                  "content": [
+                    {
+                      "type": "Paragraph",
+                      "content": [
+                        {
+                          "type": "Citation",
+                          "target": "bib45",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "Paciotti et al., 2000"
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ],
                   "horizontalAlignment": "AlignLeft",
                   "verticalAlignment": "AlignBottom"
                 },
@@ -31938,7 +32100,25 @@ expression: article
                 },
                 {
                   "type": "TableCell",
-                  "content": [],
+                  "content": [
+                    {
+                      "type": "Paragraph",
+                      "content": [
+                        {
+                          "type": "Citation",
+                          "target": "bib64",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "Yesbolatova et al., 2020"
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ],
                   "horizontalAlignment": "AlignLeft",
                   "verticalAlignment": "AlignBottom"
                 },
@@ -32009,7 +32189,25 @@ expression: article
                 },
                 {
                   "type": "TableCell",
-                  "content": [],
+                  "content": [
+                    {
+                      "type": "Paragraph",
+                      "content": [
+                        {
+                          "type": "Citation",
+                          "target": "bib2",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "Anand et al., 2017"
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ],
                   "horizontalAlignment": "AlignCharacter",
                   "horizontalAlignmentCharacter": ".",
                   "verticalAlignment": "AlignBottom"
@@ -32271,7 +32469,25 @@ expression: article
                 },
                 {
                   "type": "TableCell",
-                  "content": [],
+                  "content": [
+                    {
+                      "type": "Paragraph",
+                      "content": [
+                        {
+                          "type": "Citation",
+                          "target": "bib24",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "Lazzaro et al., 2008"
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ],
                   "horizontalAlignment": "AlignLeft",
                   "verticalAlignment": "AlignBottom"
                 },

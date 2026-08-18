@@ -108,3 +108,64 @@ impl MarkdownCodec for CitationGroup {
         context.push_str("]").exit_node();
     }
 }
+
+impl TextCodec for CitationGroup {
+    fn to_text(&self) -> String {
+        // The rendered content, when the group has been rendered in the document's
+        // citation style, as for a single citation
+        if let Some(content) = &self.content {
+            return content.to_text();
+        }
+
+        // Otherwise the same shape the JATS and Markdown encodings give a group: its
+        // items, separated by semicolons, in parentheses
+        let items = self
+            .items
+            .iter()
+            .map(|item| item.to_text())
+            .collect::<Vec<_>>()
+            .join("; ");
+
+        ["(", &items, ")"].concat()
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use stencila_codec_text_trait::to_text;
+
+    use crate::{Citation, shortcuts::t};
+
+    use super::*;
+
+    /// An unrendered group reads as its items, separated by semicolons, in parentheses
+    #[test]
+    fn text_joins_the_items() {
+        let group = CitationGroup::new(vec![
+            Citation::new("smith2020".to_string()),
+            Citation::new("jones2021".to_string()),
+        ]);
+
+        assert_eq!(to_text(&group), "(smith2020; jones2021)");
+    }
+
+    /// Each item resolves itself, so a rendered item contributes its rendering
+    #[test]
+    fn text_uses_each_item_s_own_rendering() {
+        let mut rendered = Citation::new("smith2020".to_string());
+        rendered.options.content = Some(vec![t("Smith 2020")]);
+
+        let group = CitationGroup::new(vec![rendered, Citation::new("jones2021".to_string())]);
+
+        assert_eq!(to_text(&group), "(Smith 2020; jones2021)");
+    }
+
+    /// A group rendered as a whole reads as that rendering
+    #[test]
+    fn text_prefers_rendered_content() {
+        let mut group = CitationGroup::new(vec![Citation::new("smith2020".to_string())]);
+        group.content = Some(vec![t("(Smith 2020)")]);
+
+        assert_eq!(to_text(&group), "(Smith 2020)");
+    }
+}

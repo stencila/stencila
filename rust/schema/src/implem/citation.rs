@@ -141,3 +141,42 @@ impl MarkdownCodec for Citation {
         context.exit_node();
     }
 }
+
+impl TextCodec for Citation {
+    fn to_text(&self) -> String {
+        // The rendered content, when the citation has been rendered in the document's
+        // citation style. Otherwise the target, which is the citation's identity: a
+        // citation with no rendered content is not nothing, and rendering it as an empty
+        // string loses the only thing that distinguishes it from any other citation.
+        match &self.options.content {
+            Some(content) => content.to_text(),
+            None => self.target.clone(),
+        }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use stencila_codec_text_trait::to_text;
+
+    use crate::shortcuts::t;
+
+    use super::*;
+
+    /// A rendered citation reads as its rendering
+    #[test]
+    fn text_prefers_rendered_content() {
+        let mut citation = Citation::new("smith2020".to_string());
+        citation.options.content = Some(vec![t("Smith et al., 2020")]);
+
+        assert_eq!(to_text(&citation), "Smith et al., 2020");
+    }
+
+    /// An unrendered citation reads as its target, rather than as nothing at all
+    #[test]
+    fn text_falls_back_to_the_target() {
+        let citation = Citation::new("smith2020".to_string());
+
+        assert_eq!(to_text(&citation), "smith2020");
+    }
+}
