@@ -394,3 +394,78 @@ fn normalization_cannot_hide_a_difference() -> Result<()> {
 
     Ok(())
 }
+
+/// A union-kind property that appears carries its value, not just its presence
+///
+/// `Reference.pageStart` is an `IntegerOrString`, so its declared kind is a union while
+/// the value it holds is a number. Reporting only that it became present would drop the
+/// one thing worth knowing about the change.
+#[test]
+fn a_union_property_appearing_reports_its_value() -> Result<()> {
+    use stencila_schema::{IntegerOrString, Reference, ReferenceOptions};
+
+    let page_start = |value: Option<i64>| {
+        Node::Reference(Reference {
+            options: Box::new(ReferenceOptions {
+                page_start: value.map(IntegerOrString::Integer),
+                ..Default::default()
+            }),
+            ..Default::default()
+        })
+    };
+
+    let comparison = compare(&page_start(Some(12)), &page_start(None))?;
+
+    let [difference] = comparison.differences() else {
+        bail!(
+            "Expected exactly one difference, got {:?}",
+            comparison.differences()
+        );
+    };
+
+    let Difference::ValueChanged { location, left, right } = difference else {
+        bail!("Expected a value difference, got {difference:?}");
+    };
+
+    assert_eq!(location.property, Some(NodeProperty::PageStart));
+    assert_eq!(
+        left,
+        &ValueState::One {
+            value: ScalarValue::Integer { value: 12 }
+        }
+    );
+    assert_eq!(right, &ValueState::Absent);
+
+    Ok(())
+}
+
+/// A structured property that appears keeps its presence difference
+///
+/// Its content is a one-sided occurrence of the alignment, so inlining it here would
+/// report the same subtree twice.
+#[test]
+fn a_structured_property_appearing_reports_only_presence() -> Result<()> {
+    use stencila_schema::{Article, Paragraph, shortcuts::t};
+
+    let with = Node::Article(Article {
+        title: Some(vec![t("A title")]),
+        ..Article::new(vec![Block::Paragraph(Paragraph::new(vec![t("Body")]))])
+    });
+    let without = Node::Article(Article::new(vec![Block::Paragraph(Paragraph::new(vec![t(
+        "Body",
+    )]))]));
+
+    let comparison = compare(&with, &without)?;
+
+    assert!(
+        comparison.differences().iter().any(|difference| matches!(
+            difference,
+            Difference::PropertyPresenceChanged { property, .. }
+                if *property == NodeProperty::Title
+        )),
+        "Expected a presence difference for `title`, got {:?}",
+        comparison.differences()
+    );
+
+    Ok(())
+}

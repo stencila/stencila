@@ -249,16 +249,32 @@ impl Differ<'_> {
             right_index,
         };
 
-        if left_property.presence != right_property.presence
-            && left_property.decl.kind == ValueKind::Scalar
-            && right_property.decl.kind == ValueKind::Scalar
-        {
-            self.differences.push(Difference::ValueChanged {
-                location: location(None, None),
-                left: scalar_property_state(left_property),
-                right: scalar_property_state(right_property),
-            });
-            return Ok(());
+        if left_property.presence != right_property.presence {
+            // A property declared as scalar always carries its value into the difference,
+            // so that a property appearing or disappearing says what appeared
+            let both_scalar_kind = left_property.decl.kind == ValueKind::Scalar
+                && right_property.decl.kind == ValueKind::Scalar;
+
+            // So does one declared as a union, when the branch it selected is a scalar
+            // rather than a structured node: `pageStart` is an `IntegerOrString`, so its
+            // declared kind is a union while the value it holds is a number. Without
+            // this, the value would be dropped and only its presence reported.
+            //
+            // A present side holding a structured node keeps its presence difference:
+            // that node is a one-sided occurrence of the alignment, and its content
+            // belongs there rather than inlined here.
+            let holds_only_scalars = holds_only_scalars(left_property)
+                && holds_only_scalars(right_property)
+                && !(left_property.items.is_empty() && right_property.items.is_empty());
+
+            if both_scalar_kind || holds_only_scalars {
+                self.differences.push(Difference::ValueChanged {
+                    location: location(None, None),
+                    left: scalar_property_state(left_property),
+                    right: scalar_property_state(right_property),
+                });
+                return Ok(());
+            }
         }
 
         if left_property.presence != right_property.presence {
@@ -366,6 +382,17 @@ impl Differ<'_> {
 
         Ok(())
     }
+}
+
+/// Whether every item a property holds is a scalar
+///
+/// Vacuously true for a property with no items at all, which is the case for the absent
+/// side of a presence difference.
+fn holds_only_scalars(property: &ProjectedProperty) -> bool {
+    property
+        .items
+        .iter()
+        .all(|item| matches!(item, Item::Scalar(..)))
 }
 
 /// The presence of a property, as reported in a difference
