@@ -122,6 +122,7 @@ src = ['python', 'tests']
 
 # Shadowing python builtins is a bit nasty, but hey.
 "convert.py" = ['A002']
+"compare.py" = ['A002']
 
 
 [tool.pyright]

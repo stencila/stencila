@@ -8,6 +8,28 @@ class EncodeOptions(TypedDict):
     standalone: bool | None
     compact: bool | None
 
+class CompareOptions(TypedDict):
+    alignment_cell_budget: int | None
+    include: list[str] | None
+    exclude: list[str] | None
+    left_format: str | None
+    right_format: str | None
+    left_label: str | None
+    right_label: str | None
+    reports: list[str] | None
+    summary: bool | None
+
+# This is actually a module.
+class compare:  # noqa: N801
+    @staticmethod
+    def nodes(left: str, right: str, options: CompareOptions) -> str: ...
+    @staticmethod
+    def strings(left: str, right: str, options: CompareOptions) -> str: ...
+    @staticmethod
+    def paths(left: str, right: str, options: CompareOptions) -> str: ...
+    @staticmethod
+    def is_equal(comparison: str) -> bool: ...
+
 # This is actually a module.
 class convert:  # noqa: N801
     @staticmethod

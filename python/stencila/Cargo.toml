@@ -31,5 +31,7 @@ serde = { workspace = true, features = ["derive"] }
 stencila-codecs = { path = "../../rust/codecs" }
 stencila-content-credentials = { path = "../../rust/content-credentials" }
 stencila-graph = { path = "../../rust/graph" }
+stencila-node-compare = { path = "../../rust/node-compare" }
+stencila-node-compare-report = { path = "../../rust/node-compare-report" }
 stencila-schema = { path = "../../rust/schema" }
 tokio = { workspace = true }
