@@ -95,9 +95,11 @@ jobs:
         include:
           - os: ubuntu-latest
             target: linux-x64-gnu
+          # `macos-latest` is arm64, so `napi build --platform` produces a
+          # `darwin-arm64` addon on it; naming this row `darwin-x64` asked the
+          # upload for a file the build had not made. Intel macOS is not built,
+          # as for the CLI and the VSCode extension.
           - os: macos-latest
-            target: darwin-x64
-          - os: macos-latest-xlarge
             target: darwin-arm64
           - os: windows-latest
             target: win32-x64-msvc

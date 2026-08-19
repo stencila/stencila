@@ -41,8 +41,7 @@ jobs:
       matrix:
         os:
           - ubuntu-latest
-          - macos-latest # x64
-          - macos-latest-xlarge # arm64
+          - macos-latest # arm64
           - windows-latest
         version:
           - 18
