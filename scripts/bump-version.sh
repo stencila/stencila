@@ -73,6 +73,12 @@ echo "Building version crate and updating lock files..."
 # latest versions, which is not desired during a version bump
 cargo build -p stencila-version
 npm install
+# A uv lockfile records the version of the package it locks, so both go stale on a
+# bump. Update them here, so that the tagged commit is self-consistent and can be
+# built and published as-is, rather than having CI commit the lockfiles back after
+# the tag has already been cut.
+(cd python/stencila_types && uv lock)
+(cd python/stencila && uv lock)
 
 # 6. Update VSCode CHANGELOG
 echo "Updating VSCode CHANGELOG..."
@@ -115,7 +121,7 @@ echo "  - CLI (Rust workspace)"
 echo "  - Main CHANGELOG.md"
 echo "  - VSCode extension (including vscode/CHANGELOG.md)"
 echo "  - npm packages (@stencila/types, @stencila/node, @stencila/web)"
-echo "  - Python packages (stencila_types, stencila)"
+echo "  - Python packages (stencila_types, stencila), including uv.lock"
 echo ""
 echo "Next steps:"
 echo "  1. Review the commit: git show"

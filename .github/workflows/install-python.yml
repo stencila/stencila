@@ -19,16 +19,17 @@ jobs:
       fail-fast: false
       matrix:
         os:
-          - ubuntu-20.04
           - ubuntu-latest
           - macos-latest # x64
           - macos-latest-xlarge # arm64
           - windows-latest
         version:
           # These must be strings to avoid rounding down e.g. 3.10 -> 3.1
+          # Keep in step with `requires-python` in the packages' `pyproject.toml`
           - "3.10"
           - "3.11"
           - "3.12"
+          - "3.13"
         exclude:
           # These combinations are not supported by GitHub Actions
           # For versions supported see: https://raw.githubusercontent.com/actions/python-versions/main/versions-manifest.json
@@ -43,7 +44,7 @@ jobs:
           python-version: ${{ matrix.version }}
 
       - name: Install package
-        run: python3 -m pip install stencila_types stencila_plugin stencila
+        run: python3 -m pip install stencila_types stencila
 
       - name: Use stencila package
         # Use outer double quotes to avoid issues within inner double quotes on Windows

@@ -3,18 +3,16 @@
 name: Release Python packages
 
 on:
+  # Allow this workflow to be triggered by the `version.yml` workflow
+  # or manually at https://github.com/stencila/stencila/actions/workflows/release-python.yml
   workflow_dispatch:
     inputs:
+      tag:
+        description: The tag to create the release for e.g. v2.1.0
+        type: string
+        required: true
       publish-types:
         description: Publish stencila_types on PyPI
-        type: boolean
-        default: true
-      publish-plugin:
-        description: Publish stencila_plugin on PyPI
-        type: boolean
-        default: true
-      update-sdk:
-        description: Update Python SDK uv.lock
         type: boolean
         default: true
       build-sdk:
@@ -44,6 +42,8 @@ jobs:
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.tag }}
 
       - name: Setup Python
         uses: actions/setup-python@v5
@@ -57,101 +57,35 @@ jobs:
         # Put `if` here so that jobs that `need` this one will still
         # run even if this is not getting published
         if: ${{ inputs.publish-types }}
-        run: cd python/stencila_types && uv publish && sleep 60  
-
-  # Publish stencila_plugin
-  # Must be done after stencila_types is published
-  publish-plugin:
-    if: ${{ inputs.publish-plugin }}
-    needs: [publish-types]
-    runs-on: ubuntu-latest
-    permissions:
-      # This permission is required for PyPI trusted publishing
-      id-token: write
-    steps:
-      - name: Checkout repo
-        uses: actions/checkout@v4
-
-      - name: Setup Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: ${{ env.PYTHON_VERSION }}
-
-      - name: Install uv
-        uses: astral-sh/setup-uv@v5
-
-      - name: Update uv.lock
-        run: cd python/stencila_plugin && uv sync
-
-      - name: Commit uv.lock
-        uses: stefanzweifel/git-auto-commit-action@v5
-        with:
-          file_pattern: 'python/stencila_plugin/uv.lock'
-          commit_message: "chore(python/stencila_plugin): update uv.lock"
-
-      - name: Publish package
-        run: cd python/stencila_plugin && uv publish
-
-  # Update python/stencila package (Python SDK)
-  # Must be done after stencila_types is published
-  update-sdk:
-    if: ${{ inputs.update-sdk }}
-    needs: [publish-types]
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout repo
-        uses: actions/checkout@v4
-
-      - name: Setup Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: ${{ env.PYTHON_VERSION }}
-
-      - name: Install uv
-        uses: astral-sh/setup-uv@v5
-
-      - name: Update uv.lock
-        run: cd python/stencila && uv sync
-
-      - name: Commit uv.lock
-        uses: stefanzweifel/git-auto-commit-action@v5
-        with:
-          file_pattern: 'python/stencila/uv.lock'
-          commit_message: "chore(python/stencila): update uv.lock"
+        run: cd python/stencila_types && uv build && uv publish && sleep 60
 
   # Build python/stencila package (Python SDK)
   # Based on https://github.com/messense/py-dissimilar/blob/main/.github/workflows/CI.yml
   build-sdk:
     if: ${{ inputs.build-sdk }}
-    needs: [update-sdk]
+    needs: [publish-types]
     strategy:
       fail-fast: false
       matrix:
         include:
-          - os: ubuntu-20.04
-            architecture: x64
-            target: x64
-            interpreter: 3.8 3.9 3.10 3.11 3.12
           - os: ubuntu-latest
             architecture: x64
             target: x64
-            interpreter: 3.8 3.9 3.10 3.11 3.12
           - os: macos-latest
             architecture: x64
             target: x64
-            interpreter: 3.8 3.9 3.10 3.11 3.12
           - os: macos-latest-xlarge
             architecture: arm64
             target: aarch64
-            interpreter: 3.8 3.9 3.10 3.11 3.12
           - os: windows-latest
             architecture: x64
             target: x64
-            interpreter: 3.8 3.9 3.10 3.11 3.12
     runs-on: ${{ matrix.os }}
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.tag }}
 
       - name: Setup Rust
         uses: dtolnay/rust-toolchain@master
@@ -169,8 +103,10 @@ jobs:
         with:
           working-directory: python/stencila
           target: ${{ matrix.target }}
+          # Interpreters must be within the `requires-python` of `pyproject.toml`;
+          # a wheel built for anything older is one that `pip` will never select.
           # Test changes to these args using the `build` recipe in the `python/Makefile`
-          args: --release --out dist --interpreter ${{ matrix.interpreter }}
+          args: --release --out dist --interpreter 3.10 3.11 3.12 3.13
 
       - name: Upload wheel
         uses: actions/upload-artifact@v4
@@ -205,7 +141,7 @@ jobs:
   # Trigger the install test workflow
   trigger-install:
     if: ${{ inputs.trigger-install }}
-    needs: [publish-types, publish-plugin, publish-sdk]
+    needs: [publish-types, publish-sdk]
     runs-on: ubuntu-latest
     permissions:
         actions: write
@@ -215,7 +151,9 @@ jobs:
       - name: Checkout repository
         # Needed only because `gh` errors if not in a repo
         uses: actions/checkout@v4
-        
+        with:
+          ref: ${{ inputs.tag }}
+
       - name: Trigger installation test workflow
         # Sleep for a while to allow published Python packages
         # to be made available on PyPI before attempting to install them
