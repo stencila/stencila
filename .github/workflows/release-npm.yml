@@ -173,4 +173,4 @@ jobs:
       - name: Trigger installation test workflow
         # Sleep for a while to allow published packages
         # to be made available on NPM before attempting to install them
-        run: sleep 90 && gh workflow run install-python.yml
+        run: sleep 90 && gh workflow run install-npm.yml

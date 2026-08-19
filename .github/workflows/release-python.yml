@@ -71,10 +71,10 @@ jobs:
           - os: ubuntu-latest
             architecture: x64
             target: x64
+          # `macos-latest` is arm64, so it is the arm64 row; the paid
+          # `macos-latest-xlarge` it used to take is no longer needed for that.
+          # Intel macOS is not built, as for the CLI and the VSCode extension.
           - os: macos-latest
-            architecture: x64
-            target: x64
-          - os: macos-latest-xlarge
             architecture: arm64
             target: aarch64
           - os: windows-latest
