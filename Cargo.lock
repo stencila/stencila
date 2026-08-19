@@ -9948,7 +9948,7 @@ checksum = "a2eb9349b6444b326872e140eb1cf5e7c522154d69e7a0ffb0fb81c06b37543f"
 
 [[package]]
 name = "stencila-agents"
-version = "2.15.0"
+version = "2.16.0"
 dependencies = [
  "Inflector",
  "async-trait",
@@ -10020,7 +10020,7 @@ dependencies = [
 
 [[package]]
 name = "stencila-attractor"
-version = "2.15.0"
+version = "2.16.0"
 dependencies = [
  "Inflector",
  "async-trait",
@@ -11207,7 +11207,7 @@ dependencies = [
 
 [[package]]
 name = "stencila-codemode"
-version = "2.15.0"
+version = "2.16.0"
 dependencies = [
  "async-trait",
  "jsonschema 0.46.4",
@@ -11224,7 +11224,7 @@ dependencies = [
 
 [[package]]
 name = "stencila-config"
-version = "2.15.0"
+version = "2.16.0"
 dependencies = [
  "clap",
  "eyre",
@@ -11256,7 +11256,7 @@ dependencies = [
 
 [[package]]
 name = "stencila-content-credentials"
-version = "2.15.0"
+version = "2.16.0"
 dependencies = [
  "Inflector",
  "base64 0.22.1",
@@ -11345,7 +11345,7 @@ dependencies = [
 
 [[package]]
 name = "stencila-db"
-version = "2.15.0"
+version = "2.16.0"
 dependencies = [
  "chrono",
  "eyre",
@@ -11510,7 +11510,7 @@ dependencies = [
 
 [[package]]
 name = "stencila-interviews"
-version = "2.15.0"
+version = "2.16.0"
 dependencies = [
  "async-trait",
  "chrono",
@@ -11904,7 +11904,7 @@ dependencies = [
 
 [[package]]
 name = "stencila-mcp"
-version = "2.15.0"
+version = "2.16.0"
 dependencies = [
  "async-trait",
  "bytes",
@@ -12049,7 +12049,7 @@ dependencies = [
 
 [[package]]
 name = "stencila-models3"
-version = "2.15.0"
+version = "2.16.0"
 dependencies = [
  "base64 0.22.1",
  "bytes",
@@ -12075,7 +12075,7 @@ dependencies = [
 
 [[package]]
 name = "stencila-node"
-version = "2.15.0"
+version = "2.16.0"
 dependencies = [
  "eyre",
  "napi",
@@ -12582,7 +12582,7 @@ dependencies = [
 
 [[package]]
 name = "stencila-python"
-version = "2.15.0"
+version = "2.16.0"
 dependencies = [
  "eyre",
  "pyo3",
@@ -12818,7 +12818,7 @@ dependencies = [
 
 [[package]]
 name = "stencila-skills"
-version = "2.15.0"
+version = "2.16.0"
 dependencies = [
  "Inflector",
  "clap",
@@ -12867,7 +12867,7 @@ dependencies = [
 
 [[package]]
 name = "stencila-spread"
-version = "2.15.0"
+version = "2.16.0"
 dependencies = [
  "clap",
  "indexmap 2.14.0",
@@ -12939,7 +12939,7 @@ dependencies = [
 
 [[package]]
 name = "stencila-tui"
-version = "2.15.0"
+version = "2.16.0"
 dependencies = [
  "Inflector",
  "async-trait",
@@ -12974,7 +12974,7 @@ dependencies = [
 
 [[package]]
 name = "stencila-version"
-version = "2.15.0"
+version = "2.16.0"
 dependencies = [
  "semver",
 ]
@@ -12989,7 +12989,7 @@ dependencies = [
 
 [[package]]
 name = "stencila-workflows"
-version = "2.15.0"
+version = "2.16.0"
 dependencies = [
  "Inflector",
  "async-trait",

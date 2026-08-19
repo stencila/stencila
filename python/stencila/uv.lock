@@ -695,7 +695,7 @@ wheels = [
 
 [[package]]
 name = "stencila"
-version = "2.15.0"
+version = "2.16.0"
 source = { editable = "." }
 dependencies = [
     { name = "beartype" },
@@ -736,7 +736,7 @@ dev = [
 
 [[package]]
 name = "stencila-types"
-version = "2.15.0"
+version = "2.16.0"
 source = { editable = "../stencila_types" }
 dependencies = [
     { name = "beartype" },

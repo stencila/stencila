@@ -1,3 +1,38 @@
+# [2.16.0](https://github.com/stencila/stencila/compare/v2.15.0...v2.16.0) (2026-08-19)
+
+
+### Bug Fixes
+
+* **JATS and scholarly format round-tripping:** Preserve substantially more JATS content and metadata, including article and publication details, bibliographic references, typed cross-references, contributors, CRediT roles, awards, media, inline descendants, namespaced MathML, corresponding-author emails, and whitespace in mixed content. Conversion losses are now reported more accurately, and downloads from arXiv, openRxiv, and PubMed Central handle more identifiers and asset URLs.
+
+* **Graphs and provenance:** Improve static I/O detection for Python, R, and Julia, filter irrelevant Python environments from runtime traces, and make graph containment, source metadata, dependency edges, labels, and DOT projections more accurate and less redundant.
+
+* **Editing, figures, and document updates:** Preserve editor selections and block metadata, align list changes by node ID, and allow reliable patching of links, lists, tables, IDs, and code attributes. Fix subfigure label placement and figure layouts in PDF output, preserve IDs and claims in Markdown and Quarto, and resolve equation and section links during execution.
+
+* **Agents, workflows, and the TUI:** Harden workflow tool failures, parallel fan-in, semantic output persistence, and comparison report synthesis. Improve agent context compaction and keep site preview control tokens on one line in the TUI.
+
+### Features
+
+* **Content Credentials:** Add C2PA Content Credentials for documents, figures, images, PDFs, and other exported research assets. Stencila can sign, inspect, and verify assets using local or Stencila Cloud signing, embed manifests where supported or emit sidecars, apply disclosure profiles and soft bindings, validate against trust lists, and carry source, execution environment, ingredient, AI-use, and per-asset provenance through export and publishing workflows.
+
+* **Workspace graphs, lineage, and ASTRA:** Add `stencila graph` for building, viewing, and exporting workspace graphs as JSON, YAML, DOT, SVG, or PNG. Interactive graph views expose data flow, software dependencies, citations, reactivity, C2PA provenance, Git authorship, and evidence; static analysis covers Python, R, Julia, and MATLAB, with Python runtime dependency tracing. ASTRA workspace contracts, targets, scripts, evidence, and lineage are integrated into the same graph model.
+
+* **Visual document editing:** Add a Tiptap-backed edit view with common block nodes and inline marks, native math editing, undo and redo history, inline Markdown shortcuts, and inspectors for node properties. The editor preserves structured Stencila metadata while providing a more direct rich-text editing experience.
+
+* **Semantic document comparison:** Add `stencila compare` and Python comparison APIs for comparing document structure and values rather than raw text. Comparisons can span formats, produce terminal summaries or side-by-side HTML reports, export JSON or YAML artifacts, and include or exclude selected node types and properties.
+
+* **Research formats and conversion:** Expand JATS round-tripping for publication metadata, references, contributors, roles, awards, cross-references, media, and MathML; add a GROBID-compatible JATS conversion endpoint; support MyST composite figures and explicit Markdown datatables; and extend OXA support with `oxa.yaml`, document metadata, and new research object schema types.
+
+* **Agents and review workflows:** Add MIRA reviewer and annotator agents, an annotation review skill, and a parallel MIRA review workflow. A new reviewed software-delivery workflow, parallel branch timeouts, goal references, `xhigh` reasoning effort, Claude CLI policy forwarding, and an initial Claude plugin broaden agent-assisted authoring and software workflows.
+
+* **Cloud, sites, and themes:** Migrate Stencila Cloud authentication from access-token terminology to API keys, using `STENCILA_API_KEY` while retaining `STENCILA_API_TOKEN` as a compatibility fallback. Add site-level Content Credentials configuration and credential details for published images, plus an HHMI theme and structured article metadata in web output.
+
+
+### Breaking Changes
+
+* **Schema execution dependencies:** Executable nodes no longer expose `executionDependencies` or `executionDependants`. The `ExecutionDependency`, `ExecutionDependant`, and related relation enum types have been removed; integrations should read dependency relationships from graph edges instead.
+
+
 # [2.15.0](https://github.com/stencila/stencila/compare/v2.14.1...v2.15.0) (2026-05-03)
 
 ### Bug Fixes

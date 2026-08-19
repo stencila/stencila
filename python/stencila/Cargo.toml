@@ -1,6 +1,6 @@
 [package]
 name = "stencila-python"
-version = "2.15.0"
+version = "2.16.0"
 edition = "2024"
 license.workspace = true
 repository.workspace = true

@@ -1,5 +1,11 @@
 # Change Log
 
+## 2.16.0 2026-08-19
+
+- Based on Stencila CLI [v2.16.0](https://github.com/stencila/stencila/releases/tag/v2.16.0), which adds C2PA Content Credentials, interactive workspace lineage graphs and ASTRA evidence, semantic document comparison, a Tiptap-backed visual editor with native math, stronger JATS and OXA conversion, and new MIRA and reviewed software-delivery workflows.
+
+- Migrates Stencila Cloud sign-in from access-token terminology to API keys. The extension now offers direct API-key sign-in, stores credentials as `STENCILA_API_KEY`, and continues to accept the legacy `STENCILA_API_TOKEN` environment variable and stored secret as a compatibility fallback.
+
 ## 2.15.0 2026-05-03
 
 - Based on Stencila CLI [v2.15.0](https://github.com/stencila/stencila/releases/tag/v2.15.0) which adds figure layouts and visual overlays, richer comment and suggestion round-tripping, GitHub pull request review workflows, improved agent screenshot and image inspection tools, site specimen pages, sitemap configuration, and Cloud workspace asset support.
