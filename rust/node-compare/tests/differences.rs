@@ -147,7 +147,7 @@ fn optional_scalar_presence_is_a_value_change() -> Result<()> {
 }
 
 /// A cross-type pair emits a node type change, still compares its shared properties,
-/// and reports the properties only one of its types declares
+/// and reports the properties only one of its types declares and carries
 #[test]
 fn a_node_type_change_with_equal_shared_content() -> Result<()> {
     let left = art([p([t("Identical inline content here")])]);
@@ -188,6 +188,11 @@ fn a_node_type_change_with_equal_shared_content() -> Result<()> {
     };
     assert_eq!(left_presence, &PropertyPresence::Undeclared);
     assert_eq!(right_presence, &PropertyPresence::Present);
+
+    // `label` and `labelType` are also declared by `Heading` alone, but this heading
+    // carries neither, so neither side holds a value and there is nothing to report
+    assert!(of_property(&comparison, NodeProperty::Label).is_empty());
+    assert!(of_property(&comparison, NodeProperty::LabelType).is_empty());
 
     Ok(())
 }

@@ -209,22 +209,26 @@ impl Differ<'_> {
                     (right, &right_ref, right_property),
                 )?,
                 PropertyPair::LeftOnly(property) => {
-                    self.differences.push(Difference::PropertyPresenceChanged {
-                        left: left_ref.clone(),
-                        right: right_ref.clone(),
-                        property: property.decl.property,
-                        left_presence: presence(property),
-                        right_presence: PropertyPresence::Undeclared,
-                    })
+                    if let Some(left_presence) = one_sided_presence(property) {
+                        self.differences.push(Difference::PropertyPresenceChanged {
+                            left: left_ref.clone(),
+                            right: right_ref.clone(),
+                            property: property.decl.property,
+                            left_presence,
+                            right_presence: PropertyPresence::Undeclared,
+                        })
+                    }
                 }
                 PropertyPair::RightOnly(property) => {
-                    self.differences.push(Difference::PropertyPresenceChanged {
-                        left: left_ref.clone(),
-                        right: right_ref.clone(),
-                        property: property.decl.property,
-                        left_presence: PropertyPresence::Undeclared,
-                        right_presence: presence(property),
-                    })
+                    if let Some(right_presence) = one_sided_presence(property) {
+                        self.differences.push(Difference::PropertyPresenceChanged {
+                            left: left_ref.clone(),
+                            right: right_ref.clone(),
+                            property: property.decl.property,
+                            left_presence: PropertyPresence::Undeclared,
+                            right_presence,
+                        })
+                    }
                 }
             }
         }
@@ -393,6 +397,21 @@ fn holds_only_scalars(property: &ProjectedProperty) -> bool {
         .items
         .iter()
         .all(|item| matches!(item, Item::Scalar(..)))
+}
+
+/// The presence of a property that only one side of a cross-type pair declares, when
+/// it is worth reporting
+///
+/// A property the other type does not declare, and that this side does not carry
+/// either, says nothing about the two nodes: neither holds a value, and the type change
+/// that made the property sets differ is already reported once for the pair. Emitting it
+/// would put one row into every cross-type pair for each declaration the other type
+/// happens to lack, drowning the declarations that do carry a value.
+fn one_sided_presence(property: &ProjectedProperty) -> Option<PropertyPresence> {
+    match property.presence {
+        Presence::Absent => None,
+        Presence::Present => Some(PropertyPresence::Present),
+    }
 }
 
 /// The presence of a property, as reported in a difference

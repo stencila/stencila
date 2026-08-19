@@ -46,7 +46,10 @@ pub enum PropertyPresence {
     /// The schema does not declare this property for this node type
     ///
     /// Only possible for a cross-type pair, where the two types have a property union
-    /// rather than a single property list.
+    /// rather than a single property list, and only ever paired with `Present` on the
+    /// other side: a property that one type does not declare and the other does not
+    /// carry says nothing about the two nodes, and the type change that made the
+    /// property sets differ is already reported for the pair.
     Undeclared,
 
     /// The schema declares the property, and it is not present

@@ -251,54 +251,6 @@ expression: "compare(&left, &right)?"
         ],
         "nodeType": "Heading"
       },
-      "property": "label",
-      "leftPresence": "undeclared",
-      "rightPresence": "absent"
-    },
-    {
-      "type": "propertyPresenceChanged",
-      "left": {
-        "path": [
-          "content",
-          0,
-          "content",
-          0
-        ],
-        "nodeType": "Paragraph"
-      },
-      "right": {
-        "path": [
-          "content",
-          0,
-          "content",
-          0
-        ],
-        "nodeType": "Heading"
-      },
-      "property": "labelType",
-      "leftPresence": "undeclared",
-      "rightPresence": "absent"
-    },
-    {
-      "type": "propertyPresenceChanged",
-      "left": {
-        "path": [
-          "content",
-          0,
-          "content",
-          0
-        ],
-        "nodeType": "Paragraph"
-      },
-      "right": {
-        "path": [
-          "content",
-          0,
-          "content",
-          0
-        ],
-        "nodeType": "Heading"
-      },
       "property": "level",
       "leftPresence": "undeclared",
       "rightPresence": "present"
