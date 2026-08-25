@@ -30,6 +30,41 @@ pub struct ModelsConfig {
     /// providers = ["anthropic", "openai"]
     /// ```
     pub providers: Option<Vec<String>>,
+
+    /// Ollama-specific configuration for local model usage.
+    ///
+    /// Example:
+    ///
+    /// ```toml
+    /// [models.ollama]
+    /// base_url = "http://my-gpu-server:11434/v1"
+    /// default_model = "llama3.1:8b"
+    /// ```
+    pub ollama: Option<OllamaConfig>,
+}
+
+/// Ollama-specific configuration.
+#[skip_serializing_none]
+#[derive(Debug, Clone, Default, Deserialize, Serialize, PartialEq, JsonSchema)]
+#[serde(deny_unknown_fields)]
+pub struct OllamaConfig {
+    /// Base URL for the Ollama API.
+    ///
+    /// Defaults to `http://localhost:11434/v1`.
+    /// Overrides the `OLLAMA_BASE_URL` and `OLLAMA_HOST` environment variables.
+    pub base_url: Option<String>,
+
+    /// Default model to use when no model is specified.
+    ///
+    /// Should match a model that has been pulled locally (e.g. `"llama3.1:8b"`).
+    pub default_model: Option<String>,
+
+    /// Whether to auto-detect a running Ollama instance at `localhost:11434`.
+    ///
+    /// Defaults to `true`. Set to `false` to disable auto-detection and only
+    /// register Ollama when explicitly configured via environment variables or
+    /// `base_url`.
+    pub auto_detect: Option<bool>,
 }
 
 impl ModelsConfig {

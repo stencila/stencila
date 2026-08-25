@@ -131,7 +131,15 @@ pub static LIST_AFTER_LONG_HELP: &str = cstr!(
 impl List {
     #[allow(clippy::too_many_lines)]
     async fn run(self, auth: &AuthOptions) -> Result<()> {
-        if self.live {
+        // Build a client if we need live refresh or Ollama auto-query.
+        // Ollama is always auto-refreshed (local, fast) so its pulled
+        // models show up without requiring --live.
+        let needs_client = self.live
+            || crate::providers::OllamaAdapter::is_available("localhost:11434")
+            || std::env::var("OLLAMA_BASE_URL").is_ok()
+            || std::env::var("OLLAMA_HOST").is_ok();
+
+        if needs_client {
             let client = if auth.overrides.is_empty() {
                 crate::client::Client::from_env()
             } else {
@@ -139,29 +147,41 @@ impl List {
             }
             .map_err(|e| eyre::eyre!("{e}"))?;
 
-            let refresh = catalog::refresh(&client)
-                .await
-                .map_err(|e| eyre::eyre!("{e}"))?;
+            if self.live {
+                // Full refresh: query all providers
+                let refresh = catalog::refresh(&client)
+                    .await
+                    .map_err(|e| eyre::eyre!("{e}"))?;
 
-            if !refresh.new_models.is_empty() {
-                message!(
-                    "Added {} new model(s) from live provider listings",
-                    refresh.new_models.len()
-                );
-            }
+                if !refresh.new_models.is_empty() {
+                    message!(
+                        "Added {} new model(s) from live provider listings",
+                        refresh.new_models.len()
+                    );
+                }
 
-            if !refresh.provider_errors.is_empty() {
-                let providers = refresh
-                    .provider_errors
-                    .iter()
-                    .map(|(provider, _)| provider.as_str())
-                    .collect::<Vec<_>>()
-                    .join(", ");
-                message!(
-                    "Live listing failed for {} provider(s): {}",
-                    refresh.provider_errors.len(),
-                    providers
-                );
+                if !refresh.provider_errors.is_empty() {
+                    let providers = refresh
+                        .provider_errors
+                        .iter()
+                        .map(|(provider, _)| provider.as_str())
+                        .collect::<Vec<_>>()
+                        .join(", ");
+                    message!(
+                        "Live listing failed for {} provider(s): {}",
+                        refresh.provider_errors.len(),
+                        providers
+                    );
+                }
+            } else {
+                // Auto-refresh just Ollama (local, fast — no --live needed)
+                if let Some(ollama) = client.get_provider("ollama") {
+                    if let Ok(models) = ollama.list_models().await {
+                        if !models.is_empty() {
+                            let _ = catalog::merge_ollama_models(models);
+                        }
+                    }
+                }
             }
         }
 
@@ -463,6 +483,15 @@ impl Run {
             crate::client::Client::from_env_with_auth(auth)
         }
         .map_err(|e| eyre::eyre!("{e}"))?;
+
+        // Auto-refresh Ollama models so local models are discoverable
+        if let Some(ollama) = client.get_provider("ollama") {
+            if let Ok(models) = ollama.list_models().await {
+                if !models.is_empty() {
+                    let _ = catalog::merge_ollama_models(models);
+                }
+            }
+        }
 
         let (model_id, resolved_provider) =
             resolve_model_and_provider(self.model.as_deref(), self.provider.as_deref(), &client)?;
