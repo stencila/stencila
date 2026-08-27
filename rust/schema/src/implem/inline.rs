@@ -325,7 +325,16 @@ impl TryFrom<Node> for Inline {
             Time,
             Timestamp,
             Underline,
-            VideoObject
+            VideoObject,
+            // Primitives are `Inline` variants in their own right, so they convert
+            // directly. Leaving them out made this conversion partial for values the
+            // schema allows, which surfaced as a failure to read back a container
+            // that happened to hold one.
+            Null,
+            Boolean,
+            Integer,
+            UnsignedInteger,
+            Number
         )
     }
 }

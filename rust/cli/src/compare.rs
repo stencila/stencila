@@ -20,10 +20,13 @@ use eyre::{Context, Result, bail};
 use url::Url;
 
 use stencila_cli_utils::{color_print::cstr, message};
-use stencila_codecs::{DecodeOptions, LossesResponse};
+use stencila_codecs::{DecodeOptions, EncodeOptions, LossesResponse};
 use stencila_format::Format;
-use stencila_node_compare::{CompareOptions, DifferenceFilter, Selector, Side, compare_with_options};
-use stencila_node_compare_report::{Snapshot, html_report, text_report};
+use stencila_node_compare::{
+    CompareOptions, DifferenceFilter, Selector, Side, compare_with_options,
+};
+use stencila_node_compare_report::{Snapshot, html_report_with_overlay, text_report};
+use stencila_node_merge::{MergeOptions, MergeReport, merge_comparison_with_options};
 use stencila_schema::Node;
 
 /// Compare two documents
@@ -65,9 +68,10 @@ pub struct Cli {
 
     /// The format of the output
     ///
-    /// If not supplied, is inferred from the extension of the output file
-    /// (`.txt`, `.html`, `.json`, `.yaml` or `.yml`), defaulting to `text` when
-    /// writing to `stdout`.
+    /// If not supplied, is inferred from the extension of the output file:
+    /// `.txt`, `.html`, `.json`, `.yaml` and `.yml` give a report about the
+    /// comparison, and any other document extension gives `suggestions`. Defaults to
+    /// `text` when writing to `stdout`.
     #[arg(long, short)]
     to: Option<OutputFormat>,
 
@@ -126,6 +130,13 @@ pub enum OutputFormat {
     Json,
     /// The comparison artifact as YAML
     Yaml,
+    /// The left document with the right document's changes as suggestions
+    ///
+    /// A document rather than a report: the differences are woven into the left
+    /// document as `Suggestion` and `Comment` nodes. Written in the format implied by
+    /// the output path, defaulting to Stencila Markdown, which round-trips
+    /// suggestions and comments natively.
+    Suggestions,
 }
 
 /// What to do when decoding an input document loses information
@@ -197,6 +208,12 @@ pub static CLI_AFTER_LONG_HELP: &str = cstr!(
 
   <dim># Override the format of an input document</dim>
   <b>stencila compare</> <g>before.txt</> <g>after.smd</> <c>--left-from</> <g>smd</>
+
+  <dim># Write the changes into the first document as suggestions and comments</dim>
+  <b>stencila compare</> <g>before.smd</> <g>after.smd</> <g>merged.smd</>
+
+  <dim># Same, printed as Stencila Markdown</dim>
+  <b>stencila compare</> <g>before.smd</> <g>after.smd</> <c>--to</> <g>suggestions</>
 "
 );
 
@@ -254,30 +271,70 @@ impl Cli {
             label: &right_label,
         };
 
-        let content = match destination.format {
-            OutputFormat::Text => {
-                text_report(&comparison, left_snapshot, right_snapshot, summary)?
-            }
-            OutputFormat::Html => {
-                html_report(&comparison, left_snapshot, right_snapshot, summary)?
-            }
-            OutputFormat::Json => {
-                let mut json = serde_json::to_string_pretty(&comparison)
-                    .wrap_err("Unable to serialize the comparison as JSON")?;
-                json.push('\n');
-                json
-            }
-            OutputFormat::Yaml => {
-                let mut yaml = serde_yaml::to_string(&comparison)
-                    .wrap_err("Unable to serialize the comparison as YAML")?;
-                if !yaml.ends_with('\n') {
-                    yaml.push('\n');
-                }
-                yaml
-            }
+        // The merged document is what the overlay renders and what `suggestions`
+        // writes, so it is built once, only when one of them needs it
+        let merged = match destination.format {
+            OutputFormat::Html | OutputFormat::Suggestions => Some(
+                merge_comparison_with_options(
+                    &left_node,
+                    &right_node,
+                    &comparison,
+                    &MergeOptions::default(),
+                )
+                .wrap_err("Unable to merge the two documents")?,
+            ),
+            _ => None,
         };
 
-        destination.write(&content)?;
+        if let Some(merged) = &merged {
+            report_unrepresentable(merged.report());
+        }
+
+        match destination.format {
+            OutputFormat::Suggestions => {
+                let Some(merged) = &merged else {
+                    bail!("The merged document was not built for suggestions output")
+                };
+                destination.write_suggestions(merged.node()).await?;
+            }
+            format => {
+                let content = match format {
+                    OutputFormat::Text => {
+                        text_report(&comparison, left_snapshot, right_snapshot, summary)?
+                    }
+                    OutputFormat::Html => {
+                        let Some(merged) = &merged else {
+                            bail!("The merged document was not built for HTML output")
+                        };
+                        html_report_with_overlay(
+                            &comparison,
+                            left_snapshot,
+                            right_snapshot,
+                            summary,
+                            merged.node(),
+                        )?
+                    }
+                    OutputFormat::Json => {
+                        let mut json = serde_json::to_string_pretty(&comparison)
+                            .wrap_err("Unable to serialize the comparison as JSON")?;
+                        json.push('\n');
+                        json
+                    }
+                    OutputFormat::Yaml => {
+                        let mut yaml = serde_yaml::to_string(&comparison)
+                            .wrap_err("Unable to serialize the comparison as YAML")?;
+                        if !yaml.ends_with('\n') {
+                            yaml.push('\n');
+                        }
+                        yaml
+                    }
+                    OutputFormat::Suggestions => {
+                        bail!("Suggestions output was routed as a report")
+                    }
+                };
+                destination.write(&content)?;
+            }
+        }
         destination.open()?;
 
         Ok(if comparison.is_equal() {
@@ -286,6 +343,99 @@ impl Cli {
             CompareOutcome::Different
         })
     }
+}
+
+/// Whether an extension names a format a document can be written in
+///
+/// `Format::from_name` falls back to `Format::Other` for anything it does not
+/// recognise, so an unrecognised extension has to be excluded explicitly. Doing so
+/// keeps a mistyped extension an argument error rather than a request to write
+/// suggestions in a format nothing can encode.
+fn is_document_format(extension: &str) -> bool {
+    stencila_codecs::to_path_is_supported(Path::new(&format!("document.{extension}")))
+}
+
+/// Encode the merged document in the format implied by the output path
+///
+/// Stencila Markdown by default, because it is the format that round-trips suggestions
+/// and comments natively: a merged document written as `.smd` decodes back to the same
+/// tree, which is what makes the output a document rather than a rendering of one.
+async fn encode_suggestions(node: &Node) -> Result<String> {
+    let options = EncodeOptions {
+        format: Some(Format::Smd),
+        // The merge produced the suggestions, so an encoder must not resolve them away
+        render: Some(false),
+        ..Default::default()
+    };
+
+    let mut content = stencila_codecs::to_string(node, Some(options))
+        .await
+        .wrap_err("Unable to encode the merged document")?;
+    if !content.ends_with('\n') {
+        content.push('\n');
+    }
+
+    Ok(content)
+}
+
+/// Encode a suggestions document to a path, including binary document formats
+async fn encode_suggestions_to_path(node: &Node, path: &Path) -> Result<()> {
+    let format = Format::from_path(path);
+    let options = EncodeOptions {
+        format: Some(format),
+        render: Some(false),
+        ..Default::default()
+    };
+
+    let dir = match path.parent() {
+        Some(dir) if !dir.as_os_str().is_empty() => dir,
+        _ => Path::new("."),
+    };
+    let suffix = path
+        .extension()
+        .map(|extension| format!(".{}", extension.to_string_lossy()))
+        .unwrap_or_default();
+    let temporary = tempfile::Builder::new()
+        .prefix(".stencila-comparison-")
+        .suffix(&suffix)
+        .tempfile_in(dir)
+        .wrap_err_with(|| {
+            format!(
+                "Unable to create a temporary file in `{dir}`",
+                dir = dir.display()
+            )
+        })?
+        .into_temp_path();
+
+    let written = stencila_codecs::to_path(node, &temporary, Some(options))
+        .await
+        .wrap_err("Unable to encode the merged document")?;
+    if !written {
+        bail!("Encoding the merged document was cancelled")
+    }
+
+    temporary.persist(path).map_err(|error| error.error)?;
+    Ok(())
+}
+
+/// Say what the merge could not express
+///
+/// A reorder or a move pairs the occurrence on both sides, so no suggestion can carry
+/// it, and a right-only list item has no slot that accepts one. Those differences are
+/// still in the report and the comments, but they are not in the suggestions, and a
+/// caller who accepts every suggestion should know that beforehand rather than
+/// discover it by diffing the result.
+fn report_unrepresentable(report: &MergeReport) {
+    let count = report.unrepresentable.len();
+    if count == 0 {
+        return;
+    }
+
+    message(&format!(
+        "⚠️ {count} difference{plural} could not be expressed as a suggestion, and {is} described in comments only",
+        plural = if count == 1 { "" } else { "s" },
+        is = if count == 1 { "is" } else { "are" },
+    ));
 }
 
 /// Parse a filter selector, reporting schema mistakes as argument errors
@@ -395,8 +545,13 @@ impl Destination {
                 Some("html" | "htm") => OutputFormat::Html,
                 Some("json") => OutputFormat::Json,
                 Some("yaml" | "yml") => OutputFormat::Yaml,
+                // A recognised document format means the output is the merged
+                // document rather than a report about it. An unrecognised extension
+                // stays an error, so that a typo is not silently taken for a request
+                // to write suggestions.
+                Some(extension) if is_document_format(extension) => OutputFormat::Suggestions,
                 _ => bail!(
-                    "Unable to infer the output format from `{path}`; use `--to` to specify `text`, `html`, `json` or `yaml`",
+                    "Unable to infer the output format from `{path}`; use `--to` to specify `text`, `html`, `json`, `yaml` or `suggestions`",
                     path = path.display()
                 ),
             },
@@ -478,6 +633,14 @@ impl Destination {
         Ok(())
     }
 
+    /// Write a merged document using string or path encoding as appropriate
+    async fn write_suggestions(&self, node: &Node) -> Result<()> {
+        match self.path.as_deref() {
+            Some(path) => encode_suggestions_to_path(node, path).await,
+            None => self.write(&encode_suggestions(node).await?),
+        }
+    }
+
     /// Open the written file in a browser, if the view was asked for
     ///
     /// The path is always reported, so that the view is still reachable when no
@@ -534,11 +697,10 @@ fn same_file(first: &Path, second: &Path) -> bool {
     }
 }
 
-
 #[cfg(test)]
 #[allow(clippy::unwrap_used)]
 mod tests {
-    use std::{path::PathBuf, str::FromStr};
+    use std::path::PathBuf;
 
     use clap::Parser;
     use stencila_node_compare::{Comparison, compare};
@@ -747,8 +909,24 @@ mod tests {
 
     #[test]
     fn unknown_extensions_are_an_error() {
-        assert!(Destination::resolve(Some(Path::new("comparison.toml")), None, false).is_err());
+        assert!(Destination::resolve(Some(Path::new("comparison.qqq")), None, false).is_err());
         assert!(Destination::resolve(Some(Path::new("comparison")), None, false).is_err());
+    }
+
+    #[test]
+    fn a_document_extension_writes_suggestions() -> Result<()> {
+        // Not a report format, but a format a document can be written in, so the
+        // output is the merged document rather than a report about the comparison
+        for path in ["merged.smd", "merged.md", "merged.docx"] {
+            let destination = Destination::resolve(Some(Path::new(path)), None, false)?;
+            assert_eq!(
+                destination.format,
+                OutputFormat::Suggestions,
+                "{path} should write suggestions"
+            );
+        }
+
+        Ok(())
     }
 
     #[test]

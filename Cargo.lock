@@ -10121,6 +10121,7 @@ dependencies = [
  "stencila-node-compare-report",
  "stencila-node-diagnostics",
  "stencila-node-execute",
+ "stencila-node-merge",
  "stencila-node-path",
  "stencila-node-strip",
  "stencila-node-suggestions",
@@ -12130,6 +12131,7 @@ dependencies = [
  "eyre",
  "serde_json",
  "similar 3.1.0",
+ "stencila-codec-dom-trait",
  "stencila-codec-text-trait",
  "stencila-node-compare",
  "stencila-node-path",
@@ -12256,6 +12258,25 @@ dependencies = [
  "stencila-tools",
  "tempfile",
  "tracing",
+]
+
+[[package]]
+name = "stencila-node-merge"
+version = "0.0.0"
+dependencies = [
+ "eyre",
+ "insta",
+ "pretty_assertions",
+ "serde",
+ "serde_json",
+ "similar 3.1.0",
+ "stencila-codec-text-trait",
+ "stencila-node-compare",
+ "stencila-node-path",
+ "stencila-node-suggestions",
+ "stencila-node-type",
+ "stencila-schema",
+ "thiserror 2.0.18",
 ]
 
 [[package]]

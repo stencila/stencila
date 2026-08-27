@@ -14,6 +14,7 @@ use std::{fmt::Write as _, time::Duration};
 use eyre::Result;
 use similar::{Algorithm, ChangeTag, TextDiff};
 
+use stencila_codec_dom_trait::{DomCodec as _, DomEncodeContext};
 use stencila_codec_text_trait::to_text;
 use stencila_node_compare::{
     Alignment, Comparison, Correspondence, Difference, DifferenceFilter, NodeRef, PropertyPresence,
@@ -105,16 +106,52 @@ pub fn text_report(
     Ok(report)
 }
 
-/// Render the side-by-side HTML view for a comparison
+/// Render the HTML view for a comparison
 ///
-/// A self-contained page, with no external assets, so that it can be written to a
-/// temporary file and opened directly by a browser. Like the text report, this is
-/// human presentation rather than an interchange format.
+/// This entry point preserves the differences-only report used by existing callers.
+/// Use [`html_report_with_overlay`] to include a merged-document overlay.
 pub fn html_report(
     comparison: &Comparison,
     left: Snapshot,
     right: Snapshot,
     summary: bool,
+) -> Result<String> {
+    html_report_inner(comparison, left, right, summary, None)
+}
+
+/// Render the HTML view for a comparison with a merged-document overlay
+pub fn html_report_with_overlay(
+    comparison: &Comparison,
+    left: Snapshot,
+    right: Snapshot,
+    summary: bool,
+    overlay: &Node,
+) -> Result<String> {
+    html_report_inner(comparison, left, right, summary, Some(overlay))
+}
+
+/// Render the HTML view for a comparison
+///
+/// Two readings of the same comparison, as tabs of one page. The differences tab lists
+/// what changed, occurrence by occurrence; the overlay tab shows the left document
+/// with the right one's changes marked up in place, which is what makes a change
+/// legible in the prose around it.
+///
+/// The overlay is an ordinary Stencila document carrying `Suggestion` and `Comment`
+/// nodes, built by `stencila-node-merge` and passed in rather than derived here, so
+/// that this crate keeps deciding only how a comparison is *presented*. Without one,
+/// the page has the differences tab alone.
+///
+/// A self-contained page, with no external assets and no scripts, so that it can be
+/// written to a temporary file and opened directly by a browser. The tabs are CSS
+/// only for that reason. Like the text report, this is human presentation rather than
+/// an interchange format.
+fn html_report_inner(
+    comparison: &Comparison,
+    left: Snapshot,
+    right: Snapshot,
+    summary: bool,
+    overlay: Option<&Node>,
 ) -> Result<String> {
     let alignment = comparison.alignment();
     let differences = comparison.differences();
@@ -199,6 +236,28 @@ pub fn html_report(
         },
     )?;
 
+    // The radio inputs precede both the labels and the panes, so that a `:checked`
+    // sibling selector can reach either
+    writeln!(
+        html,
+        r#"<div class="tabs">
+<input type="radio" name="tab" id="tab-differences" checked>
+<input type="radio" name="tab" id="tab-overlay"{overlay_disabled}>
+<div class="tablist">
+<label for="tab-differences">Differences</label>
+<label for="tab-overlay"{overlay_label_class}>Overlay</label>
+</div>
+<section class="pane differences">"#,
+        overlay_disabled = match overlay {
+            Some(..) => "",
+            None => " disabled",
+        },
+        overlay_label_class = match overlay {
+            Some(..) => "",
+            None => r#" class="unavailable""#,
+        },
+    )?;
+
     if summary || rows.is_empty() {
         let note = if rows.is_empty() {
             "The documents are equal."
@@ -219,9 +278,183 @@ pub fn html_report(
         writeln!(html, "</tbody>\n</table>")?;
     }
 
+    writeln!(html, "</section>\n<section class=\"pane overlay\">")?;
+
+    match overlay {
+        Some(node) => writeln!(html, "{}", overlay_html(node))?,
+        None => writeln!(
+            html,
+            "<p class=\"note\">No overlay was built for this comparison.</p>"
+        )?,
+    }
+
+    writeln!(html, "</section>\n</div>")?;
+
     writeln!(html, "</body>\n</html>")?;
 
     Ok(html)
+}
+
+/// Render the overlay document as HTML
+///
+/// Uses the DOM encoding, which is the canonical HTML form of a Stencila document, but
+/// only its markup: the web bundle that would otherwise animate it is deliberately not
+/// referenced, so the page stays self-contained and works from a temporary file. The
+/// custom elements it emits carry real semantic HTML inside them — a paragraph is a
+/// `<p slot="content">` within a `<stencila-paragraph>` — so the styles below have
+/// only to give the wrappers a layout and the suggestions their colours.
+///
+/// The static view is asked for because the merged document is read, not edited: it
+/// leaves out the node identifiers that only matter to a live view.
+fn overlay_html(node: &Node) -> String {
+    let mut context = DomEncodeContext::new(Some("static"), Some(false));
+    node.to_dom(&mut context);
+    let mut html = context.content();
+
+    html.push_str(&annotations_html(node));
+
+    html
+}
+
+/// Render the comments of the overlay document onto the nodes they are about
+///
+/// A comment names its subject by identifier, and the DOM encoding writes that
+/// identifier onto the element as `_id`, so the two can be joined with an attribute
+/// selector. That is enough to mark the node and to show what the comment says on
+/// hovering it, without a script and without touching the markup the encoding
+/// produced.
+///
+/// A list of every comment underneath the document would be the same information, but
+/// it is not the same thing to read: a note that says a heading's level changed is
+/// worth having *at the heading*, and worth nothing three hundred entries down a page.
+/// Only the comments with nothing to attach to are listed.
+fn annotations_html(node: &Node) -> String {
+    let Node::Article(article) = node else {
+        return String::new();
+    };
+
+    let Some(comments) = &article.options.comments else {
+        return String::new();
+    };
+
+    let mut anchored: Vec<(String, String)> = Vec::new();
+    let mut unanchored: Vec<String> = Vec::new();
+
+    for comment in comments {
+        let message = to_text(&comment.content).trim().to_string();
+        match comment
+            .options
+            .start_location
+            .as_deref()
+            .and_then(|location| location.strip_prefix('#'))
+        {
+            Some(id) if !id.is_empty() => anchored.push((id.to_string(), message)),
+            _ => unanchored.push(message),
+        }
+    }
+
+    let mut html = String::new();
+    html.push_str(&anchored_styles(&anchored));
+    html.push_str(&unanchored_html(&unanchored));
+
+    html
+}
+
+/// The styles that mark the commented nodes and reveal what the comments say
+///
+/// Generated rather than static because each rule has to name the identifiers it
+/// applies to. The marking is one rule for every commented node at once; the text is
+/// one rule per distinct message, since the same observation is usually made about
+/// many nodes in a document and repeating it once per node would be most of the page.
+fn anchored_styles(anchored: &[(String, String)]) -> String {
+    if anchored.is_empty() {
+        return String::new();
+    }
+
+    let selector = |ids: &[&str], suffix: &str| -> String {
+        ids.iter()
+            .map(|id| format!(".pane.overlay [_id=\"{}\"]{suffix}", css_escape(id)))
+            .collect::<Vec<_>>()
+            .join(",\n")
+    };
+
+    let all: Vec<&str> = anchored.iter().map(|(id, ..)| id.as_str()).collect();
+
+    // A rule down the left rather than a fill. A comment is very often about a whole
+    // section — its identifier changed, it moved — and filling one floods the page with
+    // colour to say something about the container rather than about anything in it. A
+    // marker reads the same on a section and on a word, and leaves the text legible
+    // underneath, which is what the overlay is for.
+    let mut css = String::from("\n<style>\n");
+    let _ = write!(
+        css,
+        "{}{{\n  box-shadow: inset 3px 0 0 var(--comment);\n  \
+         position: relative;\n  cursor: help;\n}}\n",
+        selector(&all, "")
+    );
+
+    // Grouped by message, in first-seen order so the output is stable
+    let mut messages: Vec<&str> = Vec::new();
+    let mut grouped: Vec<Vec<&str>> = Vec::new();
+    for (id, message) in anchored {
+        match messages.iter().position(|seen| *seen == message) {
+            Some(index) => grouped[index].push(id),
+            None => {
+                messages.push(message);
+                grouped.push(vec![id]);
+            }
+        }
+    }
+
+    for (message, ids) in messages.iter().zip(grouped.iter()) {
+        let _ = write!(
+            css,
+            "{}{{\n  content: \"{}\";\n}}\n",
+            selector(ids, ":hover::after"),
+            css_escape(message)
+        );
+    }
+
+    css.push_str("</style>\n");
+
+    css
+}
+
+/// The comments that have nothing in the document to attach to
+///
+/// A change under `authors` or `references` has no block or inline ancestor to mark, so
+/// there is nowhere to put it but a list.
+fn unanchored_html(unanchored: &[String]) -> String {
+    if unanchored.is_empty() {
+        return String::new();
+    }
+
+    let mut html =
+        String::from(r#"<section class="annotations"><h2>Elsewhere in the document</h2><ol>"#);
+    for message in unanchored {
+        let _ = write!(html, "<li>{}</li>", escape(message));
+    }
+    html.push_str("</ol></section>");
+
+    html
+}
+
+/// Escape a string for use inside a CSS string or attribute selector value
+fn css_escape(text: &str) -> String {
+    let mut escaped = String::with_capacity(text.len());
+    for character in text.chars() {
+        match character {
+            '\\' => escaped.push_str("\\\\"),
+            '"' => escaped.push_str("\\\""),
+            // A literal `<` can terminate the surrounding HTML `style` element even
+            // when it occurs inside a valid CSS string. Use a CSS hexadecimal escape
+            // so the browser displays the character without seeing HTML markup.
+            '<' => escaped.push_str("\\3c "),
+            '\n' | '\r' => escaped.push(' '),
+            _ => escaped.push(character),
+        }
+    }
+    escaped
 }
 
 /// The styles for the HTML view
@@ -239,6 +472,11 @@ const CSS: &str = r#"
   --removed-foreground: #7a2617;
   --added-background: #c8f0d8;
   --added-foreground: #10502f;
+  --removed-tint: #fdeeec;
+  --added-tint: #edfaf1;
+  --comment: #c26a00;
+  --comment-background: #ffe9cc;
+  --comment-foreground: #4a2a00;
 }
 @media (prefers-color-scheme: dark) {
   :root {
@@ -254,6 +492,11 @@ const CSS: &str = r#"
     --removed-foreground: #ffd7d1;
     --added-background: #14472e;
     --added-foreground: #c8f0d8;
+    --removed-tint: #2a1512;
+    --added-tint: #12261b;
+    --comment: #e08a2e;
+    --comment-background: #4a2f10;
+    --comment-foreground: #ffe9cc;
   }
 }
 * { box-sizing: border-box; }
@@ -316,6 +559,172 @@ thead th {
 }
 th.kind, td.kind { width: 9.5rem; }
 .marker { margin-right: 0.4rem; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
+/* Tabs, driven by the checked state of two radio inputs so that the page needs no
+   script and stays self-contained. The inputs stay focusable, and so keyboard
+   reachable, rather than being hidden with `display: none`. */
+.tabs > input[type="radio"] {
+  position: absolute;
+  opacity: 0;
+  width: 0;
+  height: 0;
+  pointer-events: none;
+}
+.tablist {
+  display: flex;
+  gap: 0.25rem;
+  margin-top: 1.25rem;
+  border-bottom: 1px solid var(--border);
+}
+.tablist label {
+  padding: 0.4rem 0.8rem;
+  cursor: pointer;
+  color: var(--muted);
+  border-bottom: 2px solid transparent;
+  margin-bottom: -1px;
+  font-size: 0.9rem;
+}
+.tablist label.unavailable { cursor: default; opacity: 0.5; }
+#tab-differences:checked ~ .tablist label[for="tab-differences"],
+#tab-overlay:checked ~ .tablist label[for="tab-overlay"] {
+  color: var(--foreground);
+  border-bottom-color: var(--foreground);
+}
+#tab-differences:focus-visible ~ .tablist label[for="tab-differences"],
+#tab-overlay:focus-visible ~ .tablist label[for="tab-overlay"] {
+  outline: 2px solid var(--changed);
+  outline-offset: -2px;
+}
+.pane { display: none; }
+#tab-differences:checked ~ .pane.differences,
+#tab-overlay:checked ~ .pane.overlay { display: block; }
+.pane table { margin-top: 0.75rem; }
+
+/* The overlay: the DOM encoding of the merged document. Its custom elements are
+   inline by default, so the ones that stand for a block need a layout given to them. */
+.pane.overlay {
+  max-width: 46rem;
+  margin-top: 1.5rem;
+  line-height: 1.6;
+}
+.pane.overlay stencila-article,
+.pane.overlay stencila-section,
+.pane.overlay stencila-paragraph,
+.pane.overlay stencila-heading,
+.pane.overlay stencila-list,
+.pane.overlay stencila-list-item,
+.pane.overlay stencila-table,
+.pane.overlay stencila-figure,
+.pane.overlay stencila-quote-block,
+.pane.overlay stencila-code-block,
+.pane.overlay stencila-code-chunk,
+.pane.overlay stencila-math-block,
+.pane.overlay stencila-admonition,
+.pane.overlay stencila-thematic-break,
+.pane.overlay stencila-suggestion-block { display: block; }
+/* A guard, in case the DOM encoding ever does emit comments: they are rendered as
+   notes below instead, and showing both would say everything twice. */
+.pane.overlay [slot="comments"] { display: none; }
+/* A commented node is marked in the document rather than footnoted below it, and says
+   what the comment says on hover. The rules that name which nodes those are, and what
+   each says, are generated per document and emitted with the overlay. */
+.pane.overlay [_id]:hover::after {
+  position: absolute;
+  left: 0;
+  top: calc(100% + 0.25rem);
+  z-index: 10;
+  width: max-content;
+  max-width: 28rem;
+  padding: 0.4rem 0.6rem;
+  border-radius: 0.375rem;
+  border: 1px solid var(--comment);
+  background: var(--comment-background);
+  color: var(--comment-foreground);
+  font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+  font-size: 0.8rem;
+  font-weight: 400;
+  font-style: normal;
+  line-height: 1.4;
+  text-align: left;
+  text-decoration: none;
+  white-space: normal;
+  pointer-events: none;
+}
+.annotations {
+  margin-top: 2rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--border);
+}
+.annotations h2 {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--muted);
+  font-weight: 600;
+  margin: 0 0 0.5rem;
+}
+.annotations ol { margin: 0; padding-left: 1.25rem; }
+.annotations li { margin-bottom: 0.35rem; font-size: 0.9rem; }
+.annotations code { color: var(--muted); font-size: 0.85em; }
+.pane.overlay pre { overflow-x: auto; }
+.pane.overlay table { table-layout: auto; }
+
+/* Suggestions. The DOM encoding writes the enum variant verbatim, so the attribute
+   values are the schema's own names.
+
+   Inline and block suggestions are marked differently on purpose. A few changed words
+   read best filled in, the way a proofreader would strike and insert them. A changed
+   *region* does not: filling several paragraphs solid states loudly and repeatedly
+   what one mark in the margin states once, and buries the text it is supposed to be
+   showing. Blocks therefore get a margin rule and a wash faint enough to read
+   through. */
+.pane.overlay stencila-suggestion-inline { border-radius: 0.2rem; }
+.pane.overlay stencila-suggestion-inline[suggestion-type="Delete"] [slot="content"],
+.pane.overlay stencila-suggestion-inline[suggestion-type="Replace"] [slot="original"] {
+  text-decoration: line-through;
+  background: var(--removed-background);
+  color: var(--removed-foreground);
+}
+.pane.overlay stencila-suggestion-inline[suggestion-type="Insert"] [slot="content"],
+.pane.overlay stencila-suggestion-inline[suggestion-type="Replace"] [slot="content"] {
+  background: var(--added-background);
+  color: var(--added-foreground);
+}
+
+/* An inline replacement reads as an edit rather than as two alternatives when the
+   words being replaced come first, which is not the order the encoding writes them */
+.pane.overlay stencila-suggestion-inline[suggestion-type="Replace"] {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 0.15rem;
+  vertical-align: baseline;
+}
+.pane.overlay stencila-suggestion-inline[suggestion-type="Replace"] [slot="original"] {
+  order: 0;
+}
+.pane.overlay stencila-suggestion-inline[suggestion-type="Replace"] [slot="content"] {
+  order: 1;
+}
+
+.pane.overlay stencila-suggestion-block > [slot] {
+  display: block;
+  margin: 0.35rem 0;
+  padding: 0.15rem 0 0.15rem 0.75rem;
+}
+.pane.overlay stencila-suggestion-block[suggestion-type="Delete"] > [slot="content"],
+.pane.overlay stencila-suggestion-block[suggestion-type="Replace"] > [slot="original"] {
+  border-left: 3px solid var(--left);
+  background: var(--removed-tint);
+}
+.pane.overlay stencila-suggestion-block[suggestion-type="Insert"] > [slot="content"],
+.pane.overlay stencila-suggestion-block[suggestion-type="Replace"] > [slot="content"] {
+  border-left: 3px solid var(--right);
+  background: var(--added-tint);
+}
+.pane.overlay stencila-suggestion-block[suggestion-type="Delete"] > [slot="content"] {
+  text-decoration: line-through;
+  text-decoration-color: var(--left);
+}
+
 tr.left-only .marker, tr.left-only .kind-label { color: var(--left); }
 tr.right-only .marker, tr.right-only .kind-label { color: var(--right); }
 tr.changed .marker, tr.changed .kind-label { color: var(--changed); }
@@ -1130,11 +1539,7 @@ fn sides(left: &str, right: &str) -> String {
 /// Named as `$/path NodeType.property[index]`, so that the subject of a value or
 /// presence difference reads the same way as every other row's, and a path is never
 /// left to be understood on its own.
-fn value_subject(
-    node: &NodeRef,
-    property: Option<&NodeProperty>,
-    index: Option<usize>,
-) -> String {
+fn value_subject(node: &NodeRef, property: Option<&NodeProperty>, index: Option<usize>) -> String {
     let mut subject = occurrence(node);
     if let Some(property) = property {
         subject.push('.');
@@ -1226,6 +1631,7 @@ fn plural(count: usize, noun: &str) -> String {
 mod tests {
     use std::str::FromStr;
 
+    use eyre::Result;
     use stencila_node_compare::compare;
     use stencila_schema::{Article, Block, Heading, Node, Paragraph, Section, shortcuts::t};
 
@@ -1266,6 +1672,15 @@ mod tests {
         let comparison = compare(left, right).unwrap();
         let (left, right) = snapshots(left, right);
         html_report(&comparison, left, right, summary).unwrap()
+    }
+
+    /// The page with an overlay, using the left document as a stand-in for a merged
+    /// one so that this crate does not depend on the merge to test the rendering
+    fn html_with_overlay(left: &Node, right: &Node) -> Result<String> {
+        let comparison = compare(left, right)?;
+        let overlay = left.clone();
+        let (left, right) = snapshots(left, right);
+        html_report_with_overlay(&comparison, left, right, false, &overlay)
     }
 
     #[test]
@@ -1349,23 +1764,24 @@ differences: 0
 
         let report = report(&left, &right, false);
         assert!(
-            report.contains("± presence   $ Article.authors
-"),
+            report.contains(
+                "± presence   $ Article.authors
+"
+            ),
             "presence subjects name the type: {report}"
         );
         assert!(
-            report.contains("~ value      $/content/0/content/0 Text.value
-"),
+            report.contains(
+                "~ value      $/content/0/content/0 Text.value
+"
+            ),
             "value subjects name the type: {report}"
         );
 
         // And the same subjects reach the side-by-side view
         let page = html(&left, &right, false);
         assert!(page.contains("$ Article.authors"), "{page}");
-        assert!(
-            page.contains("$/content/0/content/0 Text.value"),
-            "{page}"
-        );
+        assert!(page.contains("$/content/0/content/0 Text.value"), "{page}");
     }
 
     #[test]
@@ -1467,11 +1883,14 @@ differences: 1
         let right = article(vec![para("Method")]);
         let page = html(&left, &right, false);
 
-        // Nothing to fetch, so that the page works from a temporary file
+        // Nothing to fetch, so that the page works from a temporary file. Document
+        // content may legitimately contain a URL — a link target, a citation — so what
+        // is asserted is that the page never *fetches*, not that no URL appears in it.
         assert!(page.starts_with("<!DOCTYPE html>"), "{page}");
-        assert!(!page.contains("http://"), "{page}");
-        assert!(!page.contains("https://"), "{page}");
         assert!(!page.contains("<script"), "{page}");
+        assert!(!page.contains("<link"), "{page}");
+        assert!(!page.contains("src=\"http"), "{page}");
+        assert!(!page.contains("@import"), "{page}");
 
         assert!(
             page.contains(r#"<span class="status different">different</span>"#),
@@ -1513,6 +1932,133 @@ differences: 1
         assert!(page.contains(r#"<td class="absent">—</td>"#), "{page}");
         assert!(page.contains("$/content/1 Section"), "{page}");
         assert!(!page.contains(r#"<tr class="left-only">"#), "{page}");
+    }
+
+    #[test]
+    fn the_overlay_tab_renders_the_merged_document() -> Result<()> {
+        let left = article(vec![para("Methods")]);
+        let right = article(vec![para("Method")]);
+        let page = html_with_overlay(&left, &right)?;
+
+        // Both tabs, switched by the radio inputs rather than by a script
+        assert!(page.contains(r#"id="tab-differences""#), "{page}");
+        assert!(page.contains(r#"id="tab-overlay""#), "{page}");
+        assert!(!page.contains("<script"), "{page}");
+
+        // The overlay pane holds the DOM encoding of the document
+        assert!(page.contains(r#"<section class="pane overlay">"#), "{page}");
+        assert!(page.contains("<stencila-paragraph"), "{page}");
+        assert!(page.contains("Methods"), "{page}");
+
+        Ok(())
+    }
+
+    #[test]
+    fn comments_are_marked_on_the_nodes_they_are_about() -> Result<()> {
+        use stencila_schema::{Comment, CommentOptions, Heading, Inline, Text};
+
+        // An overlay carrying one comment about one heading, as the merge produces
+        let mut overlay = article(vec![Block::Heading(Heading {
+            id: Some("mgc0".to_string()),
+            ..Heading::new(1, vec![Inline::Text(Text::from("Title"))])
+        })]);
+        if let Node::Article(article) = &mut overlay {
+            article.options.comments = Some(vec![Comment {
+                content: vec![para("Property `level` changed from `1` to `2`")],
+                options: Box::new(CommentOptions {
+                    start_location: Some("#mgc0".to_string()),
+                    end_location: Some("#mgc0".to_string()),
+                    ..Default::default()
+                }),
+                ..Default::default()
+            }]);
+        }
+
+        let left = article(vec![para("One")]);
+        let right = article(vec![para("Two")]);
+        let comparison = compare(&left, &right)?;
+        let (left, right) = snapshots(&left, &right);
+        let page = html_report_with_overlay(&comparison, left, right, false, &overlay)?;
+
+        // The comment marks the heading in place and says what it says on hover, so
+        // the reader meets it where it applies rather than in a list below
+        assert!(page.contains(r#"[_id="mgc0"]"#), "{page}");
+        assert!(page.contains(r#"[_id="mgc0"]:hover::after"#), "{page}");
+        assert!(page.contains("Property `level` changed"), "{page}");
+
+        // Which is instead of, not as well as, an entry in a list
+        assert!(!page.contains("Elsewhere in the document"), "{page}");
+
+        // And still nothing to fetch and no script to run
+        assert!(!page.contains("<script"), "{page}");
+
+        Ok(())
+    }
+
+    #[test]
+    fn a_comment_with_nothing_to_mark_is_listed() -> Result<()> {
+        use stencila_schema::Comment;
+
+        let mut overlay = article(vec![para("Body")]);
+        if let Node::Article(article) = &mut overlay {
+            article.options.comments = Some(vec![Comment {
+                content: vec![para("An author was removed")],
+                ..Default::default()
+            }]);
+        }
+
+        let left = article(vec![para("One")]);
+        let right = article(vec![para("Two")]);
+        let comparison = compare(&left, &right)?;
+        let (left, right) = snapshots(&left, &right);
+        let page = html_report_with_overlay(&comparison, left, right, false, &overlay)?;
+
+        assert!(page.contains("Elsewhere in the document"), "{page}");
+        assert!(page.contains("An author was removed"), "{page}");
+
+        Ok(())
+    }
+
+    #[test]
+    fn anchored_comments_cannot_close_the_style_element() -> Result<()> {
+        use stencila_schema::{Comment, CommentOptions, Heading, Inline, Text};
+
+        let mut overlay = article(vec![Block::Heading(Heading {
+            id: Some("target".to_string()),
+            ..Heading::new(1, vec![Inline::Text(Text::from("Title"))])
+        })]);
+        if let Node::Article(article) = &mut overlay {
+            article.options.comments = Some(vec![Comment {
+                content: vec![para("</style><script>alert('unsafe')</script>")],
+                options: Box::new(CommentOptions {
+                    start_location: Some("#target".to_string()),
+                    end_location: Some("#target".to_string()),
+                    ..Default::default()
+                }),
+                ..Default::default()
+            }]);
+        }
+
+        let left = article(vec![para("One")]);
+        let right = article(vec![para("Two")]);
+        let comparison = compare(&left, &right)?;
+        let (left, right) = snapshots(&left, &right);
+        let page = html_report_with_overlay(&comparison, left, right, false, &overlay)?;
+
+        assert!(!page.contains("<script>"), "{page}");
+        assert!(page.contains(r"\3c /style>\3c script>"), "{page}");
+
+        Ok(())
+    }
+
+    #[test]
+    fn the_overlay_tab_is_disabled_without_an_overlay() {
+        let left = article(vec![para("One")]);
+        let right = article(vec![para("Two")]);
+        let page = html(&left, &right, false);
+
+        assert!(page.contains(r#"id="tab-overlay" disabled"#), "{page}");
+        assert!(page.contains("No overlay was built"), "{page}");
     }
 
     #[test]
@@ -1730,5 +2276,4 @@ differences: 1
             r#"[string "a", string "b"]"#
         );
     }
-
 }

@@ -867,14 +867,56 @@ impl<'projection> Aligner<'projection> {
         let left_candidates = candidates(left, self.left_features)?;
         let right_candidates = candidates(right, self.right_features)?;
 
-        // Arbitrary cross-type matches are not allowed here either. Within a sibling
-        // scope, two differently typed items may still be compatible when the property
-        // is declared identically on both sides and holds a union, so that both
-        // variants really are valid for the same slot. Across parents there is no such
-        // shared declaration to appeal to, so the concrete types must agree.
+        // Arbitrary cross-type matches are not allowed here either, but "same concrete
+        // type" is too strong a reading of what makes two occurrences comparable.
+        // Within a sibling scope, two differently typed items are compatible when the
+        // property is declared identically on both sides and holds a union, so that
+        // both variants really are valid for the same slot. Across parents the two
+        // declarations are necessarily different properties, but the slot they hold
+        // can still be the same union: a `Section` and a `Paragraph` are both valid
+        // wherever blocks are accepted. That is what is appealed to here, so that a
+        // section flattened into bare paragraphs by another tool is still recognisable.
+        //
+        // What remains refused is a pair drawn from different unions — a block against
+        // an inline — and a pair whose cardinality differs, neither of which could
+        // stand in for the other anywhere.
+        let containing_decl = |projection: &'projection Projection,
+                               id: OccurrenceId|
+         -> CompareResult<
+            Option<&'projection stencila_schema::PropertyDecl>,
+        > {
+            let occurrence = projection.occurrence(id)?;
+            let (Some(parent), Some(property)) = (occurrence.parent, occurrence.parent_property)
+            else {
+                return Ok(None);
+            };
+            Ok(projection
+                .occurrence(parent)?
+                .properties
+                .iter()
+                .find(|projected| projected.decl.property == property)
+                .map(|projected| &projected.decl))
+        };
+
         let compatible = |left_index: usize, right_index: usize| -> CompareResult<bool> {
-            Ok(self.left_features.get(left[left_index])?.node_type
-                == self.right_features.get(right[right_index])?.node_type)
+            let (left_id, right_id) = (left[left_index], right[right_index]);
+            if self.left_features.get(left_id)?.node_type
+                == self.right_features.get(right_id)?.node_type
+            {
+                return Ok(true);
+            }
+
+            let (Some(left_decl), Some(right_decl)) = (
+                containing_decl(self.left, left_id)?,
+                containing_decl(self.right, right_id)?,
+            ) else {
+                return Ok(false);
+            };
+
+            Ok(left_decl.kind == stencila_schema::ValueKind::Union
+                && right_decl.kind == stencila_schema::ValueKind::Union
+                && left_decl.slot == right_decl.slot
+                && left_decl.repeated == right_decl.repeated)
         };
         let verified_eq = |left_index: usize, right_index: usize| -> CompareResult<bool> {
             // Fingerprint equality is verified against the projected subtree rather

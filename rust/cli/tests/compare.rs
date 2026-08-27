@@ -5,7 +5,7 @@
 //! and 2 for any failure.
 
 use std::{
-    fs::{read_to_string, write},
+    fs::{read, read_to_string, write},
     path::Path,
     process::{Command, Output},
 };
@@ -26,6 +26,8 @@ where
         .env("NO_COLOR", "1")
         // Avoid an upgrade check writing to stderr during tests
         .env("STENCILA_UPGRADE_INTERVAL", "never")
+        // Keep codec caches inside the disposable workspace
+        .env("XDG_CACHE_HOME", dir.join(".cache"))
         .output()
         .expect("Unable to run the `stencila` binary")
 }
@@ -154,6 +156,51 @@ fn html_is_inferred_from_the_output_extension() -> Result<()> {
     let html = read_to_string(dir.path().join("comparison.html"))?;
     assert!(html.starts_with("<!DOCTYPE html>"), "{html}");
     assert!(html.contains("<td><span class=\"subject\">"), "{html}");
+
+    Ok(())
+}
+
+#[test]
+fn suggestions_respect_one_sided_filters() -> Result<()> {
+    let dir = tempfile::tempdir()?;
+    write(dir.path().join("before.smd"), "One\n")?;
+    write(dir.path().join("after.smd"), "One\n\nTwo\n")?;
+
+    let output = compare(
+        dir.path(),
+        [
+            "before.smd",
+            "after.smd",
+            "merged.smd",
+            "--exclude",
+            "Paragraph",
+        ],
+    );
+    assert_eq!(
+        code(&output)?,
+        0,
+        "{}",
+        String::from_utf8_lossy(&output.stderr)
+    );
+
+    let merged = read_to_string(dir.path().join("merged.smd"))?;
+    assert_eq!(merged.trim(), "One", "{merged}");
+
+    Ok(())
+}
+
+#[test]
+fn docx_suggestions_use_path_encoding() -> Result<()> {
+    let dir = workspace()?;
+
+    let output = compare(dir.path(), ["before.smd", "after.smd", "merged.docx"]);
+    assert_eq!(
+        code(&output)?,
+        1,
+        "{}",
+        String::from_utf8_lossy(&output.stderr)
+    );
+    assert!(!read(dir.path().join("merged.docx"))?.is_empty());
 
     Ok(())
 }

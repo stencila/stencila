@@ -7,7 +7,7 @@ use stencila_node_compare::{Alignment, Difference, MatchRule, align, compare};
 use stencila_node_path::{NodePath, NodeSlot};
 use stencila_node_type::{NodeProperty, NodeType};
 use stencila_schema::{
-    Block, Paragraph, Section,
+    Block, Emphasis, Inline, Paragraph, Section,
     shortcuts::{art, p, sec, t},
 };
 
@@ -322,9 +322,17 @@ fn coverage_holds_after_reconciliation() -> Result<()> {
 /// Within a sibling scope, two differently typed items may still be compatible when
 /// the property is declared identically on both sides and holds a union. Across
 /// parents there is no such shared declaration to appeal to, so an id alone must not
-/// make an arbitrary cross-type match.
+/// A cross-parent pair may cross type within one union
+///
+/// Two occurrences in different parents are never weighed against each other by the
+/// ordered alignment, so what makes them comparable has to be argued from the schema.
+/// The properties holding them are necessarily different, but the *slot* those
+/// properties hold can be the same union — a `Section` and a `Paragraph` are both valid
+/// wherever blocks are accepted — and that is enough. Requiring the concrete types to
+/// agree meant a section flattened into bare paragraphs by another tool went
+/// unrecognised.
 #[test]
-fn a_cross_parent_pair_is_never_cross_type() -> Result<()> {
+fn a_cross_parent_pair_may_cross_type_within_a_union() -> Result<()> {
     let left = art([
         identified_section("first", vec![identified("shared", "A sentence")]),
         identified_section("second", vec![p([t("Something else entirely")])]),
@@ -342,15 +350,59 @@ fn a_cross_parent_pair_is_never_cross_type() -> Result<()> {
 
     let alignment = align(&left, &right)?;
 
-    // The paragraph and the section share an id, but not a type, so neither is paired
-    // with the other
+    // The paragraph and the section share an id, and both sit where blocks are
+    // accepted, so the shared identity is honoured across the two parents
+    let paragraph = path([
+        NodeSlot::Property(NodeProperty::Content),
+        NodeSlot::Index(0),
+        NodeSlot::Property(NodeProperty::Content),
+        NodeSlot::Index(0),
+    ]);
+    let (to, rule) = pairing(&alignment, &paragraph)
+        .ok_or_else(|| eyre::eyre!("Expected the identified paragraph to be paired"))?;
+    assert_eq!(rule, MatchRule::CrossParentReconciliation);
+    assert_eq!(
+        to,
+        path([
+            NodeSlot::Property(NodeProperty::Content),
+            NodeSlot::Index(1),
+            NodeSlot::Property(NodeProperty::Content),
+            NodeSlot::Index(0)
+        ])
+    );
+
+    Ok(())
+}
+
+/// A cross-parent pair never crosses from one union to another
+///
+/// Sharing an identity is not enough on its own. A block and an inline cannot stand in
+/// for one another anywhere in the schema, so pairing them would describe a change that
+/// no edit could have made.
+#[test]
+fn a_cross_parent_pair_never_crosses_unions() -> Result<()> {
+    let left = art([
+        identified_section("first", vec![identified("shared", "A sentence")]),
+        identified_section("second", vec![p([t("Something else entirely")])]),
+    ]);
+    let right = art([
+        identified_section("first", vec![p([t("Something else entirely")])]),
+        identified_section(
+            "second",
+            vec![Block::Paragraph(Paragraph::new(vec![Inline::Emphasis(
+                Emphasis {
+                    id: Some("shared".to_string()),
+                    ..Emphasis::new(vec![t("A sentence")])
+                },
+            )]))],
+        ),
+    ]);
+
+    let alignment = align(&left, &right)?;
+
     for (left, right, ..) in alignment.pairs() {
-        if left.node_type != right.node_type {
-            bail!(
-                "A cross-parent pair joined {left_type} to {right_type}",
-                left_type = left.node_type,
-                right_type = right.node_type
-            )
+        if left.node_type == NodeType::Paragraph && right.node_type == NodeType::Emphasis {
+            bail!("A cross-parent pair joined a block to an inline")
         }
     }
 

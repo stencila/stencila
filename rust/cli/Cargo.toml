@@ -59,6 +59,7 @@ stencila-mcp = { path = "../mcp", features = ["cli"] }
 stencila-models3 = { path = "../models3", features = ["cli"] }
 stencila-node-compare = { path = "../node-compare" }
 stencila-node-compare-report = { path = "../node-compare-report" }
+stencila-node-merge = { path = "../node-merge" }
 stencila-node-diagnostics = { path = "../node-diagnostics" }
 stencila-node-execute = { path = "../node-execute" }
 stencila-node-path = { path = "../node-path" }
