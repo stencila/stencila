@@ -174,7 +174,7 @@ async fn docs_file(dest: &Path, schema: &Schema, context: &Context) -> Result<St
         docs_any_of(title, schema, context)
     } else {
         docs_primitive(title, schema)
-    };
+    }?;
 
     let title = title.to_title_case();
     let title_inlines = Some(vec![t(title.clone())]);
@@ -205,9 +205,9 @@ async fn docs_file(dest: &Path, schema: &Schema, context: &Context) -> Result<St
 }
 
 /// Generate documentation for an object schema with `properties`
-fn docs_object(title: &str, schema: &Schema, context: &Context) -> Vec<Block> {
+fn docs_object(title: &str, schema: &Schema, context: &Context) -> Result<Vec<Block>> {
     let mut content = intro(title, schema);
-    content.append(&mut analogues(schema));
+    content.append(&mut analogues(schema)?);
     content.append(&mut properties(title, schema, context));
     content.append(&mut related(title, schema, context));
     content.append(&mut bindings(title, schema));
@@ -216,13 +216,13 @@ fn docs_object(title: &str, schema: &Schema, context: &Context) -> Vec<Block> {
     }
     content.append(&mut source(title));
 
-    content
+    Ok(content)
 }
 
 /// Generate documentation file for an `anyOf` root schema
-fn docs_any_of(title: &str, schema: &Schema, context: &Context) -> Vec<Block> {
+fn docs_any_of(title: &str, schema: &Schema, context: &Context) -> Result<Vec<Block>> {
     let mut content = intro(title, schema);
-    content.append(&mut analogues(schema));
+    content.append(&mut analogues(schema)?);
     content.append(&mut members(title, schema, context));
     content.append(&mut bindings(title, schema));
     if schema.proptest.is_some() {
@@ -230,17 +230,17 @@ fn docs_any_of(title: &str, schema: &Schema, context: &Context) -> Vec<Block> {
     }
     content.append(&mut source(title));
 
-    content
+    Ok(content)
 }
 
 /// Generate documentation for a primitive schema
-fn docs_primitive(title: &str, schema: &Schema) -> Vec<Block> {
+fn docs_primitive(title: &str, schema: &Schema) -> Result<Vec<Block>> {
     let mut content = intro(title, schema);
-    content.append(&mut analogues(schema));
+    content.append(&mut analogues(schema)?);
     content.append(&mut bindings(title, schema));
     content.append(&mut source(title));
 
-    content
+    Ok(content)
 }
 
 /// Generate introductory headers and paragraphs for a schema
@@ -263,25 +263,23 @@ fn intro(_title: &str, schema: &Schema) -> Vec<Block> {
 }
 
 /// Generate an "Analogues" section for a schema
-fn analogues(schema: &Schema) -> Vec<Block> {
+fn analogues(schema: &Schema) -> Result<Vec<Block>> {
     if schema.analogues.is_empty() {
-        return Vec::new();
+        return Ok(Vec::new());
     }
 
-    let mut items = Vec::new();
+    let items = schema
+        .analogues
+        .iter()
+        .map(|analogue| {
+            analogue_list_item(analogue).context(format!(
+                "unable to generate analogue documentation for `{}`",
+                schema.title.as_deref().unwrap_or("untitled schema")
+            ))
+        })
+        .collect::<Result<Vec<_>>>()?;
 
-    for analogue in &schema.analogues {
-        let Ok(item) = analogue_list_item(analogue) else {
-            continue;
-        };
-        items.push(item);
-    }
-
-    if items.is_empty() {
-        return Vec::new();
-    }
-
-    vec![
+    Ok(vec![
         h1([t("Analogues")]),
         p([
             t("The following external types, elements, or nodes are similar to a "),
@@ -289,7 +287,7 @@ fn analogues(schema: &Schema) -> Vec<Block> {
             t(":"),
         ]),
         ul(items),
-    ]
+    ])
 }
 
 fn analogue_list_item(analogue: &Analogue) -> Result<ListItem> {
@@ -348,6 +346,11 @@ fn analogue_list_item(analogue: &Analogue) -> Result<ListItem> {
                     "https://jats.nlm.nih.gov/archiving/tag-library/1.2/element/{}.html",
                     rest.join(":")
                 ),
+            ),
+            "mira" => (
+                Some(String::from("MIRA ")),
+                vec![ci(rest.join(":"))],
+                format!("https://mira.science/schema/{}/", rest.join(":")),
             ),
             "mdast" => {
                 if rest.len() != 1 {
@@ -434,6 +437,7 @@ fn pandoc_url(name: &str) -> Result<String> {
     const PANDOC_VARIANTS: &[&str] = &[
         "BlockQuote",
         "BulletList",
+        "Cite",
         "Code",
         "CodeBlock",
         "DefinitionList",
@@ -1023,4 +1027,33 @@ async fn generate_index(
     write(&index_path, existing).await?;
 
     Ok(())
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn unknown_analogue_registry_is_an_error() -> Result<()> {
+        let schema = Schema {
+            title: Some(String::from("Example")),
+            analogues: vec![Analogue {
+                id: Some(String::from("unknown:Example")),
+                ..Default::default()
+            }],
+            ..Default::default()
+        };
+
+        let error = analogues(&schema)
+            .err()
+            .ok_or_else(|| eyre!("unknown analogue registry should fail generation"))?;
+        let message = format!("{error:#}");
+        eyre::ensure!(
+            message.contains("unable to generate analogue documentation for `Example`")
+                && message.contains("unknown analogue registry `unknown`"),
+            "unexpected analogue generation error: {message}"
+        );
+
+        Ok(())
+    }
 }

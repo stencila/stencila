@@ -22,6 +22,7 @@ plain `claim` block) and a more specific type such as `Statement` or
 The following external types, elements, or nodes are similar to a `Claim`:
 
 - schema.org [`Claim`](https://schema.org/Claim): Direct schema.org source type, adapted in Stencila to carry block content and document labeling.
+- MIRA [`Claim`](https://mira.science/schema/Claim/): MIRA atomic assertion that answers a research question.
 - JATS [`<statement>`](https://jats.nlm.nih.gov/archiving/tag-library/1.2/element/statement.html): Closest JATS analogue for labeled or typed statement-like content.
 - MyST directive [`admonition`](https://mystmd.org/guide/directives#directive-admonition): Only an approximate authoring analogue; claims may be represented in markup as typed callout blocks, but Stencila gives them dedicated claim semantics.
 

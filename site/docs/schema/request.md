@@ -9,6 +9,12 @@ It is used for authored requests that can be related to questions, claims,
 protocols, evidence, or other research objects in a graph.
 
 
+# Analogues
+
+The following external types, elements, or nodes are similar to a `Request`:
+
+- MIRA [`Request`](https://mira.science/schema/Request/): MIRA request node.
+
 # Properties
 
 The `Request` type has these properties:

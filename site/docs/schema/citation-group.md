@@ -18,6 +18,7 @@ Key properties include `items` and the generated `content` rendering.
 
 The following external types, elements, or nodes are similar to a `CitationGroup`:
 
+- Pandoc [`Cite`](https://hackage-content.haskell.org/package/pandoc-types-1.23.1.1/docs/Text-Pandoc-Definition.html#v:Cite): Close Pandoc analogue because grouped citations are represented as a single cite node containing multiple citation items.
 - MyST role [`cite`](https://mystmd.org/guide/roles#role-cite): Close MyST authoring analogue for grouped citations, though Stencila stores individual citation items explicitly.
 - [CSL citation cluster](https://docs.citationstyles.org/en/stable/specification.html): Conceptually analogous to a rendered citation cluster in Citation Style Language processors.
 

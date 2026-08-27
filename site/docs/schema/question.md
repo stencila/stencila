@@ -17,6 +17,7 @@ normal document markup inside the question.
 The following external types, elements, or nodes are similar to a `Question`:
 
 - schema.org [`Question`](https://schema.org/Question): Direct schema.org source type, adapted in Stencila to carry block content.
+- MIRA [`Question`](https://mira.science/schema/Question/): MIRA modular research question node.
 
 # Properties
 

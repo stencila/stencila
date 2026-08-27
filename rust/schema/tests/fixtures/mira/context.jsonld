@@ -1,0 +1,86 @@
+{
+  "@context": {
+    "rdf": "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
+    "rdfs": "http://www.w3.org/2000/01/rdf-schema#",
+    "owl": "http://www.w3.org/2002/07/owl#",
+    "dct": "http://purl.org/dc/terms/",
+    "prov": "http://www.w3.org/ns/prov#",
+    "foaf": "http://xmlns.com/foaf/0.1/",
+    "sioc": "http://rdfs.org/sioc/ns#",
+    "dgc": "https://discoursegraphs.com/schema/dg_core#",
+    "dgb": "https://discoursegraphs.com/schema/dg_base#",
+    "mira": "http://purl.org/mira-science/mira#",
+    "predicate": { "@id": "rdf:predicate", "@type": "@id" },
+    "subClassOf": { "@id": "rdfs:subClassOf", "@type": "@id" },
+    "domain": { "@id": "rdfs:domain", "@type": "@id" },
+    "range": { "@id": "rdfs:range", "@type": "@id" },
+    "label": "rdfs:label",
+    "inverseOf": { "@type": "@id", "@id": "owl:inverseOf"},
+    "onProperty": "owl:onProperty",
+    "sameAs": { "@id": "owl:sameAs", "@type": "@id" },
+    "hasValue": "owl:hasValue",
+    "title": "dct:title",
+    "format": "dct:format",
+    "description": { "@id": "dct:description", "@type": "@id" },
+    "modified": {
+      "@id": "dct:modified",
+      "@type": "http://www.w3.org/2001/XMLSchema#dateTime"
+    },
+    "created": {
+      "@id": "dct:created",
+      "@type": "http://www.w3.org/2001/XMLSchema#dateTime"
+    },
+    "creator": { "@id": "dct:creator", "@type": "@id" },
+    "accountName": "foaf:accountName",
+    "name": "foaf:name",
+    "account": "foaf:account",
+    "Container": "sioc:Container",
+    "UserAccount": "sioc:UserAccount",
+    "content": "sioc:content",
+    "container_of": { "@type": "@id", "@id": "sioc:container_of" },
+    "has_container": { "@id": "sioc:has_container", "@type": "@id" },
+    "RelationDef": "dgb:RelationDef",
+    "Agent": "dgb:Agent",
+    "AbstractRelationDef": "dgb:AbstractRelationDef",
+    "RelationInstance": "dgb:RelationInstance",
+    "RelationSchema": "dgb:RelationSchema",
+    "NodeSchema": "dgb:NodeSchema",
+    "source": { "@id": "dgb:source", "@type": "@id" },
+    "destination": { "@id": "dgb:destination", "@type": "@id" },
+    "textRefersToNode": "dgb:textRefersToNode",
+
+    "SourceDocument": "mira:SourceDocument",
+    "Argument": "mira:Argument",
+    "observationStatement": {
+      "@id": "mira:observationStatement",
+      "@type": "@id"
+    },
+    "observationOriginActivity": {
+      "@id": "mira:observationOriginActivity",
+      "@type": "@id"
+    },
+    "observationBase": { "@id": "mira:observationBase", "@type": "@id" },
+    "sourceDocument": { "@id": "mira:sourceDocument", "@type": "@id" },
+    "describesActivity": { "@id": "mira:describesActivity", "@type": "@id" },
+    "opposes": { "@id": "mira:opposes", "@type": "@id" },
+    "opposedBy": { "@id": "mira:opposedBy", "@type": "@id" },
+    "supports": { "@id": "mira:supports", "@type": "@id" },
+    "supportedBy": { "@id": "mira:supportedBy", "@type": "@id" },
+    "addresses": { "@id": "mira:addresses", "@type": "@id" },
+    "addressedBy": { "@id": "mira:addressedBy", "@type": "@id" },
+
+    "Question": "mira:Question",
+    "Claim": "mira:Claim",
+    "Evidence": "mira:Evidence",
+    "Request": "mira:Request",
+    "Protocol": "mira:Protocol",
+    "Study": "mira:Study",
+
+    "Item": "sioc:Item",
+    "follows": { "@id": "mira:follows", "@type": "@id" },
+    "grounds": { "@id": "mira:grounds", "@type": "@id" },
+    "is_grounded_in": { "@id": "mira:is_grounded_in", "@type": "@id" },
+    "request_for": { "@id": "mira:request_for", "@type": "@id" },
+    "request_target": { "@id": "mira:request_target", "@type": "@id" }
+  }
+}

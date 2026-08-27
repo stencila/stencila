@@ -11,6 +11,12 @@ for evidence statements, observations, excerpts, or summaries that participate
 as nodes in a research discourse graph.
 
 
+# Analogues
+
+The following external types, elements, or nodes are similar to a `Evidence`:
+
+- MIRA [`Evidence`](https://mira.science/schema/Evidence/): MIRA evidence node.
+
 # Properties
 
 The `Evidence` type has these properties:

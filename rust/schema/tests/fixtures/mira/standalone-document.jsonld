@@ -1,0 +1,125 @@
+{
+  "@context": [
+    "https://purl.org/mira-science/mira.jsonld",
+    {
+      "@base": "file:///workspace/report.smd"
+    }
+  ],
+  "@id": "file:///workspace/report.smd",
+  "@graph": [
+    {
+      "@id": "file:///workspace/report.smd",
+      "@type": "Container"
+    },
+    {
+      "@id": "#claim-authored",
+      "@type": "mira:Claim",
+      "title": "A supported claim",
+      "description": {
+        "@type": "Item",
+        "format": "application/vnd.oxa+json",
+        "content": "{\"type\":\"Document\",\"children\":[{\"type\":\"Paragraph\",\"children\":[{\"type\":\"Text\",\"value\":\"A claim with rich Stencila block content.\"}]}]}"
+      },
+      "has_container": "file:///workspace/report.smd"
+    },
+    {
+      "@id": "#evd_content-2",
+      "@type": "mira:Evidence",
+      "title": "An observation",
+      "description": {
+        "@type": "Item",
+        "format": "text/html",
+        "content": "<p>An observation encoded as rich HTML.</p>"
+      },
+      "has_container": "file:///workspace/report.smd"
+    },
+    {
+      "@id": "#question-authored",
+      "@type": "mira:Question",
+      "title": "What explains the observation?",
+      "has_container": "file:///workspace/report.smd"
+    },
+    {
+      "@id": "#protocol-authored",
+      "@type": "mira:Protocol",
+      "title": "A reproducible protocol",
+      "has_container": "file:///workspace/report.smd"
+    },
+    {
+      "@id": "#request-authored",
+      "@type": "mira:Request",
+      "title": "Repeat the study",
+      "has_container": "file:///workspace/report.smd"
+    },
+    {
+      "@id": "https://example.org/studies/study-1",
+      "@type": "mira:Study"
+    },
+    {
+      "@id": "#relation-supports",
+      "@type": "mira:supports",
+      "source": "#evd_content-2",
+      "destination": "#claim-authored"
+    },
+    {
+      "@id": "#relation-supported-by",
+      "@type": "mira:supportedBy",
+      "source": "#claim-authored",
+      "destination": "#evd_content-2"
+    },
+    {
+      "@id": "#relation-opposes",
+      "@type": "mira:opposes",
+      "source": "#evd_content-2",
+      "destination": "#claim-authored"
+    },
+    {
+      "@id": "#relation-opposed-by",
+      "@type": "mira:opposedBy",
+      "source": "#claim-authored",
+      "destination": "#evd_content-2"
+    },
+    {
+      "@id": "#relation-addresses",
+      "@type": "mira:addresses",
+      "source": "#claim-authored",
+      "destination": "#question-authored"
+    },
+    {
+      "@id": "#relation-addressed-by",
+      "@type": "mira:addressedBy",
+      "source": "#question-authored",
+      "destination": "#claim-authored"
+    },
+    {
+      "@id": "#relation-follows",
+      "@type": "mira:follows",
+      "source": "https://example.org/studies/study-1",
+      "destination": "#protocol-authored"
+    },
+    {
+      "@id": "#relation-grounds",
+      "@type": "mira:grounds",
+      "source": "https://example.org/studies/study-1",
+      "destination": "#evd_content-2"
+    },
+    {
+      "@id": "#relation-is-grounded-in",
+      "@type": "mira:is_grounded_in",
+      "source": "#evd_content-2",
+      "destination": "https://example.org/studies/study-1"
+    },
+    {
+      "@id": "#relation-request-for",
+      "@type": "mira:request_for",
+      "source": "#request-authored",
+      "destination": "https://example.org/studies/study-1"
+    },
+    {
+      "@id": "#relation-request-target",
+      "@type": "mira:request_target",
+      "source": "#request-authored",
+      "destination": "#claim-authored"
+    }
+  ]
+}

@@ -64,6 +64,7 @@ glob = { workspace = true }
 insta = { workspace = true }
 pretty_assertions = { workspace = true }
 proptest = { workspace = true }
+sha2 = { workspace = true }
 stencila-codec = { path = "../codec" }
 stencila-codec-markdown = { path = "../codec-markdown" }
 tokio = { workspace = true }

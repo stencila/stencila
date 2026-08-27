@@ -10,6 +10,12 @@ identified, cited, related to claims or evidence, and exported to
 graph-oriented interchange formats.
 
 
+# Analogues
+
+The following external types, elements, or nodes are similar to a `Protocol`:
+
+- MIRA [`Protocol`](https://mira.science/schema/Protocol/): MIRA protocol node.
+
 # Properties
 
 The `Protocol` type has these properties:

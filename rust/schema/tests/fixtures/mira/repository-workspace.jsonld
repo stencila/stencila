@@ -1,0 +1,39 @@
+{
+  "@context": "https://purl.org/mira-science/mira.jsonld",
+  "@id": "https://github.com/stencila/stencila/tree/main/examples",
+  "@graph": [
+    {
+      "@id": "https://github.com/stencila/stencila",
+      "@type": "Container"
+    },
+    {
+      "@id": "https://github.com/stencila/stencila/tree/main/examples",
+      "@type": "Item",
+      "format": "inode/directory",
+      "has_container": "https://github.com/stencila/stencila"
+    },
+    {
+      "@id": "https://github.com/stencila/stencila/blob/main/examples/report.smd",
+      "@type": "Item",
+      "format": "text/smd",
+      "has_container": "https://github.com/stencila/stencila"
+    },
+    {
+      "@id": "https://github.com/stencila/stencila/blob/main/examples/report.smd#claim-authored",
+      "@type": "mira:Claim",
+      "title": "A repository-qualified claim",
+      "has_container": "https://github.com/stencila/stencila"
+    },
+    {
+      "@id": "https://example.org/evidence/external-1",
+      "@type": "mira:Evidence",
+      "title": "External evidence"
+    },
+    {
+      "@id": "https://github.com/stencila/stencila/blob/main/examples/report.smd#relation-supported-by-external",
+      "@type": "mira:supportedBy",
+      "source": "https://github.com/stencila/stencila/blob/main/examples/report.smd#claim-authored",
+      "destination": "https://example.org/evidence/external-1"
+    }
+  ]
+}

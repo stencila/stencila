@@ -5,3 +5,5 @@ designs
 logs
 plans
 reviews
+
+# `research` is deliberately not ignored: reviewed contracts are project inputs.

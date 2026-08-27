@@ -1,0 +1,95 @@
+{
+  "source": {
+    "context": "https://purl.org/mira-science/mira.jsonld",
+    "contextSha256": "132e5a72aa14c017193ca93d16d905fb0827ab1c0e72ecaddb5369c9a200f2a5",
+    "namespace": "http://purl.org/mira-science/mira#",
+    "repository": "https://github.com/MIRA-science/schema",
+    "revision": "483f0b21480c0f4ced9c1519fc0f6df2b8617cfe",
+    "retrieved": "2026-08-27",
+    "version": "0.1 (tentative)",
+    "status": "draft"
+  },
+  "classes": {
+    "Claim": "mira:Claim",
+    "Evidence": "mira:Evidence",
+    "Protocol": "mira:Protocol",
+    "Question": "mira:Question",
+    "Request": "mira:Request"
+  },
+  "properties": {
+    "content": "http://rdfs.org/sioc/ns#content",
+    "description": "http://purl.org/dc/terms/description",
+    "format": "http://purl.org/dc/terms/format",
+    "has_container": "http://rdfs.org/sioc/ns#has_container",
+    "title": "http://purl.org/dc/terms/title"
+  },
+  "relationRepresentation": "standalone-objects",
+  "relations": [
+    {
+      "stencila": "Supports",
+      "term": "supports",
+      "curie": "mira:supports",
+      "iri": "http://purl.org/mira-science/mira#supports"
+    },
+    {
+      "stencila": "SupportedBy",
+      "term": "supportedBy",
+      "curie": "mira:supportedBy",
+      "iri": "http://purl.org/mira-science/mira#supportedBy"
+    },
+    {
+      "stencila": "Opposes",
+      "term": "opposes",
+      "curie": "mira:opposes",
+      "iri": "http://purl.org/mira-science/mira#opposes"
+    },
+    {
+      "stencila": "OpposedBy",
+      "term": "opposedBy",
+      "curie": "mira:opposedBy",
+      "iri": "http://purl.org/mira-science/mira#opposedBy"
+    },
+    {
+      "stencila": "Addresses",
+      "term": "addresses",
+      "curie": "mira:addresses",
+      "iri": "http://purl.org/mira-science/mira#addresses"
+    },
+    {
+      "stencila": "AddressedBy",
+      "term": "addressedBy",
+      "curie": "mira:addressedBy",
+      "iri": "http://purl.org/mira-science/mira#addressedBy"
+    },
+    {
+      "stencila": "Follows",
+      "term": "follows",
+      "curie": "mira:follows",
+      "iri": "http://purl.org/mira-science/mira#follows"
+    },
+    {
+      "stencila": "Grounds",
+      "term": "grounds",
+      "curie": "mira:grounds",
+      "iri": "http://purl.org/mira-science/mira#grounds"
+    },
+    {
+      "stencila": "IsGroundedIn",
+      "term": "is_grounded_in",
+      "curie": "mira:is_grounded_in",
+      "iri": "http://purl.org/mira-science/mira#is_grounded_in"
+    },
+    {
+      "stencila": "RequestFor",
+      "term": "request_for",
+      "curie": "mira:request_for",
+      "iri": "http://purl.org/mira-science/mira#request_for"
+    },
+    {
+      "stencila": "RequestTarget",
+      "term": "request_target",
+      "curie": "mira:request_target",
+      "iri": "http://purl.org/mira-science/mira#request_target"
+    }
+  ]
+}
