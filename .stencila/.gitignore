@@ -4,6 +4,5 @@ db.sqlite3*
 designs
 logs
 plans
+research
 reviews
-
-# `research` is deliberately not ignored: reviewed contracts are project inputs.
