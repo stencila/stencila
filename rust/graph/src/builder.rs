@@ -12,7 +12,7 @@ use stencila_schema::{
     StripNode, StripScope, StripTargets,
 };
 
-use crate::code::StaticAnalysisDiagnostic;
+use crate::{analysis::GraphDiagnostic, code::StaticAnalysisDiagnostic};
 
 const CODE_PREVIEW_MAX_LINES: usize = 8;
 const CODE_PREVIEW_MAX_CHARS: usize = 600;
@@ -60,6 +60,9 @@ pub struct GraphBuilder {
     /// [`Self::take_diagnostics`] before or after [`Self::build`] consumes the
     /// builder.
     diagnostics: Vec<StaticAnalysisDiagnostic>,
+
+    /// Diagnostics emitted while resolving authored graph relationships.
+    graph_diagnostics: Vec<GraphDiagnostic>,
 }
 
 /// Sortable identity for a graph edge.
@@ -111,6 +114,7 @@ impl GraphBuilder {
             edges: BTreeMap::new(),
             errors: BTreeSet::new(),
             diagnostics: Vec::new(),
+            graph_diagnostics: Vec::new(),
         }
     }
 
@@ -131,6 +135,25 @@ impl GraphBuilder {
                 .cmp(right.scope())
                 .then(left.offset.cmp(&right.offset))
                 .then(left.expression.cmp(&right.expression))
+        });
+        diagnostics.dedup();
+        diagnostics
+    }
+
+    /// Record a graph collection diagnostic.
+    pub fn add_graph_diagnostic(&mut self, diagnostic: GraphDiagnostic) {
+        self.graph_diagnostics.push(diagnostic);
+    }
+
+    /// Take graph collection diagnostics in deterministic order.
+    pub fn take_graph_diagnostics(&mut self) -> Vec<GraphDiagnostic> {
+        let mut diagnostics = std::mem::take(&mut self.graph_diagnostics);
+        diagnostics.sort_by(|left, right| {
+            left.source
+                .cmp(&right.source)
+                .then(left.target.cmp(&right.target))
+                .then(left.kind.cmp(&right.kind))
+                .then(left.message.cmp(&right.message))
         });
         diagnostics.dedup();
         diagnostics
@@ -456,6 +479,7 @@ impl GraphBuilder {
             edges,
             mut errors,
             diagnostics: _,
+            graph_diagnostics: _,
         } = self;
 
         for edge in edges.keys() {

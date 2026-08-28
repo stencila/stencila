@@ -1,0 +1,90 @@
+type: Article
+content:
+- type: Claim
+  id: claim-1
+  label: Claim 1
+  content:
+  - type: Paragraph
+    content:
+    - type: Text
+      value:
+        string: The intervention improves recovery.
+  relations:
+  - type: ResearchObjectRelation
+    kind: SupportedBy
+    target: '#evidence-1'
+  claimType: Statement
+  title:
+  - type: Text
+    value:
+      string: Main claim
+- type: Evidence
+  id: evidence-1
+  label: Evidence 1
+  content:
+  - type: Paragraph
+    content:
+    - type: Text
+      value:
+        string: Participants recovered two days sooner.
+  relations:
+  - type: ResearchObjectRelation
+    kind: Supports
+    target: '#claim-1'
+  title:
+  - type: Text
+    value:
+      string: Trial result
+  source: randomized trial
+- type: Question
+  id: question-1
+  label: Question 1
+  content:
+  - type: Paragraph
+    content:
+    - type: Text
+      value:
+        string: Does the intervention shorten recovery?
+  relations:
+  - type: ResearchObjectRelation
+    kind: AddressedBy
+    target: '#claim-1'
+  title:
+  - type: Text
+    value:
+      string: Research question
+- type: Protocol
+  id: protocol-1
+  label: Protocol 1
+  content:
+  - type: Paragraph
+    content:
+    - type: Text
+      value:
+        string: Randomize participants and measure recovery daily.
+  relations:
+  - type: ResearchObjectRelation
+    kind: Follows
+    target: https://example.org/protocols/baseline
+  title:
+  - type: Text
+    value:
+      string: Trial protocol
+- type: Request
+  id: request-1
+  label: Request 1
+  content:
+  - type: Paragraph
+    content:
+    - type: Text
+      value:
+        string: Replicate the trial in a larger cohort.
+  relations:
+  - type: ResearchObjectRelation
+    kind: RequestTarget
+    target: '#claim-1'
+  title:
+  - type: Text
+    value:
+      string: Replication request
+  priority: 2

@@ -39,11 +39,12 @@ const GRAPH_EDGE_KEY_ENCODE_SET: &AsciiSet = &CONTROLS
     .add(b'|')
     .add(b'}');
 
-const AUTO_PRESETS: [GraphProjectionPreset; 4] = [
+const AUTO_PRESETS: [GraphProjectionPreset; 5] = [
     GraphProjectionPreset::React,
     GraphProjectionPreset::Cite,
     GraphProjectionPreset::Deps,
     GraphProjectionPreset::Flow,
+    GraphProjectionPreset::Discourse,
 ];
 
 /// User-facing graph projection preset.
@@ -95,6 +96,9 @@ pub enum GraphProjectionPreset {
     /// update or rerun when executable document state changes. It is distinct
     /// from `flow`, which also tracks broader provenance and produced resources.
     React,
+
+    /// Show authored research-object discourse relationships.
+    Discourse,
 }
 
 /// Amount of detail to include in focused graph projections.
@@ -132,6 +136,7 @@ impl GraphProjectionPreset {
             Self::Deps => "deps",
             Self::Cite => "cite",
             Self::React => "react",
+            Self::Discourse => "discourse",
         }
     }
 }
@@ -1187,7 +1192,10 @@ fn include_edge_for_detail(
 ) -> bool {
     if matches!(
         preset,
-        GraphProjectionPreset::All | GraphProjectionPreset::React | GraphProjectionPreset::Cite
+        GraphProjectionPreset::All
+            | GraphProjectionPreset::React
+            | GraphProjectionPreset::Cite
+            | GraphProjectionPreset::Discourse
     ) || detail == GraphProjectionDetail::High
     {
         return true;
@@ -1220,7 +1228,8 @@ fn include_edge_for_detail(
         GraphProjectionPreset::Auto
         | GraphProjectionPreset::All
         | GraphProjectionPreset::Cite
-        | GraphProjectionPreset::React => true,
+        | GraphProjectionPreset::React
+        | GraphProjectionPreset::Discourse => true,
     }
 }
 
@@ -1391,7 +1400,7 @@ fn edge_score(
         | GraphEdgeKind::IsGroundedIn
         | GraphEdgeKind::RequestFor
         | GraphEdgeKind::RequestTarget => {
-            if preset == GraphProjectionPreset::Flow {
+            if preset == GraphProjectionPreset::Discourse {
                 4
             } else {
                 0

@@ -13,10 +13,10 @@ use stencila_dirs::closest_workspace_dir;
 use stencila_document::Document;
 use stencila_format::Format;
 use stencila_graph::{
-    Graph, GraphConnectedMode, GraphContainmentMode, GraphProjectionDetail, GraphProjectionOptions,
-    GraphProjectionPreset, RuntimeEvidenceMode, StaticAnalysisDiagnostic, WorkspaceOptions,
-    dot::to_dot, filter_graph_view_connected_to, graph_from_node_with_runtime_evidence,
-    graph_from_path_with_diagnostics, project_graph,
+    Graph, GraphConnectedMode, GraphContainmentMode, GraphDiagnostic, GraphProjectionDetail,
+    GraphProjectionOptions, GraphProjectionPreset, RuntimeEvidenceMode, StaticAnalysisDiagnostic,
+    WorkspaceOptions, dot::to_dot, filter_graph_view_connected_to,
+    graph_from_node_with_runtime_evidence, graph_from_path_with_diagnostics, project_graph,
 };
 use stencila_server::{DEFAULT_PORT, ServeOptions, ServerStarted, get_server_token};
 
@@ -120,6 +120,9 @@ enum GraphOutputFormat {
     /// Stencila Schema Graph as YAML.
     Yaml,
 
+    /// Research discourse graph as MIRA JSON-LD.
+    Mira,
+
     /// Projected graph as Graphviz DOT.
     Dot,
 
@@ -150,6 +153,9 @@ pub static CLI_AFTER_LONG_HELP: &str = cstr!(
   <dim># Export graph YAML to stdout</dim>
   <b>stencila graph</> <g>.</> <g>-</> <c>--to</> <g>yaml</>
 
+  <dim># Export research discourse as MIRA JSON-LD</dim>
+  <b>stencila graph</> <g>report.smd</> <g>report.mira.jsonld</>
+
   <dim># Export a projected data flow graph as Graphviz DOT</dim>
   <b>stencila graph</> <g>.</> <g>graph.dot</> <c>--view</> <g>flow</>
 
@@ -178,6 +184,7 @@ impl Cli {
         let GraphSource {
             graph,
             diagnostics,
+            graph_diagnostics,
             path,
         } = build_graph(
             &self.path,
@@ -201,25 +208,34 @@ impl Cli {
                 .await?;
             }
 
-            if diagnostics.is_empty() {
-                message!("No unresolved I/O found by static analysis.");
+            if diagnostics.is_empty() && graph_diagnostics.is_empty() {
+                message!("No unresolved I/O or graph authoring issues found.");
             } else {
-                let count = diagnostics.len();
+                let diagnostic_count = diagnostics.len();
                 for diagnostic in diagnostics {
                     diagnostic.to_stderr()?;
                 }
+                report_graph_diagnostics(&graph_diagnostics);
                 message!(
-                    "{} unresolved I/O {}.",
-                    count,
-                    if count == 1 {
+                    "{} unresolved I/O {}; {} graph authoring {}.",
+                    diagnostic_count,
+                    if diagnostic_count == 1 {
                         "operation"
                     } else {
                         "operations"
-                    }
+                    },
+                    graph_diagnostics.len(),
+                    if graph_diagnostics.len() == 1 {
+                        "issue"
+                    } else {
+                        "issues"
+                    },
                 );
             }
             return Ok(());
         }
+
+        report_graph_diagnostics(&graph_diagnostics);
 
         match &self.output {
             Some(output) => {
@@ -299,6 +315,27 @@ async fn export_graph(
                 } else {
                     tokio::io::stdout().write_all(content.as_bytes()).await?;
                 }
+            } else {
+                tokio::fs::write(output, content).await?;
+            }
+        }
+        GraphOutputFormat::Mira => {
+            if !connected_to.is_empty() {
+                bail!("`--connected-to` is not supported for MIRA JSON-LD exports");
+            }
+            let mut content = stencila_codecs::to_string(
+                &stencila_schema::Node::Graph(graph.clone()),
+                Some(stencila_codecs::EncodeOptions {
+                    format: Some(Format::MiraJsonLd),
+                    ..Default::default()
+                }),
+            )
+            .await?;
+            if !content.ends_with('\n') {
+                content.push('\n');
+            }
+            if is_stdout_output(output) {
+                tokio::io::stdout().write_all(content.as_bytes()).await?;
             } else {
                 tokio::fs::write(output, content).await?;
             }
@@ -450,7 +487,14 @@ async fn serve_graph(
 struct GraphSource {
     graph: Graph,
     diagnostics: Vec<StaticAnalysisDiagnostic>,
+    graph_diagnostics: Vec<GraphDiagnostic>,
     path: PathBuf,
+}
+
+fn report_graph_diagnostics(diagnostics: &[GraphDiagnostic]) {
+    for diagnostic in diagnostics {
+        message!("⚠️  {}", diagnostic);
+    }
 }
 
 async fn build_graph(
@@ -479,6 +523,7 @@ async fn build_graph(
         return Ok(GraphSource {
             graph: analysis.graph,
             diagnostics: analysis.diagnostics,
+            graph_diagnostics: analysis.graph_diagnostics,
             path,
         });
     }
@@ -513,6 +558,7 @@ async fn build_graph(
         return Ok(GraphSource {
             graph: analysis.graph,
             diagnostics: analysis.diagnostics,
+            graph_diagnostics: analysis.graph_diagnostics,
             path,
         });
     }
@@ -529,6 +575,10 @@ fn output_format(output: &Path, requested: Option<GraphOutputFormat>) -> Result<
         return Ok(GraphOutputFormat::Json);
     }
 
+    if Format::from_path(output) == Format::MiraJsonLd {
+        return Ok(GraphOutputFormat::Mira);
+    }
+
     match output.extension().and_then(|extension| extension.to_str()) {
         Some("json") => Ok(GraphOutputFormat::Json),
         Some("yaml" | "yml") => Ok(GraphOutputFormat::Yaml),
@@ -536,7 +586,7 @@ fn output_format(output: &Path, requested: Option<GraphOutputFormat>) -> Result<
         Some("svg") => Ok(GraphOutputFormat::Svg),
         Some("png") => Ok(GraphOutputFormat::Png),
         _ => bail!(
-            "Unable to infer graph export format from `{}`; use `--to json`, `--to yaml`, `--to dot`, `--to svg`, or `--to png`",
+            "Unable to infer graph export format from `{}`; use `--to json`, `--to yaml`, `--to mira`, `--to dot`, `--to svg`, or `--to png`",
             output.display()
         ),
     }
@@ -552,6 +602,7 @@ fn serialize_graph(
     let content = match format {
         GraphOutputFormat::Json => serde_json::to_string_pretty(graph)?,
         GraphOutputFormat::Yaml => serde_yaml::to_string(graph)?,
+        GraphOutputFormat::Mira => bail!("MIRA JSON-LD graphs are serialized asynchronously"),
         GraphOutputFormat::Dot => {
             let view = project_graph(graph, projection_options);
             let view = filter_graph_view_connected_to(&view, connected_to, connected_mode)?;
@@ -610,6 +661,10 @@ mod tests {
         assert_eq!(
             output_format(Path::new("graph.yml"), None)?,
             GraphOutputFormat::Yaml
+        );
+        assert_eq!(
+            output_format(Path::new("graph.mira.jsonld"), None)?,
+            GraphOutputFormat::Mira
         );
         assert_eq!(
             output_format(Path::new("graph.dot"), None)?,

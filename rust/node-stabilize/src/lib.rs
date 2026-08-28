@@ -4,7 +4,7 @@
 //! path-based UIDs. This ensures that the same source document produces identical
 //! HTML and nodemap.json output on re-render, enabling effective ETag-based caching.
 
-use std::collections::HashMap;
+use std::collections::{HashMap, HashSet};
 
 use stencila_codec_text::to_text;
 use stencila_node_id::NodeUid;
@@ -46,6 +46,8 @@ pub struct Stabilizer {
     path: NodePath,
     /// Tracks heading slugs for duplicate detection
     heading_slugs: HashMap<String, usize>,
+    /// Tracks authored research object ids so duplicates retain unique path ids
+    research_ids: HashSet<String>,
 }
 
 impl Stabilizer {
@@ -69,6 +71,17 @@ impl Stabilizer {
             .collect::<Vec<_>>()
             .join("-");
         NodeUid::from(encoded.into_bytes())
+    }
+
+    /// Use an authored research object id only for its first occurrence.
+    ///
+    /// Later occurrences fall back to their structural path so duplicate authored
+    /// ids can be diagnosed without first colliding as internal node ids.
+    fn uid_from_research_id(&mut self, id: Option<&str>) -> Option<NodeUid> {
+        let id = id?;
+        self.research_ids
+            .insert(id.to_string())
+            .then(|| NodeUid::from(id.as_bytes().to_vec()))
     }
 
     /// Generate a unique slug for a heading based on its content
@@ -130,6 +143,14 @@ impl VisitorMut for Stabilizer {
     }
 
     fn visit_node(&mut self, node: &mut Node) -> WalkControl {
+        let research_id = node.as_research_object().and_then(|research| research.id());
+        if let Some(uid) = self.uid_from_research_id(research_id)
+            && let Some(mut research) = node.as_research_object_mut()
+        {
+            research.set_uid(uid);
+            return WalkControl::Continue;
+        }
+
         let uid = self.uid_from_path();
 
         macro_rules! variants {
@@ -309,6 +330,16 @@ impl VisitorMut for Stabilizer {
         // Handle headings specially with content-based slugs
         if let Block::Heading(heading) = block {
             heading.uid = self.heading_slug(heading);
+            return WalkControl::Continue;
+        }
+
+        let research_id = block
+            .as_research_object()
+            .and_then(|research| research.id());
+        if let Some(uid) = self.uid_from_research_id(research_id)
+            && let Some(mut research) = block.as_research_object_mut()
+        {
+            research.set_uid(uid);
             return WalkControl::Continue;
         }
 
@@ -589,6 +620,74 @@ mod tests {
 
         // UIDs should be identical
         assert_eq!(para1.node_id().to_string(), para2.node_id().to_string());
+    }
+
+    #[test]
+    fn authored_research_object_ids_are_stable_across_insertions() {
+        let research_block = || {
+            let mut claim =
+                stencila_schema::Claim::new(vec![Block::Paragraph(Paragraph::new(vec![
+                    Inline::Text(Text::new("Claim".into())),
+                ]))]);
+            claim.id = Some("claim-1".to_string());
+            Block::Claim(claim)
+        };
+
+        let document = |content| Node::Article(stencila_schema::Article::new(content));
+        let mut first = document(vec![research_block()]);
+        let mut second = document(vec![
+            Block::Paragraph(Paragraph::new(vec![Inline::Text(Text::new(
+                "Inserted".into(),
+            ))])),
+            research_block(),
+        ]);
+
+        stabilize(&mut first);
+        stabilize(&mut second);
+
+        let Node::Article(first) = first else {
+            unreachable!()
+        };
+        let Node::Article(second) = second else {
+            unreachable!()
+        };
+        let Block::Claim(first) = &first.content[0] else {
+            unreachable!()
+        };
+        let Block::Claim(second) = &second.content[1] else {
+            unreachable!()
+        };
+        assert_eq!(first.node_id(), second.node_id());
+        assert_eq!(first.node_id().uid_str(), "claim-1");
+    }
+
+    #[test]
+    fn duplicate_authored_research_object_ids_remain_internally_unique() -> Result<(), &'static str>
+    {
+        let claim = |content: &str| {
+            let mut claim =
+                stencila_schema::Claim::new(vec![Block::Paragraph(Paragraph::new(vec![
+                    Inline::Text(Text::new(content.into())),
+                ]))]);
+            claim.id = Some("duplicate".to_string());
+            Block::Claim(claim)
+        };
+        let mut document = Node::Article(stencila_schema::Article::new(vec![
+            claim("First"),
+            claim("Second"),
+        ]));
+
+        stabilize(&mut document);
+
+        let Node::Article(article) = document else {
+            return Err("expected an article");
+        };
+        let [Block::Claim(first), Block::Claim(second)] = article.content.as_slice() else {
+            return Err("expected two claims");
+        };
+        assert_eq!(first.node_id().uid_str(), "duplicate");
+        assert_ne!(first.node_id(), second.node_id());
+        Ok(())
     }
 
     #[test]

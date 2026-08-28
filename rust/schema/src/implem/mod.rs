@@ -82,6 +82,7 @@ mod quote_block;
 mod raw_block;
 mod reference;
 mod research_block;
+mod research_object;
 mod research_object_relation_kind;
 mod section;
 mod section_type;
@@ -109,3 +110,5 @@ mod workflow;
 mod utils;
 
 pub use author::AuthorType;
+pub use research_object::{ResearchObjectFieldsMut, ResearchObjectMut, ResearchObjectRef};
+pub use research_object_relation_kind::research_relation_targets;

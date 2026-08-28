@@ -48,6 +48,7 @@ stencila-codec-lexical = { path = "../codec-lexical" }
 stencila-codec-m365 = { path = "../codec-m365" }
 stencila-codec-markdown = { path = "../codec-markdown" }
 stencila-codec-meca = { path = "../codec-meca" }
+stencila-codec-mira = { path = "../codec-mira" }
 stencila-codec-odt = { path = "../codec-odt" }
 stencila-codec-oxa = { path = "../codec-oxa" }
 stencila-codec-openalex = { path = "../codec-openalex" }

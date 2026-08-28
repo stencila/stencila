@@ -474,12 +474,17 @@ pub async fn graph_from_path_with_diagnostics(
     }
 
     let diagnostics = builder.take_diagnostics();
+    let graph_diagnostics = builder.take_graph_diagnostics();
     let mut graph = builder.build()?;
     if options.source_metadata {
         source::set_graph_source_metadata_from_path(&mut graph, &root)?;
     }
 
-    Ok(GraphAnalysis { graph, diagnostics })
+    Ok(GraphAnalysis {
+        graph,
+        diagnostics,
+        graph_diagnostics,
+    })
 }
 
 /// Resolve a local reference to an existing workspace graph id.

@@ -1,4 +1,8 @@
-use std::{env::current_dir, path::PathBuf};
+use std::{
+    borrow::Cow,
+    env::current_dir,
+    path::{Path, PathBuf},
+};
 
 use clap::Parser;
 use eyre::Result;
@@ -8,6 +12,8 @@ use stencila_format::Format;
 use stencila_node_supplements::{embed_supplements, extract_supplements};
 
 use stencila_node_suggestions::{ResolveSuggestions, SuggestionAction, review::interactive_review};
+use stencila_schema::Node;
+use url::Url;
 
 use crate::options::{DecodeOptions, EncodeOptions, StripOptions, SuggestionOptions};
 
@@ -133,20 +139,16 @@ impl Cli {
         }
 
         if outputs.is_empty() || outputs.iter().all(|path| path.to_string_lossy() == "-") {
-            stencila_codecs::to_stdout(
-                &node,
-                Some(
-                    encode_options
-                        .build(
-                            input_path.as_deref(),
-                            None,
-                            Format::Json,
-                            strip_options.clone(),
-                        )
-                        .with_tool(tool, tool_args),
-                ),
-            )
-            .await?;
+            let options = encode_options
+                .build(
+                    input_path.as_deref(),
+                    None,
+                    Format::Json,
+                    strip_options.clone(),
+                )
+                .with_tool(tool, tool_args);
+            let node = node_for_encoding(&node, &options, input_path.as_deref())?;
+            stencila_codecs::to_stdout(node.as_ref(), Some(options)).await?;
         } else {
             for output in outputs {
                 let strip_options = strip_options.clone();
@@ -154,15 +156,11 @@ impl Cli {
                 let tool_args = tool_args.clone();
 
                 if output == std::path::Path::new("-") {
-                    stencila_codecs::to_stdout(
-                        &node,
-                        Some(
-                            encode_options
-                                .build(input_path.as_deref(), None, Format::Json, strip_options)
-                                .with_tool(tool, tool_args),
-                        ),
-                    )
-                    .await?;
+                    let options = encode_options
+                        .build(input_path.as_deref(), None, Format::Json, strip_options)
+                        .with_tool(tool, tool_args);
+                    let node = node_for_encoding(&node, &options, input_path.as_deref())?;
+                    stencila_codecs::to_stdout(node.as_ref(), Some(options)).await?;
                 } else {
                     let encode_options = encode_options
                         .build(
@@ -183,8 +181,10 @@ impl Cli {
                         embed_supplements(&mut node, input_path).await?;
                     }
 
+                    let node = node_for_encoding(&node, &encode_options, input_path.as_deref())?;
                     let completed =
-                        stencila_codecs::to_path(&node, &output, Some(encode_options)).await?;
+                        stencila_codecs::to_path(node.as_ref(), &output, Some(encode_options))
+                            .await?;
 
                     #[allow(clippy::print_stderr)]
                     if completed {
@@ -199,6 +199,53 @@ impl Cli {
             }
         }
 
+        Ok(())
+    }
+}
+
+fn node_for_encoding<'a>(
+    node: &'a Node,
+    options: &stencila_codecs::EncodeOptions,
+    input_path: Option<&Path>,
+) -> Result<Cow<'a, Node>> {
+    if options.format.as_ref() != Some(&Format::MiraJsonLd) || matches!(node, Node::Graph(..)) {
+        return Ok(Cow::Borrowed(node));
+    }
+
+    let subject = input_path
+        .and_then(|path| path.canonicalize().ok())
+        .and_then(|path| Url::from_file_path(path).ok())
+        .map(|url| url.to_string())
+        .unwrap_or_else(|| "mira:document".to_string());
+    let graph = stencila_graph::graph_from_node(subject, node)?;
+    Ok(Cow::Owned(Node::Graph(graph)))
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use stencila_schema::{Article, Block, Claim};
+
+    #[test]
+    fn prepares_documents_for_mira_encoding() -> Result<()> {
+        let mut claim = Claim::new(Vec::new());
+        claim.id = Some("claim-1".to_string());
+        let node = Node::Article(Article::new(vec![Block::Claim(claim)]));
+        let options = stencila_codecs::EncodeOptions {
+            format: Some(Format::MiraJsonLd),
+            ..Default::default()
+        };
+
+        let prepared = node_for_encoding(&node, &options, None)?;
+        let Node::Graph(graph) = prepared.as_ref() else {
+            eyre::bail!("expected MIRA preparation to produce a graph")
+        };
+        assert!(
+            graph
+                .nodes
+                .iter()
+                .any(|node| matches!(node.node.as_ref(), Node::Claim(..)))
+        );
         Ok(())
     }
 }

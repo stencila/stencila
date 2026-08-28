@@ -38,12 +38,21 @@ pub(crate) fn push_qmd_extra_attrs(context: &mut MarkdownEncodeContext, extra: &
             continue;
         }
 
-        push_qmd_attr(
-            context,
-            NodeProperty::Extra,
-            key,
-            &primitive_to_option_value(value),
-        );
+        match value {
+            Primitive::String(value) => {
+                push_qmd_attr(context, NodeProperty::Extra, key, value);
+            }
+            value => {
+                context
+                    .push_str(" ")
+                    .push_str(key)
+                    .push_str("=")
+                    .push_prop_str(
+                        NodeProperty::Extra,
+                        &serde_json::to_string(value).unwrap_or_else(|_| value.to_text()),
+                    );
+            }
+        }
     }
 }
 
@@ -114,6 +123,15 @@ pub(crate) fn push_qmd_title(context: &mut MarkdownEncodeContext, title: &Option
             .push_str("## ")
             .push_prop_fn(NodeProperty::Title, |context| title.to_markdown(context))
             .push_str("\n\n");
+    }
+}
+
+pub(crate) fn push_title_option(context: &mut MarkdownEncodeContext, title: &Option<Vec<Inline>>) {
+    if let Some(title) = title {
+        context
+            .push_str(":title: ")
+            .push_prop_fn(NodeProperty::Title, |context| title.to_markdown(context))
+            .newline();
     }
 }
 
@@ -217,6 +235,7 @@ fn to_markdown(block: ResearchBlockMarkdown<'_>, context: &mut MarkdownEncodeCon
         }
 
         context.newline();
+        push_title_option(context, block.title);
         push_relation_options(context, block.relations);
         push_extra_options(context, block.extra);
 
@@ -291,7 +310,7 @@ mod tests {
 
         assert_eq!(
             markdown,
-            "::: question Question 1 #q1\n:supported-by: #e1\n\nWhat follows?\n\n:::"
+            "::: question Question 1 #q1\n:title: Research question\n:supported-by: #e1\n\nWhat follows?\n\n:::"
         );
     }
 

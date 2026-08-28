@@ -3,7 +3,10 @@
 //! This module turns a single Stencila Schema document node tree into graph
 //! nodes and resource-flow relationships.
 
-use std::{collections::HashMap, path::Path};
+use std::{
+    collections::{HashMap, HashSet},
+    path::Path,
+};
 
 use eyre::Result;
 use stencila_node_stabilize::stabilize;
@@ -11,11 +14,12 @@ use stencila_schema::{
     ActionStatusType, Block, Citation, CitationGroup, CodeChunk, CodeExpression, CreativeWork,
     DateTime as SchemaDateTime, Duration as SchemaDuration, ExecuteAction, ExecutionStatus, Graph,
     GraphAction, GraphEdgeKind, GraphEvidence, Inline, Link, Node, NodeId, NodeType, Object,
-    Primitive, Reference, Timestamp, Visitor, WalkControl, WalkNode,
+    Primitive, Reference, ResearchObjectRelationKind, Timestamp, Visitor, WalkControl, WalkNode,
+    research_relation_targets,
 };
 
 use crate::{
-    GraphAnalysis, GraphBuilder,
+    GraphAnalysis, GraphBuilder, GraphDiagnosticKind,
     code::{CodeLanguage, DocumentCodeIndex, DocumentCodeSource},
     evidence,
     ids::LocalGraphId,
@@ -48,9 +52,14 @@ pub fn graph_from_node_with_diagnostics(
     let mut builder = GraphBuilder::new(subject);
     add_document(&mut builder, "document", node, None);
     let diagnostics = builder.take_diagnostics();
+    let graph_diagnostics = builder.take_graph_diagnostics();
     let mut graph = builder.build()?;
     source::set_graph_source_metadata_from_node(&mut graph, node);
-    Ok(GraphAnalysis { graph, diagnostics })
+    Ok(GraphAnalysis {
+        graph,
+        diagnostics,
+        graph_diagnostics,
+    })
 }
 
 /// Build a document graph and optionally merge cached runtime evidence.
@@ -70,9 +79,14 @@ pub fn graph_from_node_with_runtime_evidence(
         add_cached_runtime_evidence(&mut builder, root);
     }
     let diagnostics = builder.take_diagnostics();
+    let graph_diagnostics = builder.take_graph_diagnostics();
     let mut graph = builder.build()?;
     source::set_graph_source_metadata_from_node(&mut graph, node);
-    Ok(GraphAnalysis { graph, diagnostics })
+    Ok(GraphAnalysis {
+        graph,
+        diagnostics,
+        graph_diagnostics,
+    })
 }
 
 /// Add document nodes and relationships to an existing graph builder.
@@ -160,6 +174,11 @@ pub(crate) fn document_graph_node_policy(node_type: NodeType) -> DocumentGraphNo
         NodeType::CodeChunk | NodeType::Datatable | NodeType::Figure | NodeType::Table => {
             DocumentGraphNodePolicy::RecordAndSeedFlow
         }
+        NodeType::Claim
+        | NodeType::Evidence
+        | NodeType::Protocol
+        | NodeType::Question
+        | NodeType::Request => DocumentGraphNodePolicy::Record,
         NodeType::Article
         | NodeType::CodeExpression
         | NodeType::File
@@ -265,6 +284,22 @@ struct DocumentCollector<'a> {
 
     /// Static code facts discovered in executable document nodes.
     code_index: DocumentCodeIndex,
+
+    /// Mapping from authored research-object ids to graph node ids.
+    declared_ids: HashMap<String, String>,
+
+    /// Ids declared by more than one research object are ambiguous targets.
+    duplicate_declared_ids: HashSet<String>,
+
+    /// Authored relations are resolved after the complete document is known.
+    pending_authored_relations: Vec<AuthoredRelation>,
+}
+
+#[derive(Debug, Clone)]
+struct AuthoredRelation {
+    source: String,
+    target: String,
+    kind: GraphEdgeKind,
 }
 
 impl<'a> DocumentCollector<'a> {
@@ -285,6 +320,9 @@ impl<'a> DocumentCollector<'a> {
             parent_stack: Vec::new(),
             reference_resolver,
             code_index: DocumentCodeIndex::default(),
+            declared_ids: HashMap::new(),
+            duplicate_declared_ids: HashSet::new(),
+            pending_authored_relations: Vec::new(),
         }
     }
 
@@ -316,12 +354,34 @@ impl<'a> DocumentCollector<'a> {
 
         self.builder.add_schema_node(graph_id.clone(), node.clone());
 
+        if let Some(id) = node.as_research_object().and_then(|research| research.id()) {
+            if self.duplicate_declared_ids.contains(id) {
+                // The first duplicate already produced the actionable diagnostic.
+            } else if self
+                .declared_ids
+                .insert(id.to_string(), graph_id.clone())
+                .is_some()
+            {
+                self.declared_ids.remove(id);
+                self.duplicate_declared_ids.insert(id.to_string());
+                self.builder.add_graph_diagnostic(crate::GraphDiagnostic {
+                    kind: crate::GraphDiagnosticKind::DuplicateResearchObjectId,
+                    source: graph_id.clone(),
+                    target: None,
+                    message: format!(
+                        "research object id `{id}` is declared more than once; relations to it are ambiguous"
+                    ),
+                });
+            }
+        }
+
         if structural && let Some(parent_id) = self.parent_stack.last() {
             self.builder
                 .add_containment(graph_id.clone(), parent_id, vec![evidence::computed()]);
         }
 
         self.add_document_reference(&graph_id, &node);
+        self.add_authored_relations(&graph_id, &node);
 
         match node {
             Node::CodeChunk(chunk) => {
@@ -444,7 +504,132 @@ impl<'a> DocumentCollector<'a> {
 
     /// Finish relationships that require the complete document-order code view.
     fn finish(&mut self) {
+        self.add_pending_authored_relations();
         self.code_index.finish(self.builder, &self.scope);
+    }
+
+    /// Collect structured relations and legacy relation-shaped extra fields.
+    fn add_authored_relations(&mut self, source: &str, node: &Node) {
+        let Some(research) = node.as_research_object() else {
+            return;
+        };
+
+        if let Some(relations) = research.relations() {
+            for relation in relations {
+                self.pending_authored_relations.push(AuthoredRelation {
+                    source: source.to_string(),
+                    target: relation.target.clone(),
+                    kind: relation.kind.into(),
+                });
+            }
+        }
+
+        if let Some(extra) = research.extra() {
+            for (key, value) in extra.iter() {
+                let Some(kind) = ResearchObjectRelationKind::from_authored_key(key) else {
+                    continue;
+                };
+                for target in research_relation_targets(value) {
+                    self.pending_authored_relations.push(AuthoredRelation {
+                        source: source.to_string(),
+                        target,
+                        kind: kind.into(),
+                    });
+                }
+            }
+        }
+    }
+
+    /// Resolve all relations after every research object has been discovered.
+    fn add_pending_authored_relations(&mut self) {
+        let relations = std::mem::take(&mut self.pending_authored_relations);
+        let mut seen = HashSet::new();
+
+        for relation in relations {
+            let target = relation.target.trim();
+            if target.is_empty() {
+                self.add_relation_diagnostic(
+                    GraphDiagnosticKind::EmptyResearchRelationTarget,
+                    &relation,
+                    "research relation has an empty target; add an object id or absolute URI",
+                );
+                continue;
+            }
+
+            let duplicate_key = (
+                relation.source.clone(),
+                relation.kind,
+                target.trim_start_matches('#').to_string(),
+            );
+            if !seen.insert(duplicate_key) {
+                self.add_relation_diagnostic(
+                    GraphDiagnosticKind::DuplicateResearchRelationTarget,
+                    &relation,
+                    "relation target is repeated for the same source and relation kind",
+                );
+                continue;
+            }
+
+            let Some(resolved) = self.resolve_authored_relation_target(target) else {
+                self.add_relation_diagnostic(
+                    GraphDiagnosticKind::UnresolvedResearchRelationTarget,
+                    &relation,
+                    &format!(
+                        "unable to resolve research relation target `{target}`; use a declared id, graph node id, or absolute URI"
+                    ),
+                );
+                continue;
+            };
+
+            if resolved == relation.source {
+                self.add_relation_diagnostic(
+                    GraphDiagnosticKind::SelfReferentialResearchRelation,
+                    &relation,
+                    "research relation points to its own source; choose a different target",
+                );
+                continue;
+            }
+
+            let mut evidence = vec![evidence::declared()];
+            if resolved != target {
+                evidence.push(resolved_declaration_evidence(target, &resolved));
+            }
+            self.builder
+                .add_edge_with_evidence(relation.source, resolved, relation.kind, evidence);
+        }
+    }
+
+    fn resolve_authored_relation_target(&mut self, target: &str) -> Option<String> {
+        let authored_id = target.strip_prefix('#').unwrap_or(target);
+        if let Some(graph_id) = self.declared_ids.get(authored_id) {
+            return Some(graph_id.clone());
+        }
+        if self.builder.contains_node(target) {
+            return Some(target.to_string());
+        }
+        if has_non_local_uri_scheme(target) {
+            let resource_id = LocalGraphId::resource(target);
+            let mut resource = CreativeWork::new();
+            resource.options.url = Some(target.to_string());
+            self.builder
+                .add_schema_node(resource_id.clone(), Node::CreativeWork(resource));
+            return Some(resource_id);
+        }
+        None
+    }
+
+    fn add_relation_diagnostic(
+        &mut self,
+        kind: crate::GraphDiagnosticKind,
+        relation: &AuthoredRelation,
+        detail: &str,
+    ) {
+        self.builder.add_graph_diagnostic(crate::GraphDiagnostic {
+            kind,
+            source: relation.source.clone(),
+            target: Some(relation.target.clone()),
+            message: format!("{}: {detail}", relation.source),
+        });
     }
 
     /// Add a dependency edge for a local file reference if the caller can resolve it.
@@ -802,6 +987,10 @@ fn action_times_from_execution(
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::{
+        GraphEdgeFamily, GraphProjectionOptions, GraphProjectionPreset, edge_family, project_graph,
+    };
+    use stencila_schema::ResearchObjectRelation;
 
     #[test]
     fn document_policy_records_symbolic_links_without_flow_seeding() {
@@ -809,6 +998,210 @@ mod tests {
 
         assert!(policy.records());
         assert!(!policy.seeds_flow_projection());
+    }
+
+    #[test]
+    fn records_all_research_objects_and_resolves_forward_relations() -> Result<()> {
+        use stencila_schema::{Claim, Evidence, Protocol, Question, Request};
+
+        let mut claim = Claim::new(vec![paragraph("Claim.")]);
+        claim.id = Some("claim-1".to_string());
+        claim.relations = Some(vec![ResearchObjectRelation::new(
+            ResearchObjectRelationKind::SupportedBy,
+            "#evidence-1".to_string(),
+        )]);
+
+        let mut evidence = Evidence::new(vec![paragraph("Evidence.")]);
+        evidence.id = Some("evidence-1".to_string());
+        let mut question = Question::new(vec![paragraph("Question?")]);
+        question.id = Some("question-1".to_string());
+        let mut protocol = Protocol::new(vec![paragraph("Protocol.")]);
+        protocol.id = Some("protocol-1".to_string());
+        let mut request = Request::new(vec![paragraph("Request.")]);
+        request.id = Some("request-1".to_string());
+
+        let graph = graph_from_node(
+            "document:test",
+            &Node::Article(stencila_schema::Article::new(vec![
+                Block::Claim(claim),
+                Block::Evidence(evidence),
+                Block::Question(question),
+                Block::Protocol(protocol),
+                Block::Request(request),
+            ])),
+        )?;
+
+        for node_type in [
+            NodeType::Claim,
+            NodeType::Evidence,
+            NodeType::Question,
+            NodeType::Protocol,
+            NodeType::Request,
+        ] {
+            assert!(
+                graph
+                    .nodes
+                    .iter()
+                    .any(|node| node.node.node_type() == node_type)
+            );
+        }
+        assert!(graph.edges.iter().any(|edge| {
+            edge.kind == GraphEdgeKind::SupportedBy
+                && edge.source == "node:document#clm_claim-1"
+                && edge.target == "node:document#evd_evidence-1"
+                && edge
+                    .options
+                    .evidence
+                    .as_ref()
+                    .is_some_and(|evidence| evidence.len() == 2)
+        }));
+
+        let discourse = project_graph(
+            &graph,
+            &GraphProjectionOptions {
+                preset: GraphProjectionPreset::Discourse,
+                ..Default::default()
+            },
+        );
+        assert_eq!(discourse.preset, GraphProjectionPreset::Discourse);
+        assert!(
+            discourse
+                .edges
+                .iter()
+                .any(|edge| edge.kind == GraphEdgeKind::SupportedBy)
+        );
+
+        Ok(())
+    }
+
+    #[test]
+    fn resolves_external_targets_and_reports_invalid_relations() -> Result<()> {
+        let mut claim = stencila_schema::Claim::new(vec![paragraph("Claim.")]);
+        claim.id = Some("claim-1".to_string());
+        claim.relations = Some(vec![
+            ResearchObjectRelation::new(
+                ResearchObjectRelationKind::Supports,
+                "https://example.org/evidence".to_string(),
+            ),
+            ResearchObjectRelation::new(
+                ResearchObjectRelationKind::Supports,
+                "missing".to_string(),
+            ),
+            ResearchObjectRelation::new(ResearchObjectRelationKind::Supports, "".to_string()),
+            ResearchObjectRelation::new(
+                ResearchObjectRelationKind::Supports,
+                "#claim-1".to_string(),
+            ),
+        ]);
+
+        let analysis = graph_from_node_with_diagnostics(
+            "document:test",
+            &Node::Article(stencila_schema::Article::new(vec![Block::Claim(claim)])),
+        )?;
+
+        assert!(analysis.graph.nodes.iter().any(|node| {
+            matches!(node.node.as_ref(), Node::CreativeWork(work) if work.options.url.as_deref() == Some("https://example.org/evidence"))
+        }));
+        assert!(analysis.graph.edges.iter().any(|edge| {
+            edge.kind == GraphEdgeKind::Supports && edge.target.starts_with("resource:")
+        }));
+        assert_eq!(analysis.graph_diagnostics.len(), 3);
+        assert!(analysis.graph_diagnostics.iter().any(|diagnostic| {
+            diagnostic.kind == crate::GraphDiagnosticKind::UnresolvedResearchRelationTarget
+                && diagnostic.target.as_deref() == Some("missing")
+        }));
+        assert!(analysis.graph_diagnostics.iter().any(|diagnostic| {
+            diagnostic.kind == crate::GraphDiagnosticKind::EmptyResearchRelationTarget
+        }));
+        assert!(analysis.graph_diagnostics.iter().any(|diagnostic| {
+            diagnostic.kind == crate::GraphDiagnosticKind::SelfReferentialResearchRelation
+        }));
+
+        Ok(())
+    }
+
+    #[test]
+    fn relation_kind_mapping_is_exhaustive() {
+        let mapped = ResearchObjectRelationKind::all()
+            .iter()
+            .copied()
+            .map(GraphEdgeKind::from)
+            .collect::<Vec<_>>();
+        assert_eq!(mapped.len(), 11);
+        assert_eq!(
+            mapped,
+            vec![
+                GraphEdgeKind::Supports,
+                GraphEdgeKind::SupportedBy,
+                GraphEdgeKind::Opposes,
+                GraphEdgeKind::OpposedBy,
+                GraphEdgeKind::Addresses,
+                GraphEdgeKind::AddressedBy,
+                GraphEdgeKind::Follows,
+                GraphEdgeKind::Grounds,
+                GraphEdgeKind::IsGroundedIn,
+                GraphEdgeKind::RequestFor,
+                GraphEdgeKind::RequestTarget,
+            ]
+        );
+        assert!(
+            ResearchObjectRelationKind::all()
+                .iter()
+                .copied()
+                .map(GraphEdgeKind::from)
+                .all(|kind| edge_family(kind) == GraphEdgeFamily::Discourse)
+        );
+    }
+
+    #[test]
+    fn deduplicates_legacy_relations_and_reports_duplicate_ids() -> Result<()> {
+        let mut first = stencila_schema::Claim::new(vec![paragraph("First.")]);
+        first.id = Some("same".to_string());
+        first.relations = Some(vec![ResearchObjectRelation::new(
+            ResearchObjectRelationKind::Supports,
+            "#target".to_string(),
+        )]);
+        first.options.extra = Some(Object::from([(
+            "supports",
+            Primitive::String("#target".to_string()),
+        )]));
+
+        let mut second = stencila_schema::Claim::new(vec![paragraph("Second.")]);
+        second.id = Some("same".to_string());
+        let mut target = stencila_schema::Evidence::new(vec![paragraph("Target.")]);
+        target.id = Some("target".to_string());
+
+        let analysis = graph_from_node_with_diagnostics(
+            "document:test",
+            &Node::Article(stencila_schema::Article::new(vec![
+                Block::Claim(first),
+                Block::Claim(second),
+                Block::Evidence(target),
+            ])),
+        )?;
+
+        assert_eq!(
+            analysis
+                .graph
+                .edges
+                .iter()
+                .filter(|edge| edge.kind == GraphEdgeKind::Supports)
+                .count(),
+            1
+        );
+        assert!(analysis.graph_diagnostics.iter().any(|diagnostic| {
+            diagnostic.kind == crate::GraphDiagnosticKind::DuplicateResearchObjectId
+        }));
+        assert!(analysis.graph_diagnostics.iter().any(|diagnostic| {
+            diagnostic.kind == crate::GraphDiagnosticKind::DuplicateResearchRelationTarget
+        }));
+        Ok(())
+    }
+
+    fn paragraph(value: &str) -> Block {
+        Block::Paragraph(stencila_schema::Paragraph::new(vec![Inline::Text(
+            stencila_schema::Text::new(value.into()),
+        )]))
     }
 
     #[test]

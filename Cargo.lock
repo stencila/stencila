@@ -10861,6 +10861,17 @@ dependencies = [
 ]
 
 [[package]]
+name = "stencila-codec-mira"
+version = "0.0.0"
+dependencies = [
+ "percent-encoding",
+ "serde_json",
+ "stencila-codec",
+ "stencila-codec-oxa",
+ "stencila-codec-text-trait",
+]
+
+[[package]]
 name = "stencila-codec-odt"
 version = "0.0.0"
 dependencies = [
@@ -11176,6 +11187,7 @@ dependencies = [
  "stencila-codec-m365",
  "stencila-codec-markdown",
  "stencila-codec-meca",
+ "stencila-codec-mira",
  "stencila-codec-odt",
  "stencila-codec-openalex",
  "stencila-codec-openrxiv",
@@ -11467,6 +11479,7 @@ dependencies = [
  "ast-grep-core",
  "chrono",
  "clap",
+ "derive_more 2.1.1",
  "eyre",
  "glob",
  "ignore",

@@ -1,4 +1,4 @@
-use std::{collections::HashMap, str::FromStr};
+use std::str::FromStr;
 
 use indexmap::IndexMap;
 use inflector::Inflector;
@@ -20,16 +20,18 @@ use stencila_codec::{
     stencila_schema::{
         Admonition, AdmonitionType, AppendixBreak, Author, Block, CallArgument, CallBlock, Chat,
         ChatMessage, ChatMessageGroup, ChatMessageOptions, Claim, CodeBlock, CodeChunk,
-        CodeExpression, Datatable, ExecutionBounds, ExecutionMode, Figure, FigureOptions, ForBlock,
-        Heading, HorizontalAlignment, IfBlock, IfBlockClause, ImageObject, IncludeBlock, Inline,
-        InstructionBlock, InstructionMessage, LabelType, List, ListItem, ListOrder, MathBlock,
-        Node, Object, Page, Paragraph, Primitive, PromptBlock, QuoteBlock, RawBlock,
-        ResearchObjectRelation, ResearchObjectRelationKind, Section, SoftwareApplication,
-        StyledBlock, SuggestionBlock, SuggestionStatus, SuggestionType, Table, TableCell,
-        TableCellOptions, TableCellType, TableRow, TableRowType, Text, ThematicBreak, Walkthrough,
-        WalkthroughStep,
+        CodeExpression, Datatable, Evidence, ExecutionBounds, ExecutionMode, Figure, FigureOptions,
+        ForBlock, Heading, HorizontalAlignment, IfBlock, IfBlockClause, ImageObject, IncludeBlock,
+        Inline, InstructionBlock, InstructionMessage, LabelType, List, ListItem, ListOrder,
+        MathBlock, Node, Object, Page, Paragraph, Primitive, PromptBlock, Protocol, Question,
+        QuoteBlock, RawBlock, Request, ResearchObjectFieldsMut, ResearchObjectRelation,
+        ResearchObjectRelationKind, Section, SoftwareApplication, StyledBlock, SuggestionBlock,
+        SuggestionStatus, SuggestionType, Table, TableCell, TableCellOptions, TableCellType,
+        TableRow, TableRowType, Text, ThematicBreak, Walkthrough, WalkthroughStep,
+        research_relation_targets,
     },
 };
+use stencila_codec_text_trait::to_text;
 
 use crate::decode::shared::suggestion_metadata_from_attrs;
 
@@ -412,9 +414,7 @@ pub(super) fn mds_to_blocks(mds: Vec<mdast::Node>, context: &mut Context) -> Vec
             ) = (blocks.get(index), blocks.get(index + 1))
                 && !matches!(next, Block::SuggestionBlock(..))
                 && let Some(suggestion) = suggestions.last()
-                && let content = suggestion_content(suggestion)
-                && content.capacity() == 1
-                && content.is_empty()
+                && suggestion_content_is_placeholder(suggestion)
             {
                 if let (Some(current_id), Some(next_id)) = (
                     blocks.get(index).and_then(|block| block.node_id()),
@@ -525,12 +525,13 @@ fn suggestion_content_mut(suggestion: &mut SuggestionBlock) -> &mut Vec<Block> {
     }
 }
 
-fn suggestion_content(suggestion: &SuggestionBlock) -> &Vec<Block> {
-    if suggestion_waiting_for_original(suggestion) {
+fn suggestion_content_is_placeholder(suggestion: &SuggestionBlock) -> bool {
+    let content = if suggestion_waiting_for_original(suggestion) {
         suggestion.original.as_ref().unwrap_or(&suggestion.content)
     } else {
         &suggestion.content
-    }
+    };
+    content.capacity() == 1 && content.is_empty()
 }
 
 /// Parse a "div": a paragraph starting with at least three colons, or `:++`/`:--`/`:~~` for suggestions
@@ -543,7 +544,7 @@ fn block(input: &mut Located<&str>) -> ModalResult<Block> {
             alt((
                 alt((
                     admonition_qmd,
-                    alt((claim_qmd, styled_block_qmd)),
+                    alt((claim_qmd, research_block_qmd, styled_block_qmd)),
                     appendix_break,
                     call_block,
                     include_block,
@@ -559,11 +560,14 @@ fn block(input: &mut Located<&str>) -> ModalResult<Block> {
                     page,
                     suggestion_block,
                     chat_message,
-                    claim,
-                    styled_block,
-                    // Section parser is permissive of label so needs to
-                    // come last to avoid prematurely matching others above
-                    section,
+                    alt((
+                        research_block,
+                        claim,
+                        styled_block,
+                        // Section parser is permissive of label so needs to
+                        // come last to avoid prematurely matching others above
+                        section,
+                    )),
                 )),
             )),
         ),
@@ -736,6 +740,7 @@ fn claim(input: &mut Located<&str>) -> ModalResult<Block> {
         terminated(
             alt((
                 Caseless("corollary"),
+                Caseless("claim"),
                 Caseless("hypothesis"),
                 Caseless("lemma"),
                 Caseless("postulate"),
@@ -744,7 +749,7 @@ fn claim(input: &mut Located<&str>) -> ModalResult<Block> {
                 Caseless("statement"),
                 Caseless("theorem"),
             )),
-            multispace0,
+            alt((multispace1, eof.value(""))),
         ),
         opt(take_while(1.., |_| true)),
     )
@@ -761,6 +766,125 @@ fn claim(input: &mut Located<&str>) -> ModalResult<Block> {
                 label,
                 ..Default::default()
             })
+        })
+        .parse_next(input)
+}
+
+#[derive(Clone, Copy)]
+enum ResearchBlockKind {
+    Claim,
+    Evidence,
+    Protocol,
+    Question,
+    Request,
+}
+
+struct ResearchBlockFields {
+    id: Option<String>,
+    label: Option<String>,
+    title: Option<Vec<Inline>>,
+    content: Vec<Block>,
+    relations: Option<Vec<ResearchObjectRelation>>,
+    extra: Option<Object>,
+}
+
+impl FromStr for ResearchBlockKind {
+    type Err = ();
+
+    fn from_str(name: &str) -> Result<Self, Self::Err> {
+        match name.to_ascii_lowercase().as_str() {
+            "claim" => Ok(Self::Claim),
+            "evidence" => Ok(Self::Evidence),
+            "protocol" => Ok(Self::Protocol),
+            "question" => Ok(Self::Question),
+            "request" => Ok(Self::Request),
+            _ => Err(()),
+        }
+    }
+}
+
+impl ResearchBlockKind {
+    fn into_block(self, fields: ResearchBlockFields) -> Block {
+        let ResearchBlockFields {
+            id,
+            label,
+            title,
+            content,
+            relations,
+            extra,
+        } = fields;
+        let mut block = match self {
+            Self::Claim => Block::Claim(Claim {
+                id,
+                label,
+                content,
+                relations,
+                ..Default::default()
+            }),
+            Self::Evidence => Block::Evidence(Evidence {
+                id,
+                label,
+                content,
+                relations,
+                ..Default::default()
+            }),
+            Self::Protocol => Block::Protocol(Protocol {
+                id,
+                label,
+                content,
+                relations,
+                ..Default::default()
+            }),
+            Self::Question => Block::Question(Question {
+                id,
+                label,
+                content,
+                relations,
+                ..Default::default()
+            }),
+            Self::Request => Block::Request(Request {
+                id,
+                label,
+                content,
+                relations,
+                ..Default::default()
+            }),
+        };
+        if let Some(mut research) = block.as_research_object_mut() {
+            let fields = research.fields();
+            *fields.title = title;
+            *fields.extra = extra;
+        }
+        block
+    }
+}
+
+/// Parse an untyped research-object block from SMD/plain Markdown.
+fn research_block(input: &mut Located<&str>) -> ModalResult<Block> {
+    (
+        terminated(
+            alt((
+                Caseless("evidence"),
+                Caseless("question"),
+                Caseless("protocol"),
+                Caseless("request"),
+            )),
+            alt((multispace1, eof.value(""))),
+        ),
+        opt(take_while(1.., |_| true)),
+    )
+        .map(|(kind, header): (&str, Option<&str>)| {
+            let (id, label) = parse_fence_header(header);
+            kind.parse::<ResearchBlockKind>()
+                .unwrap_or(ResearchBlockKind::Request)
+                .into_block(ResearchBlockFields {
+                    id,
+                    label,
+                    title: None,
+                    content: Vec::new(),
+                    relations: None,
+                    extra: None,
+                })
         })
         .parse_next(input)
 }
@@ -796,31 +920,19 @@ fn claim_qmd(input: &mut Located<&str>) -> ModalResult<Block> {
         (multispace0, '}'),
     )
     .map(|(claim_type, id, attrs): (&str, Option<&str>, Attrs)| {
-        let mut label = None;
-        let mut relations = Vec::new();
-        let mut extra = Object::new();
-
-        for (name, value) in attrs {
-            if name == "label" {
-                label = value.map(node_to_string);
-            } else if let Some(kind) = ResearchObjectRelationKind::from_authored_key(name) {
-                if let Some(value) = value {
-                    relations.extend(
-                        node_to_string(value)
-                            .split(|char: char| char.is_whitespace() || char == ',')
-                            .filter(|target| !target.is_empty())
-                            .map(|target| ResearchObjectRelation::new(kind, target.to_string())),
-                    );
-                }
-            } else {
-                extra.insert(
+        let mut attrs = attrs
+            .into_iter()
+            .map(|(name, value)| {
+                (
                     name.to_string(),
                     value
                         .map(node_to_primitive)
                         .unwrap_or(Primitive::Boolean(true)),
-                );
-            }
-        }
+                )
+            })
+            .collect::<IndexMap<_, _>>();
+        let label = attrs.swap_remove("label").map(primitive_to_string);
+        let (relations, extra) = partition_research_attrs(attrs);
 
         let claim_type = if claim_type.eq_ignore_ascii_case("claim") {
             None
@@ -832,13 +944,68 @@ fn claim_qmd(input: &mut Located<&str>) -> ModalResult<Block> {
             id: id.map(String::from),
             claim_type,
             label,
-            relations: (!relations.is_empty()).then_some(relations),
+            relations,
             options: Box::new(stencila_codec::stencila_schema::ClaimOptions {
-                extra: (!extra.is_empty()).then_some(extra),
+                extra,
                 ..Default::default()
             }),
             ..Default::default()
         })
+    })
+    .parse_next(input)
+}
+
+/// Parse an untyped research-object block from QMD.
+fn research_block_qmd(input: &mut Located<&str>) -> ModalResult<Block> {
+    delimited(
+        ('{', multispace0, '.'),
+        (
+            terminated(
+                alt((
+                    Caseless("evidence"),
+                    Caseless("question"),
+                    Caseless("protocol"),
+                    Caseless("request"),
+                )),
+                alt((multispace1, peek('}').take())),
+            ),
+            opt(terminated(
+                preceded(
+                    '#',
+                    take_while(1.., |char: char| !char.is_whitespace() && char != '}'),
+                ),
+                multispace0,
+            )),
+            attrs_list,
+        ),
+        (multispace0, '}'),
+    )
+    .map(|(kind, id, attrs): (&str, Option<&str>, Attrs)| {
+        let mut attrs = attrs
+            .into_iter()
+            .map(|(name, value)| {
+                (
+                    name.to_string(),
+                    value
+                        .map(node_to_primitive)
+                        .unwrap_or(Primitive::Boolean(true)),
+                )
+            })
+            .collect::<IndexMap<_, _>>();
+        let label = attrs.swap_remove("label").map(primitive_to_string);
+        let (relations, extra) = partition_research_attrs(attrs);
+        let id = id.map(String::from);
+
+        kind.parse::<ResearchBlockKind>()
+            .unwrap_or(ResearchBlockKind::Request)
+            .into_block(ResearchBlockFields {
+                id,
+                label,
+                title: None,
+                content: Vec::new(),
+                relations,
+                extra,
+            })
     })
     .parse_next(input)
 }
@@ -856,6 +1023,38 @@ fn node_to_primitive(node: Node) -> Primitive {
         Node::Object(value) => Primitive::Object(value),
         _ => Primitive::String(node_to_string(node)),
     }
+}
+
+fn primitive_to_string(value: Primitive) -> String {
+    match value {
+        Primitive::String(value) => value,
+        value => serde_json::to_string(&value).unwrap_or_else(|_| value.to_string()),
+    }
+}
+
+/// Split relation-shaped authored attributes from other research-object metadata.
+fn partition_research_attrs(
+    attrs: IndexMap<String, Primitive>,
+) -> (Option<Vec<ResearchObjectRelation>>, Option<Object>) {
+    let mut relations = Vec::new();
+    let mut extra = IndexMap::new();
+
+    for (key, value) in attrs {
+        if let Some(kind) = ResearchObjectRelationKind::from_authored_key(&key) {
+            relations.extend(
+                research_relation_targets(&value)
+                    .into_iter()
+                    .map(|target| ResearchObjectRelation::new(kind, target)),
+            );
+        } else {
+            extra.insert(key, value);
+        }
+    }
+
+    (
+        (!relations.is_empty()).then_some(relations),
+        (!extra.is_empty()).then_some(Object(extra)),
+    )
 }
 
 /// Parse a [`CodeChunk`] node with a label and/or caption
@@ -1552,16 +1751,8 @@ fn finalize(parent: &mut Block, mut children: Vec<Block>, context: &mut Context)
         } else {
             suggestion.content = children;
         }
-    } else if let Block::Claim(claim) = parent {
-        if matches!(context.format, Format::Qmd)
-            && let Some(Block::Heading(Heading {
-                level: 2, content, ..
-            })) = children.first()
-        {
-            claim.options.title = Some(content.clone());
-            children.remove(0);
-        }
-        claim.content = children;
+    } else if let Some(mut research) = parent.as_research_object_mut() {
+        finalize_research_block(children, context, research.fields());
     } else if let Block::ChatMessage(ChatMessage { content, .. })
     | Block::Page(Page { content, .. })
     | Block::Section(Section { content, .. })
@@ -1801,6 +1992,139 @@ fn finalize(parent: &mut Block, mut children: Vec<Block>, context: &mut Context)
     }
 }
 
+fn finalize_research_block(
+    mut children: Vec<Block>,
+    context: &mut Context,
+    fields: ResearchObjectFieldsMut<'_>,
+) {
+    let ResearchObjectFieldsMut {
+        title,
+        content,
+        relations,
+        extra,
+    } = fields;
+    if matches!(context.format, Format::Markdown | Format::Smd) {
+        extract_smd_research_options(&mut children, title, relations, extra, context);
+    }
+
+    if title.is_none()
+        && matches!(context.format, Format::Qmd)
+        && let Some(Block::Heading(Heading {
+            level: 2,
+            content: heading,
+            ..
+        })) = children.first()
+    {
+        *title = Some(heading.clone());
+        children.remove(0);
+    }
+
+    *content = children;
+}
+
+fn extract_smd_research_options(
+    children: &mut Vec<Block>,
+    title: &mut Option<Vec<Inline>>,
+    relations: &mut Option<Vec<ResearchObjectRelation>>,
+    extra: &mut Option<Object>,
+    context: &mut Context,
+) {
+    let mut attrs = IndexMap::new();
+
+    while let Some(extracted) = children.first().and_then(research_options_from_block) {
+        children.remove(0);
+        attrs.extend(extracted);
+    }
+
+    if title.is_none()
+        && let Some(value) = attrs.swap_remove("title")
+    {
+        *title = Some(decode_inlines(&primitive_to_string(value), context));
+    }
+
+    let (extracted_relations, extracted_extra) = partition_research_attrs(attrs);
+    if let Some(extracted_relations) = extracted_relations {
+        relations
+            .get_or_insert_with(Vec::new)
+            .extend(extracted_relations);
+    }
+
+    if let Some(extracted_extra) = extracted_extra {
+        extra
+            .get_or_insert_with(Object::new)
+            .extend(extracted_extra.0);
+    }
+}
+
+fn research_options_from_block(block: &Block) -> Option<IndexMap<String, Primitive>> {
+    let Block::Paragraph(Paragraph { content, .. }) = block else {
+        return None;
+    };
+
+    parse_research_options(&to_text(content))
+}
+
+fn parse_research_options(value: &str) -> Option<IndexMap<String, Primitive>> {
+    let mut remaining = value.trim();
+    let mut options = IndexMap::new();
+
+    while !remaining.is_empty() {
+        let option = remaining.strip_prefix(':')?;
+        let separator = option.find(':')?;
+        let key = &option[..separator];
+        if key.is_empty()
+            || !key
+                .chars()
+                .all(|char| char.is_ascii_alphanumeric() || matches!(char, '-' | '_'))
+        {
+            return None;
+        }
+
+        let value = &option[(separator + 1)..];
+        let next = next_research_option(value);
+        let (value, rest) = next
+            .map(|next| (&value[..next], &value[next..]))
+            .unwrap_or((value, ""));
+
+        options.insert(key.to_string(), research_option_value(value.trim()));
+        remaining = rest.trim_start();
+    }
+
+    (!options.is_empty()).then_some(options)
+}
+
+fn next_research_option(value: &str) -> Option<usize> {
+    for (index, char) in value.char_indices() {
+        if char != ':'
+            || value[..index]
+                .chars()
+                .next_back()
+                .is_none_or(|char| !char.is_whitespace())
+        {
+            continue;
+        }
+
+        let candidate = &value[(index + 1)..];
+        let Some(separator) = candidate.find(':') else {
+            continue;
+        };
+        let key = &candidate[..separator];
+        if !key.is_empty()
+            && key
+                .chars()
+                .all(|char| char.is_ascii_alphanumeric() || matches!(char, '-' | '_'))
+        {
+            return Some(index);
+        }
+    }
+
+    None
+}
+
+fn research_option_value(value: &str) -> Primitive {
+    serde_json::from_str(value).unwrap_or_else(|_| Primitive::String(value.to_string()))
+}
+
 /// Get the execution mode from block options
 fn execution_mode_from_options(options: IndexMap<&str, Option<Node>>) -> Option<ExecutionMode> {
     for (name, value) in options {
@@ -1984,7 +2308,7 @@ fn myst_to_block(code: &mdast::Code, context: &mut Context) -> Option<Block> {
     let args = code.meta.as_deref();
 
     // Extract directive options and separate them from the value of the directive
-    let mut options: HashMap<&str, &str> = HashMap::new();
+    let mut options: IndexMap<&str, &str> = IndexMap::new();
     let mut value = String::new();
     for line in code.value.lines() {
         if line.starts_with(':') && line.chars().filter(|&c| c == ':').count() > 1 {
@@ -2008,13 +2332,48 @@ fn myst_to_block(code: &mdast::Code, context: &mut Context) -> Option<Block> {
     let parent_context = context;
     let context = &mut Context::new(parent_context.format.clone());
 
-    if let Some(claim_type) = name.strip_prefix("prf:") {
-        let block = Block::Claim(Claim {
-            claim_type: claim_type.parse().ok(),
-            label: options.get("label").map(|label| label.to_string()),
+    let claim_type = name
+        .strip_prefix("prf:")
+        .and_then(|name| name.parse().ok())
+        .or_else(|| name.parse().ok());
+    if let Some(claim_type) = claim_type {
+        let (id, label, relations, extra) = myst_research_options(&options);
+        let mut claim = Claim {
+            id,
+            claim_type: Some(claim_type),
+            label,
+            relations,
             content: decode_blocks(&value, context),
             ..Default::default()
+        };
+        claim.options.title = args
+            .map(str::trim)
+            .filter(|title| !title.is_empty())
+            .map(|title| decode_inlines(title, context));
+        claim.options.extra = extra;
+
+        parent_context
+            .losses
+            .merge(std::mem::take(&mut context.losses));
+        return Some(Block::Claim(claim));
+    }
+
+    if let Ok(kind) = name.parse::<ResearchBlockKind>() {
+        let (id, label, relations, extra) = myst_research_options(&options);
+        let title = args
+            .map(str::trim)
+            .filter(|title| !title.is_empty())
+            .map(|title| decode_inlines(title, context));
+        let content = decode_blocks(&value, context);
+        let block = kind.into_block(ResearchBlockFields {
+            id,
+            label,
+            title,
+            content,
+            relations,
+            extra,
         });
+
         parent_context
             .losses
             .merge(std::mem::take(&mut context.losses));
@@ -2198,6 +2557,29 @@ fn myst_to_block(code: &mdast::Code, context: &mut Context) -> Option<Block> {
         .losses
         .merge(std::mem::take(&mut context.losses));
     Some(block)
+}
+
+fn myst_research_options(
+    options: &IndexMap<&str, &str>,
+) -> (
+    Option<String>,
+    Option<String>,
+    Option<Vec<ResearchObjectRelation>>,
+    Option<Object>,
+) {
+    let id = options
+        .get("id")
+        .or_else(|| options.get("name"))
+        .map(|id| id.trim_start_matches('#').to_string());
+    let label = options.get("label").map(|label| label.to_string());
+    let attrs = options
+        .iter()
+        .filter(|(key, ..)| !matches!(**key, "id" | "name" | "label" | "class"))
+        .map(|(key, value)| (key.to_string(), research_option_value(value)))
+        .collect();
+    let (relations, extra) = partition_research_attrs(attrs);
+
+    (id, label, relations, extra)
 }
 
 /// Decode the body of an argumentless MyST figure into panels and a caption.

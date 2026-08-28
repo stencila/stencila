@@ -2,7 +2,7 @@ use stencila_codec_info::lost_options;
 
 use super::research_block::{
     push_extra_options, push_qmd_attr, push_qmd_extra_attrs, push_qmd_relation_attrs,
-    push_qmd_title, push_relation_options,
+    push_qmd_title, push_relation_options, push_title_option,
 };
 use crate::{Claim, prelude::*};
 
@@ -105,6 +105,7 @@ impl MarkdownCodec for Claim {
 
             context.newline();
 
+            push_title_option(context, &self.options.title);
             push_relation_options(context, &self.relations);
             push_extra_options(context, &self.options.extra);
 

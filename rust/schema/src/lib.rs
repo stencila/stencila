@@ -40,7 +40,10 @@ pub use stencila_node_type::{ContentType, NodeProperty, NodeType};
 
 pub mod cord_provenance;
 
-pub use implem::AuthorType;
+pub use implem::{
+    AuthorType, ResearchObjectFieldsMut, ResearchObjectMut, ResearchObjectRef,
+    research_relation_targets,
+};
 
 #[cfg(feature = "proptest")]
 mod proptests;

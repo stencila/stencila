@@ -64,7 +64,7 @@ mod runtime;
 mod source;
 mod workspace;
 
-pub use analysis::GraphAnalysis;
+pub use analysis::{GraphAnalysis, GraphDiagnostic, GraphDiagnosticKind};
 pub use asset::{AssetCredentialGraph, AssetGraphOptions, credential_graph_for_asset};
 pub use builder::GraphBuilder;
 pub use code::{StaticAnalysisDiagnostic, UnresolvedIoReason};

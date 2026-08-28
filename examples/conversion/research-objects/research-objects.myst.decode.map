@@ -1,0 +1,7 @@
+start     end        offsets   node_type+property                   authorship
+     0    175       (0, 175)   Claim
+   177    378     (177, 203)   Evidence
+   380    564     (203, 186)   Question
+   566    783     (186, 219)   Protocol
+   785    983     (219, 200)   Request
+     0    984      (-785, 1)   Article

@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<!DOCTYPE article SYSTEM "https://jats.nlm.nih.gov/archiving/1.4/JATS-archivearticle1-4-mathml3.dtd">
+<article dtd-version="1.4" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:mml="http://www.w3.org/1998/Math/MathML">
+  <front>
+    <article-meta></article-meta>
+  </front>
+  <body>
+    <statement id="claim-1" content-type="Statement">
+      <label>Claim 1</label>
+      <p>The intervention improves recovery.</p>
+    </statement>
+  </body>
+</article>

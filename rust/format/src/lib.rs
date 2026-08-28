@@ -86,6 +86,7 @@ pub enum Format {
     JsonZip,
     Json5,
     JsonLd,
+    MiraJsonLd,
     Cbor,
     CborZstd,
     Toml,
@@ -186,6 +187,7 @@ impl Format {
             Json => "JSON",
             Json5 => "JSON5",
             JsonLd => "JSON-LD",
+            MiraJsonLd => "MIRA JSON-LD",
             JsonZip => "JSON+Zip",
             Julia => "Julia",
             Koenig => "Koenig JSON",
@@ -385,6 +387,7 @@ impl Format {
             self,
             Json | Json5
                 | JsonLd
+                | MiraJsonLd
                 | Ipynb
                 | Lexical
                 | Koenig
@@ -450,6 +453,7 @@ impl Format {
             "json" => Json,
             "json5" => Json5,
             "jsonld" | "json-ld" => JsonLd,
+            "mira" | "mira-jsonld" | "mirajsonld" | "mira.jsonld" => MiraJsonLd,
             "jsonzip" | "json.zip" => JsonZip,
             "julia" | "jl" => Julia,
             "koenig" => Koenig,
@@ -532,6 +536,8 @@ impl Format {
             (".email.html", Email),
             (".jats.xml", Jats),
             (".json.zip", JsonZip),
+            (".mira.json", MiraJsonLd),
+            (".mira.jsonld", MiraJsonLd),
             (".oxa.json", OxaJson),
             (".oxa.yaml", OxaYaml),
             (".oxa.yml", OxaYaml),
@@ -630,6 +636,7 @@ impl Format {
             Json => "application/json".to_string(),
             JsonZip => "application/json+zip".to_string(),
             JsonLd => "application/ld+json".to_string(),
+            MiraJsonLd => "application/ld+json".to_string(),
             OxaJson => "application/vnd.oxa+json".to_string(),
             OxaYaml => "application/vnd.oxa+yaml".to_string(),
             Tiptap => "application/json".to_string(),
@@ -668,6 +675,7 @@ impl Format {
         use Format::*;
         match self {
             Jats => "jats.xml".to_string(),
+            MiraJsonLd => "mira.jsonld".to_string(),
             OxaJson => "oxa.json".to_string(),
             OxaYaml => "oxa.yaml".to_string(),
             _ => self.to_string(),
@@ -722,6 +730,7 @@ impl Display for Format {
             Json => "json",
             Json5 => "json5",
             JsonLd => "jsonld",
+            MiraJsonLd => "mira.jsonld",
             JsonZip => "json.zip",
             Koenig => "koenig",
             Julia => "julia",
@@ -815,6 +824,8 @@ mod test {
         assert_eq!(Format::from_url("document.oxa.json"), Format::OxaJson);
         assert_eq!(Format::from_url("document.oxa.yaml"), Format::OxaYaml);
         assert_eq!(Format::from_url("document.oxa.yml"), Format::OxaYaml);
+        assert_eq!(Format::from_url("document.mira.json"), Format::MiraJsonLd);
+        assert_eq!(Format::from_url("document.mira.jsonld"), Format::MiraJsonLd);
 
         assert_eq!(
             Format::from_url("file.foo"),
@@ -879,6 +890,15 @@ mod test {
         assert_eq!(Format::from_content_type("application/pdf")?, Format::Pdf);
 
         Ok(())
+    }
+
+    #[test]
+    fn mira_jsonld_format_metadata() {
+        assert_eq!(Format::from_name("mira"), Format::MiraJsonLd);
+        assert_eq!(Format::from_name("mira-jsonld"), Format::MiraJsonLd);
+        assert_eq!(Format::MiraJsonLd.name(), "MIRA JSON-LD");
+        assert_eq!(Format::MiraJsonLd.extension(), "mira.jsonld");
+        assert_eq!(Format::MiraJsonLd.media_type(), "application/ld+json");
     }
 
     #[test]

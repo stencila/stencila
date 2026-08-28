@@ -254,7 +254,9 @@ pub(super) fn attr<'s>(input: &mut Located<&'s str>) -> ModalResult<(&'s str, Op
     alt((
         separated_pair(
             alt((
-                take_while(1.., |c: char| c.is_ascii_alphanumeric() || c == '-'),
+                take_while(1.., |c: char| {
+                    c.is_ascii_alphanumeric() || matches!(c, '-' | '_')
+                }),
                 name,
             )),
             (multispace0, '=', multispace0),
@@ -262,7 +264,9 @@ pub(super) fn attr<'s>(input: &mut Located<&'s str>) -> ModalResult<(&'s str, Op
         )
         .map(|(name, value)| (name, Some(value))),
         alt((
-            take_while(1.., |c: char| c.is_ascii_alphanumeric() || c == '-'),
+            take_while(1.., |c: char| {
+                c.is_ascii_alphanumeric() || matches!(c, '-' | '_')
+            }),
             name,
         ))
         .map(|name| (name, None)),

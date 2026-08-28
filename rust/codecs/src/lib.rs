@@ -60,6 +60,7 @@ use stencila_codec_latex::LatexCodec;
 use stencila_codec_lexical::LexicalCodec;
 use stencila_codec_markdown::MarkdownCodec;
 use stencila_codec_meca::MecaCodec;
+use stencila_codec_mira::MiraCodec;
 use stencila_codec_odt::OdtCodec;
 use stencila_codec_openalex::OpenAlexCodec;
 use stencila_codec_openrxiv::OpenRxivCodec;
@@ -110,6 +111,7 @@ pub fn list() -> Vec<Box<dyn Codec>> {
         Box::new(LexicalCodec),
         Box::new(MarkdownCodec),
         Box::new(MecaCodec),
+        Box::new(MiraCodec),
         //#[cfg(feature = "stencila-codec-polars")]
         //Box::new(PolarsCodec),
         Box::new(RnwCodec),

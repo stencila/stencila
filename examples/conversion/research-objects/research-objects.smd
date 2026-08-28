@@ -1,0 +1,41 @@
+::: statement Claim 1 #claim-1
+:title: Main claim
+:supported-by: #evidence-1
+
+The intervention improves recovery.
+
+:::
+
+::: evidence Evidence 1 #evidence-1
+:title: Trial result
+:supports: #claim-1
+:source: randomized trial
+
+Participants recovered two days sooner.
+
+:::
+
+::: question Question 1 #question-1
+:title: Research question
+:addressed-by: #claim-1
+
+Does the intervention shorten recovery?
+
+:::
+
+::: protocol Protocol 1 #protocol-1
+:title: Trial protocol
+:follows: https://example.org/protocols/baseline
+
+Randomize participants and measure recovery daily.
+
+:::
+
+::: request Request 1 #request-1
+:title: Replication request
+:request-target: #claim-1
+:priority: 2
+
+Replicate the trial in a larger cohort.
+
+:::
