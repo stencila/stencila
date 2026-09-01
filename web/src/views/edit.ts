@@ -15,6 +15,7 @@ import { createStencilaTiptapExtensions } from '../tiptap/extensions'
 import { initUno } from '../unocss'
 
 import './edit.css'
+import './edit/nodes/research-object-menu'
 import './edit/nodes/toolbar'
 
 initUno()
@@ -176,6 +177,9 @@ export class EditView extends LitElement {
         <stencila-edit-node-toolbar
           .editor=${this.editor}
         ></stencila-edit-node-toolbar>
+        <stencila-edit-research-object-menu
+          .editor=${this.editor}
+        ></stencila-edit-research-object-menu>
       </div>
     `
   }

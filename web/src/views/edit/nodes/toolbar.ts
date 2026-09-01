@@ -18,6 +18,7 @@ import { customElement, property, state } from 'lit/decorators'
 
 import './code-block'
 import './math'
+import './research-object'
 import type {
   EditNodePropertyNodeType,
   EditNodePropertyTarget,
@@ -422,6 +423,19 @@ export class EditNodeToolbar extends LitElement {
     `
   }
 
+  private renderResearchObjectEditPopover(
+    target: PositionedEditNodePropertyTarget
+  ) {
+    return html`
+      <stencila-edit-research-object-properties
+        .editor=${this.attachedEditor}
+        .target=${target}
+        @edit-node-properties-close=${this.closePopover}
+        @edit-node-properties-change=${this.handlePropertiesChanged}
+      ></stencila-edit-research-object-properties>
+    `
+  }
+
   private readonly editPopoverRenderers: Record<
     EditNodePropertyNodeType,
     (target: PositionedEditNodePropertyTarget) => TemplateResult
@@ -436,6 +450,11 @@ export class EditNodeToolbar extends LitElement {
     `,
     mathBlock: (target) => this.renderMathEditPopover(target),
     mathInline: (target) => this.renderMathEditPopover(target),
+    claim: (target) => this.renderResearchObjectEditPopover(target),
+    evidence: (target) => this.renderResearchObjectEditPopover(target),
+    question: (target) => this.renderResearchObjectEditPopover(target),
+    protocol: (target) => this.renderResearchObjectEditPopover(target),
+    request: (target) => this.renderResearchObjectEditPopover(target),
     table: (target) => html`
       <stencila-edit-table-properties
         .editor=${this.attachedEditor}

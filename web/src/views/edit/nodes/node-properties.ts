@@ -9,8 +9,18 @@
  * Tiptap nodes (`codeBlock`, `table`) and opaque Stencila placeholders
  * (`stencilaBlock`) in one place.
  */
+import type { ResearchObjectRelationKind } from '@stencila/types'
 import type { Node as ProseMirrorNode } from '@tiptap/pm/model'
 import { type EditorState, NodeSelection, type Transaction } from '@tiptap/pm/state'
+
+import {
+  RESEARCH_OBJECT_RELATION_KINDS,
+  type ResearchObjectNodeName,
+  isResearchObjectNodeName,
+  recommendedRelationKinds,
+  recommendedRelationTargets,
+  relationKindLabel,
+} from '../../../tiptap/research-objects'
 
 /**
  * Node types whose properties can be edited from the toolbar.
@@ -23,6 +33,11 @@ export const EDIT_NODE_PROPERTY_NODE_TYPES = [
   'mathBlock',
   'mathInline',
   'table',
+  'claim',
+  'evidence',
+  'question',
+  'protocol',
+  'request',
   'stencilaBlock',
 ] as const
 
@@ -45,6 +60,29 @@ export interface EditNodePropertyTarget {
   programmingLanguage?: string
   mathLanguage?: string
   isDemo?: boolean
+  relations?: EditNodeRelation[]
+  researchObjectLabel?: string
+  researchObjectTitle?: string
+  claimType?: string
+}
+
+export interface EditNodeRelation {
+  kind: ResearchObjectRelationKind
+  target: string
+}
+
+export interface EditNodeRelationDraft extends EditNodeRelation {
+  /** Position of an id-less in-document target awaiting ID generation. */
+  targetPos?: number
+}
+
+export interface ResearchObjectTargetOption {
+  pos: number
+  typeName: ResearchObjectNodeName
+  id?: string
+  label?: string
+  title?: string
+  excerpt: string
 }
 
 /**
@@ -59,6 +97,7 @@ export interface EditNodePropertyPatch {
   programmingLanguage?: string | null
   mathLanguage?: string | null
   isDemo?: boolean | null
+  relations?: EditNodeRelationDraft[] | null
 }
 
 /**
@@ -95,6 +134,157 @@ function isRecord(value: unknown): value is Record<string, unknown> {
 
 function optionalString(value: unknown): string | undefined {
   return typeof value === 'string' && value.length > 0 ? value : undefined
+}
+
+/** Relation kinds ordered with MIRA-recommended choices first. */
+export function relationKindsForSource(
+  typeName: string
+): ResearchObjectRelationKind[] {
+  if (!isResearchObjectNodeName(typeName)) {
+    return [...RESEARCH_OBJECT_RELATION_KINDS]
+  }
+
+  const recommended = new Set(recommendedRelationKinds(typeName))
+  return [
+    ...RESEARCH_OBJECT_RELATION_KINDS.filter((kind) => recommended.has(kind)),
+    ...RESEARCH_OBJECT_RELATION_KINDS.filter((kind) => !recommended.has(kind)),
+  ]
+}
+
+export function isRelationKindRecommended(
+  source: string,
+  kind: ResearchObjectRelationKind
+): boolean {
+  return (
+    isResearchObjectNodeName(source) &&
+    recommendedRelationKinds(source).includes(kind)
+  )
+}
+
+/** Recommended target types for a kind; all target types remain authorable. */
+export function relationKindRange(
+  kind: ResearchObjectRelationKind
+): readonly ResearchObjectNodeName[] {
+  return recommendedRelationTargets(kind)
+}
+
+export { relationKindLabel }
+
+function readRelations(node: ProseMirrorNode): EditNodeRelation[] | undefined {
+  if (!isResearchObjectNodeName(node.type.name)) {
+    return undefined
+  }
+
+  const value: unknown = node.attrs.relations
+  if (!Array.isArray(value)) {
+    return undefined
+  }
+
+  const relations = value.filter(
+    (row): row is EditNodeRelation =>
+      isRecord(row) &&
+      typeof row.kind === 'string' &&
+      RESEARCH_OBJECT_RELATION_KINDS.includes(
+        row.kind as ResearchObjectRelationKind
+      ) &&
+      typeof row.target === 'string'
+  )
+  return relations.length > 0 ? relations : undefined
+}
+
+function nodeExcerpt(node: ProseMirrorNode): string {
+  const text = node.textContent.replace(/\s+/g, ' ').trim()
+  return text.length > 60 ? `${text.slice(0, 60).trimEnd()}…` : text
+}
+
+/** List every in-document ResearchObject except the source. */
+export function listResearchObjectTargets(
+  state: EditorState,
+  excludePos: number
+): ResearchObjectTargetOption[] {
+  const options: ResearchObjectTargetOption[] = []
+
+  state.doc.descendants((node, pos) => {
+    if (pos === excludePos || !isResearchObjectNodeName(node.type.name)) {
+      return true
+    }
+
+    options.push({
+      pos,
+      typeName: node.type.name,
+      id: optionalString(node.attrs.id),
+      label: optionalString(node.attrs.label),
+      title: optionalString(node.attrs.title),
+      excerpt: nodeExcerpt(node),
+    })
+    return true
+  })
+
+  return options
+}
+
+function normalizeRelationTarget(target: string): string {
+  const trimmed = target.trim()
+  return trimmed.startsWith('#') ? trimmed.slice(1) : trimmed
+}
+
+/** Count relation rows that currently reference a persistent ID. */
+export function incomingRelationCount(
+  state: EditorState,
+  id: string
+): number {
+  let count = 0
+  state.doc.descendants((node) => {
+    for (const relation of readRelations(node) ?? []) {
+      if (normalizeRelationTarget(relation.target) === id) {
+        count += 1
+      }
+    }
+    return true
+  })
+  return count
+}
+
+export function validateRelationDrafts(
+  rows: EditNodeRelationDraft[]
+): { ok: true } | { ok: false; message: string } {
+  for (const row of rows) {
+    const target = row.target.trim()
+    if (!target && row.targetPos === undefined) {
+      return { ok: false, message: 'Relation target is empty' }
+    }
+    if (/\s/.test(target)) {
+      return { ok: false, message: 'Relation target cannot contain spaces' }
+    }
+  }
+  return { ok: true }
+}
+
+/** Generate a collision-free persistent ID for an id-less relation target. */
+export function generatePersistentId(
+  state: EditorState,
+  typeName: ResearchObjectNodeName,
+  taken: ReadonlySet<string> = new Set()
+): string {
+  for (;;) {
+    const suffix = crypto.randomUUID().replace(/-/g, '').slice(0, 8)
+    const id = `${typeName}-${suffix}`
+    if (taken.has(id)) {
+      continue
+    }
+
+    let duplicate = false
+    state.doc.descendants((node) => {
+      if (readPersistentId(node) === id) {
+        duplicate = true
+        return false
+      }
+      return true
+    })
+    if (!duplicate) {
+      return id
+    }
+  }
 }
 
 function optionalBoolean(value: unknown): boolean | undefined {
@@ -212,6 +402,11 @@ const NODE_TYPE_ICONS: Record<string, string> = {
   mathBlock: 'i-lucide:sigma',
   mathInline: 'i-lucide:sigma',
   table: 'i-lucide:table',
+  claim: 'i-lucide:badge-check',
+  evidence: 'i-lucide:scale',
+  question: 'i-lucide:circle-help',
+  protocol: 'i-lucide:clipboard-list',
+  request: 'i-lucide:hand',
   CodeChunk: 'i-lucide:square-terminal',
   MathBlock: 'i-lucide:sigma',
   Figure: 'i-lucide:image',
@@ -290,6 +485,15 @@ function targetFromNode(
     programmingLanguage: readProgrammingLanguage(node),
     mathLanguage: readMathLanguage(node),
     isDemo: readPropertyBoolean(node, 'isDemo'),
+    relations: readRelations(node),
+    researchObjectLabel: isResearchObjectNodeName(typeName)
+      ? optionalString(node.attrs.label)
+      : undefined,
+    researchObjectTitle: isResearchObjectNodeName(typeName)
+      ? optionalString(node.attrs.title)
+      : undefined,
+    claimType:
+      typeName === 'claim' ? optionalString(node.attrs.claimType) : undefined,
   }
 }
 
@@ -425,6 +629,26 @@ export function validatePersistentIdInput(
   }
 }
 
+export function validatePersistentIdRemoval(
+  state: EditorState,
+  target: EditNodePropertyTarget
+): { ok: true } | { ok: false; message: string } {
+  if (
+    !isResearchObjectNodeName(target.typeName) ||
+    !target.persistentId
+  ) {
+    return { ok: true }
+  }
+
+  const incoming = incomingRelationCount(state, target.persistentId)
+  return incoming > 0
+    ? {
+        ok: false,
+        message: `Persistent id is referenced by ${incoming} ${incoming === 1 ? 'relation' : 'relations'}`,
+      }
+    : { ok: true }
+}
+
 /**
  * Compute the new attributes for a node after applying a property patch, or
  * `undefined` if the node is not editable.
@@ -471,6 +695,13 @@ function attrsWithPropertyPatch(
       attrs.images = null
     }
 
+    if (isResearchObjectNodeName(typeName) && patch.relations !== undefined) {
+      attrs.relations =
+        patch.relations && patch.relations.length > 0
+          ? patch.relations.map(({ kind, target }) => ({ kind, target }))
+          : null
+    }
+
     return attrs
   }
 
@@ -511,10 +742,102 @@ export function setEditNodePropertiesTransaction(
     return undefined
   }
 
-  const attrs = attrsWithPropertyPatch(node, patch)
-  if (!attrs) {
+  if (
+    patch.persistentId === null &&
+    validatePersistentIdRemoval(state, target).ok === false
+  ) {
     return undefined
   }
 
-  return state.tr.setNodeMarkup(target.pos, undefined, attrs, node.marks)
+  const updates = new Map<
+    number,
+    { node: ProseMirrorNode; attrs: Record<string, unknown> }
+  >()
+  const updateNode = (
+    pos: number,
+    updateNode: ProseMirrorNode,
+    attrs: Record<string, unknown>
+  ) => {
+    updates.set(pos, {
+      node: updateNode,
+      attrs: { ...(updates.get(pos)?.attrs ?? updateNode.attrs), ...attrs },
+    })
+  }
+
+  let resolvedPatch = patch
+  if (patch.relations) {
+    const taken = new Set<string>()
+    const relations = patch.relations.map((row): EditNodeRelation => {
+      if (row.targetPos === undefined) {
+        return { kind: row.kind, target: row.target.trim() }
+      }
+
+      const targetNode = state.doc.nodeAt(row.targetPos)
+      if (!targetNode || !isResearchObjectNodeName(targetNode.type.name)) {
+        return { kind: row.kind, target: row.target.trim() }
+      }
+
+      let id = optionalString(targetNode.attrs.id)
+      if (!id) {
+        id = generatePersistentId(state, targetNode.type.name, taken)
+        taken.add(id)
+        updateNode(row.targetPos, targetNode, { id })
+      }
+      return { kind: row.kind, target: `#${id}` }
+    })
+    resolvedPatch = { ...patch, relations }
+  }
+
+  const attrs = attrsWithPropertyPatch(node, resolvedPatch)
+  if (!attrs) {
+    return undefined
+  }
+  updateNode(target.pos, node, attrs)
+
+  const oldId = readPersistentId(node)
+  const newId =
+    resolvedPatch.persistentId === undefined
+      ? oldId
+      : resolvedPatch.persistentId ?? undefined
+  if (
+    isResearchObjectNodeName(node.type.name) &&
+    oldId &&
+    newId &&
+    oldId !== newId
+  ) {
+    state.doc.descendants((candidate, pos) => {
+      if (!isResearchObjectNodeName(candidate.type.name)) {
+        return true
+      }
+
+      const candidateAttrs = updates.get(pos)?.attrs ?? candidate.attrs
+      const relations = candidateAttrs.relations
+      if (!Array.isArray(relations)) {
+        return true
+      }
+
+      let changed = false
+      const rewritten = relations.map((relation) => {
+        if (
+          !isRecord(relation) ||
+          typeof relation.target !== 'string' ||
+          normalizeRelationTarget(relation.target) !== oldId
+        ) {
+          return relation
+        }
+        changed = true
+        return { ...relation, target: `#${newId}` }
+      })
+      if (changed) {
+        updateNode(pos, candidate, { relations: rewritten })
+      }
+      return true
+    })
+  }
+
+  const transaction = state.tr
+  for (const [pos, update] of updates) {
+    transaction.setNodeMarkup(pos, undefined, update.attrs, update.node.marks)
+  }
+  return transaction
 }

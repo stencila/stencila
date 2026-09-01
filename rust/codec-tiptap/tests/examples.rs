@@ -1087,6 +1087,149 @@ fn records_losses_for_unknown_tiptap_nodes_and_marks() -> Result<()> {
 }
 
 #[test]
+fn research_objects_are_native_editable_wrappers_with_preserved_metadata() -> Result<()> {
+    let source: Node = serde_json::from_value(json!({
+        "type": "Article",
+        "content": [
+            {
+                "type": "Claim",
+                "id": "claim-1",
+                "label": "Claim 1",
+                "claimType": "Hypothesis",
+                "title": [{"type": "Text", "value": {"string": "Main claim"}}],
+                "relations": [
+                    {"type": "ResearchObjectRelation", "kind": "SupportedBy", "target": "#evidence-1"}
+                ],
+                "content": [
+                    {"type": "Paragraph", "content": [{"type": "Text", "value": {"string": "A claim"}}]}
+                ]
+            },
+            {
+                "type": "Evidence",
+                "id": "evidence-1",
+                "label": "Evidence 1",
+                "title": [{"type": "Text", "value": {"string": "Trial result"}}],
+                "source": "randomized trial",
+                "content": [
+                    {"type": "Paragraph", "content": [{"type": "Text", "value": {"string": "Evidence"}}]}
+                ]
+            },
+            {
+                "type": "Question",
+                "content": [
+                    {"type": "Paragraph", "content": [{"type": "Text", "value": {"string": "Question"}}]},
+                    {
+                        "type": "Claim",
+                        "content": [
+                            {"type": "Paragraph", "content": [{"type": "Text", "value": {"string": "Nested claim"}}]}
+                        ]
+                    }
+                ]
+            },
+            {
+                "type": "Protocol",
+                "content": [
+                    {"type": "Paragraph", "content": [{"type": "Text", "value": {"string": "Protocol"}}]}
+                ]
+            },
+            {
+                "type": "Request",
+                "priority": 2,
+                "content": [
+                    {"type": "Paragraph", "content": [{"type": "Text", "value": {"string": "Request"}}]}
+                ]
+            }
+        ]
+    }))?;
+
+    let (encoded, info) = encode(&source, None)?;
+    assert!(info.losses.is_empty());
+    let mut tiptap = encoded_json(&encoded)?;
+
+    for (index, node_type) in ["claim", "evidence", "question", "protocol", "request"]
+        .into_iter()
+        .enumerate()
+    {
+        assert_eq!(tiptap["content"][index]["type"], node_type);
+    }
+    assert_eq!(tiptap["content"][0]["attrs"]["title"], json!("Main claim"));
+    assert_eq!(
+        tiptap["content"][1]["attrs"]["metadata"]["source"],
+        json!("randomized trial")
+    );
+    assert_eq!(
+        tiptap["content"][4]["attrs"]["metadata"]["priority"],
+        json!(2)
+    );
+    assert_eq!(tiptap["content"][2]["content"][1]["type"], "claim");
+
+    tiptap["content"][0]["attrs"]["id"] = json!("claim-edited");
+    tiptap["content"][0]["attrs"]["relations"] = json!([
+        {"kind": "OpposedBy", "target": "#evidence-1"}
+    ]);
+    tiptap["content"][0]["content"][0]["content"][0]["text"] = json!("Edited claim");
+
+    let (decoded, info) = decode(&serde_json::to_string(&tiptap)?, None)?;
+    assert!(info.losses.is_empty());
+    let decoded = serde_json::to_value(decoded)?;
+
+    assert_eq!(decoded["content"][0]["id"], json!("claim-edited"));
+    assert_eq!(
+        decoded["content"][0]["relations"][0]["kind"],
+        json!("OpposedBy")
+    );
+    assert_eq!(
+        decoded["content"][0]["content"][0]["content"][0]["value"]["string"],
+        json!("Edited claim")
+    );
+    assert_eq!(
+        decoded["content"][0]["title"][0]["value"]["string"],
+        json!("Main claim")
+    );
+    assert_eq!(decoded["content"][0]["claimType"], json!("Hypothesis"));
+    assert_eq!(decoded["content"][1]["source"], json!("randomized trial"));
+    assert_eq!(decoded["content"][4]["priority"], json!(2));
+    assert_eq!(decoded["content"][2]["content"][1]["type"], "Claim");
+
+    Ok(())
+}
+
+#[test]
+fn invalid_research_object_relations_are_losses() -> Result<()> {
+    let json = json!({
+        "type": "doc",
+        "content": [{
+            "type": "claim",
+            "attrs": {
+                "metadata": null,
+                "relations": [
+                    {"kind": "NotAKind", "target": "#evidence-1"},
+                    {"kind": "SupportedBy", "target": "  "},
+                    {"kind": "SupportedBy", "target": "#evidence-2"}
+                ]
+            },
+            "content": [{"type": "paragraph", "content": [{"type": "text", "text": "Claim"}]}]
+        }]
+    });
+
+    let (node, info) = decode(&serde_json::to_string(&json)?, None)?;
+    assert_eq!(
+        losses_json(&info.losses)?,
+        json!({
+            "Claim.relations.kind (NotAKind)": 1,
+            "Claim.relations.target": 1
+        })
+    );
+    let node = serde_json::to_value(node)?;
+    assert_eq!(
+        node["content"][0]["relations"],
+        json!([{"type": "ResearchObjectRelation", "kind": "SupportedBy", "target": "#evidence-2"}])
+    );
+
+    Ok(())
+}
+
+#[test]
 fn preserve_unsupported_block_opaque_payload() -> Result<()> {
     let code_chunk = Block::CodeChunk(CodeChunk {
         code: "print('hello')".into(),

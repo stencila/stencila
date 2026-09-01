@@ -13,6 +13,7 @@ import type { EditNodePropertyPatch } from './node-properties'
 import {
   normalizePersistentIdInput,
   validatePersistentIdInput,
+  validatePersistentIdRemoval,
 } from './node-properties'
 import '../properties/persistent-id'
 import { EditNodePropertiesBase } from './base'
@@ -63,6 +64,11 @@ export abstract class EditPersistentIdNodePropertiesBase extends EditNodePropert
 
     const normalizedId = normalizePersistentIdInput(this.draftPersistentId)
     if (!normalizedId) {
+      const validation = validatePersistentIdRemoval(editor.state, target)
+      if (validation.ok === false) {
+        this.persistentIdError = validation.message
+        return undefined
+      }
       return { persistentId: null }
     }
 
@@ -80,6 +86,17 @@ export abstract class EditPersistentIdNodePropertiesBase extends EditNodePropert
   }
 
   protected removePersistentId = () => {
+    const editor = this.editor
+    const target = this.target
+    if (!editor || !target) {
+      return
+    }
+
+    const validation = validatePersistentIdRemoval(editor.state, target)
+    if (validation.ok === false) {
+      this.persistentIdError = validation.message
+      return
+    }
     this.dispatchPropertyPatch({ persistentId: null })
   }
 

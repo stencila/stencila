@@ -20,6 +20,7 @@ import TableHeader from '@tiptap/extension-table-header'
 import TableRow from '@tiptap/extension-table-row'
 import Text from '@tiptap/extension-text'
 
+import { passthroughAttrs } from './attributes'
 import { History } from './history'
 import { MathBlock, MathInline } from './math'
 import {
@@ -30,6 +31,8 @@ import {
   SuperscriptMark,
   UnderlineMark,
 } from './marks'
+import { ResearchObjectExtensions } from './research-objects'
+import { SlashMenu } from './slash-menu'
 import { StencilaBlock, StencilaInline } from './stencila'
 
 const EditableDocument = Document.extend({
@@ -40,14 +43,7 @@ const EditableCodeBlock = CodeBlock.extend({
   addAttributes() {
     return {
       ...(this.parent?.() ?? {}),
-      id: {
-        default: null,
-        rendered: false,
-      },
-      isDemo: {
-        default: null,
-        rendered: false,
-      },
+      ...passthroughAttrs('id', 'isDemo'),
     }
   },
 })
@@ -56,26 +52,7 @@ const EditableTable = Table.extend({
   addAttributes() {
     return {
       ...(this.parent?.() ?? {}),
-      id: {
-        default: null,
-        rendered: false,
-      },
-      label: {
-        default: null,
-        rendered: false,
-      },
-      labelAutomatically: {
-        default: null,
-        rendered: false,
-      },
-      caption: {
-        default: null,
-        rendered: false,
-      },
-      notes: {
-        default: null,
-        rendered: false,
-      },
+      ...passthroughAttrs('id', 'label', 'labelAutomatically', 'caption', 'notes'),
     }
   },
 })
@@ -95,6 +72,9 @@ export function createStencilaTiptapExtensions(): Extensions {
     EditableCodeBlock,
     MathBlock,
     HorizontalRule,
+
+    // Native Stencila ResearchObject wrappers
+    ...ResearchObjectExtensions,
 
     // List structure
     BulletList,
@@ -127,5 +107,6 @@ export function createStencilaTiptapExtensions(): Extensions {
 
     // Editing behavior
     History,
+    SlashMenu,
   ]
 }

@@ -6,9 +6,14 @@ import { createStencilaTiptapExtensions } from '../../../tiptap/extensions'
 
 import {
   findEditNodePropertyTarget,
+  listResearchObjectTargets,
   normalizePersistentIdInput,
+  relationKindRange,
+  relationKindsForSource,
   setEditNodePropertiesTransaction,
   validatePersistentIdInput,
+  validatePersistentIdRemoval,
+  validateRelationDrafts,
 } from './node-properties'
 
 function createEditor(content: JSONContent): Editor {
@@ -511,5 +516,224 @@ describe('edit node property helpers', () => {
     } finally {
       editor.destroy()
     }
+  })
+})
+
+function researchObject(
+  type: string,
+  attrs: Record<string, unknown>,
+  text: string
+): JSONContent {
+  return {
+    type,
+    attrs,
+    content: [
+      {
+        type: 'paragraph',
+        content: [{ type: 'text', text }],
+      },
+    ],
+  }
+}
+
+describe('ResearchObject properties and relations', () => {
+  it('targets a wrapper from its editable content', () => {
+    const editor = createEditor({
+      type: 'doc',
+      content: [
+        researchObject(
+          'claim',
+          {
+            id: 'claim-1',
+            label: 'Claim 1',
+            title: 'Main claim',
+            claimType: 'Hypothesis',
+          },
+          'A claim'
+        ),
+      ],
+    })
+
+    try {
+      selectText(editor, 'A claim')
+      expect(findEditNodePropertyTarget(editor.state)).toMatchObject({
+        typeName: 'claim',
+        persistentId: 'claim-1',
+        researchObjectLabel: 'Claim 1',
+        researchObjectTitle: 'Main claim',
+        claimType: 'Hypothesis',
+      })
+    } finally {
+      editor.destroy()
+    }
+  })
+
+  it('orders relation choices by advisory MIRA semantics', () => {
+    expect(relationKindsForSource('question')).toEqual([
+      'AddressedBy',
+      'Supports',
+      'SupportedBy',
+      'Opposes',
+      'OpposedBy',
+      'Addresses',
+      'Follows',
+      'Grounds',
+      'IsGroundedIn',
+      'RequestFor',
+      'RequestTarget',
+    ])
+    expect(relationKindRange('SupportedBy')).toEqual(['claim', 'evidence'])
+  })
+
+  it('lists every other ResearchObject as a potential target', () => {
+    const editor = createEditor({
+      type: 'doc',
+      content: [
+        researchObject('claim', { id: 'claim-1' }, 'A claim'),
+        researchObject(
+          'evidence',
+          { id: 'evidence-1', label: 'Evidence 1' },
+          'Evidence'
+        ),
+        researchObject('protocol', {}, 'Protocol'),
+      ],
+    })
+
+    try {
+      selectText(editor, 'A claim')
+      const source = findEditNodePropertyTarget(editor.state)
+      if (!source) {
+        throw new Error('Expected ResearchObject source')
+      }
+      expect(listResearchObjectTargets(editor.state, source.pos)).toMatchObject([
+        {
+          typeName: 'evidence',
+          id: 'evidence-1',
+          label: 'Evidence 1',
+        },
+        { typeName: 'protocol', excerpt: 'Protocol' },
+      ])
+    } finally {
+      editor.destroy()
+    }
+  })
+
+  it('assigns an ID to an id-less in-document relation target', () => {
+    const editor = createEditor({
+      type: 'doc',
+      content: [
+        researchObject('claim', { id: 'claim-1' }, 'A claim'),
+        researchObject('evidence', {}, 'Evidence'),
+      ],
+    })
+
+    try {
+      selectText(editor, 'A claim')
+      const source = findEditNodePropertyTarget(editor.state)
+      if (!source) {
+        throw new Error('Expected ResearchObject source')
+      }
+      const [evidence] = listResearchObjectTargets(editor.state, source.pos)
+      const transaction = setEditNodePropertiesTransaction(
+        editor.state,
+        source,
+        {
+          relations: [
+            {
+              kind: 'SupportedBy',
+              target: '',
+              targetPos: evidence.pos,
+            },
+          ],
+        }
+      )
+      if (!transaction) {
+        throw new Error('Expected relation transaction')
+      }
+      editor.view.dispatch(transaction)
+
+      const content = editor.getJSON().content ?? []
+      const evidenceId = content[1]?.attrs?.id as string
+      expect(evidenceId).toMatch(/^evidence-[0-9a-f]{8}$/)
+      expect(content[0]?.attrs?.relations).toEqual([
+        { kind: 'SupportedBy', target: `#${evidenceId}` },
+      ])
+    } finally {
+      editor.destroy()
+    }
+  })
+
+  it('rewrites incoming relations when a target ID changes', () => {
+    const editor = createEditor({
+      type: 'doc',
+      content: [
+        researchObject('claim', { id: 'claim-old' }, 'A claim'),
+        researchObject(
+          'evidence',
+          { relations: [{ kind: 'Supports', target: '#claim-old' }] },
+          'Evidence'
+        ),
+        researchObject(
+          'request',
+          { relations: [{ kind: 'RequestTarget', target: 'claim-old' }] },
+          'Request'
+        ),
+      ],
+    })
+
+    try {
+      selectText(editor, 'A claim')
+      dispatchPersistentId(editor, 'claim-new')
+
+      const content = editor.getJSON().content ?? []
+      expect(content[0]?.attrs?.id).toBe('claim-new')
+      expect(content[1]?.attrs?.relations?.[0]?.target).toBe('#claim-new')
+      expect(content[2]?.attrs?.relations?.[0]?.target).toBe('#claim-new')
+    } finally {
+      editor.destroy()
+    }
+  })
+
+  it('blocks removal of a referenced ResearchObject ID', () => {
+    const editor = createEditor({
+      type: 'doc',
+      content: [
+        researchObject('claim', { id: 'claim-1' }, 'A claim'),
+        researchObject(
+          'evidence',
+          { relations: [{ kind: 'Supports', target: '#claim-1' }] },
+          'Evidence'
+        ),
+      ],
+    })
+
+    try {
+      selectText(editor, 'A claim')
+      const target = findEditNodePropertyTarget(editor.state)
+      if (!target) {
+        throw new Error('Expected ResearchObject target')
+      }
+      expect(validatePersistentIdRemoval(editor.state, target)).toEqual({
+        ok: false,
+        message: 'Persistent id is referenced by 1 relation',
+      })
+      expect(
+        setEditNodePropertiesTransaction(editor.state, target, {
+          persistentId: null,
+        })
+      ).toBeUndefined()
+    } finally {
+      editor.destroy()
+    }
+  })
+
+  it('accepts syntactically valid non-recommended relations', () => {
+    expect(validateRelationDrafts([{ kind: 'Follows', target: '#claim-1' }]))
+      .toEqual({ ok: true })
+    expect(validateRelationDrafts([{ kind: 'Follows', target: 'two words' }]))
+      .toEqual({
+        ok: false,
+        message: 'Relation target cannot contain spaces',
+      })
   })
 })

@@ -29,8 +29,12 @@ pub(super) enum BlockNode {
     Blockquote(BlockquoteNode),
     /// A native Tiptap bullet list node.
     BulletList(BulletListNode),
+    /// A native Stencila claim wrapper.
+    Claim(ClaimNode),
     /// A native Tiptap code block node.
     CodeBlock(CodeBlockNode),
+    /// A native Stencila evidence wrapper.
+    Evidence(EvidenceNode),
     /// A native Tiptap heading node.
     Heading(HeadingNode),
     /// A native Tiptap horizontal rule node.
@@ -41,6 +45,12 @@ pub(super) enum BlockNode {
     OrderedList(OrderedListNode),
     /// A native Tiptap paragraph node.
     Paragraph(ParagraphNode),
+    /// A native Stencila protocol wrapper.
+    Protocol(ProtocolNode),
+    /// A native Stencila question wrapper.
+    Question(QuestionNode),
+    /// A native Stencila request wrapper.
+    Request(RequestNode),
     /// A native Tiptap table node.
     Table(TableNode),
     /// A native Tiptap task list node.
@@ -61,6 +71,74 @@ pub(super) struct BlockquoteNode {
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub content: Vec<BlockNode>,
 }
+
+/// Attributes shared by native ResearchObject wrappers.
+///
+/// The properties the editor owns (`id`, `relations`, and `content`) are kept
+/// separate from `metadata`. This makes edits explicit while allowing all
+/// other schema properties to round-trip without duplicating nested content.
+#[derive(Debug, Default, Clone, PartialEq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub(super) struct ResearchObjectAttrs {
+    /// Persistent identifier edited by the node inspector.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub id: Option<String>,
+
+    /// Authored relations edited by the node inspector.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub relations: Option<Vec<RelationAttr>>,
+
+    /// All non-editable properties of the original Stencila node.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub metadata: Option<Map<String, Value>>,
+
+    /// Read-only label projected for the editor card.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub label: Option<String>,
+
+    /// Read-only plain-text title projected for the editor card.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub title: Option<String>,
+
+    /// Read-only claim type projected for claim cards.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub claim_type: Option<String>,
+}
+
+/// A relation carried by a ResearchObject wrapper attribute.
+#[derive(Debug, Default, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub(super) struct RelationAttr {
+    /// Relation kind in Stencila enumeration form.
+    pub kind: String,
+
+    /// Target research object, graph node, or external resource.
+    pub target: String,
+}
+
+macro_rules! research_object_node {
+    ($name:ident, $type:literal) => {
+        #[doc = concat!("A native Stencila `", $type, "` wrapper node.")]
+        #[derive(Debug, Default, Clone, PartialEq, Serialize, Deserialize)]
+        pub(super) struct $name {
+            /// The fixed custom Tiptap node type.
+            pub r#type: MustBe!($type),
+
+            /// Editable and preserved ResearchObject attributes.
+            #[serde(default)]
+            pub attrs: ResearchObjectAttrs,
+
+            /// Editable block content contained by the research object.
+            #[serde(default, skip_serializing_if = "Vec::is_empty")]
+            pub content: Vec<BlockNode>,
+        }
+    };
+}
+
+research_object_node!(ClaimNode, "claim");
+research_object_node!(EvidenceNode, "evidence");
+research_object_node!(ProtocolNode, "protocol");
+research_object_node!(QuestionNode, "question");
+research_object_node!(RequestNode, "request");
 
 /// A native Tiptap bullet list node.
 #[derive(Debug, Default, Clone, PartialEq, Serialize, Deserialize)]

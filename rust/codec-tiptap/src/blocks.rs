@@ -5,12 +5,15 @@
 //! opaque `stencilaBlock` nodes, while unsupported native Tiptap blocks are
 //! recorded as losses until explicit mappings are added.
 
-use serde_json::Value;
+use serde::Serialize;
+use serde_json::{Map, Value};
 use stencila_codec::stencila_schema::{
-    Block, CodeBlock, Heading, HorizontalAlignment, List, ListItem, ListOrder, MathBlock,
-    MathBlockOptions, Paragraph, QuoteBlock, Table, TableCell, TableCellType, TableRow,
+    Block, Claim, CodeBlock, Evidence, Heading, HorizontalAlignment, List, ListItem, ListOrder,
+    MathBlock, MathBlockOptions, Paragraph, Protocol, Question, QuoteBlock, Request,
+    ResearchObjectRelation, ResearchObjectRelationKind, Table, TableCell, TableCellType, TableRow,
     TableRowType, ThematicBreak,
 };
+use stencila_codec_text_trait::to_text;
 
 use crate::{
     inlines::{inlines_from_tiptap, inlines_to_tiptap},
@@ -18,9 +21,10 @@ use crate::{
     shared::TiptapDecodeContext,
     shared::TiptapEncodeContext,
     tiptap::{
-        self, BlockNode, BlockquoteNode, BulletListNode, CodeBlockAttrs, CodeBlockNode,
-        HeadingAttrs, HeadingNode, HorizontalRuleNode, InlineNode, ListItemNode, MathBlockAttrs,
-        MathBlockNode, OrderedListAttrs, OrderedListNode, ParagraphNode, StencilaAttrs,
+        self, BlockNode, BlockquoteNode, BulletListNode, ClaimNode, CodeBlockAttrs, CodeBlockNode,
+        EvidenceNode, HeadingAttrs, HeadingNode, HorizontalRuleNode, InlineNode, ListItemNode,
+        MathBlockAttrs, MathBlockNode, OrderedListAttrs, OrderedListNode, ParagraphNode,
+        ProtocolNode, QuestionNode, RelationAttr, RequestNode, ResearchObjectAttrs, StencilaAttrs,
         StencilaBlockNode, StencilaInlineNode, TableAttrs, TableCell as TiptapTableCell,
         TableCellAttrs, TableCellNode, TableHeader, TableNode, TableRowNode, TaskItemAttrs,
         TaskItemNode, TaskListNode, TextNode,
@@ -53,12 +57,27 @@ fn block_from_tiptap(block: BlockNode, context: &mut TiptapDecodeContext) -> Blo
     match block {
         BlockNode::Blockquote(blockquote) => quote_block_from_tiptap(blockquote, context),
         BlockNode::BulletList(bullet_list) => bullet_list_from_tiptap(bullet_list, context),
+        BlockNode::Claim(claim) => {
+            research_object_from_tiptap("Claim", claim.attrs, claim.content, context)
+        }
         BlockNode::CodeBlock(code_block) => code_block_from_tiptap(code_block, context),
+        BlockNode::Evidence(evidence) => {
+            research_object_from_tiptap("Evidence", evidence.attrs, evidence.content, context)
+        }
         BlockNode::Heading(heading) => heading_from_tiptap(heading, context),
         BlockNode::HorizontalRule(horizontal_rule) => thematic_break_from_tiptap(horizontal_rule),
         BlockNode::MathBlock(math_block) => math_block_from_tiptap(math_block, context),
         BlockNode::OrderedList(ordered_list) => ordered_list_from_tiptap(ordered_list, context),
         BlockNode::Paragraph(paragraph) => paragraph_from_tiptap(paragraph, context),
+        BlockNode::Protocol(protocol) => {
+            research_object_from_tiptap("Protocol", protocol.attrs, protocol.content, context)
+        }
+        BlockNode::Question(question) => {
+            research_object_from_tiptap("Question", question.attrs, question.content, context)
+        }
+        BlockNode::Request(request) => {
+            research_object_from_tiptap("Request", request.attrs, request.content, context)
+        }
         BlockNode::Table(table) => table_from_tiptap(table, context),
         BlockNode::TaskList(task_list) => task_list_from_tiptap(task_list, context),
         BlockNode::StencilaBlock(stencila_block) => {
@@ -70,12 +89,17 @@ fn block_from_tiptap(block: BlockNode, context: &mut TiptapDecodeContext) -> Blo
 
 fn block_to_tiptap(block: &Block, context: &mut TiptapEncodeContext) -> BlockNode {
     match block {
+        Block::Claim(claim) => claim_to_tiptap(claim, context),
         Block::CodeBlock(code_block) => code_block_to_tiptap(code_block),
+        Block::Evidence(evidence) => evidence_to_tiptap(evidence, context),
         Block::Heading(heading) => heading_to_tiptap(heading, context),
         Block::List(list) => list_to_tiptap(list, context),
         Block::MathBlock(math_block) => math_block_to_tiptap(math_block),
         Block::Paragraph(paragraph) => paragraph_to_tiptap(paragraph, context),
+        Block::Protocol(protocol) => protocol_to_tiptap(protocol, context),
+        Block::Question(question) => question_to_tiptap(question, context),
         Block::QuoteBlock(quote) => quote_block_to_tiptap(quote, context),
+        Block::Request(request) => request_to_tiptap(request, context),
         Block::Table(table) => table_to_tiptap(table, context),
         Block::ThematicBreak(..) => thematic_break_to_tiptap(),
         _ => opaque_block_to_tiptap(block, context),
@@ -152,6 +176,279 @@ fn quote_block_to_tiptap(quote: &QuoteBlock, context: &mut TiptapEncodeContext) 
         content: blocks_to_tiptap(&quote.content, context),
         r#type: Default::default(),
     })
+}
+
+/// Preserve all ResearchObject properties not owned by the editor.
+fn research_object_metadata<T: Serialize>(
+    node: &T,
+    node_type: &str,
+    context: &mut TiptapEncodeContext,
+) -> Map<String, Value> {
+    let Ok(Value::Object(mut metadata)) = serde_json::to_value(node) else {
+        context
+            .losses
+            .add(format!("{node_type}.metadata serialization"));
+        return Map::new();
+    };
+
+    for property in ["type", "id", "content", "relations"] {
+        metadata.remove(property);
+    }
+
+    metadata
+}
+
+fn relations_to_tiptap(
+    relations: &Option<Vec<ResearchObjectRelation>>,
+) -> Option<Vec<RelationAttr>> {
+    relations.as_ref().map(|relations| {
+        relations
+            .iter()
+            .map(|relation| RelationAttr {
+                kind: relation.kind.to_string(),
+                target: relation.target.clone(),
+            })
+            .collect()
+    })
+}
+
+#[derive(Default)]
+struct ResearchObjectDisplay {
+    label: Option<String>,
+    title: Option<String>,
+    claim_type: Option<String>,
+}
+
+fn research_object_attrs<T: Serialize>(
+    node: &T,
+    node_type: &str,
+    id: &Option<String>,
+    relations: &Option<Vec<ResearchObjectRelation>>,
+    display: ResearchObjectDisplay,
+    context: &mut TiptapEncodeContext,
+) -> ResearchObjectAttrs {
+    let metadata = research_object_metadata(node, node_type, context);
+    ResearchObjectAttrs {
+        id: id.clone(),
+        relations: relations_to_tiptap(relations),
+        metadata: (!metadata.is_empty()).then_some(metadata),
+        label: display.label,
+        title: display.title.filter(|title| !title.is_empty()),
+        claim_type: display.claim_type,
+    }
+}
+
+fn claim_to_tiptap(claim: &Claim, context: &mut TiptapEncodeContext) -> BlockNode {
+    BlockNode::Claim(ClaimNode {
+        attrs: research_object_attrs(
+            claim,
+            "Claim",
+            &claim.id,
+            &claim.relations,
+            ResearchObjectDisplay {
+                label: claim.label.clone(),
+                title: claim.options.title.as_ref().map(to_text),
+                claim_type: claim.claim_type.map(|claim_type| claim_type.to_string()),
+            },
+            context,
+        ),
+        content: blocks_to_tiptap(&claim.content, context),
+        r#type: Default::default(),
+    })
+}
+
+fn evidence_to_tiptap(evidence: &Evidence, context: &mut TiptapEncodeContext) -> BlockNode {
+    BlockNode::Evidence(EvidenceNode {
+        attrs: research_object_attrs(
+            evidence,
+            "Evidence",
+            &evidence.id,
+            &evidence.relations,
+            ResearchObjectDisplay {
+                label: evidence.label.clone(),
+                title: evidence.options.title.as_ref().map(to_text),
+                ..Default::default()
+            },
+            context,
+        ),
+        content: blocks_to_tiptap(&evidence.content, context),
+        r#type: Default::default(),
+    })
+}
+
+fn protocol_to_tiptap(protocol: &Protocol, context: &mut TiptapEncodeContext) -> BlockNode {
+    BlockNode::Protocol(ProtocolNode {
+        attrs: research_object_attrs(
+            protocol,
+            "Protocol",
+            &protocol.id,
+            &protocol.relations,
+            ResearchObjectDisplay {
+                label: protocol.label.clone(),
+                title: protocol.options.title.as_ref().map(to_text),
+                ..Default::default()
+            },
+            context,
+        ),
+        content: blocks_to_tiptap(&protocol.content, context),
+        r#type: Default::default(),
+    })
+}
+
+fn question_to_tiptap(question: &Question, context: &mut TiptapEncodeContext) -> BlockNode {
+    BlockNode::Question(QuestionNode {
+        attrs: research_object_attrs(
+            question,
+            "Question",
+            &question.id,
+            &question.relations,
+            ResearchObjectDisplay {
+                label: question.label.clone(),
+                title: question.options.title.as_ref().map(to_text),
+                ..Default::default()
+            },
+            context,
+        ),
+        content: blocks_to_tiptap(&question.content, context),
+        r#type: Default::default(),
+    })
+}
+
+fn request_to_tiptap(request: &Request, context: &mut TiptapEncodeContext) -> BlockNode {
+    BlockNode::Request(RequestNode {
+        attrs: research_object_attrs(
+            request,
+            "Request",
+            &request.id,
+            &request.relations,
+            ResearchObjectDisplay {
+                label: request.label.clone(),
+                title: request.options.title.as_ref().map(to_text),
+                ..Default::default()
+            },
+            context,
+        ),
+        content: blocks_to_tiptap(&request.content, context),
+        r#type: Default::default(),
+    })
+}
+
+fn relations_from_tiptap(
+    node_type: &str,
+    relations: Option<Vec<RelationAttr>>,
+    context: &mut TiptapDecodeContext,
+) -> Option<Vec<ResearchObjectRelation>> {
+    relations.map(|relations| {
+        relations
+            .into_iter()
+            .filter_map(|relation| {
+                let kind: ResearchObjectRelationKind = match relation.kind.parse() {
+                    Ok(kind) => kind,
+                    Err(..) => {
+                        context
+                            .losses
+                            .add(format!("{node_type}.relations.kind ({})", relation.kind));
+                        return None;
+                    }
+                };
+
+                let target = relation.target.trim();
+                if target.is_empty() {
+                    context.losses.add(format!("{node_type}.relations.target"));
+                    return None;
+                }
+
+                Some(ResearchObjectRelation::new(kind, target.to_string()))
+            })
+            .collect()
+    })
+}
+
+fn fallback_research_object(
+    node_type: &str,
+    id: Option<String>,
+    relations: Option<Vec<ResearchObjectRelation>>,
+    content: Vec<Block>,
+) -> Block {
+    match node_type {
+        "Claim" => Block::Claim(Claim {
+            id,
+            relations,
+            content,
+            ..Default::default()
+        }),
+        "Evidence" => Block::Evidence(Evidence {
+            id,
+            relations,
+            content,
+            ..Default::default()
+        }),
+        "Protocol" => Block::Protocol(Protocol {
+            id,
+            relations,
+            content,
+            ..Default::default()
+        }),
+        "Question" => Block::Question(Question {
+            id,
+            relations,
+            content,
+            ..Default::default()
+        }),
+        "Request" => Block::Request(Request {
+            id,
+            relations,
+            content,
+            ..Default::default()
+        }),
+        _ => Block::Paragraph(Paragraph::default()),
+    }
+}
+
+fn research_object_from_tiptap(
+    node_type: &str,
+    attrs: ResearchObjectAttrs,
+    content: Vec<BlockNode>,
+    context: &mut TiptapDecodeContext,
+) -> Block {
+    let ResearchObjectAttrs {
+        id,
+        relations,
+        metadata,
+        ..
+    } = attrs;
+    let mut metadata = metadata.unwrap_or_default();
+    let relations = relations_from_tiptap(node_type, relations, context);
+    let content = blocks_from_tiptap(content, context);
+
+    metadata.insert("type".into(), Value::String(node_type.into()));
+    if let Some(id) = &id {
+        metadata.insert("id".into(), Value::String(id.clone()));
+    }
+    if let Some(relations) = &relations {
+        match serde_json::to_value(relations) {
+            Ok(relations) => {
+                metadata.insert("relations".into(), relations);
+            }
+            Err(error) => context
+                .losses
+                .add(format!("{node_type}.relations: {error}")),
+        }
+    }
+    match serde_json::to_value(&content) {
+        Ok(content) => {
+            metadata.insert("content".into(), content);
+        }
+        Err(error) => context.losses.add(format!("{node_type}.content: {error}")),
+    }
+
+    match serde_json::from_value::<Block>(Value::Object(metadata)) {
+        Ok(block) => block,
+        Err(error) => {
+            context.losses.add(format!("{node_type}.metadata: {error}"));
+            fallback_research_object(node_type, id, relations, content)
+        }
+    }
 }
 
 fn code_block_from_tiptap(code_block: CodeBlockNode, context: &mut TiptapDecodeContext) -> Block {

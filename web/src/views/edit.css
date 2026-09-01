@@ -387,6 +387,66 @@ stencila-edit-view {
   gap: var(--space-1, 0.25rem);
 }
 
+.stencila-edit-node-properties-popover-wide {
+  width: min(32rem, calc(100vw - 2rem));
+}
+
+.stencila-edit-relations-rows {
+  display: grid;
+  gap: var(--space-1, 0.25rem);
+}
+
+.stencila-edit-relations-row {
+  display: grid;
+  grid-template-columns: 9rem minmax(0, 1fr) auto;
+  gap: var(--space-1, 0.25rem);
+  align-items: center;
+}
+
+.stencila-edit-relations-external {
+  grid-column: 1 / -1;
+}
+
+.stencila-edit-relations-remove {
+  box-sizing: border-box;
+  display: inline-flex;
+  width: 1.625rem;
+  height: 1.625rem;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  border: none;
+  border-radius: var(--border-radius-default, 0.25rem);
+  background: transparent;
+  color: var(--edit-inspector-accent);
+  cursor: pointer;
+}
+
+.stencila-edit-relations-remove:hover,
+.stencila-edit-relations-remove:focus-visible {
+  background: var(--edit-inspector-accent-muted);
+  color: var(--edit-inspector-accent-strong);
+}
+
+.stencila-edit-relations-remove span {
+  width: 1rem;
+  height: 1rem;
+}
+
+.stencila-edit-relations-add {
+  justify-self: start;
+}
+
+@media (max-width: 36rem) {
+  .stencila-edit-relations-row {
+    grid-template-columns: minmax(0, 1fr) auto;
+  }
+
+  .stencila-edit-relations-row select:first-child {
+    grid-column: 1 / -1;
+  }
+}
+
 .stencila-edit-node-properties-action {
   display: inline-flex;
   align-items: center;
@@ -1071,4 +1131,187 @@ stencila-edit-view {
 textarea.stencila-tiptap-math-source {
   min-height: 5rem;
   resize: vertical;
+}
+
+/* Native ResearchObject cards. Their header is metadata-only while the content
+   surface remains ordinary ProseMirror block content. */
+.stencila-tiptap-research-object {
+  --research-object-accent: var(--color-gray-500, #6b7280);
+  display: block;
+  margin: calc(var(--content-spacing, 1rem) * 0.9) 0;
+  overflow: clip;
+  border: var(--border-width-default, 1px) solid
+    color-mix(in srgb, var(--research-object-accent) 34%, transparent);
+  border-left: 3px solid var(--research-object-accent);
+  border-radius: var(--border-radius-default, 0.25rem);
+  background: color-mix(
+    in srgb,
+    var(--research-object-accent) 5%,
+    var(--surface-background, transparent)
+  );
+}
+
+.stencila-tiptap-research-object-claim {
+  --research-object-accent: var(--color-blue-600, #2563eb);
+}
+
+.stencila-tiptap-research-object-evidence {
+  --research-object-accent: var(--color-green-600, #16a34a);
+}
+
+.stencila-tiptap-research-object-question {
+  --research-object-accent: var(--color-purple-600, #9333ea);
+}
+
+.stencila-tiptap-research-object-protocol {
+  --research-object-accent: var(--color-teal-600, #0d9488);
+}
+
+.stencila-tiptap-research-object-request {
+  --research-object-accent: var(--color-amber-600, #d97706);
+}
+
+.stencila-tiptap-research-object-header {
+  display: flex;
+  min-height: 2rem;
+  align-items: center;
+  gap: var(--space-1, 0.25rem);
+  padding: var(--space-1, 0.25rem) var(--space-2, 0.5rem);
+  border-bottom: var(--border-width-default, 1px) solid
+    color-mix(in srgb, var(--research-object-accent) 20%, transparent);
+  color: var(--research-object-accent);
+  font-family: 'Space Grotesk Variable',
+    var(--layout-font-family, system-ui, sans-serif);
+  font-size: var(--font-size-xs, 0.75rem);
+}
+
+.stencila-tiptap-research-object-icon {
+  width: 1rem;
+  height: 1rem;
+  flex: none;
+}
+
+.stencila-tiptap-research-object-type {
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.stencila-tiptap-research-object-chip,
+.stencila-tiptap-research-object-relations {
+  padding: 0.125rem var(--space-1, 0.25rem);
+  border-radius: 999px;
+  background: color-mix(
+    in srgb,
+    var(--research-object-accent) 12%,
+    transparent
+  );
+  color: var(--text-color-primary, currentColor);
+  font-size: var(--font-size-2xs, 0.625rem);
+  letter-spacing: normal;
+  text-transform: none;
+}
+
+.stencila-tiptap-research-object-relations {
+  margin-left: auto;
+  color: var(--text-color-secondary, currentColor);
+}
+
+.stencila-tiptap-research-object-title {
+  padding: var(--space-2, 0.5rem) var(--space-3, 0.75rem) 0;
+  color: var(--text-color-primary, currentColor);
+  font-family: 'Space Grotesk Variable',
+    var(--layout-font-family, system-ui, sans-serif);
+  font-size: var(--font-size-sm, 0.875rem);
+  font-weight: 650;
+}
+
+.stencila-tiptap-research-object-content {
+  min-height: 1.5rem;
+  padding: var(--space-2, 0.5rem) var(--space-3, 0.75rem);
+}
+
+.stencila-tiptap-research-object-content:empty::before {
+  content: 'Add content…';
+  color: var(--text-color-secondary, #6b7280);
+  font-style: italic;
+  pointer-events: none;
+}
+
+.stencila-tiptap-editor
+  .ProseMirror
+  .stencila-tiptap-research-object-content
+  > :first-child {
+  margin-top: 0;
+}
+
+.stencila-tiptap-editor
+  .ProseMirror
+  .stencila-tiptap-research-object-content
+  > :last-child {
+  margin-bottom: 0;
+}
+
+/* Contextual and slash-command ResearchObject authoring menus. */
+.stencila-edit-research-object-menu,
+.stencila-edit-slash-menu {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 5;
+  width: max-content;
+  padding: var(--space-1, 0.25rem);
+  border: var(--border-width-default, 1px) solid
+    var(--border-color-default, color-mix(in srgb, currentColor 24%, transparent));
+  border-radius: var(--border-radius-default, 0.25rem);
+  background: var(--surface-background, #ffffff);
+  box-shadow: 0 0.375rem 1rem
+    color-mix(in srgb, var(--color-gray-700, #374151) 18%, transparent);
+  font-family: 'Space Grotesk Variable',
+    var(--layout-font-family, system-ui, sans-serif);
+}
+
+.stencila-edit-research-object-menu {
+  display: inline-flex;
+  gap: var(--space-1, 0.25rem);
+}
+
+.stencila-edit-slash-menu {
+  display: grid;
+  min-width: 13rem;
+}
+
+.stencila-edit-research-object-menu-button,
+.stencila-edit-slash-menu-item {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1, 0.25rem);
+  padding: var(--space-1, 0.25rem) var(--space-2, 0.5rem);
+  border: none;
+  border-radius: var(--border-radius-default, 0.25rem);
+  background: transparent;
+  color: var(--text-color-primary, #1f2933);
+  cursor: pointer;
+  font: inherit;
+  font-size: var(--font-size-sm, 0.875rem);
+  text-align: left;
+}
+
+.stencila-edit-research-object-menu-button:hover,
+.stencila-edit-research-object-menu-button:focus-visible,
+.stencila-edit-slash-menu-item:hover,
+.stencila-edit-slash-menu-item.selected {
+  background: color-mix(in srgb, currentColor 10%, transparent);
+}
+
+.stencila-edit-research-object-menu-button span:first-child,
+.stencila-edit-slash-menu-item span:first-child {
+  width: 1rem;
+  height: 1rem;
+}
+
+@media (max-width: 42rem) {
+  .stencila-edit-research-object-menu-button span:last-child {
+    display: none;
+  }
 }
