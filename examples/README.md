@@ -2,6 +2,10 @@
 
 **Mainly for testing.**
 
+## `projects`
+
+The [`projects`](projects) folder contains more complete, realistic examples that combine several Stencila features. Unlike the codec snapshots in `conversion`, these are intended to be useful as readable demonstrations as well as test inputs.
+
 ## `prompts`
 
 The [`prompts`](prompts) folder is for testing Stencila's specialized AI prompts.

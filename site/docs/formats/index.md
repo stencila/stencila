@@ -45,6 +45,7 @@ Stencila uses property testing to exercise codec round-trips and detect regressi
 | Microsoft Excel | `xlsx` | [Microsoft Excel](xlsx) |
 | Microsoft Excel (XLS) | `xls` | [Microsoft Excel (XLS)](xls) |
 | Microsoft Word | `docx` | [Microsoft Word](docx) |
+| MIRA JSON-LD | `mira.jsonld` | [MIRA JSON-LD](mira) |
 | MyST Markdown | `myst` | [MyST Markdown](myst) |
 | OpenDocument Spreadsheet | `ods` | [OpenDocument Spreadsheet](ods) |
 | OpenDocument Text | `odt` | [OpenDocument Text](odt) |
