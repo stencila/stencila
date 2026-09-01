@@ -28,6 +28,35 @@ fn decode_blocks(markdown: &str, format: Format) -> Result<Vec<Block>> {
 }
 
 #[test]
+fn canonical_myst_example_uses_only_supported_research_metadata() -> Result<()> {
+    let blocks = decode_blocks(
+        include_str!("../../../examples/conversion/research-objects/research-objects.myst"),
+        Format::Myst,
+    )?;
+
+    for block in blocks {
+        let Some(research) = block.as_research_object() else {
+            continue;
+        };
+        assert!(
+            research.extra().is_none(),
+            "{} should not use undeclared extra properties",
+            research.kind()
+        );
+        assert!(
+            research.relations().is_none_or(|relations| {
+                relations
+                    .iter()
+                    .all(|relation| relation.kind != ResearchObjectRelationKind::Follows)
+            }),
+            "the five-node example should not use Study-dependent follows relations"
+        );
+    }
+
+    Ok(())
+}
+
+#[test]
 fn decodes_untyped_smd_claim() -> Result<()> {
     let blocks = decode_blocks("::: claim #c1\n\nClaim text.\n\n:::\n", Format::Smd)?;
 

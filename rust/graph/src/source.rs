@@ -18,7 +18,11 @@ const GIT_LOG_RECORD_SEPARATOR: u8 = 0x1e;
 const GIT_LOG_UNIT_SEPARATOR: u8 = 0x1f;
 
 /// Populate root `Graph` source metadata from a filesystem path when it is in a Git repo.
-pub(crate) fn set_graph_source_metadata_from_path(graph: &mut Graph, path: &Path) -> Result<()> {
+///
+/// This is public so callers which decode a single file before constructing a
+/// graph can retain the same repository, revision, and source-path metadata as
+/// workspace graph construction.
+pub fn set_graph_source_metadata_from_path(graph: &mut Graph, path: &Path) -> Result<()> {
     let Ok(repo_root) = closest_git_repo(path) else {
         return Ok(());
     };

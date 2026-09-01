@@ -70,8 +70,7 @@
             "string": "Trial result"
           }
         }
-      ],
-      "stencila:source": "randomized trial"
+      ]
     },
     {
       "@type": "Question",
@@ -123,13 +122,6 @@
           ]
         }
       ],
-      "stencila:relations": [
-        {
-          "@type": "stencila:ResearchObjectRelation",
-          "stencila:kind": "Follows",
-          "target": "https://example.org/protocols/baseline"
-        }
-      ],
       "headline": [
         {
           "@type": "Text",
@@ -170,8 +162,7 @@
             "string": "Replication request"
           }
         }
-      ],
-      "priority": 2
+      ]
     }
   ]
 }

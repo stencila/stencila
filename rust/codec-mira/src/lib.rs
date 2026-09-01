@@ -352,11 +352,16 @@ fn relation_kind_from_item(item: &Map<String, Value>) -> Option<ResearchObjectRe
 
 fn graph_to_mira_jsonld_with_losses(graph: &Graph) -> Result<(Value, Losses)> {
     let root_id = root_item_id(graph);
+    let compact_local_ids = !is_directory_graph(graph);
     let id_map = graph
         .nodes
         .iter()
         .map(|node| {
-            let document_id = document_item_id_for_node(graph, node);
+            let document_id = if compact_local_ids {
+                None
+            } else {
+                document_item_id_for_node(graph, node)
+            };
             (node.id.as_str(), mira_node_id(node, document_id.as_deref()))
         })
         .collect::<BTreeMap<_, _>>();
@@ -373,11 +378,17 @@ fn graph_to_mira_jsonld_with_losses(graph: &Graph) -> Result<(Value, Losses)> {
     for edge in &graph.edges {
         match edge.kind {
             GraphEdgeKind::PartOf => {
-                if !objects.contains_key(edge.target.as_str()) {
-                    losses.add("GraphEdge.PartOf");
+                if source_item_containment_is_represented(graph, edge) {
                     continue;
                 }
-                let target = edge_target_id(&edge.target, &id_map);
+                let target = objects
+                    .contains_key(edge.target.as_str())
+                    .then(|| edge_target_id(&edge.target, &id_map))
+                    .or_else(|| document_container_id(graph, &edge.target));
+                let Some(target) = target else {
+                    losses.add("GraphEdge.PartOf");
+                    continue;
+                };
                 if let Some(source) = objects.get_mut(&edge.source) {
                     set_has_container(source, target);
                 } else {
@@ -389,6 +400,7 @@ fn graph_to_mira_jsonld_with_losses(graph: &Graph) -> Result<(Value, Losses)> {
                     losses.add(format!("GraphEdge.{kind}"));
                     continue;
                 };
+                record_relation_endpoint_losses(graph, edge, relation, &mut losses);
                 if let Some(object) =
                     relation_edge_object(edge, relation, &id_map, &objects, root_id.as_deref())
                 {
@@ -400,14 +412,13 @@ fn graph_to_mira_jsonld_with_losses(graph: &Graph) -> Result<(Value, Losses)> {
         }
     }
 
-    let default_container = repository_item_id(graph).or_else(|| root_id.clone());
-    if let Some(container_id) = default_container.as_deref() {
-        for node in &graph.nodes {
-            if node.node.as_research_object().is_some()
-                && let Some(object) = objects.get_mut(&node.id)
-            {
-                set_default_has_container(object, container_id.to_string());
-            }
+    for node in &graph.nodes {
+        if node.node.as_research_object().is_some()
+            && let Some(object) = objects.get_mut(&node.id)
+            && let Some(container_id) =
+                document_item_id_for_node(graph, node).or_else(|| root_id.clone())
+        {
+            set_default_has_container(object, container_id);
         }
     }
 
@@ -461,7 +472,12 @@ fn graph_node_to_object(
     }
 
     match graph_node.node.as_ref() {
+        Node::Article(..) => Ok(None),
+        Node::SoftwareSourceCode(node) if software_repository_id(node).is_some() => Ok(None),
         Node::CreativeWork(node) => {
+            if node.options.name.is_none() {
+                return Ok(None);
+            }
             let mut object = base_object(id.clone(), "Item");
             if node.options.url.as_ref().is_some_and(|url| url != &id) {
                 losses.add("CreativeWork.url");
@@ -602,7 +618,7 @@ fn repository_item(graph: &Graph) -> Option<Map<String, Value>> {
 fn source_item(id: String, format: String, container: String) -> Map<String, Value> {
     let mut item = Map::from_iter([
         ("@id".to_string(), Value::String(id)),
-        ("@type".to_string(), Value::String("Item".to_string())),
+        ("@type".to_string(), json!(["Item", "Container"])),
         ("format".to_string(), Value::String(format)),
     ]);
     set_has_container(&mut item, container);
@@ -679,8 +695,33 @@ fn document_items(graph: &Graph) -> Vec<Map<String, Value>> {
 }
 
 fn repository_item_id(graph: &Graph) -> Option<String> {
-    let repository = graph.options.repository.as_deref()?.trim_end_matches('/');
-    (!repository.is_empty()).then(|| repository.to_string())
+    graph
+        .options
+        .repository
+        .as_deref()
+        .or_else(|| {
+            graph
+                .nodes
+                .iter()
+                .find_map(|node| match node.node.as_ref() {
+                    Node::SoftwareSourceCode(node) => software_repository_id(node),
+                    _ => None,
+                })
+        })
+        .map(|repository| repository.trim_end_matches('/'))
+        .filter(|repository| !repository.is_empty())
+        .map(String::from)
+}
+
+fn software_repository_id(
+    node: &stencila_codec::stencila_schema::SoftwareSourceCode,
+) -> Option<&str> {
+    node.path
+        .as_deref()
+        .is_none_or(str::is_empty)
+        .then_some(node.repository.as_deref())
+        .flatten()
+        .filter(|repository| is_absolute_iri(repository))
 }
 
 fn root_item_id(graph: &Graph) -> Option<String> {
@@ -705,6 +746,24 @@ fn document_item_id(graph: &Graph) -> Option<String> {
 fn document_item_id_for_node(graph: &Graph, node: &GraphNode) -> Option<String> {
     let path = document_item_path_for_node(graph, node)?;
     repository_path_id(graph, &path, RepositoryEntryKind::Document)
+}
+
+fn document_container_id(graph: &Graph, node_id: &str) -> Option<String> {
+    let node = graph.nodes.iter().find(|node| node.id == node_id)?;
+    let Node::Article(..) = node.node.as_ref() else {
+        return None;
+    };
+    document_item_id_for_node(graph, node).or_else(|| root_item_id(graph))
+}
+
+fn source_item_containment_is_represented(graph: &Graph, edge: &GraphEdge) -> bool {
+    let source = graph.nodes.iter().find(|node| node.id == edge.source);
+    let target = graph.nodes.iter().find(|node| node.id == edge.target);
+    matches!(
+        source.zip(target).map(|(source, target)| (source.node.as_ref(), target.node.as_ref())),
+        Some((Node::Article(..), Node::SoftwareSourceCode(repository)))
+            if software_repository_id(repository).is_some()
+    )
 }
 
 fn document_item_path_for_node(graph: &Graph, node: &GraphNode) -> Option<String> {
@@ -833,6 +892,100 @@ fn mira_relation_name(kind: GraphEdgeKind) -> Option<&'static str> {
         .map(ResearchObjectRelationKind::mira_name)
 }
 
+fn mira_relation_phrase(kind: GraphEdgeKind) -> Option<&'static str> {
+    Some(match ResearchObjectRelationKind::try_from(kind).ok()? {
+        ResearchObjectRelationKind::Supports => "supports",
+        ResearchObjectRelationKind::SupportedBy => "is supported by",
+        ResearchObjectRelationKind::Opposes => "opposes",
+        ResearchObjectRelationKind::OpposedBy => "is opposed by",
+        ResearchObjectRelationKind::Addresses => "addresses",
+        ResearchObjectRelationKind::AddressedBy => "is addressed by",
+        ResearchObjectRelationKind::Follows => "follows",
+        ResearchObjectRelationKind::Grounds => "grounds",
+        ResearchObjectRelationKind::IsGroundedIn => "is grounded in",
+        ResearchObjectRelationKind::RequestFor => "is a request for",
+        ResearchObjectRelationKind::RequestTarget => "targets",
+    })
+}
+
+fn record_relation_endpoint_losses(
+    graph: &Graph,
+    edge: &GraphEdge,
+    relation: &str,
+    losses: &mut Losses,
+) {
+    let Ok(kind) = ResearchObjectRelationKind::try_from(edge.kind) else {
+        return;
+    };
+    for (endpoint, id, accepts) in [
+        (
+            "domain",
+            edge.source.as_str(),
+            mira_relation_domain_accepts as fn(ResearchObjectRelationKind, NodeType) -> bool,
+        ),
+        (
+            "range",
+            edge.target.as_str(),
+            mira_relation_range_accepts as fn(ResearchObjectRelationKind, NodeType) -> bool,
+        ),
+    ] {
+        let Some(node_type) = known_endpoint_type(graph, id) else {
+            continue;
+        };
+        if !accepts(kind, node_type) {
+            losses.add(format!(
+                "MiraJsonLd.relation.{relation}.{endpoint}.{node_type}"
+            ));
+        }
+    }
+}
+
+fn known_endpoint_type(graph: &Graph, id: &str) -> Option<NodeType> {
+    let node = graph.nodes.iter().find(|node| node.id == id)?;
+    match node.node.as_ref() {
+        Node::CreativeWork(work)
+            if work.options.name.is_none()
+                && work.options.url.as_deref().is_some_and(is_absolute_iri) =>
+        {
+            None
+        }
+        node => Some(node.node_type()),
+    }
+}
+
+fn mira_relation_domain_accepts(kind: ResearchObjectRelationKind, node_type: NodeType) -> bool {
+    match kind {
+        ResearchObjectRelationKind::Supports | ResearchObjectRelationKind::Opposes => {
+            matches!(node_type, NodeType::Claim | NodeType::Evidence)
+        }
+        ResearchObjectRelationKind::SupportedBy
+        | ResearchObjectRelationKind::OpposedBy
+        | ResearchObjectRelationKind::Addresses => node_type == NodeType::Claim,
+        ResearchObjectRelationKind::AddressedBy => node_type == NodeType::Question,
+        ResearchObjectRelationKind::Follows | ResearchObjectRelationKind::Grounds => false,
+        ResearchObjectRelationKind::IsGroundedIn => node_type == NodeType::Evidence,
+        ResearchObjectRelationKind::RequestFor | ResearchObjectRelationKind::RequestTarget => {
+            node_type == NodeType::Request
+        }
+    }
+}
+
+fn mira_relation_range_accepts(kind: ResearchObjectRelationKind, node_type: NodeType) -> bool {
+    match kind {
+        ResearchObjectRelationKind::Supports
+        | ResearchObjectRelationKind::Opposes
+        | ResearchObjectRelationKind::AddressedBy
+        | ResearchObjectRelationKind::RequestTarget => node_type == NodeType::Claim,
+        ResearchObjectRelationKind::SupportedBy | ResearchObjectRelationKind::OpposedBy => {
+            matches!(node_type, NodeType::Claim | NodeType::Evidence)
+        }
+        ResearchObjectRelationKind::Addresses => node_type == NodeType::Question,
+        ResearchObjectRelationKind::Follows => node_type == NodeType::Protocol,
+        ResearchObjectRelationKind::Grounds => node_type == NodeType::Evidence,
+        ResearchObjectRelationKind::IsGroundedIn | ResearchObjectRelationKind::RequestFor => false,
+    }
+}
+
 fn relation_edge_object(
     edge: &GraphEdge,
     relation: &str,
@@ -848,6 +1001,7 @@ fn relation_edge_object(
         .get(&edge.target)
         .map(|object| object_title(object, &destination))
         .unwrap_or_else(|| destination.clone());
+    let phrase = mira_relation_phrase(edge.kind)?;
     Some(Map::from_iter([
         (
             "@id".to_string(),
@@ -867,7 +1021,7 @@ fn relation_edge_object(
         ("destination".to_string(), Value::String(destination)),
         (
             "title".to_string(),
-            Value::String(format!("{source_title} -{relation}-> {destination_title}")),
+            Value::String(format!("{source_title} {phrase} {destination_title}")),
         ),
     ]))
 }
@@ -950,7 +1104,7 @@ fn set_default_has_container(object: &mut Map<String, Value>, target: String) {
 }
 
 fn mira_context(graph: &Graph, root_id: Option<&str>) -> Value {
-    if repository_item_id(graph).is_none()
+    if !is_directory_graph(graph)
         && let Some(root_id) = root_id.filter(|id| is_absolute_iri(id))
     {
         json!([MIRA_CONTEXT, { "@base": root_id }])
@@ -975,7 +1129,8 @@ fn is_absolute_iri(value: &str) -> bool {
 mod tests {
     use super::*;
     use stencila_codec::stencila_schema::{
-        Claim, Evidence, Paragraph, Protocol, Question, Request, ResearchObjectRelationKind, Text,
+        Claim, Evidence, Paragraph, Protocol, Question, Request, ResearchObjectRelationKind,
+        SoftwareSourceCode, Text,
     };
 
     #[test]
@@ -1083,13 +1238,17 @@ mod tests {
         let graph = Graph::new(
             "https://example.org/research".to_string(),
             vec![GraphNode::new(
-                "article".to_string(),
-                Box::new(Node::Article(Article::new(Vec::new()))),
+                "paragraph".to_string(),
+                Box::new(Node::Paragraph(Paragraph::new(Vec::new()))),
             )],
             Vec::new(),
         );
         let (_value, losses) = graph_to_mira_jsonld_with_losses(&graph)?;
-        assert!(losses.iter().any(|(label, _)| label == "GraphNode.Article"));
+        assert!(
+            losses
+                .iter()
+                .any(|(label, _)| label == "GraphNode.Paragraph")
+        );
         Ok(())
     }
 
@@ -1131,6 +1290,186 @@ mod tests {
     }
 
     #[test]
+    fn exports_research_objects_in_their_repository_document() -> Result<()> {
+        let article_id = "node:examples/report.smd#art_";
+        let claim_id = "node:examples/report.smd#clm_claim-authored";
+        let mut claim = Claim::new(vec![paragraph("A repository claim.")]);
+        claim.id = Some("claim-authored".to_string());
+        let nodes = vec![
+            GraphNode::new(
+                article_id.to_string(),
+                Box::new(Node::Article(Article::new(Vec::new()))),
+            ),
+            GraphNode::new(claim_id.to_string(), Box::new(Node::Claim(claim))),
+        ];
+        let edges = vec![GraphEdge::new(
+            claim_id.to_string(),
+            article_id.to_string(),
+            GraphEdgeKind::PartOf,
+        )];
+        let mut graph = Graph::new(
+            "file:///workspace/examples/report.smd".to_string(),
+            nodes,
+            edges,
+        );
+        graph.options.repository = Some("https://github.com/stencila/stencila".to_string());
+        graph.options.path = Some("examples/report.smd".to_string());
+        graph.options.commit = Some("main".to_string());
+
+        let value = graph_to_mira_jsonld(&graph)?;
+        let items = value["@graph"]
+            .as_array()
+            .ok_or_else(|| stencila_codec::eyre::eyre!("MIRA graph should be an array"))?;
+        let document_id = "https://github.com/stencila/stencila/blob/main/examples/report.smd";
+        assert_eq!(
+            value["@context"],
+            json!([MIRA_CONTEXT, { "@base": document_id }])
+        );
+        let document = items
+            .iter()
+            .find(|item| item["@id"] == document_id)
+            .ok_or_else(|| stencila_codec::eyre::eyre!("missing document container"))?;
+        assert_eq!(document["@type"], json!(["Item", "Container"]));
+        assert_eq!(
+            document["has_container"],
+            "https://github.com/stencila/stencila"
+        );
+        let claim = items
+            .iter()
+            .find(|item| item["@id"] == "#claim-authored")
+            .ok_or_else(|| stencila_codec::eyre::eyre!("missing claim"))?;
+        assert_eq!(claim["has_container"], document_id);
+        Ok(())
+    }
+
+    #[test]
+    fn uses_an_explicit_software_source_repository_as_the_container() -> Result<()> {
+        let repository_id = "repository";
+        let article_id = "node:report.smd#art_";
+        let claim_id = "node:report.smd#clm_claim-1";
+        let mut repository = SoftwareSourceCode::new("Research repository".into(), "".into());
+        repository.repository = Some("https://github.com/example/research".to_string());
+        let mut claim = Claim::new(vec![paragraph("A claim.")]);
+        claim.id = Some("claim-1".to_string());
+        let nodes = vec![
+            GraphNode::new(
+                repository_id.to_string(),
+                Box::new(Node::SoftwareSourceCode(repository)),
+            ),
+            GraphNode::new(
+                article_id.to_string(),
+                Box::new(Node::Article(Article::new(Vec::new()))),
+            ),
+            GraphNode::new(claim_id.to_string(), Box::new(Node::Claim(claim))),
+        ];
+        let edges = vec![
+            GraphEdge::new(
+                claim_id.to_string(),
+                article_id.to_string(),
+                GraphEdgeKind::PartOf,
+            ),
+            GraphEdge::new(
+                article_id.to_string(),
+                repository_id.to_string(),
+                GraphEdgeKind::PartOf,
+            ),
+        ];
+        let mut graph = Graph::new("file:///workspace/report.smd".to_string(), nodes, edges);
+        graph.options.path = Some("report.smd".to_string());
+
+        let (value, losses) = graph_to_mira_jsonld_with_losses(&graph)?;
+        assert!(!losses.iter().any(|(label, _)| {
+            matches!(label, "GraphNode.SoftwareSourceCode" | "GraphEdge.PartOf")
+        }));
+        let items = value["@graph"]
+            .as_array()
+            .ok_or_else(|| stencila_codec::eyre::eyre!("MIRA graph should be an array"))?;
+        let document_id = "https://github.com/example/research/report.smd";
+        assert!(items.iter().any(|item| {
+            item["@id"] == "https://github.com/example/research" && item["@type"] == "Container"
+        }));
+        assert!(items.iter().any(|item| {
+            item["@id"] == document_id
+                && item["has_container"] == "https://github.com/example/research"
+        }));
+        assert!(
+            items
+                .iter()
+                .any(|item| { item["@id"] == "#claim-1" && item["has_container"] == document_id })
+        );
+        Ok(())
+    }
+
+    #[test]
+    fn exports_human_readable_relation_titles() -> Result<()> {
+        let mut claim = Claim::new(vec![paragraph("A claim.")]);
+        claim.id = Some("claim-1".to_string());
+        claim.options.title = Some(vec![Inline::Text(Text::new("Main claim".into()))]);
+        let mut evidence = Evidence::new(vec![paragraph("Evidence.")]);
+        evidence.id = Some("evidence-1".to_string());
+        evidence.options.title = Some(vec![Inline::Text(Text::new("Trial result".into()))]);
+        let graph = Graph::new(
+            "https://example.org/report.smd".to_string(),
+            vec![
+                GraphNode::new("claim".to_string(), Box::new(Node::Claim(claim))),
+                GraphNode::new("evidence".to_string(), Box::new(Node::Evidence(evidence))),
+            ],
+            vec![GraphEdge::new(
+                "claim".to_string(),
+                "evidence".to_string(),
+                GraphEdgeKind::SupportedBy,
+            )],
+        );
+
+        let value = graph_to_mira_jsonld(&graph)?;
+        let relation = value["@graph"]
+            .as_array()
+            .and_then(|items| {
+                items
+                    .iter()
+                    .find(|item| item["@type"] == "mira:supportedBy")
+            })
+            .ok_or_else(|| stencila_codec::eyre::eyre!("missing supportedBy relation"))?;
+        assert_eq!(relation["title"], "Main claim is supported by Trial result");
+        Ok(())
+    }
+
+    #[test]
+    fn references_bare_external_targets_without_inventing_an_item() -> Result<()> {
+        let mut claim = Claim::new(vec![paragraph("A claim.")]);
+        claim.id = Some("claim-1".to_string());
+        let external_id = "https://example.org/evidence/external-1";
+        let mut external = CreativeWork::new();
+        external.id = Some(external_id.to_string());
+        external.options.url = Some(external_id.to_string());
+        let graph = Graph::new(
+            "https://example.org/report.smd".to_string(),
+            vec![
+                GraphNode::new("claim".to_string(), Box::new(Node::Claim(claim))),
+                GraphNode::new(
+                    external_id.to_string(),
+                    Box::new(Node::CreativeWork(external)),
+                ),
+            ],
+            vec![GraphEdge::new(
+                "claim".to_string(),
+                external_id.to_string(),
+                GraphEdgeKind::SupportedBy,
+            )],
+        );
+
+        let value = graph_to_mira_jsonld(&graph)?;
+        let items = value["@graph"]
+            .as_array()
+            .ok_or_else(|| stencila_codec::eyre::eyre!("MIRA graph should be an array"))?;
+        assert!(!items.iter().any(|item| item["@id"] == external_id));
+        assert!(items.iter().any(|item| {
+            item["@type"] == "mira:supportedBy" && item["destination"] == external_id
+        }));
+        Ok(())
+    }
+
+    #[test]
     fn exports_workspace_items_and_preserves_absolute_ids() -> Result<()> {
         let mut claim = Claim::new(vec![paragraph("A claim.")]);
         claim.id = Some("claim-authored".to_string());
@@ -1166,12 +1505,12 @@ mod tests {
             .ok_or_else(|| stencila_codec::eyre::eyre!("MIRA graph should be an array"))?;
         assert!(items.iter().any(|item| {
             item["@id"] == "https://github.com/stencila/stencila/tree/main/examples"
-                && item["@type"] == "Item"
+                && item["@type"] == json!(["Item", "Container"])
                 && item["format"] == "inode/directory"
         }));
         assert!(items.iter().any(|item| {
             item["@id"] == "https://github.com/stencila/stencila/blob/main/examples/report.smd"
-                && item["@type"] == "Item"
+                && item["@type"] == json!(["Item", "Container"])
         }));
         assert!(items.iter().any(|item| {
             item["@id"]

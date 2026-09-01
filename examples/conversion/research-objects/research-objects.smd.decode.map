@@ -2,16 +2,16 @@ start     end        offsets   node_type+property                   authorship
     32     77       (32, 77)   Paragraph
     79    114       (47, 37)   Paragraph
      0    119       (-79, 5)   Claim
-   158    224     (158, 105)   Paragraph
-   226    265       (68, 41)   Paragraph
-   121    270      (-105, 5)   Evidence
-   309    358      (188, 88)   Paragraph
-   360    399       (51, 41)   Paragraph
-   272    404       (-88, 5)   Question
-   443    514     (171, 110)   Paragraph
-   516    566       (73, 52)   Paragraph
-   406    571      (-110, 5)   Protocol
-   607    673     (201, 102)   Paragraph
-   675    714       (68, 41)   Paragraph
-   573    719      (-102, 5)   Request
-     0    720      (-573, 1)   Article
+   158    198      (158, 79)   Paragraph
+   200    239       (42, 41)   Paragraph
+   121    244       (-79, 5)   Evidence
+   283    332      (162, 88)   Paragraph
+   334    373       (51, 41)   Paragraph
+   246    378       (-88, 5)   Question
+   417    439      (171, 61)   Paragraph
+   441    491       (24, 52)   Paragraph
+   380    496       (-61, 5)   Protocol
+   532    585      (152, 89)   Paragraph
+   587    626       (55, 41)   Paragraph
+   498    631       (-89, 5)   Request
+     0    632      (-498, 1)   Article

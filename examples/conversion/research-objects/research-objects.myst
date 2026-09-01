@@ -11,7 +11,6 @@ The intervention improves recovery.
 :id: evidence-1
 :label: Evidence 1
 :supports: #claim-1
-:source: randomized trial
 
 Participants recovered two days sooner.
 
@@ -29,7 +28,6 @@ Does the intervention shorten recovery?
 :::{protocol} Trial protocol
 :id: protocol-1
 :label: Protocol 1
-:follows: https://example.org/protocols/baseline
 
 Randomize participants and measure recovery daily.
 
@@ -39,7 +37,6 @@ Randomize participants and measure recovery daily.
 :id: request-1
 :label: Request 1
 :request-target: #claim-1
-:priority: 2
 
 Replicate the trial in a larger cohort.
 

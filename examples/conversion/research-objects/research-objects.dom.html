@@ -12,7 +12,7 @@
         </stencila-paragraph>
       </aside>
     </stencila-claim>
-    <stencila-evidence id=xxx depth=1 ancestors=Article _id=evidence-1 label='Evidence 1' relations='[{"type":"ResearchObjectRelation","kind":"Supports","target":"#claim-1"}]' extra='{"source":"randomized trial"}'>
+    <stencila-evidence id=xxx depth=1 ancestors=Article _id=evidence-1 label='Evidence 1' relations='[{"type":"ResearchObjectRelation","kind":"Supports","target":"#claim-1"}]'>
       <h1 slot=title>
         <stencila-text id=xxx depth=2 ancestors=Article.Evidence>Trial result</stencila-text>
       </h1>
@@ -36,7 +36,7 @@
         </stencila-paragraph>
       </aside>
     </stencila-question>
-    <stencila-protocol id=xxx depth=1 ancestors=Article _id=protocol-1 label='Protocol 1' relations='[{"type":"ResearchObjectRelation","kind":"Follows","target":"https://example.org/protocols/baseline"}]'>
+    <stencila-protocol id=xxx depth=1 ancestors=Article _id=protocol-1 label='Protocol 1'>
       <h1 slot=title>
         <stencila-text id=xxx depth=2 ancestors=Article.Protocol>Trial protocol</stencila-text>
       </h1>
@@ -48,7 +48,7 @@
         </stencila-paragraph>
       </aside>
     </stencila-protocol>
-    <stencila-request id=xxx depth=1 ancestors=Article _id=request-1 label='Request 1' relations='[{"type":"ResearchObjectRelation","kind":"RequestTarget","target":"#claim-1"}]' extra='{"priority":2}'>
+    <stencila-request id=xxx depth=1 ancestors=Article _id=request-1 label='Request 1' relations='[{"type":"ResearchObjectRelation","kind":"RequestTarget","target":"#claim-1"}]'>
       <h1 slot=title>
         <stencila-text id=xxx depth=2 ancestors=Article.Request>Replication request</stencila-text>
       </h1>

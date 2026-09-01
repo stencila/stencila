@@ -79,5 +79,6 @@ pub use project::{
     GraphViewNodeKind, edge_family, filter_graph_view_connected_to, project_graph,
 };
 pub use runtime::RuntimeEvidenceMode;
+pub use source::set_graph_source_metadata_from_path;
 pub use stencila_schema::{Graph, GraphEdge, GraphEdgeKind, GraphNode};
 pub use workspace::{WorkspaceOptions, graph_from_path, graph_from_path_with_diagnostics};

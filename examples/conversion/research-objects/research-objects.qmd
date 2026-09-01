@@ -6,7 +6,7 @@ The intervention improves recovery.
 
 :::
 
-::: {.evidence #evidence-1 label="Evidence 1" supports="#claim-1" source="randomized trial"}
+::: {.evidence #evidence-1 label="Evidence 1" supports="#claim-1"}
 
 ## Trial result
 
@@ -22,7 +22,7 @@ Does the intervention shorten recovery?
 
 :::
 
-::: {.protocol #protocol-1 label="Protocol 1" follows="https://example.org/protocols/baseline"}
+::: {.protocol #protocol-1 label="Protocol 1"}
 
 ## Trial protocol
 
@@ -30,7 +30,7 @@ Randomize participants and measure recovery daily.
 
 :::
 
-::: {.request #request-1 label="Request 1" request-target="#claim-1" priority=2}
+::: {.request #request-1 label="Request 1" request-target="#claim-1"}
 
 ## Replication request
 

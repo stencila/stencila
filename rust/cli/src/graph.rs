@@ -17,6 +17,7 @@ use stencila_graph::{
     GraphProjectionOptions, GraphProjectionPreset, RuntimeEvidenceMode, StaticAnalysisDiagnostic,
     WorkspaceOptions, dot::to_dot, filter_graph_view_connected_to,
     graph_from_node_with_runtime_evidence, graph_from_path_with_diagnostics, project_graph,
+    set_graph_source_metadata_from_path,
 };
 use stencila_server::{DEFAULT_PORT, ServeOptions, ServerStarted, get_server_token};
 
@@ -35,8 +36,12 @@ pub struct Cli {
     output: Option<PathBuf>,
 
     /// Output format, overriding inference from the output extension
-    #[arg(long, value_enum)]
+    #[arg(long, visible_alias = "format", value_enum)]
     to: Option<GraphOutputFormat>,
+
+    /// How to respond to information lost when exporting MIRA JSON-LD
+    #[arg(long, default_value_t = stencila_codecs::LossesResponse::Warn)]
+    output_losses: stencila_codecs::LossesResponse,
 
     /// Projection preset for DOT, SVG, and PNG graph exports
     #[arg(long, value_enum, default_value_t = GraphProjectionPreset::Auto)]
@@ -121,7 +126,8 @@ enum GraphOutputFormat {
     Yaml,
 
     /// Research discourse graph as MIRA JSON-LD.
-    Mira,
+    #[value(name = "mira-jsonld", alias = "mira", alias = "mira-json-ld")]
+    MiraJsonLd,
 
     /// Projected graph as Graphviz DOT.
     Dot,
@@ -155,6 +161,9 @@ pub static CLI_AFTER_LONG_HELP: &str = cstr!(
 
   <dim># Export research discourse as MIRA JSON-LD</dim>
   <b>stencila graph</> <g>report.smd</> <g>report.mira.jsonld</>
+
+  <dim># Export MIRA JSON-LD to stdout using an explicit format</dim>
+  <b>stencila graph</> <g>report.smd</> <g>-</> <c>--to</> <g>mira-jsonld</>
 
   <dim># Export a projected data flow graph as Graphviz DOT</dim>
   <b>stencila graph</> <g>.</> <g>graph.dot</> <c>--view</> <g>flow</>
@@ -201,6 +210,7 @@ impl Cli {
                     &graph,
                     output,
                     self.to,
+                    self.output_losses.clone(),
                     &projection_options,
                     &self.connected_to,
                     self.connected_mode,
@@ -244,6 +254,7 @@ impl Cli {
                     &graph,
                     output,
                     self.to,
+                    self.output_losses.clone(),
                     &projection_options,
                     &self.connected_to,
                     self.connected_mode,
@@ -290,6 +301,7 @@ async fn export_graph(
     graph: &Graph,
     output: &Path,
     format: Option<GraphOutputFormat>,
+    output_losses: stencila_codecs::LossesResponse,
     projection_options: &GraphProjectionOptions,
     connected_to: &[String],
     connected_mode: GraphConnectedMode,
@@ -319,21 +331,9 @@ async fn export_graph(
                 tokio::fs::write(output, content).await?;
             }
         }
-        GraphOutputFormat::Mira => {
-            if !connected_to.is_empty() {
-                bail!("`--connected-to` is not supported for MIRA JSON-LD exports");
-            }
-            let mut content = stencila_codecs::to_string(
-                &stencila_schema::Node::Graph(graph.clone()),
-                Some(stencila_codecs::EncodeOptions {
-                    format: Some(Format::MiraJsonLd),
-                    ..Default::default()
-                }),
-            )
-            .await?;
-            if !content.ends_with('\n') {
-                content.push('\n');
-            }
+        GraphOutputFormat::MiraJsonLd => {
+            validate_mira_export_options(graph, projection_options, connected_to)?;
+            let content = serialize_mira_graph(graph, output_losses).await?;
             if is_stdout_output(output) {
                 tokio::io::stdout().write_all(content.as_bytes()).await?;
             } else {
@@ -531,10 +531,9 @@ async fn build_graph(
     if path.is_file() {
         let doc = Document::open(&path, None).await?;
         let node = doc.root().await;
-        let subject = path
-            .file_name()
-            .and_then(|name| name.to_str())
-            .map_or_else(|| "document".to_string(), |name| format!("document:{name}"));
+        let subject = url::Url::from_file_path(&path)
+            .map(String::from)
+            .map_err(|()| eyre::eyre!("unable to create a file URL for {}", path.display()))?;
         let root = closest_workspace_dir(&path, false).await?;
         let scope = path
             .strip_prefix(&root)
@@ -544,9 +543,9 @@ async fn build_graph(
             .unwrap_or_else(|| PathBuf::from("document"))
             .to_string_lossy()
             .replace(std::path::MAIN_SEPARATOR, "/");
-        let analysis = graph_from_node_with_runtime_evidence(
+        let mut analysis = graph_from_node_with_runtime_evidence(
             subject,
-            scope,
+            &scope,
             &node,
             &root,
             if no_runtime_evidence {
@@ -555,6 +554,7 @@ async fn build_graph(
                 RuntimeEvidenceMode::Cached
             },
         )?;
+        set_graph_source_metadata_from_path(&mut analysis.graph, &path)?;
         return Ok(GraphSource {
             graph: analysis.graph,
             diagnostics: analysis.diagnostics,
@@ -576,7 +576,7 @@ fn output_format(output: &Path, requested: Option<GraphOutputFormat>) -> Result<
     }
 
     if Format::from_path(output) == Format::MiraJsonLd {
-        return Ok(GraphOutputFormat::Mira);
+        return Ok(GraphOutputFormat::MiraJsonLd);
     }
 
     match output.extension().and_then(|extension| extension.to_str()) {
@@ -586,7 +586,7 @@ fn output_format(output: &Path, requested: Option<GraphOutputFormat>) -> Result<
         Some("svg") => Ok(GraphOutputFormat::Svg),
         Some("png") => Ok(GraphOutputFormat::Png),
         _ => bail!(
-            "Unable to infer graph export format from `{}`; use `--to json`, `--to yaml`, `--to mira`, `--to dot`, `--to svg`, or `--to png`",
+            "Unable to infer graph export format from `{}`; use `--to json`, `--to yaml`, `--to mira-jsonld`, `--to dot`, `--to svg`, or `--to png`",
             output.display()
         ),
     }
@@ -602,7 +602,9 @@ fn serialize_graph(
     let content = match format {
         GraphOutputFormat::Json => serde_json::to_string_pretty(graph)?,
         GraphOutputFormat::Yaml => serde_yaml::to_string(graph)?,
-        GraphOutputFormat::Mira => bail!("MIRA JSON-LD graphs are serialized asynchronously"),
+        GraphOutputFormat::MiraJsonLd => {
+            bail!("MIRA JSON-LD graphs are serialized asynchronously")
+        }
         GraphOutputFormat::Dot => {
             let view = project_graph(graph, projection_options);
             let view = filter_graph_view_connected_to(&view, connected_to, connected_mode)?;
@@ -618,6 +620,47 @@ fn serialize_graph(
     } else {
         Ok(format!("{content}\n"))
     }
+}
+
+fn validate_mira_export_options(
+    graph: &Graph,
+    projection_options: &GraphProjectionOptions,
+    connected_to: &[String],
+) -> Result<()> {
+    if !connected_to.is_empty() {
+        bail!("`--connected-to` is not supported for MIRA JSON-LD exports");
+    }
+    if projection_options != &GraphProjectionOptions::default() {
+        bail!(
+            "graph projection options are not supported for MIRA JSON-LD exports; remove `--view`, `--detail`, `--containment`, `--structure`, `--no-structure`, `--no-low-confidence`, and `--no-collapse-citations`"
+        );
+    }
+    if !graph
+        .nodes
+        .iter()
+        .any(|node| node.node.as_research_object().is_some())
+    {
+        bail!(
+            "unable to export MIRA JSON-LD because the graph contains no supported research objects; add a Claim, Evidence, Question, Protocol, or Request block"
+        );
+    }
+
+    Ok(())
+}
+
+async fn serialize_mira_graph(
+    graph: &Graph,
+    output_losses: stencila_codecs::LossesResponse,
+) -> Result<String> {
+    stencila_codecs::to_string(
+        &stencila_schema::Node::Graph(graph.clone()),
+        Some(stencila_codecs::EncodeOptions {
+            format: Some(Format::MiraJsonLd),
+            losses: output_losses,
+            ..Default::default()
+        }),
+    )
+    .await
 }
 
 fn schema_format(format: GraphOutputFormat) -> Option<Format> {
@@ -646,7 +689,7 @@ mod tests {
 
     use eyre::Result;
     use stencila_graph::GraphBuilder;
-    use stencila_schema::{File, Node, SoftwareSourceCode};
+    use stencila_schema::{Claim, ClaimType, File, Node, SoftwareSourceCode};
 
     #[test]
     fn infers_output_format() -> Result<()> {
@@ -664,8 +707,13 @@ mod tests {
         );
         assert_eq!(
             output_format(Path::new("graph.mira.jsonld"), None)?,
-            GraphOutputFormat::Mira
+            GraphOutputFormat::MiraJsonLd
         );
+        assert_eq!(
+            output_format(Path::new("graph.mira.json"), None)?,
+            GraphOutputFormat::MiraJsonLd
+        );
+        assert!(output_format(Path::new("graph.jsonld"), None).is_err());
         assert_eq!(
             output_format(Path::new("graph.dot"), None)?,
             GraphOutputFormat::Dot
@@ -692,6 +740,30 @@ mod tests {
         );
         assert!(output_format(Path::new("graph.txt"), None).is_err());
 
+        Ok(())
+    }
+
+    #[test]
+    fn parses_explicit_mira_jsonld_format() -> Result<()> {
+        for flag in ["--to", "--format"] {
+            let cli = Cli::try_parse_from(["graph", "report.smd", "-", flag, "mira-jsonld"])?;
+            assert_eq!(cli.to, Some(GraphOutputFormat::MiraJsonLd));
+        }
+
+        let cli = Cli::try_parse_from(["graph", "report.smd", "-", "--to", "mira"])?;
+        assert_eq!(cli.to, Some(GraphOutputFormat::MiraJsonLd));
+        assert_eq!(cli.output_losses, stencila_codecs::LossesResponse::Warn);
+
+        let cli = Cli::try_parse_from([
+            "graph",
+            "report.smd",
+            "-",
+            "--to",
+            "mira",
+            "--output-losses",
+            "abort",
+        ])?;
+        assert_eq!(cli.output_losses, stencila_codecs::LossesResponse::Abort);
         Ok(())
     }
 
@@ -788,6 +860,7 @@ mod tests {
             &graph,
             Path::new("-"),
             Some(GraphOutputFormat::Json),
+            stencila_codecs::LossesResponse::Warn,
             &GraphProjectionOptions::default(),
             &["analysis.py".to_string()],
             GraphConnectedMode::Directed,
@@ -800,6 +873,133 @@ mod tests {
                 .to_string()
                 .contains("`--connected-to` is only supported for DOT, SVG, and PNG")
         );
+        Ok(())
+    }
+
+    #[test]
+    fn rejects_projection_options_and_empty_graph_for_mira() -> Result<()> {
+        let graph = graph()?;
+        let error = validate_mira_export_options(
+            &graph,
+            &GraphProjectionOptions {
+                preset: GraphProjectionPreset::Flow,
+                ..Default::default()
+            },
+            &[],
+        )
+        .expect_err("MIRA export should reject projection options");
+        assert!(error.to_string().contains("projection options"));
+
+        let error = validate_mira_export_options(&graph, &GraphProjectionOptions::default(), &[])
+            .expect_err("MIRA export should require a research object");
+        assert!(error.to_string().contains("no supported research objects"));
+        Ok(())
+    }
+
+    #[tokio::test]
+    async fn strict_mira_loss_policy_aborts_export() -> Result<()> {
+        let mut claim = Claim::new(Vec::new());
+        claim.id = Some("claim-1".to_string());
+        claim.claim_type = Some(ClaimType::Statement);
+        let graph = Graph::new(
+            "https://example.org/report.smd".to_string(),
+            vec![stencila_schema::GraphNode::new(
+                "claim".to_string(),
+                Box::new(Node::Claim(claim)),
+            )],
+            Vec::new(),
+        );
+
+        let error = serialize_mira_graph(&graph, stencila_codecs::LossesResponse::Abort)
+            .await
+            .expect_err("strict MIRA export should abort on a claim type loss");
+        assert!(format!("{error:?}").contains("Claim.claimType"));
+        Ok(())
+    }
+
+    #[tokio::test(flavor = "multi_thread")]
+    async fn exports_markdown_research_relations_as_mira_jsonld() -> Result<()> {
+        let temp_dir = tempfile::tempdir()?;
+        std::fs::create_dir_all(temp_dir.path().join(".stencila/cache/runtime"))?;
+        let path = temp_dir.path().join("report.smd");
+        std::fs::write(
+            &path,
+            r#"::: claim #claim-1
+:supported-by: #evidence-1
+
+The intervention improves recovery.
+
+:::
+
+::: evidence #evidence-1
+
+Participants recovered sooner.
+
+:::
+"#,
+        )?;
+
+        let source = build_graph(&path, true, true, true).await?;
+        validate_mira_export_options(&source.graph, &GraphProjectionOptions::default(), &[])?;
+        let inferred_output = temp_dir.path().join("report.mira.jsonld");
+        export_graph(
+            &source.graph,
+            &inferred_output,
+            None,
+            stencila_codecs::LossesResponse::Warn,
+            &GraphProjectionOptions::default(),
+            &[],
+            GraphConnectedMode::Directed,
+        )
+        .await?;
+        let actual = std::fs::read_to_string(&inferred_output)?;
+        let expected = stencila_codecs::to_string(
+            &Node::Graph(source.graph.clone()),
+            Some(stencila_codecs::EncodeOptions {
+                format: Some(Format::MiraJsonLd),
+                ..Default::default()
+            }),
+        )
+        .await?;
+        assert_eq!(actual, expected);
+
+        let explicit_output = temp_dir.path().join("report.jsonld");
+        export_graph(
+            &source.graph,
+            &explicit_output,
+            Some(GraphOutputFormat::MiraJsonLd),
+            stencila_codecs::LossesResponse::Warn,
+            &GraphProjectionOptions::default(),
+            &[],
+            GraphConnectedMode::Directed,
+        )
+        .await?;
+        assert_eq!(std::fs::read_to_string(explicit_output)?, expected);
+
+        let value: serde_json::Value = serde_json::from_str(&actual)?;
+        let document_id = url::Url::from_file_path(&path.canonicalize()?)
+            .map(String::from)
+            .map_err(|()| eyre::eyre!("unable to create document URL"))?;
+        assert_eq!(value["@id"], document_id);
+        assert_eq!(value["@context"][1]["@base"], document_id);
+        let items = value["@graph"]
+            .as_array()
+            .ok_or_else(|| eyre::eyre!("MIRA graph should be an array"))?;
+        assert!(
+            items
+                .iter()
+                .any(|item| item["@type"] == "mira:Claim" && item["@id"] == "#claim-1")
+        );
+        assert!(
+            items
+                .iter()
+                .any(|item| item["@type"] == "mira:Evidence" && item["@id"] == "#evidence-1")
+        );
+        assert!(items.iter().any(|item| {
+            item["@type"] == "mira:supportedBy"
+                && item["source"] == "#claim-1"
+                && item["destination"] == "#evidence-1"
+        }));
         Ok(())
     }
 
@@ -821,6 +1021,53 @@ mod tests {
                 .iter()
                 .any(|node| node.id.starts_with("node:nested/report.md"))
         );
+        Ok(())
+    }
+
+    #[tokio::test(flavor = "multi_thread")]
+    async fn file_graph_preserves_repository_source_metadata() -> Result<()> {
+        let temp_dir = tempfile::tempdir()?;
+        let nested = temp_dir.path().join("nested");
+        std::fs::create_dir_all(temp_dir.path().join(".stencila/cache/runtime"))?;
+        std::fs::create_dir_all(&nested)?;
+        run_git(temp_dir.path(), &["init", "--quiet"])?;
+        run_git(
+            temp_dir.path(),
+            &[
+                "remote",
+                "add",
+                "origin",
+                "https://github.com/example/research.git",
+            ],
+        )?;
+        let path = nested.join("report.smd");
+        std::fs::write(&path, "::: claim #claim-1\n\nClaim.\n\n:::\n")?;
+
+        let source = build_graph(&path, true, true, true).await?;
+
+        assert_eq!(
+            source.graph.options.repository.as_deref(),
+            Some("https://github.com/example/research")
+        );
+        assert_eq!(
+            source.graph.options.path.as_deref(),
+            Some("nested/report.smd")
+        );
+        Ok(())
+    }
+
+    fn run_git(dir: &Path, args: &[&str]) -> Result<()> {
+        let output = std::process::Command::new("git")
+            .arg("-C")
+            .arg(dir)
+            .args(args)
+            .output()?;
+        if !output.status.success() {
+            bail!(
+                "git command failed: {}",
+                String::from_utf8_lossy(&output.stderr)
+            );
+        }
         Ok(())
     }
 

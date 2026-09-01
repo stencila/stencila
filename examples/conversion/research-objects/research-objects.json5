@@ -58,8 +58,7 @@
           type: "Text",
           value: { string: "Trial result" }
         }
-      ],
-      source: "randomized trial"
+      ]
     },
     {
       type: "Question",
@@ -105,13 +104,6 @@
           ]
         }
       ],
-      relations: [
-        {
-          type: "ResearchObjectRelation",
-          kind: "Follows",
-          target: "https://example.org/protocols/baseline"
-        }
-      ],
       title: [
         {
           type: "Text",
@@ -146,8 +138,7 @@
           type: "Text",
           value: { string: "Replication request" }
         }
-      ],
-      priority: 2
+      ]
     }
   ]
 }
