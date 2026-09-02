@@ -61,7 +61,7 @@
     "@shoelace-style/shoelace": "2.20.1",
     "@stencila/types": "*",
     "@tailwindcss/container-queries": "0.1.1",
-    "@tiptap/core": "3.25.0",
+    "@tiptap/core": "3.30.4",
     "@tiptap/extension-blockquote": "3.25.0",
     "@tiptap/extension-bold": "3.25.0",
     "@tiptap/extension-bullet-list": "3.25.0",
