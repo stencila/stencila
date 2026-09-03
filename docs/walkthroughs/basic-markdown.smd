@@ -1,0 +1,150 @@
+# Markdown Overview
+
+This walkthrough is a guide for those who may not have a lot of practice
+with Markdown, or who's Markdown knowledge is a bit rusty. We encourage
+you to practice in the space provided at the bottom of each section 
+and have a Stencila Preview window open to see how things are being 
+styled into HTML. 
+
+## Learning objectives
+
+1. Become exposed to the most common piece of markdown syntax
+2. Practice crafting your own styled Markdown, or example that is realted to your own work
+3. Building awareness of how Markdown gets styled by Stencila's preview window
+
+
+### 1. Headers
+You can create headers by using the `#` symbol. The number of `#` symbols indicates the level of the header.
+
+```markdown
+# Header 1
+## Header 2
+### Header 3
+#### Header 4
+##### Header 5
+###### Header 6
+```
+
+> [!info]
+> Try creating your own headers below. 
+
+Try here: 
+
+
+
+
+...
+
+### 2. Emphasis
+You can emphasize text using asterisks (`*`) or underscores (`_`).
+
+```markdown
+*Italic* or _Italic_
+
+**Bold** or __Bold__
+
+~~Strikethrough~~
+```
+
+> [!info]
+> Try it yourself below. Type some text and see if you can add 
+> **emphasis** to it. ~~Or cross it out maybe~~. Or maybe just *Italicize* it.
+
+Try here: 
+
+
+...
+
+### 3. Lists
+You can create both unordered and ordered lists.
+
+- **Unordered Lists**: Use `*`, `+`, or `-`:
+
+```markdown
+* Item 1
+* Item 2
+  * Subitem 2.1
+  * Subitem 2.2
+```
+
+- **Ordered Lists**: Use numbers followed by a period:
+
+```markdown
+1. First item
+2. Second item
+   1. Subitem 2.1
+   2. Subitem 2.2
+```
+
+> [!info]
+> Have a go yourself, make a few lists and explore nesting.
+
+Try here:
+
+
+
+...
+
+### 4. Links
+To create hyperlinks, use the format `[link text](URL)`.
+
+```markdown
+[Stencila](https://stencila.io)
+```
+The bit in `[]` is the link text, the bit between the `()` is the 
+URL. 
+
+> [!info]
+> Have a go and see if you can type a link to a favorite 
+> website or two. 
+
+Try here: 
+
+
+
+...
+
+### 6. Blockquotes
+Use the `>` symbol to create blockquotes.
+
+```markdown
+> This is a blockquote.
+```
+
+They're great for when you're quoting someone. 
+
+> [!info]
+> Give it a try, create a block quote or two below
+
+Try here: 
+
+
+
+
+...
+
+
+### 9. Tables
+To create tables, use pipes (`|`) and dashes (`-`):
+
+```markdown
+| Header 1 | Header 2 |
+|----------|----------|
+| Row 1    | Data 1   |
+| Row 2    | Data 2   |
+```
+
+> [!info]
+> Give it a try, see if you can craft your own Markdown table.
+
+Try here: 
+
+
+
+...
+
+### That should get you started! 
+
+You've now practiced several of the most common types of styling 
+syntax in Markdown. Markdown lets you write plain text, but have
+it rendered into attractive documents. 
