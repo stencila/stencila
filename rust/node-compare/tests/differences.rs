@@ -428,7 +428,12 @@ fn a_union_property_appearing_reports_its_value() -> Result<()> {
         );
     };
 
-    let Difference::ValueChanged { location, left, right } = difference else {
+    let Difference::ValueChanged {
+        location,
+        left,
+        right,
+    } = difference
+    else {
         bail!("Expected a value difference, got {difference:?}");
     };
 
@@ -456,9 +461,9 @@ fn a_structured_property_appearing_reports_only_presence() -> Result<()> {
         title: Some(vec![t("A title")]),
         ..Article::new(vec![Block::Paragraph(Paragraph::new(vec![t("Body")]))])
     });
-    let without = Node::Article(Article::new(vec![Block::Paragraph(Paragraph::new(vec![t(
-        "Body",
-    )]))]));
+    let without = Node::Article(Article::new(vec![Block::Paragraph(Paragraph::new(vec![
+        t("Body"),
+    ]))]));
 
     let comparison = compare(&with, &without)?;
 

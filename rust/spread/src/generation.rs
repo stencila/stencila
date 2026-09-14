@@ -76,7 +76,7 @@ pub fn generate_runs_grid(params: &Parameters) -> Vec<Run> {
         params.iter().filter(|(_, v)| !v.is_multi()).collect();
 
     // Sort multi-valued parameters lexicographically by key
-    multi_params.sort_by(|(a, _), (b, _)| a.cmp(b));
+    multi_params.sort_by_key(|(a, _)| *a);
 
     // If no multi-valued params, return single run with all scalars
     if multi_params.is_empty() {

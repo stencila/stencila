@@ -202,7 +202,7 @@ fn compute_total_stages(info: &WorkflowDefinitionInfo) -> usize {
         tokio::task::block_in_place(|| {
             handle.block_on(async {
                 match load_workflow_instance(info).await {
-                    Ok(wf) => wf.graph().map(|g| g.nodes.len()).unwrap_or(0),
+                    Ok(wf) => wf.graph().map_or(0, |g| g.nodes.len()),
                     Err(_) => 0,
                 }
             })

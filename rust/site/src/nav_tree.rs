@@ -285,10 +285,8 @@ fn contains_route(items: &[NavItem], route: &str) -> bool {
             NavItem::Route(r) if r == route => return true,
             NavItem::Link { route: r, .. } if r == route => return true,
             NavItem::Group { route: Some(r), .. } if r == route => return true,
-            NavItem::Group { children, .. } => {
-                if contains_route(children, route) {
-                    return true;
-                }
+            NavItem::Group { children, .. } if contains_route(children, route) => {
+                return true;
             }
             _ => {}
         }

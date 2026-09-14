@@ -212,25 +212,23 @@ pub fn translate_sse_event(
             }
         }
         // Reasoning summary text done — emit ReasoningEnd.
-        "response.reasoning_summary_text.done" | "response.reasoning_summary_part.done" => {
-            if state.emitted_reasoning_start {
-                state.emitted_reasoning_start = false;
-                out.push(StreamEvent {
-                    event_type: StreamEventType::ReasoningEnd,
-                    delta: None,
-                    text_id: Some("reasoning_0".to_string()),
-                    reasoning_delta: None,
-                    tool_call: None,
-                    finish_reason: None,
-                    usage: None,
-                    response: None,
-                    error: None,
-                    warnings: None,
-                    raw: Some(payload),
-                });
-            } else {
-                out.push(provider_event(payload));
-            }
+        "response.reasoning_summary_text.done" | "response.reasoning_summary_part.done"
+            if state.emitted_reasoning_start =>
+        {
+            state.emitted_reasoning_start = false;
+            out.push(StreamEvent {
+                event_type: StreamEventType::ReasoningEnd,
+                delta: None,
+                text_id: Some("reasoning_0".to_string()),
+                reasoning_delta: None,
+                tool_call: None,
+                finish_reason: None,
+                usage: None,
+                response: None,
+                error: None,
+                warnings: None,
+                raw: Some(payload),
+            });
         }
         "response.output_text.delta" => {
             let delta = payload

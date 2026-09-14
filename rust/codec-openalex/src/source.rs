@@ -128,15 +128,13 @@ impl From<&DehydratedSource> for Reference {
 
         let title = source.display_name.as_ref().map(|name| vec![t(name)]);
 
-        let identifiers = if let Some(issn_l) = &source.issn_l {
-            Some(vec![PropertyValueOrString::PropertyValue(PropertyValue {
+        let identifiers = source.issn_l.as_ref().map(|issn_l| {
+            vec![PropertyValueOrString::PropertyValue(PropertyValue {
                 property_id: Some("issn".into()),
                 value: Primitive::String(issn_l.into()),
                 ..Default::default()
-            })])
-        } else {
-            None
-        };
+            })]
+        });
 
         Reference {
             work_type,

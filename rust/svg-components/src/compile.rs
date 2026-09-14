@@ -92,10 +92,8 @@ fn has_s_elements(source: &str) -> bool {
     let mut reader = Reader::from_str(source);
     loop {
         match reader.read_event() {
-            Ok(Event::Start(ref e) | Event::Empty(ref e)) => {
-                if element_name(e).starts_with("s:") {
-                    return true;
-                }
+            Ok(Event::Start(ref e) | Event::Empty(ref e)) if element_name(e).starts_with("s:") => {
+                return true;
             }
             Ok(Event::Eof) | Err(_) => return false,
             _ => {}

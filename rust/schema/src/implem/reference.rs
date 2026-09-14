@@ -842,7 +842,10 @@ impl TextCodec for Reference {
         // The most specific identifier the reference has: a DOI, or a URL when it has no
         // DOI
         if let Some(doi) = &self.doi {
-            push_part(&mut text, &["https://doi.org/", normalize_doi(doi)].concat());
+            push_part(
+                &mut text,
+                &["https://doi.org/", normalize_doi(doi)].concat(),
+            );
         } else if let Some(url) = &self.url {
             push_part(&mut text, url);
         }

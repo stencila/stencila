@@ -686,7 +686,7 @@ impl SubAgentManager {
             let awaited = futures::future::join_all(futures).await;
 
             // Phase 3: Apply results back to agent handles.
-            for ((idx, agent_id, _), step_result) in pending.into_iter().zip(awaited.into_iter()) {
+            for ((idx, agent_id, _), step_result) in pending.into_iter().zip(awaited) {
                 match step_result {
                     Ok(step) => {
                         if let Some(agent) = self.agents.get_mut(&agent_id) {

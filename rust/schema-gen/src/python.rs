@@ -443,10 +443,7 @@ class {name}({base}):
                 .join(" or ")
         };
 
-        let alternatives = alternatives
-            .into_iter()
-            .zip(are_types.into_iter())
-            .collect_vec();
+        let alternatives = alternatives.into_iter().zip(are_types).collect_vec();
 
         let code = if alternatives.iter().all(|(.., is_type)| *is_type) {
             let types = alternatives

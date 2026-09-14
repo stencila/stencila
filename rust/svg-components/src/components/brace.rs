@@ -93,7 +93,7 @@ pub fn expand(attrs: &Attrs, ctx: &mut ComponentContext) -> String {
         .ok();
     }
 
-    let path = format!(r#"<path d="{d}" fill="none" stroke="{stroke}"{pass}/>"#,);
+    let path = format!(r#"<path d="{d}" fill="none" stroke="{stroke}"{pass}/>"#);
 
     let label_svg = match label {
         Some(label_text) => {

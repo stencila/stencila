@@ -513,17 +513,16 @@ fn contains_tex_commands(s: &str) -> bool {
             '=' | '+' | '-' | '*' | '/' => return true,
 
             // TeX commands (\command)
-            '\\' => {
+            '\\'
                 // Check if followed by an alphabetic character
                 if chars
                     .as_str()
                     .chars()
                     .next()
                     .is_some_and(|c| c.is_ascii_alphabetic())
-                {
+                => {
                     return true;
                 }
-            }
 
             _ => {} // Continue for other characters
         }

@@ -476,10 +476,8 @@ pub(crate) fn translate_response(
 
     if let Some(content) = message.get("content") {
         match content {
-            Value::String(text) => {
-                if !text.is_empty() {
-                    content_parts.push(ContentPart::Text { text: text.clone() });
-                }
+            Value::String(text) if !text.is_empty() => {
+                content_parts.push(ContentPart::Text { text: text.clone() });
             }
             Value::Array(parts) => {
                 for part in parts {

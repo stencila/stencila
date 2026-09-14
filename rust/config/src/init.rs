@@ -319,9 +319,9 @@ impl RepoAnalyzer {
                         excludes.push(".jupyter_cache/**".to_string());
                     }
                 }
-                ProjectType::LatexProject => {
+                ProjectType::LatexProject
                     // LaTeX auxiliary files - only add if any .tex files exist
-                    if pattern_exists("**/*.tex") {
+                    if pattern_exists("**/*.tex") => {
                         // These are commonly generated and should be excluded
                         for ext in [
                             "aux", "log", "out", "toc", "lof", "lot", "bbl", "blg", "fls",
@@ -340,7 +340,6 @@ impl RepoAnalyzer {
                             excludes.push("_minted-*/**".to_string());
                         }
                     }
-                }
                 ProjectType::NodeProject => {
                     if dir_exists("node_modules") {
                         excludes.push("node_modules/**".to_string());
@@ -358,11 +357,10 @@ impl RepoAnalyzer {
                         excludes.push(".nuxt/**".to_string());
                     }
                 }
-                ProjectType::JupyterNotebook => {
-                    if dir_exists(".ipynb_checkpoints") {
+                ProjectType::JupyterNotebook
+                    if dir_exists(".ipynb_checkpoints") => {
                         excludes.push(".ipynb_checkpoints/**".to_string());
                     }
-                }
                 _ => {}
             }
         }

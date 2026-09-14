@@ -61,7 +61,7 @@ pub struct AwaitableInterviewer {
 
 impl std::fmt::Debug for AwaitableInterviewer {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        let pending_count = self.pending.lock().map(|p| p.len()).unwrap_or(0);
+        let pending_count = self.pending.lock().map_or(0, |p| p.len());
         f.debug_struct("AwaitableInterviewer")
             .field("pending", &pending_count)
             .field("poll_interval", &self.poll_interval)

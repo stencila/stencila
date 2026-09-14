@@ -389,10 +389,8 @@ impl App {
                 }
             }
 
-            (KeyModifiers::CONTROL, KeyCode::Char('s')) => {
-                if self.mode == AppMode::Agent {
-                    self.enter_shell_mode();
-                }
+            (KeyModifiers::CONTROL, KeyCode::Char('s')) if self.mode == AppMode::Agent => {
+                self.enter_shell_mode();
             }
             (KeyModifiers::CONTROL, KeyCode::Char('d')) => {
                 if self.mode == AppMode::Shell {
@@ -404,11 +402,9 @@ impl App {
             (KeyModifiers::CONTROL, KeyCode::Char('l')) => {
                 self.reset_active_session();
             }
-            (KeyModifiers::CONTROL, KeyCode::Char('a')) => {
-                if self.sessions.len() > 1 {
-                    let next = (self.active_session + 1) % self.sessions.len();
-                    self.switch_to_session(next);
-                }
+            (KeyModifiers::CONTROL, KeyCode::Char('a')) if self.sessions.len() > 1 => {
+                let next = (self.active_session + 1) % self.sessions.len();
+                self.switch_to_session(next);
             }
             (KeyModifiers::CONTROL, KeyCode::Char('u')) => self.input.delete_to_line_start(),
             (KeyModifiers::CONTROL, KeyCode::Char('k')) => self.input.delete_to_line_end(),
@@ -422,10 +418,10 @@ impl App {
                 self.submit_input().await;
             }
 
-            (KeyModifiers::NONE, KeyCode::Tab) => {
-                if self.active_interview.is_none() && self.ghost_suggestion.is_some() {
-                    self.accept_ghost_word();
-                }
+            (KeyModifiers::NONE, KeyCode::Tab)
+                if self.active_interview.is_none() && self.ghost_suggestion.is_some() =>
+            {
+                self.accept_ghost_word();
             }
 
             (KeyModifiers::CONTROL, KeyCode::Left) => self.input.move_word_left(),

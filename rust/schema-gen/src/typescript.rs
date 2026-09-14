@@ -623,10 +623,7 @@ export function {name}({required_args}options?: Partial<{title}>): {title} {{
                 .join(" or ")
         };
 
-        let alternatives = alternatives
-            .into_iter()
-            .zip(are_types.into_iter())
-            .collect_vec();
+        let alternatives = alternatives.into_iter().zip(are_types).collect_vec();
 
         let mut imports = alternatives
             .iter()

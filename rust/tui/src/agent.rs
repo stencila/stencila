@@ -367,10 +367,7 @@ impl RunningAgentExchange {
 
     /// Return the latest context usage percentage (0–100+).
     pub fn context_usage_percent(&self) -> u32 {
-        self.progress
-            .lock()
-            .map(|g| g.context_usage_percent)
-            .unwrap_or(0)
+        self.progress.lock().map_or(0, |g| g.context_usage_percent)
     }
 
     /// If the exchange is complete, return the final result.

@@ -84,11 +84,11 @@ fn selectors_parse_and_render() -> Result<()> {
 fn impossible_selectors_are_rejected() {
     for text in [
         "",
-        "Lnk",             // not a node type
-        "jatsReftype",     // not a property; the casing is wrong
-        "Link.href",       // not a property at all
-        "Link.rowSpan",    // a property, but not one `Link` declares
-        "link",            // node types are PascalCase, so this reads as a property
+        "Lnk",          // not a node type
+        "jatsReftype",  // not a property; the casing is wrong
+        "Link.href",    // not a property at all
+        "Link.rowSpan", // a property, but not one `Link` declares
+        "link",         // node types are PascalCase, so this reads as a property
     ] {
         assert!(
             text.parse::<Selector>().is_err(),
@@ -163,8 +163,18 @@ fn the_most_specific_selector_wins_regardless_of_order() -> Result<()> {
     );
 
     // Order within the selector lists is not significant either
-    let one_way = filtered(&left, &right, &["id", "Paragraph.authors"], &["Link.id", "*"])?;
-    let other_way = filtered(&left, &right, &["Paragraph.authors", "id"], &["*", "Link.id"])?;
+    let one_way = filtered(
+        &left,
+        &right,
+        &["id", "Paragraph.authors"],
+        &["Link.id", "*"],
+    )?;
+    let other_way = filtered(
+        &left,
+        &right,
+        &["Paragraph.authors", "id"],
+        &["*", "Link.id"],
+    )?;
     assert_eq!(one_way.differences(), other_way.differences());
     assert_eq!(
         one_way.differences(),

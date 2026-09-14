@@ -304,10 +304,8 @@ fn parse_html_or_text(content: &str) -> Vec<Block> {
     if content.contains('<') && content.contains('>') {
         // Try to parse as HTML
         match stencila_codec_html::decode(content, None) {
-            Ok((Node::Article(article), _)) => {
-                if !article.content.is_empty() {
-                    return article.content;
-                }
+            Ok((Node::Article(article), _)) if !article.content.is_empty() => {
+                return article.content;
             }
             _ => {
                 // HTML parsing failed, fallback to text

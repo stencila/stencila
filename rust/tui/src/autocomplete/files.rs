@@ -580,7 +580,7 @@ fn scan_directory(dir: &Path) -> Vec<FileCandidate> {
         let Ok(entry) = entry else { continue };
         let name = entry.file_name().to_string_lossy().into_owned();
 
-        let is_dir = entry.file_type().map(|ft| ft.is_dir()).unwrap_or(false);
+        let is_dir = entry.file_type().is_ok_and(|ft| ft.is_dir());
 
         let display = if is_dir { format!("{name}/") } else { name };
 

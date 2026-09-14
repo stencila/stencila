@@ -165,8 +165,8 @@ pub(crate) async fn watch_doc(
         if remotes.len() > 1 {
             progress.send((100, None)).ok();
             let remotes_json: Vec<_> = remotes
-                .iter()
-                .filter_map(|(url, _)| {
+                .keys()
+                .filter_map(|url| {
                     RemoteService::from_url(url).map(|service| {
                         json!({
                             "service": service.display_name(),

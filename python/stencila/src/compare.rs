@@ -125,9 +125,7 @@ fn selectors(texts: Option<&[String]>) -> PyResult<Vec<Selector>> {
     texts
         .unwrap_or_default()
         .iter()
-        .map(|text| {
-            Selector::from_str(text).map_err(|error| value_error(eyre::eyre!("{error}")))
-        })
+        .map(|text| Selector::from_str(text).map_err(|error| value_error(eyre::eyre!("{error}"))))
         .collect()
 }
 
