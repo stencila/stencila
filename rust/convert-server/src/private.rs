@@ -400,6 +400,7 @@ pub(super) async fn convert(
     }
 
     let permit = state.acquire().await?;
+    let in_flight = state.begin_conversion();
     let started = Instant::now();
     let bytes = tokio::time::timeout(
         state.config.conversion_timeout,
@@ -417,7 +418,6 @@ pub(super) async fn convert(
     validate_header(&bundle.header, &state)?;
 
     let input_bytes = bundle.files.values().map(Vec::len).sum();
-    let in_flight = state.begin_conversion();
     let remaining = state
         .config
         .conversion_timeout

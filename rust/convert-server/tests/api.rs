@@ -5,10 +5,12 @@ use axum::{
         header::{ACCEPT, CACHE_CONTROL, CONTENT_DISPOSITION, CONTENT_TYPE},
     },
 };
+use bytes::Bytes;
 use serde_json::Value;
 use sha2::{Digest, Sha256};
 use std::io::{Cursor, Read, Write};
 use stencila_convert_server::{ServerConfig, app, app_with_config};
+use tokio_stream::wrappers::ReceiverStream;
 use tower::ServiceExt;
 use zip::{ZipArchive, ZipWriter, write::SimpleFileOptions};
 
@@ -611,6 +613,75 @@ async fn reports_private_build_and_effective_limits() -> Result<(), Box<dyn std:
     assert_eq!(health["limits"]["maxConcurrency"], 1);
     assert_eq!(health["limits"]["artifactCacheEnabled"], false);
     assert_eq!(health["inFlight"], 0);
+    Ok(())
+}
+
+#[tokio::test]
+async fn private_health_counts_admitted_uploads_until_rejected_or_cancelled()
+-> Result<(), Box<dyn std::error::Error>> {
+    async fn in_flight(router: axum::Router) -> Result<u64, Box<dyn std::error::Error>> {
+        let response = router
+            .oneshot(
+                Request::builder()
+                    .uri("/private/v1/health")
+                    .body(Body::empty())?,
+            )
+            .await?;
+        let health: Value = serde_json::from_slice(&to_bytes(response.into_body(), MIB).await?)?;
+        health["inFlight"]
+            .as_u64()
+            .ok_or_else(|| "missing inFlight".into())
+    }
+
+    let router = app_with_config(ServerConfig {
+        max_concurrency: Some(1),
+        ..Default::default()
+    });
+    let (sender, receiver) = tokio::sync::mpsc::channel(1);
+    sender
+        .send(Ok::<_, std::io::Error>(Bytes::from_static(b"\0\0")))
+        .await?;
+    let upload = tokio::spawn(
+        router.clone().oneshot(
+            Request::builder()
+                .method("POST")
+                .uri("/private/v1/convert")
+                .header(
+                    CONTENT_TYPE,
+                    "application/vnd.stencila.conversion.v1+frames",
+                )
+                .body(Body::from_stream(ReceiverStream::new(receiver)))?,
+        ),
+    );
+
+    for _ in 0..20 {
+        if in_flight(router.clone()).await? == 1 {
+            break;
+        }
+        tokio::task::yield_now().await;
+    }
+    assert_eq!(in_flight(router.clone()).await?, 1);
+
+    upload.abort();
+    let _ = upload.await;
+    drop(sender);
+    assert_eq!(in_flight(router.clone()).await?, 0);
+
+    let rejected = router
+        .clone()
+        .oneshot(
+            Request::builder()
+                .method("POST")
+                .uri("/private/v1/convert")
+                .header(
+                    CONTENT_TYPE,
+                    "application/vnd.stencila.conversion.v1+frames",
+                )
+                .body(Body::from("invalid"))?,
+        )
+        .await?;
+    assert_eq!(rejected.status(), StatusCode::BAD_REQUEST);
+    assert_eq!(in_flight(router).await?, 0);
     Ok(())
 }
 
