@@ -6,12 +6,25 @@ use axum::{
     },
 };
 use serde_json::Value;
-use std::io::{Cursor, Read};
+use sha2::{Digest, Sha256};
+use std::io::{Cursor, Read, Write};
 use stencila_convert_server::{ServerConfig, app, app_with_config};
 use tower::ServiceExt;
-use zip::ZipArchive;
+use zip::{ZipArchive, ZipWriter, write::SimpleFileOptions};
 
 const MIB: usize = 1024 * 1024;
+type PrivateFrames = Vec<(Value, Vec<u8>)>;
+
+fn decode_hex_fixture(value: &str) -> Result<Vec<u8>, Box<dyn std::error::Error>> {
+    let value = value.trim();
+    if !value.len().is_multiple_of(2) {
+        return Err("hex fixture has an odd length".into());
+    }
+    (0..value.len())
+        .step_by(2)
+        .map(|index| Ok(u8::from_str_radix(&value[index..index + 2], 16)?))
+        .collect()
+}
 
 #[cfg(debug_assertions)]
 #[tokio::test]
@@ -498,5 +511,518 @@ async fn rejects_json_unsupported_url() -> Result<(), Box<dyn std::error::Error>
     let json: Value = serde_json::from_slice(&bytes)?;
     assert_eq!(json["error"]["code"], "unsupported_url");
 
+    Ok(())
+}
+
+fn private_frame(header: Value, payload: &[u8]) -> Result<Vec<u8>, Box<dyn std::error::Error>> {
+    let json = serde_json::to_vec(&header)?;
+    let mut frame = Vec::with_capacity(4 + json.len() + payload.len());
+    frame.extend_from_slice(&(json.len() as u32).to_be_bytes());
+    frame.extend_from_slice(&json);
+    frame.extend_from_slice(payload);
+    Ok(frame)
+}
+
+fn private_request(
+    from: &str,
+    to: &str,
+    main_path: &str,
+    manuscript_path: Option<&str>,
+    files: &[(&str, &[u8])],
+) -> Result<Request<Body>, Box<dyn std::error::Error>> {
+    let declarations: Vec<_> = files.iter().map(|(path, bytes)| serde_json::json!({
+        "path": path,
+        "size": bytes.len(),
+        "sha256": Sha256::digest(bytes).iter().map(|byte| format!("{byte:02x}")).collect::<String>(),
+    })).collect();
+    let mut body = private_frame(
+        serde_json::json!({
+            "kind": "request", "protocol": "conversion.v1", "jobId": "job-1", "attempt": 1,
+            "from": from, "to": to,
+            "options": {"compact": false, "standalone": false, "media": "sidecar"},
+            "mainPath": main_path, "manuscriptPath": manuscript_path, "files": declarations,
+            "policy": {"allowModels": false, "allowCodeExecution": false, "allowNetwork": false,
+                "supplements": "retain-original"},
+            "bounds": {"maxExpandedBytes": 104857600, "maxArchiveEntries": 1000,
+                "maxArtifactBytes": 20971520, "maxResultBytes": 104857600, "maxArtifacts": 256}
+        }),
+        &[],
+    )?;
+    for (path, bytes) in files {
+        for (index, chunk) in bytes.chunks(256 * 1024).enumerate() {
+            body.extend(private_frame(
+                serde_json::json!({
+                    "kind": "file", "path": path, "offset": index * 256 * 1024, "bytes": chunk.len()
+                }),
+                chunk,
+            )?);
+        }
+    }
+    body.extend(private_frame(serde_json::json!({"kind": "end"}), &[])?);
+    Ok(Request::builder()
+        .method("POST")
+        .uri("/private/v1/convert")
+        .header(
+            CONTENT_TYPE,
+            "application/vnd.stencila.conversion.v1+frames",
+        )
+        .body(Body::from(body))?)
+}
+
+fn private_response_frames(mut bytes: &[u8]) -> Result<PrivateFrames, Box<dyn std::error::Error>> {
+    let mut frames = Vec::new();
+    while !bytes.is_empty() {
+        if bytes.len() < 4 {
+            return Err("truncated frame length".into());
+        }
+        let length = u32::from_be_bytes(bytes[..4].try_into()?) as usize;
+        bytes = &bytes[4..];
+        if bytes.len() < length {
+            return Err("truncated frame header".into());
+        }
+        let header: Value = serde_json::from_slice(&bytes[..length])?;
+        bytes = &bytes[length..];
+        let payload = header.get("bytes").and_then(Value::as_u64).unwrap_or(0) as usize;
+        if bytes.len() < payload {
+            return Err("truncated frame payload".into());
+        }
+        frames.push((header, bytes[..payload].to_vec()));
+        bytes = &bytes[payload..];
+    }
+    Ok(frames)
+}
+
+#[tokio::test]
+async fn reports_private_build_and_effective_limits() -> Result<(), Box<dyn std::error::Error>> {
+    let config = ServerConfig {
+        max_concurrency: Some(1),
+        ..Default::default()
+    };
+    let response = app_with_config(config)
+        .oneshot(
+            Request::builder()
+                .uri("/private/v1/health")
+                .body(Body::empty())?,
+        )
+        .await?;
+    assert_eq!(response.status(), StatusCode::OK);
+    let health: Value = serde_json::from_slice(&to_bytes(response.into_body(), MIB).await?)?;
+    assert_eq!(health["build"]["protocol"], "conversion.v1");
+    assert_eq!(health["limits"]["maxConcurrency"], 1);
+    assert_eq!(health["limits"]["artifactCacheEnabled"], false);
+    assert_eq!(health["inFlight"], 0);
+    Ok(())
+}
+
+#[tokio::test]
+async fn accepts_the_javascript_conversion_v1_fixture() -> Result<(), Box<dyn std::error::Error>> {
+    // Generated by the JavaScript frame encoder used by Cirrus. Keeping the bytes checked in makes
+    // field casing, big-endian framing, and payload placement a cross-language compatibility test.
+    let body = decode_hex_fixture(include_str!("fixtures/conversion-v1-request.hex"))?;
+    let request = Request::builder()
+        .method("POST")
+        .uri("/private/v1/convert")
+        .header(
+            CONTENT_TYPE,
+            "application/vnd.stencila.conversion.v1+frames",
+        )
+        .body(Body::from(body))?;
+    let response = app().oneshot(request).await?;
+    assert_eq!(response.status(), StatusCode::OK);
+    let frames = private_response_frames(&to_bytes(response.into_body(), 2 * MIB).await?)?;
+    assert_eq!(frames[0].0["jobId"], "fixture-job");
+    assert_eq!(
+        frames.last().ok_or("missing trailer")?.0["status"],
+        "completed"
+    );
+    Ok(())
+}
+
+#[tokio::test]
+async fn private_bad_jats_returns_a_terminal_failed_trailer()
+-> Result<(), Box<dyn std::error::Error>> {
+    let response = app()
+        .oneshot(private_request(
+            "jats",
+            "markdown",
+            "article.xml",
+            None,
+            &[("article.xml", b"<article><unclosed>")],
+        )?)
+        .await?;
+    assert_eq!(response.status(), StatusCode::OK);
+    let frames = private_response_frames(&to_bytes(response.into_body(), MIB).await?)?;
+    assert_eq!(frames.first().ok_or("missing result")?.0["kind"], "result");
+    let trailer = &frames.last().ok_or("missing trailer")?.0;
+    assert_eq!(trailer["status"], "failed");
+    assert_eq!(trailer["error"]["code"], "conversion_failed");
+    assert_eq!(trailer["modelCalls"], 0);
+    Ok(())
+}
+
+#[tokio::test]
+async fn privately_converts_jats_and_retains_original_media()
+-> Result<(), Box<dyn std::error::Error>> {
+    let jats = br#"<article><front><article-meta><title-group><article-title>Private test</article-title></title-group></article-meta></front><body><p>Text.</p><fig><graphic href="figure.png"/></fig></body></article>"#;
+    let figure = b"unchanged-scientific-media";
+    let response = app()
+        .oneshot(private_request(
+            "jats",
+            "stencila-json",
+            "article.xml",
+            None,
+            &[("article.xml", jats), ("figure.png", figure)],
+        )?)
+        .await?;
+    assert_eq!(response.status(), StatusCode::OK);
+    let frames = private_response_frames(&to_bytes(response.into_body(), 4 * MIB).await?)?;
+    assert_eq!(
+        frames.first().and_then(|(frame, _)| frame["kind"].as_str()),
+        Some("result")
+    );
+    assert!(
+        frames
+            .iter()
+            .any(|(frame, _)| frame["kind"] == "artifact" && frame["role"] == "primary")
+    );
+    assert!(
+        frames
+            .iter()
+            .any(|(frame, _)| frame["kind"] == "artifact" && frame["path"] == "figure.png")
+    );
+    assert!(
+        frames
+            .iter()
+            .any(|(frame, payload)| frame["kind"] == "part" && payload == figure)
+    );
+    let trailer = frames
+        .iter()
+        .find(|(frame, _)| frame["kind"] == "trailer")
+        .ok_or("missing trailer")?;
+    assert_eq!(trailer.0["status"], "completed");
+    assert_eq!(trailer.0["modelCalls"], 0);
+    Ok(())
+}
+
+#[tokio::test]
+async fn privately_converts_a_real_pmc_jats_fixture() -> Result<(), Box<dyn std::error::Error>> {
+    // This is a checked-in article retrieved from PMC, rather than a mocked provider response.
+    // Provider retrieval itself remains outside ordinary converter CI.
+    let jats = include_bytes!("../../codec-jats/tests/examples/pmc-12431436.jats.xml");
+    let response = app()
+        .oneshot(private_request(
+            "jats",
+            "stencila-json",
+            "pmc-12431436.xml",
+            None,
+            &[("pmc-12431436.xml", jats)],
+        )?)
+        .await?;
+    let status = response.status();
+    let body = to_bytes(response.into_body(), 20 * MIB).await?;
+    assert_eq!(status, StatusCode::OK, "{}", String::from_utf8_lossy(&body));
+    let frames = private_response_frames(&body)?;
+    let primary_id = frames
+        .iter()
+        .find(|(frame, _)| frame["kind"] == "artifact" && frame["role"] == "primary")
+        .and_then(|(frame, _)| frame["id"].as_str())
+        .ok_or("missing primary artifact")?;
+    let primary: Vec<u8> = frames
+        .iter()
+        .filter(|(frame, _)| frame["kind"] == "part" && frame["id"] == primary_id)
+        .flat_map(|(_, payload)| payload.iter().copied())
+        .collect();
+    let document: Value = serde_json::from_slice(&primary)?;
+    assert_eq!(document["type"], "Article");
+    let trailer = frames
+        .iter()
+        .find(|(frame, _)| frame["kind"] == "trailer")
+        .ok_or("missing trailer")?;
+    assert_eq!(trailer.0["modelCalls"], 0);
+    Ok(())
+}
+
+#[tokio::test]
+async fn private_bundle_rejects_traversal_and_hash_mismatch()
+-> Result<(), Box<dyn std::error::Error>> {
+    let traversal = app()
+        .oneshot(private_request(
+            "jats",
+            "markdown",
+            "../article.xml",
+            None,
+            &[("../article.xml", b"<article/>")],
+        )?)
+        .await?;
+    assert_eq!(traversal.status(), StatusCode::BAD_REQUEST);
+
+    let mut request = private_request(
+        "jats",
+        "markdown",
+        "article.xml",
+        None,
+        &[("article.xml", b"<article/>")],
+    )?;
+    let body = std::mem::replace(request.body_mut(), Body::empty());
+    let mut bytes = to_bytes(body, MIB).await?.to_vec();
+    if let Some(last) = bytes.iter_mut().rfind(|byte| **byte == b'>') {
+        *last = b'?'
+    }
+    *request.body_mut() = Body::from(bytes);
+    let mismatch = app().oneshot(request).await?;
+    assert_eq!(mismatch.status(), StatusCode::BAD_REQUEST);
+
+    let collision = app()
+        .oneshot(private_request(
+            "jats",
+            "markdown",
+            "article.xml",
+            None,
+            &[
+                (
+                    "article.xml",
+                    b"<article><body><p>text</p></body></article>",
+                ),
+                ("document.md", b"caller-controlled collision"),
+            ],
+        )?)
+        .await?;
+    assert_eq!(collision.status(), StatusCode::OK);
+    let frames = private_response_frames(&to_bytes(collision.into_body(), MIB).await?)?;
+    assert_eq!(
+        frames.last().ok_or("missing trailer")?.0["status"],
+        "failed"
+    );
+    Ok(())
+}
+
+#[tokio::test]
+async fn private_conversion_rejects_unconfined_document_references()
+-> Result<(), Box<dyn std::error::Error>> {
+    for reference in [
+        "/etc/passwd",
+        "../secret.png",
+        "file:///etc/passwd",
+        "https://example.com/figure.png",
+        "data:image/svg+xml,<svg><script>alert(1)</script></svg>",
+    ] {
+        let json = format!(r#"{{"type":"ImageObject","contentUrl":"{reference}"}}"#);
+        let response = app()
+            .oneshot(private_request(
+                "stencila-json",
+                "markdown",
+                "article.json",
+                None,
+                &[("article.json", json.as_bytes())],
+            )?)
+            .await?;
+        assert_eq!(response.status(), StatusCode::OK);
+        let frames = private_response_frames(&to_bytes(response.into_body(), MIB).await?)?;
+        assert_eq!(
+            frames.last().ok_or("missing trailer")?.0["status"],
+            "failed",
+            "accepted {reference}"
+        );
+    }
+
+    let json = br#"{"type":"Article","content":[{"type":"ImageObject","contentUrl":"file:///etc/passwd"}]}"#;
+    let response = app()
+        .oneshot(private_request(
+            "stencila-json",
+            "markdown",
+            "article.json",
+            None,
+            &[("article.json", json)],
+        )?)
+        .await?;
+    assert_eq!(response.status(), StatusCode::OK);
+    let frames = private_response_frames(&to_bytes(response.into_body(), MIB).await?)?;
+    assert_eq!(
+        frames.last().ok_or("missing trailer")?.0["status"],
+        "failed"
+    );
+
+    let entity = String::from_utf8(
+        include_bytes!("../../codec-jats/tests/examples/pmc-12431436.jats.xml").to_vec(),
+    )?
+    .replacen("pone.0332245.g001.jpg", "&#47;etc&#47;passwd", 1);
+    let response = app()
+        .oneshot(private_request(
+            "jats",
+            "markdown",
+            "article.xml",
+            None,
+            &[("article.xml", entity.as_bytes())],
+        )?)
+        .await?;
+    assert_eq!(response.status(), StatusCode::OK);
+    let frames = private_response_frames(&to_bytes(response.into_body(), MIB).await?)?;
+    assert_eq!(
+        frames.last().ok_or("missing trailer")?.0["status"],
+        "failed"
+    );
+
+    let article_url = br#"{"type":"Article","url":"https://doi.org/10.1/example","content":[]}"#;
+    let response = app()
+        .oneshot(private_request(
+            "stencila-json",
+            "markdown",
+            "article.json",
+            None,
+            &[("article.json", article_url)],
+        )?)
+        .await?;
+    assert_eq!(response.status(), StatusCode::OK);
+    let frames = private_response_frames(&to_bytes(response.into_body(), MIB).await?)?;
+    assert_eq!(
+        frames.last().ok_or("missing trailer")?.0["status"],
+        "completed"
+    );
+    Ok(())
+}
+
+fn synthetic_meca(
+    manifest_href: &str,
+    entries: &[(&str, &[u8])],
+) -> Result<Vec<u8>, Box<dyn std::error::Error>> {
+    let mut archive = ZipWriter::new(Cursor::new(Vec::new()));
+    let options = SimpleFileOptions::default();
+    archive.start_file("manifest.xml", options)?;
+    write!(
+        archive,
+        r#"<manifest xmlns="http://manuscriptexchange.org"><item type="article"><instance media-type="application/xml" href="{manifest_href}"/></item>"#
+    )?;
+    for (path, _) in entries.iter().filter(|(path, _)| *path != manifest_href) {
+        let kind = if path.ends_with(".jpg") {
+            "figure"
+        } else {
+            "supplementary-material"
+        };
+        write!(
+            archive,
+            r#"<item type="{kind}"><instance href="{path}"/></item>"#
+        )?;
+    }
+    write!(archive, "</manifest>")?;
+    for (path, bytes) in entries {
+        archive.start_file(path, options)?;
+        archive.write_all(bytes)?;
+    }
+    Ok(archive.finish()?.into_inner())
+}
+
+#[tokio::test]
+async fn private_meca_requires_the_manifest_selected_manuscript_and_retains_supplements()
+-> Result<(), Box<dyn std::error::Error>> {
+    let archive = synthetic_meca(
+        "content/article.xml",
+        &[
+            (
+                "content/article.xml",
+                b"<article><body><p>MECA</p></body></article>",
+            ),
+            ("content/supplement.csv", b"a,b\n1,2\n"),
+        ],
+    )?;
+    let response = app()
+        .oneshot(private_request(
+            "meca",
+            "markdown",
+            "article.meca",
+            Some("content/article.xml"),
+            &[("article.meca", &archive)],
+        )?)
+        .await?;
+    assert_eq!(response.status(), StatusCode::OK);
+    let frames = private_response_frames(&to_bytes(response.into_body(), 4 * MIB).await?)?;
+    let trailer = frames
+        .iter()
+        .find(|(frame, _)| frame["kind"] == "trailer")
+        .ok_or("missing trailer")?;
+    assert_eq!(
+        trailer.0["supplements"][0]["path"],
+        "content/supplement.csv"
+    );
+    assert!(
+        frames
+            .iter()
+            .any(|(frame, payload)| frame["kind"] == "part" && payload == b"a,b\n1,2\n")
+    );
+
+    let inferred = app()
+        .oneshot(private_request(
+            "meca",
+            "markdown",
+            "article.meca",
+            None,
+            &[("article.meca", &archive)],
+        )?)
+        .await?;
+    assert_eq!(inferred.status(), StatusCode::OK);
+
+    let mismatch = app()
+        .oneshot(private_request(
+            "meca",
+            "markdown",
+            "article.meca",
+            Some("content/other.xml"),
+            &[("article.meca", &archive)],
+        )?)
+        .await?;
+    assert_eq!(mismatch.status(), StatusCode::OK);
+    let frames = private_response_frames(&to_bytes(mismatch.into_body(), MIB).await?)?;
+    assert_eq!(
+        frames.last().ok_or("missing trailer")?.0["status"],
+        "failed"
+    );
+    Ok(())
+}
+
+#[tokio::test]
+async fn private_meca_rejects_archive_traversal() -> Result<(), Box<dyn std::error::Error>> {
+    let archive = synthetic_meca(
+        "content/article.xml",
+        &[
+            ("content/article.xml", b"<article/>"),
+            ("../escape.txt", b"escape"),
+        ],
+    )?;
+    let response = app()
+        .oneshot(private_request(
+            "meca",
+            "markdown",
+            "article.meca",
+            Some("content/article.xml"),
+            &[("article.meca", &archive)],
+        )?)
+        .await?;
+    assert_eq!(response.status(), StatusCode::OK);
+    let frames = private_response_frames(&to_bytes(response.into_body(), MIB).await?)?;
+    assert_eq!(
+        frames.last().ok_or("missing trailer")?.0["status"],
+        "failed"
+    );
+
+    for entries in [vec![
+        ("content", b"not-a-directory".as_slice()),
+        ("content/article.xml", b"<article/>".as_slice()),
+    ]] {
+        let archive = synthetic_meca("content/article.xml", &entries)?;
+        let response = app()
+            .oneshot(private_request(
+                "meca",
+                "markdown",
+                "article.meca",
+                None,
+                &[("article.meca", &archive)],
+            )?)
+            .await?;
+        assert_eq!(response.status(), StatusCode::OK);
+        let frames = private_response_frames(&to_bytes(response.into_body(), MIB).await?)?;
+        assert_eq!(
+            frames.last().ok_or("missing trailer")?.0["status"],
+            "failed"
+        );
+    }
     Ok(())
 }

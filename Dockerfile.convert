@@ -1,9 +1,14 @@
 # syntax=docker/dockerfile:1
 
 ARG CONVERT_SERVER_PROFILE=release
+ARG STENCILA_CONVERT_SOURCE_COMMIT=development
+ARG STENCILA_CONVERT_RUST_VERSION=1.95
 
 # Build the converter backend.
 FROM rust:1.95 AS release
+
+ARG STENCILA_CONVERT_SOURCE_COMMIT
+ARG STENCILA_CONVERT_RUST_VERSION
 
 WORKDIR /build
 COPY . /build
@@ -13,6 +18,8 @@ RUN apt-get update \
   && rm -rf /var/lib/apt/lists/*
 
 ENV RUSTFLAGS="-C link-arg=-fuse-ld=mold"
+ENV STENCILA_CONVERT_SOURCE_COMMIT=${STENCILA_CONVERT_SOURCE_COMMIT}
+ENV STENCILA_CONVERT_RUST_VERSION=${STENCILA_CONVERT_RUST_VERSION}
 
 RUN --mount=type=cache,id=stencila-convert-cargo-registry,target=/usr/local/cargo/registry,sharing=locked \
   --mount=type=cache,id=stencila-convert-cargo-git,target=/usr/local/cargo/git,sharing=locked \
@@ -36,12 +43,18 @@ FROM ubuntu:24.04
 
 RUN apt-get update \
   && apt-get install -y --no-install-recommends ca-certificates pandoc \
+  && useradd --create-home --uid 10001 converter \
   && rm -rf /var/lib/apt/lists/*
 
 ENV SSL_CERT_FILE=/etc/ssl/certs/ca-certificates.crt
+ENV STENCILA_CONVERT_TIMEOUT_SECONDS=120
+ENV STENCILA_CONVERT_MAX_CONCURRENCY=1
+ENV STENCILA_CONVERT_MAX_UPLOAD_MB=26
 
 COPY --from=convert-server /usr/local/bin/stencila-convert-server /usr/local/bin/stencila-convert-server
 
 EXPOSE 8080
+
+USER converter
 
 ENTRYPOINT ["stencila-convert-server"]

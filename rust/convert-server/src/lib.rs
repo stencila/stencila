@@ -5,7 +5,10 @@ use std::{
     fmt::{self, Display},
     io::{Cursor, Write},
     path::{Path, PathBuf},
-    sync::Arc,
+    sync::{
+        Arc,
+        atomic::{AtomicUsize, Ordering},
+    },
 };
 
 use axum::{
@@ -38,6 +41,7 @@ use zip::{ZipWriter, write::SimpleFileOptions};
 
 mod config;
 mod grobid;
+mod private;
 
 pub use config::ServerConfig;
 
@@ -48,6 +52,7 @@ pub const FORMAT_DENYLIST: &[Format] = &[Format::Directory];
 struct AppState {
     config: Arc<ServerConfig>,
     semaphore: Option<Arc<Semaphore>>,
+    in_flight: Arc<AtomicUsize>,
 }
 
 impl AppState {
@@ -59,6 +64,7 @@ impl AppState {
         Self {
             config: Arc::new(config),
             semaphore,
+            in_flight: Arc::new(AtomicUsize::new(0)),
         }
     }
 
@@ -76,6 +82,23 @@ impl AppState {
             None => Ok(None),
         }
     }
+
+    fn in_flight(&self) -> usize {
+        self.in_flight.load(Ordering::Relaxed)
+    }
+
+    fn begin_conversion(&self) -> InFlightGuard {
+        self.in_flight.fetch_add(1, Ordering::Relaxed);
+        InFlightGuard(self.in_flight.clone())
+    }
+}
+
+struct InFlightGuard(Arc<AtomicUsize>);
+
+impl Drop for InFlightGuard {
+    fn drop(&mut self) {
+        self.0.fetch_sub(1, Ordering::Relaxed);
+    }
 }
 
 /// Create the router, reading configuration from the environment
@@ -88,6 +111,9 @@ pub fn app_with_config(mut config: ServerConfig) -> Router {
     // Artifact resolution depends on process-global current-directory state,
     // so prepare it before constructing a router that can accept requests.
     config.prepare_artifacts_dir();
+    if let Err(error) = private::prepare_scratch_root() {
+        panic!("Unable to prepare private conversion scratch storage: {error}");
+    }
     if let Some(dir) = &config.artifacts_dir {
         tracing::info!("Retaining decoding artifacts in {}", dir.display());
     }
@@ -98,6 +124,8 @@ pub fn app_with_config(mut config: ServerConfig) -> Router {
         .route("/api/health", get(health))
         .route("/api/formats", get(formats))
         .route("/api/convert", post(convert))
+        .route("/private/v1/health", get(private::health))
+        .route("/private/v1/convert", post(private::convert))
         .merge(grobid::routes())
         .fallback(fallback)
         .layer(DefaultBodyLimit::max(max_request_bytes))
@@ -1102,6 +1130,10 @@ impl AppError {
 
     pub fn code(&self) -> &'static str {
         self.code
+    }
+
+    pub(crate) fn message(&self) -> &str {
+        &self.message
     }
 }
 
