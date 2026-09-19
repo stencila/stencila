@@ -112,7 +112,7 @@ pub fn app_with_config(mut config: ServerConfig) -> Router {
     // so prepare it before constructing a router that can accept requests.
     config.prepare_artifacts_dir();
     if let Err(error) = private::prepare_scratch_root() {
-        panic!("Unable to prepare private conversion scratch storage: {error}");
+        tracing::error!("Unable to prepare private conversion scratch storage: {error}");
     }
     if let Some(dir) = &config.artifacts_dir {
         tracing::info!("Retaining decoding artifacts in {}", dir.display());

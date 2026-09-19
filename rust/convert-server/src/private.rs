@@ -5,7 +5,7 @@ use std::{
     io::{Cursor, Read},
     path::{Component, Path, PathBuf},
     sync::{Arc, Condvar, Mutex},
-    time::{Duration, Instant},
+    time::{Duration, Instant, SystemTime, UNIX_EPOCH},
 };
 
 use axum::{
@@ -16,10 +16,11 @@ use axum::{
     response::Response,
 };
 use bytes::Bytes;
-use roxmltree::Document;
+use roxmltree::{Document, ParsingOptions};
 use serde::{Deserialize, Serialize};
 use sha2::{Digest, Sha256};
-use stencila_codecs::{DecodeOptions, EncodeOptions, Format};
+use stencila_codecs::{CodecDirection, DecodeOptions, EncodeOptions, Format};
+use strum::IntoEnumIterator;
 use tempfile::tempdir_in;
 use tokio::fs;
 use tokio_stream::wrappers::ReceiverStream;
@@ -38,13 +39,55 @@ const SCRATCH_PREFIX: &str = "stencila-convert-private-";
 
 static SCRATCH_ROOT: std::sync::OnceLock<PathBuf> = std::sync::OnceLock::new();
 
-const PAIRS: &[(&str, &str)] = &[
-    ("jats", "stencila-json"),
-    ("jats", "markdown"),
-    ("meca", "stencila-json"),
-    ("meca", "markdown"),
-    ("stencila-json", "markdown"),
-];
+#[derive(Clone, Copy)]
+enum ConversionDirection {
+    Decode,
+    Encode,
+}
+
+impl ConversionDirection {
+    fn codec_direction(self) -> CodecDirection {
+        match self {
+            Self::Decode => CodecDirection::Decode,
+            Self::Encode => CodecDirection::Encode,
+        }
+    }
+}
+
+fn supported_formats(direction: ConversionDirection) -> Vec<Format> {
+    Format::iter()
+        .filter(|format| {
+            !(format.is_unknown() || format.is_other() || matches!(format, Format::Directory))
+        })
+        .filter(|format| {
+            stencila_codecs::get(None, Some(format), Some(direction.codec_direction()))
+                .is_ok_and(|codec| codec.is_available())
+        })
+        .collect()
+}
+
+fn protocol_format_name(format: &Format) -> String {
+    match format {
+        Format::Markdown => "markdown".to_string(),
+        _ => format.to_string(),
+    }
+}
+
+fn parse_protocol_format(value: &str, direction: ConversionDirection) -> Result<Format, AppError> {
+    let format = Format::from_name(value);
+    if format.is_unknown()
+        || format.is_other()
+        || matches!(format, Format::Directory)
+        || !stencila_codecs::get(None, Some(&format), Some(direction.codec_direction()))
+            .is_ok_and(|codec| codec.is_available())
+    {
+        return Err(client_error(
+            "unsupported_format",
+            format!("Unsupported private conversion format `{value}`"),
+        ));
+    }
+    Ok(format)
+}
 
 #[derive(Debug, Clone, Serialize)]
 #[serde(rename_all = "camelCase")]
@@ -106,8 +149,8 @@ pub(super) struct PrivateHealth {
 
 #[derive(Serialize)]
 struct FormatPair {
-    from: &'static str,
-    to: &'static str,
+    from: String,
+    to: String,
 }
 
 #[derive(Serialize)]
@@ -120,13 +163,20 @@ struct HealthLimits {
 }
 
 pub(super) async fn health(State(state): State<AppState>) -> Json<PrivateHealth> {
+    let output_formats = supported_formats(ConversionDirection::Encode);
+    let supported_pairs = supported_formats(ConversionDirection::Decode)
+        .into_iter()
+        .flat_map(|from| {
+            output_formats.iter().map(move |to| FormatPair {
+                from: protocol_format_name(&from),
+                to: protocol_format_name(to),
+            })
+        })
+        .collect();
     Json(PrivateHealth {
-        ready: true,
+        ready: scratch_root().is_ok(),
         build: BuildIdentity::current(),
-        supported_pairs: PAIRS
-            .iter()
-            .map(|(from, to)| FormatPair { from, to })
-            .collect(),
+        supported_pairs,
         limits: HealthLimits {
             conversion_timeout_seconds: state.config.conversion_timeout.as_secs(),
             max_upload_bytes: state.config.max_upload_bytes,
@@ -259,7 +309,9 @@ struct Trailer {
     decode: Option<DiagnosticReport>,
     encode: Option<DiagnosticReport>,
     missing_assets: Vec<MissingAsset>,
+    missing_assets_truncated: bool,
     supplements: Vec<SupplementOutcome>,
+    supplements_truncated: bool,
     external_dependencies: Vec<String>,
     codecs: CodecNames,
     model_calls: usize,
@@ -415,7 +467,7 @@ pub(super) async fn convert(
         )
     })?;
     let bundle = parse_bundle(&bytes)?;
-    validate_header(&bundle.header, &state)?;
+    let formats = validate_header(&bundle.header, &state)?;
 
     let input_bytes = bundle.files.values().map(Vec::len).sum();
     let remaining = state
@@ -429,7 +481,7 @@ pub(super) async fn convert(
         ));
     }
     let hard_deadline = HardDeadline::start(remaining);
-    let outcome = match tokio::time::timeout(remaining, convert_bundle(&bundle)).await {
+    let outcome = match tokio::time::timeout(remaining, convert_bundle(&bundle, &formats)).await {
         Ok(outcome) => outcome,
         Err(_) => Err(client_error(
             "conversion_timeout",
@@ -647,7 +699,15 @@ fn next_frame<'a>(
     Ok((json, payload))
 }
 
-fn validate_header(header: &RequestHeader, state: &AppState) -> Result<(), AppError> {
+struct ConversionFormats {
+    from: Format,
+    to: Format,
+}
+
+fn validate_header(
+    header: &RequestHeader,
+    state: &AppState,
+) -> Result<ConversionFormats, AppError> {
     if header.protocol != PROTOCOL {
         return Err(client_error(
             "protocol_mismatch",
@@ -671,12 +731,8 @@ fn validate_header(header: &RequestHeader, state: &AppState) -> Result<(), AppEr
             "The job identity is invalid",
         ));
     }
-    if !PAIRS.contains(&(header.from.as_str(), header.to.as_str())) {
-        return Err(client_error(
-            "unsupported_pair",
-            "This private format pair is not admitted",
-        ));
-    }
+    let from = parse_protocol_format(&header.from, ConversionDirection::Decode)?;
+    let to = parse_protocol_format(&header.to, ConversionDirection::Encode)?;
     if header.policy.allow_models
         || header.policy.allow_code_execution
         || header.policy.allow_network
@@ -724,10 +780,13 @@ fn validate_header(header: &RequestHeader, state: &AppState) -> Result<(), AppEr
             "Requested bounds or server cache settings are unsafe",
         ));
     }
-    Ok(())
+    Ok(ConversionFormats { from, to })
 }
 
-async fn convert_bundle(bundle: &Bundle) -> Result<ConversionResult, AppError> {
+async fn convert_bundle(
+    bundle: &Bundle,
+    formats: &ConversionFormats,
+) -> Result<ConversionResult, AppError> {
     let scratch = scratch_root().map_err(AppError::internal)?;
     let temp = tempdir_in(scratch).map_err(AppError::internal)?;
     let source_root = temp.path().join("source");
@@ -753,69 +812,61 @@ async fn convert_bundle(bundle: &Bundle) -> Result<ConversionResult, AppError> {
 
     let mut artifacts = Vec::new();
     let mut supplements = Vec::new();
-    let (decode_path, decode_format, manuscript_text, reference_root) =
-        if bundle.header.from == "meca" {
-            let archive = bundle
-                .files
-                .get(&bundle.header.main_path)
-                .ok_or_else(|| client_error("invalid_bundle", "The MECA archive is unavailable"))?;
-            let extracted = temp.path().join("meca");
-            std::fs::create_dir_all(&extracted).map_err(AppError::internal)?;
-            let entries = extract_meca(archive, &extracted, &bundle.header)?;
-            let manuscript =
-                select_meca_manuscript(&extracted, bundle.header.manuscript_path.as_deref())?;
-            let roles = meca_manifest_roles(&extracted)?;
-            for path in entries.into_iter().filter(|path| {
-                path != &manuscript
-                    && path != "manifest.xml"
-                    && path != "mimetype"
-                    && path != "directives.xml"
-                    && path != "transfer.xml"
-            }) {
-                let bytes =
-                    std::fs::read(confined_join(&extracted, &path)?).map_err(AppError::internal)?;
-                let role = roles.get(&path).copied().unwrap_or("original");
-                let id = format!("{role}-{:04}", artifacts.len() + 1);
-                if role == "supplement" {
-                    supplements.push(SupplementOutcome {
-                        path: path.clone(),
-                        outcome: "retained-original".to_string(),
-                        artifact_id: Some(id.clone()),
-                    });
-                }
-                artifacts.push(Artifact {
-                    id,
-                    role,
-                    media_type: media_type(&path),
-                    path,
-                    bytes,
+    let (decode_path, decode_format, reference_root) = if formats.from == Format::Meca {
+        let archive = bundle
+            .files
+            .get(&bundle.header.main_path)
+            .ok_or_else(|| client_error("invalid_bundle", "The MECA archive is unavailable"))?;
+        let extracted = temp.path().join("meca");
+        std::fs::create_dir_all(&extracted).map_err(AppError::internal)?;
+        let entries = extract_meca(archive, &extracted, &bundle.header)?;
+        let manifest = read_meca_manifest(&extracted, bundle.header.manuscript_path.as_deref())?;
+        for path in entries.into_iter().filter(|path| {
+            path != &manifest.manuscript
+                && path != "manifest.xml"
+                && path != "mimetype"
+                && path != "directives.xml"
+                && path != "transfer.xml"
+        }) {
+            let bytes =
+                std::fs::read(confined_join(&extracted, &path)?).map_err(AppError::internal)?;
+            let role = manifest.roles.get(&path).copied().unwrap_or("original");
+            let id = format!("{role}-{:04}", artifacts.len() + 1);
+            if role == "supplement" {
+                supplements.push(SupplementOutcome {
+                    path: path.clone(),
+                    outcome: "retained-original".to_string(),
+                    artifact_id: Some(id.clone()),
                 });
             }
             artifacts.push(Artifact {
-                id: "original".to_string(),
-                role: "original",
-                path: bundle.header.main_path.clone(),
-                media_type: "application/zip".to_string(),
-                bytes: archive.clone(),
+                id,
+                role,
+                media_type: media_type(&path),
+                path,
+                bytes,
             });
-            let path = confined_join(&extracted, &manuscript)?;
-            let text = std::fs::read_to_string(&path).ok();
-            (path, Format::Jats, text, extracted)
-        } else {
-            let path = confined_join(&source_root, &bundle.header.main_path)?;
-            let format = if bundle.header.from == "jats" {
-                Format::Jats
-            } else {
-                Format::Json
-            };
-            let text = std::fs::read_to_string(&path).ok();
-            (path, format, text, source_root.clone())
-        };
+        }
+        artifacts.push(Artifact {
+            id: "original".to_string(),
+            role: "original",
+            path: bundle.header.main_path.clone(),
+            media_type: "application/zip".to_string(),
+            bytes: archive.clone(),
+        });
+        (
+            confined_join(&extracted, &manifest.manuscript)?,
+            Format::Jats,
+            extracted,
+        )
+    } else {
+        (
+            confined_join(&source_root, &bundle.header.main_path)?,
+            formats.from.clone(),
+            source_root.clone(),
+        )
+    };
 
-    let missing_assets = manuscript_text
-        .as_deref()
-        .map(|text| missing_asset_references(text, &decode_path, &reference_root))
-        .unwrap_or_default();
     let decode_options = Some(DecodeOptions {
         format: Some(decode_format),
         reproducible: Some(false),
@@ -829,19 +880,20 @@ async fn convert_bundle(bundle: &Bundle) -> Result<ConversionResult, AppError> {
     let (node, _, decode_info) = stencila_codecs::from_path_with_info(&decode_path, decode_options)
         .await
         .map_err(AppError::conversion)?;
-    validate_node_media(&node, &decode_path, &reference_root)?;
+    let mut node_value = serde_json::to_value(node).map_err(AppError::internal)?;
+    let mut missing_assets = Vec::new();
+    let mut seen_missing = HashSet::new();
+    normalize_media_objects(
+        &mut node_value,
+        &decode_path,
+        &reference_root,
+        &mut missing_assets,
+        &mut seen_missing,
+    )?;
+    let node = serde_json::from_value(node_value).map_err(AppError::internal)?;
 
-    let target_format = if bundle.header.to == "markdown" {
-        Format::Markdown
-    } else {
-        Format::Json
-    };
-    let extension = if target_format == Format::Markdown {
-        "md"
-    } else {
-        "json"
-    };
-    let primary_path = format!("document.{extension}");
+    let target_format = formats.to.clone();
+    let primary_path = format!("document.{}", target_format.extension());
     let output_path = output_root.join(&primary_path);
     let media_dir = output_root.join("document.media");
     let encode_options = Some(EncodeOptions {
@@ -849,7 +901,7 @@ async fn convert_bundle(bundle: &Bundle) -> Result<ConversionResult, AppError> {
         compact: Some(bundle.header.options.compact),
         standalone: Some(bundle.header.options.standalone),
         reproducible: Some(false),
-        from_path: Some(decode_path.clone()),
+        from_path: Some(reference_root.join("document")),
         extract_media: Some(media_dir.clone()),
         embed_media: Some(false),
         recurse: Some(false),
@@ -871,7 +923,7 @@ async fn convert_bundle(bundle: &Bundle) -> Result<ConversionResult, AppError> {
     );
 
     for (index, declaration) in bundle.header.files.iter().enumerate() {
-        if declaration.path == bundle.header.main_path || bundle.header.from == "meca" {
+        if declaration.path == bundle.header.main_path || formats.from == Format::Meca {
             continue;
         }
         artifacts.push(Artifact {
@@ -1001,11 +1053,22 @@ fn extract_meca(
     Ok(paths)
 }
 
-fn select_meca_manuscript(root: &Path, selected: Option<&str>) -> Result<String, AppError> {
+struct MecaManifest {
+    manuscript: String,
+    roles: HashMap<String, &'static str>,
+}
+
+fn read_meca_manifest(root: &Path, selected: Option<&str>) -> Result<MecaManifest, AppError> {
     let manifest = std::fs::read_to_string(root.join("manifest.xml"))
         .map_err(|_| client_error("invalid_meca", "MECA manifest.xml is missing"))?;
-    let document = Document::parse(&manifest)
-        .map_err(|_| client_error("invalid_meca", "MECA manifest.xml is malformed"))?;
+    let document = Document::parse_with_options(
+        &manifest,
+        ParsingOptions {
+            allow_dtd: true,
+            ..Default::default()
+        },
+    )
+    .map_err(|_| client_error("invalid_meca", "MECA manifest.xml is malformed"))?;
     let article_xml: Vec<_> = document
         .descendants()
         .filter(|node| node.has_tag_name("item") && node.attribute("type") == Some("article"))
@@ -1029,14 +1092,7 @@ fn select_meca_manuscript(root: &Path, selected: Option<&str>) -> Result<String,
             "The selected MECA manuscript is missing",
         ));
     }
-    Ok(manuscript)
-}
 
-fn meca_manifest_roles(root: &Path) -> Result<HashMap<String, &'static str>, AppError> {
-    let manifest = std::fs::read_to_string(root.join("manifest.xml"))
-        .map_err(|_| client_error("invalid_meca", "MECA manifest.xml is missing"))?;
-    let document = Document::parse(&manifest)
-        .map_err(|_| client_error("invalid_meca", "MECA manifest.xml is malformed"))?;
     let mut roles = HashMap::new();
     for item in document
         .descendants()
@@ -1056,22 +1112,15 @@ fn meca_manifest_roles(root: &Path) -> Result<HashMap<String, &'static str>, App
             roles.insert(path.to_string(), role);
         }
     }
-    Ok(roles)
+    Ok(MecaManifest { manuscript, roles })
 }
 
-fn validate_node_media(
-    node: &impl Serialize,
+fn normalize_media_objects(
+    value: &mut serde_json::Value,
     document_path: &Path,
     root: &Path,
-) -> Result<(), AppError> {
-    let value = serde_json::to_value(node).map_err(AppError::internal)?;
-    validate_media_objects(&value, document_path, root)
-}
-
-fn validate_media_objects(
-    value: &serde_json::Value,
-    document_path: &Path,
-    root: &Path,
+    missing: &mut Vec<MissingAsset>,
+    seen_missing: &mut HashSet<String>,
 ) -> Result<(), AppError> {
     match value {
         serde_json::Value::Object(object) => {
@@ -1079,18 +1128,30 @@ fn validate_media_objects(
                 .get("type")
                 .and_then(serde_json::Value::as_str)
                 .is_some_and(|kind| matches!(kind, "ImageObject" | "AudioObject" | "VideoObject"))
-                && let Some(reference) =
-                    object.get("contentUrl").and_then(serde_json::Value::as_str)
+                && let Some(reference) = object
+                    .get("contentUrl")
+                    .and_then(serde_json::Value::as_str)
+                    .map(str::to_string)
+                && let Some(normalized) = normalize_media_reference(
+                    &reference,
+                    document_path,
+                    root,
+                    missing,
+                    seen_missing,
+                )?
             {
-                validate_media_reference(reference, document_path, root)?;
+                object.insert(
+                    "contentUrl".to_string(),
+                    serde_json::Value::String(normalized),
+                );
             }
-            for value in object.values() {
-                validate_media_objects(value, document_path, root)?;
+            for value in object.values_mut() {
+                normalize_media_objects(value, document_path, root, missing, seen_missing)?;
             }
         }
         serde_json::Value::Array(values) => {
             for value in values {
-                validate_media_objects(value, document_path, root)?;
+                normalize_media_objects(value, document_path, root, missing, seen_missing)?;
             }
         }
         _ => {}
@@ -1098,13 +1159,15 @@ fn validate_media_objects(
     Ok(())
 }
 
-fn validate_media_reference(
+fn normalize_media_reference(
     reference: &str,
     document_path: &Path,
     root: &Path,
-) -> Result<(), AppError> {
+    missing: &mut Vec<MissingAsset>,
+    seen_missing: &mut HashSet<String>,
+) -> Result<Option<String>, AppError> {
     if reference.is_empty() || reference.starts_with('#') {
-        return Ok(());
+        return Ok(None);
     }
     if reference.starts_with("data:")
         || reference.starts_with("file:")
@@ -1119,47 +1182,20 @@ fn validate_media_reference(
     validate_relative_path(reference)?;
     let parent = document_path.parent().unwrap_or(root);
     let resolved = parent.join(reference);
-    if !resolved.starts_with(root) {
-        return Err(client_error(
+    let relative = resolved.strip_prefix(root).map_err(|_| {
+        client_error(
             "unsafe_reference",
             "A document media reference escapes the source root",
-        ));
+        )
+    })?;
+    let normalized = relative.to_string_lossy().replace('\\', "/");
+    if !resolved.is_file() && seen_missing.insert(normalized.clone()) {
+        missing.push(MissingAsset {
+            path: normalized.clone(),
+            reason: "not supplied in the source bundle".to_string(),
+        });
     }
-    Ok(())
-}
-
-fn missing_asset_references(
-    text: &str,
-    document_path: &Path,
-    fallback_root: &Path,
-) -> Vec<MissingAsset> {
-    let Ok(document) = Document::parse(text) else {
-        return Vec::new();
-    };
-    let mut seen = HashSet::new();
-    document
-        .descendants()
-        .flat_map(|node| node.attributes())
-        .filter(|attribute| attribute.name() == "href")
-        .filter_map(|attribute| {
-            let value = attribute.value();
-            if value.is_empty()
-                || value.starts_with('#')
-                || value.starts_with("data:")
-                || value.contains("://")
-            {
-                return None;
-            }
-            if !seen.insert(value.to_string()) {
-                return None;
-            }
-            let beside = document_path.parent().unwrap_or(fallback_root).join(value);
-            (!beside.is_file()).then(|| MissingAsset {
-                path: value.to_string(),
-                reason: "not supplied in the source bundle".to_string(),
-            })
-        })
-        .collect()
+    Ok(Some(normalized))
 }
 
 fn collect_output_files(
@@ -1294,26 +1330,25 @@ fn response_body(
                     }
                 }
             }
-            let _ = send(frame(
-                &Trailer {
-                    kind: "trailer",
-                    status: "completed",
-                    error: None,
-                    decode: Some(result.decode),
-                    encode: Some(result.encode),
-                    missing_assets: result.missing_assets,
-                    supplements: result.supplements,
-                    external_dependencies: Vec::new(),
-                    codecs: result.codecs,
-                    model_calls: 0,
-                    usage: Usage {
-                        duration_ms: usage.duration_ms,
-                        input_bytes: usage.input_bytes,
-                        output_bytes: usage.output_bytes,
-                    },
+            let _ = send(trailer_frame(Trailer {
+                kind: "trailer",
+                status: "completed",
+                error: None,
+                decode: Some(result.decode),
+                encode: Some(result.encode),
+                missing_assets: result.missing_assets,
+                missing_assets_truncated: false,
+                supplements: result.supplements,
+                supplements_truncated: false,
+                external_dependencies: Vec::new(),
+                codecs: result.codecs,
+                model_calls: 0,
+                usage: Usage {
+                    duration_ms: usage.duration_ms,
+                    input_bytes: usage.input_bytes,
+                    output_bytes: usage.output_bytes,
                 },
-                &[],
-            ))
+            }))
             .await;
         };
         if tokio::time::timeout(usage.delivery_timeout, delivery)
@@ -1354,29 +1389,28 @@ fn failure_response_body(
                 },
                 &[],
             );
-            let trailer = frame(
-                &Trailer {
-                    kind: "trailer",
-                    status: "failed",
-                    error: Some(TrailerError { code, message }),
-                    decode: None,
-                    encode: None,
-                    missing_assets: Vec::new(),
-                    supplements: Vec::new(),
-                    external_dependencies: Vec::new(),
-                    codecs: CodecNames {
-                        decode: from,
-                        encode: to,
-                    },
-                    model_calls: 0,
-                    usage: Usage {
-                        duration_ms: usage.duration_ms,
-                        input_bytes: usage.input_bytes,
-                        output_bytes: 0,
-                    },
+            let trailer = trailer_frame(Trailer {
+                kind: "trailer",
+                status: "failed",
+                error: Some(TrailerError { code, message }),
+                decode: None,
+                encode: None,
+                missing_assets: Vec::new(),
+                missing_assets_truncated: false,
+                supplements: Vec::new(),
+                supplements_truncated: false,
+                external_dependencies: Vec::new(),
+                codecs: CodecNames {
+                    decode: from,
+                    encode: to,
                 },
-                &[],
-            );
+                model_calls: 0,
+                usage: Usage {
+                    duration_ms: usage.duration_ms,
+                    input_bytes: usage.input_bytes,
+                    output_bytes: 0,
+                },
+            });
             for value in [headers, trailer] {
                 if sender
                     .send(value.map_err(std::io::Error::other))
@@ -1409,7 +1443,11 @@ fn scratch_root() -> Result<&'static Path, std::io::Error> {
         return Ok(root);
     }
     let parent = std::env::temp_dir();
-    let current = parent.join(format!("{SCRATCH_PREFIX}{}", std::process::id()));
+    let nonce = SystemTime::now()
+        .duration_since(UNIX_EPOCH)
+        .unwrap_or_default()
+        .as_nanos();
+    let current = parent.join(format!("{SCRATCH_PREFIX}{}-{nonce}", std::process::id()));
     reclaim_scratch_roots(&parent, &current)?;
     std::fs::create_dir_all(&current)?;
     let _ = SCRATCH_ROOT.set(current);
@@ -1429,8 +1467,11 @@ fn reclaim_scratch_roots(parent: &Path, current: &Path) -> Result<(), std::io::E
         let name = entry.file_name().to_string_lossy().into_owned();
         let owner_is_running = name
             .strip_prefix(SCRATCH_PREFIX)
+            .and_then(|value| value.split('-').next())
             .and_then(|value| value.parse::<u32>().ok())
-            .is_some_and(|pid| Path::new("/proc").join(pid.to_string()).exists());
+            .is_some_and(|pid| {
+                pid != std::process::id() && Path::new("/proc").join(pid.to_string()).exists()
+            });
         let is_dir = match entry.file_type() {
             Ok(kind) => kind.is_dir(),
             Err(error) if error.kind() == std::io::ErrorKind::NotFound => continue,
@@ -1447,6 +1488,40 @@ fn reclaim_scratch_roots(parent: &Path, current: &Path) -> Result<(), std::io::E
         }
     }
     Ok(())
+}
+
+fn trailer_frame(mut trailer: Trailer) -> Result<Bytes, AppError> {
+    loop {
+        let json = serde_json::to_vec(&trailer).map_err(AppError::internal)?;
+        if json.len() <= MAX_HEADER_BYTES {
+            return frame(&trailer, &[]);
+        }
+        if trailer.missing_assets.pop().is_some() {
+            trailer.missing_assets_truncated = true;
+        } else if trailer.supplements.pop().is_some() {
+            trailer.supplements_truncated = true;
+        } else if let Some(report) = trailer.decode.as_mut()
+            && report.messages.pop().is_some()
+        {
+            report.messages_truncated = true;
+        } else if let Some(report) = trailer.encode.as_mut()
+            && report.messages.pop().is_some()
+        {
+            report.messages_truncated = true;
+        } else if let Some(report) = trailer.decode.as_mut()
+            && report.losses.pop().is_some()
+        {
+            report.losses_truncated = true;
+        } else if let Some(report) = trailer.encode.as_mut()
+            && report.losses.pop().is_some()
+        {
+            report.losses_truncated = true;
+        } else if trailer.external_dependencies.pop().is_none() {
+            return Err(AppError::internal(
+                "A generated conversion trailer exceeded its bound",
+            ));
+        }
+    }
 }
 
 fn frame<T: Serialize>(header: &T, payload: &[u8]) -> Result<Bytes, AppError> {
@@ -1539,15 +1614,20 @@ mod tests {
         let parent = tempfile::tempdir()?;
         let current = parent.path().join(format!("{SCRATCH_PREFIX}current"));
         let abandoned = parent.path().join(format!("{SCRATCH_PREFIX}abandoned"));
+        let reused_pid = parent
+            .path()
+            .join(format!("{SCRATCH_PREFIX}{}-old", std::process::id()));
         let unrelated = parent.path().join("unrelated");
         std::fs::create_dir_all(&current)?;
         std::fs::create_dir_all(&abandoned)?;
+        std::fs::create_dir_all(&reused_pid)?;
         std::fs::create_dir_all(&unrelated)?;
 
         reclaim_scratch_roots(parent.path(), &current)?;
 
         assert!(current.is_dir());
         assert!(!abandoned.exists());
+        assert!(!reused_pid.exists());
         assert!(unrelated.is_dir());
         Ok(())
     }
