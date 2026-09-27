@@ -1,0 +1,116 @@
+# The R Kernel
+
+The R kernel is an instance of the [Stencila Micro-Kernel](/rust/kernel-micro) enabling dynamic execution of R code included in fenced code blocks inside of Stencila Documents.
+
+The R kernel requires the system to have R already installed. When using the VSCode plugin, this often means the working directory that is set in the file explorer within VSCode.
+
+Stencila kernels are run in one common environment for all of the code blocks in that language. In the case of R using the VScode plugin, that means that the kernel once started stays running during the editing session while the Language Server Protocol Server is running.
+
+Stencila is more than just a kernel runtime for codeblocks, it is able to capture and log metadata around the R runtime, which packages were installed, other variables set in the environment, etc. This extensive metadata and how it is created transparently and saved in the Stencila sidecar JSON file, makes a Stencila Document. Learn more in [Stencila Documents]() and [Stencila Schema]().
+
+## R fenced blocks
+
+R blocks use fence notation with 3 backtick characters and the word `r`
+
+A backtick is the following character:
+
+```markdown
+`
+```
+
+it is **not** a single quote character (')
+
+An R fence looks like this, if the `exec` keyword is supplied, this code block will be executed in R with any results to stdout returned into the document in its place:
+
+````markdown
+```r exec
+# Your R code goes here
+```
+````
+
+The following block will **not** be executed in the kernel, it will be shown in the document as codeblock formatted text:
+
+````markdown
+```r
+# R code here will be printed in the document, but not run
+```
+````
+
+Since this documentation is itself a Stencila document, here is an example:
+
+Embedded in this Stencila document is a code block that looks like:
+
+````markdown
+```r
+sample(1:6, 1)
+```
+````
+
+When it is run, the code prints out a random number between 1 and 6 here:
+
+```r exec
+sample(1:6, 1)
+```
+
+Each time this document / code block is run a different number 1-6 will be shown randomly.
+
+We also have shared environment and state between code chunks:
+
+````markdown
+```r exec
+# We can assign the output to a variable in  one code block
+roll <- sample(1:6, 1)
+```
+````
+
+We can access the variables and state of one code block from another subsequent code block. Note that order matters; you must declare/set a variable before you use it.
+
+````markdown
+```r exec
+# The variable `roll` from the above chunk is available to us in other chunks.
+print(roll)
+```
+````
+
+## R environment
+
+Execution takes place in the kernel in its R environment from the current working directory, (loading the `.Rprofile` from that working directory). If your `.Rprofile` is set to use somethign like `📦{renv}` then packages installed in that renv will be loaded by the kernel.
+
+_Not yet implemented_ You can also directly specify the path to your preferred R executable with...FILL IN INSTRUCTIONS
+
+The kernel uses forking to manage concurrent execution of code blocks by duplicating the R environment for each task.
+
+### Variables
+
+Variables defined in one code block persist across other code blocks and their execution contexts.
+
+## Plots, graphics and structured outputs
+
+### Plots
+
+Plots created with base R or libraries like ggplot2 are captured and brought back to the kernel to be included in the document itself. This works by capturing the output from plotting functions.
+
+```r exec
+library(ggplot2)
+names(mtcars)
+ggplot(mtcars,aes(x=wt,y=qsec)) + geom_point() 
+```
+
+
+### Structured outputs
+
+Data frames (using `data.frame` or `tibble`) are able to be brought back into documents and styled as tables within the document.
+
+```r exec
+df <- data.frame(
+  Quantity = c(1, 2, 3),
+  Fruit = c("Apple", "Banana", "Cherry")
+)
+df
+```
+
+## Debugging and logging
+
+_tbd_
+
+
