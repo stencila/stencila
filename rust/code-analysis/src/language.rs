@@ -248,8 +248,12 @@ impl CodeLanguage {
         if name.eq_ignore_ascii_case("snakefile") {
             return Some(Self::Snakemake);
         }
-        let (_, extension) = name.rsplit_once('.')?;
-        Self::from_extension(extension)
+        let filename = Path::new(name);
+        let label = filename
+            .extension()
+            .or_else(|| filename.file_name())?
+            .to_str()?;
+        Self::from_format(&Format::from_name(label))
     }
 
     /// Detect a supported language from an extension, with an optional leading dot.

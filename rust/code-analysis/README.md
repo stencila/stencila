@@ -21,7 +21,8 @@ Snakemake, and Nextflow. Nextflow uses the existing text extractor; the other
 eight use pinned tree-sitter grammars and embedded ast-grep rules. Bash remains
 unsupported (`None` from language detection). Detection accepts logical paths
 with either slash convention, extensions (also via `from_extension`), `Snakefile`,
-and `nextflow.config`. It never calls `Path::is_dir`.
+and `nextflow.config`. Extensionless language names accepted by the existing
+format detector are retained. It never calls `Path::is_dir`.
 
 Resolution is confined to a single source unit: literals, module constants,
 single-assignment locals, and arguments to unambiguous local functions. It does
@@ -167,3 +168,10 @@ detect duplicate symbols or broken C allocation.
 `make -C rust/code-analysis wasm` runs a release linked cdylib and native parity
 check, including all 31 source fixtures, every supported language, and a repeated
 5,000-line allocator stress case. The CI workflow uses the same commands.
+
+The tested release smoke module is **13,086,299 bytes raw** and **1,760,610
+bytes gzip** (level 9), below the lab's 10 MB compressed limit. These sizes
+include test-only bindings and ABI probes, and are not a prediction for a
+consumer's final module. See [verification](docs/verification.md) for the build
+hash and native/wasm comparisons, and the [phase 1 report](docs/wasm-spike.md)
+for the original size matrix, timings, and memory measurements.

@@ -44,6 +44,7 @@ fn detection_uses_logical_names() {
         (r"C:\logical\Snakefile", CodeLanguage::Snakemake),
         ("source.MTS", CodeLanguage::TypeScript),
         ("source.cjs", CodeLanguage::JavaScript),
+        ("logical/python", CodeLanguage::Python),
     ] {
         assert_eq!(CodeLanguage::from_path(path), Some(expected));
     }
@@ -51,6 +52,7 @@ fn detection_uses_logical_names() {
     assert_eq!(CodeLanguage::from_path("unsupported.sh"), None);
     assert_eq!(CodeLanguage::from_programming_language("bash"), None);
     assert_eq!(CodeLanguage::from_path("no-extension"), None);
+    assert_eq!(CodeLanguage::from_path(".py"), None);
 }
 
 #[test]

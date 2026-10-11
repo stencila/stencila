@@ -6,6 +6,10 @@ license.workspace = true
 repository.workspace = true
 description = "Pure static code analysis shared by native and WebAssembly consumers"
 
+[package.metadata.cargo-machete]
+# Exact ABI/shim pins, consumed by ast-grep and the wasm environment recipe.
+ignored = ["tree-sitter", "tree-sitter-language"]
+
 [dependencies]
 ast-grep-config = "=0.42.3"
 ast-grep-core = "=0.42.3"

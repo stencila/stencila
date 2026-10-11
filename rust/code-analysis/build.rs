@@ -49,10 +49,12 @@ fn main() -> Result<(), Box<dyn Error>> {
         .as_table()
         .ok_or("missing dependencies")?;
     let mut generated = String::from("const GRAMMARS: &[GrammarVersion] = &[\n");
-    for (name, specification) in dependencies
+    let mut grammars = dependencies
         .iter()
         .filter(|(name, _)| name.starts_with("tree-sitter-"))
-    {
+        .collect::<Vec<_>>();
+    grammars.sort_by_key(|(name, _)| *name);
+    for (name, specification) in grammars {
         if name == "tree-sitter-language" {
             continue;
         }

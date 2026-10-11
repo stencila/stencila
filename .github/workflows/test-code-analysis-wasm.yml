@@ -1,0 +1,53 @@
+name: Test code analysis WebAssembly
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'rust/code-analysis/**'
+      - 'rust/graph/**'
+      - 'rust/format/**'
+      - 'Cargo.toml'
+      - 'Cargo.lock'
+      - '.github/workflows/test-code-analysis-wasm.yml'
+  pull_request:
+    paths:
+      - 'rust/code-analysis/**'
+      - 'rust/graph/**'
+      - 'rust/format/**'
+      - 'Cargo.toml'
+      - 'Cargo.lock'
+      - '.github/workflows/test-code-analysis-wasm.yml'
+  workflow_dispatch:
+
+jobs:
+  linked-wasm-parity:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@master
+        with:
+          toolchain: '1.95.0'
+          targets: wasm32-unknown-unknown
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '26.4.0'
+      - name: Install supported C toolchain and linker
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y clang-18 llvm-18 mold
+      - uses: Swatinem/rust-cache@v2
+        with:
+          cache-directories: ~/.cargo/bin
+      - name: Install pinned test bindings CLI
+        run: cargo install wasm-bindgen-cli --version 0.2.121 --locked
+      - name: Native contract snapshots
+        run: cargo test --locked -p stencila-code-analysis
+      - name: Check dependency boundary
+        run: |
+          cargo tree --locked -p stencila-code-analysis --edges normal,build > /tmp/dependencies.txt
+          if grep -E 'stencila-(codec|schema)|tokio|reqwest|clap|wasm-bindgen' /tmp/dependencies.txt; then
+            exit 1
+          fi
+      - name: Linked release smoke and native parity
+        run: make -C rust/code-analysis wasm

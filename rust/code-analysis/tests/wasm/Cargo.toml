@@ -1,0 +1,26 @@
+[package]
+name = "code-analysis-wasm-smoke"
+version = "0.0.0"
+edition = "2024"
+publish = false
+
+# Bindings belong to this test harness, never to the production crate.
+[workspace]
+
+[lib]
+crate-type = ["cdylib", "rlib"]
+
+[dependencies]
+serde = { version = "=1.0.228", features = ["derive"] }
+serde_json = { version = "=1.0.149", features = ["preserve_order"] }
+stencila-code-analysis = { path = "../.." }
+
+[target.'cfg(target_arch = "wasm32")'.dependencies]
+wasm-bindgen = "=0.2.121"
+
+[profile.release]
+opt-level = "z"
+lto = true
+codegen-units = 1
+panic = "abort"
+strip = true
