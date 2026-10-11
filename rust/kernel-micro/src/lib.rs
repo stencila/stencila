@@ -27,8 +27,7 @@ use stencila_version::STENCILA_VERSION;
 // the `Microkernel` trait
 pub use stencila_kernel::{
     Kernel, KernelAvailability, KernelInstance, KernelInterrupt, KernelKill, KernelProvider,
-    KernelSignal, KernelStatus, KernelTerminate, RuntimeTraceOptions, eyre, stencila_format,
-    stencila_schema, tests,
+    KernelSignal, KernelStatus, KernelTerminate, eyre, stencila_format, stencila_schema, tests,
 };
 
 use stencila_kernel::{
@@ -47,7 +46,7 @@ use stencila_kernel::{
 /// Python executables prefer uv, then `PYTHON_PATH`, then the nearest devbox or
 /// `.venv`, before falling back to `PATH`. Other executables use the nearest
 /// devbox or `.venv` when available and otherwise fall back to `PATH`.
-pub fn resolve_executable(
+fn resolve_executable(
     executable_name: &str,
     mut arguments: Vec<String>,
     directory: &Path,
@@ -387,8 +386,6 @@ enum MicrokernelFlag {
     Exec,
     /// Sent by Rust to signal the start of an `evaluation` task
     Eval,
-    /// Sent by Rust to signal a runtime-traced `execute` task
-    Trace,
     /// Sent by Rust to signal the start of a `fork` task
     Fork,
     /// Sent by Rust to signal that the kernel should have restricted capabilities
@@ -425,7 +422,6 @@ impl MicrokernelFlag {
             Pkgs => "\u{10BEC4}",
             Exec => "\u{10B522}",
             Eval => "\u{1010CC}",
-            Trace => "\u{10A71C}",
             Fork => "\u{10DE70}",
             Box => "\u{10B0C5}",
             Theme => "\u{10DEC0}",
@@ -625,20 +621,6 @@ impl KernelInstance for MicrokernelInstance {
 
     async fn execute(&mut self, code: &str) -> Result<(Vec<Node>, Vec<ExecutionMessage>)> {
         self.send_receive(MicrokernelFlag::Exec, [code]).await
-    }
-
-    async fn execute_traced(
-        &mut self,
-        code: &str,
-        options: &RuntimeTraceOptions,
-    ) -> Result<(Vec<Node>, Vec<ExecutionMessage>)> {
-        if self.kernel_name != "python" {
-            return self.execute(code).await;
-        }
-
-        let options = serde_json::to_string(options)?;
-        self.send_receive(MicrokernelFlag::Trace, [options.as_str(), code])
-            .await
     }
 
     async fn evaluate(&mut self, code: &str) -> Result<(Node, Vec<ExecutionMessage>)> {

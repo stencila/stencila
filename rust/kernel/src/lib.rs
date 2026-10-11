@@ -1,7 +1,4 @@
-use std::{
-    env::current_dir,
-    path::{Path, PathBuf},
-};
+use std::{env::current_dir, path::Path};
 
 use clap::ValueEnum;
 use eyre::{Result, bail};
@@ -21,23 +18,6 @@ use stencila_schema::{
     ExecutionBounds, ExecutionMessage, Node, Null, SoftwareApplication, SoftwareSourceCode,
     Variable,
 };
-
-/// Context for an opt-in runtime-traced execution.
-///
-/// Kernel implementations which do not support runtime tracing use the default
-/// [`KernelInstance::execute_traced`] implementation and execute normally.
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
-pub struct RuntimeTraceOptions {
-    /// Stable identity of the script or executable document node.
-    pub identity: String,
-
-    /// Digest of the code being executed.
-    pub code_digest: String,
-
-    /// Directory in which the kernel should atomically store runtime evidence.
-    pub cache_dir: PathBuf,
-}
 
 /// A kernel for executing code in some language
 ///
@@ -323,18 +303,6 @@ pub trait KernelInstance: Sync + Send {
 
     /// Execute code, possibly with side effects, in the kernel instance
     async fn execute(&mut self, code: &str) -> Result<(Vec<Node>, Vec<ExecutionMessage>)>;
-
-    /// Execute code while collecting supported runtime dependencies.
-    ///
-    /// This additive capability deliberately defaults to ordinary execution so
-    /// callers can request tracing without special-casing every kernel.
-    async fn execute_traced(
-        &mut self,
-        code: &str,
-        _options: &RuntimeTraceOptions,
-    ) -> Result<(Vec<Node>, Vec<ExecutionMessage>)> {
-        self.execute(code).await
-    }
 
     /// Evaluate a code expression, without side effects, in the kernel instance
     async fn evaluate(&mut self, code: &str) -> Result<(Node, Vec<ExecutionMessage>)> {

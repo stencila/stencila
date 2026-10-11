@@ -4,101 +4,11 @@ use stencila_kernel_micro::{
     stencila_schema::ExecutionBounds,
 };
 
-use std::{
-    env::current_dir,
-    fmt::Write as _,
-    io::Write,
-    path::{Path, PathBuf},
-    process::ExitStatus,
-};
-
-use sha2::{Digest, Sha256};
-use tokio::process::Command;
-
 /// A kernel for executing Python code
 #[derive(Default)]
 pub struct PythonKernel;
 
 const NAME: &str = "python";
-
-/// Execute a Python script with runtime dependency tracing while preserving
-/// normal script arguments, standard streams, environment, and working directory.
-pub async fn trace_script(
-    path: &Path,
-    arguments: &[String],
-    cache_dir: PathBuf,
-) -> Result<ExitStatus> {
-    let path = path.canonicalize()?;
-    let code = tokio::fs::read(&path).await?;
-    let code_digest = Sha256::digest(code).iter().try_fold(
-        String::with_capacity(64),
-        |mut digest, byte| -> Result<String> {
-            write!(&mut digest, "{byte:02x}")?;
-            Ok(digest)
-        },
-    )?;
-    let identity = cache_dir
-        .parent()
-        .and_then(Path::parent)
-        .and_then(Path::parent)
-        .and_then(|root| path.strip_prefix(root).ok())
-        .map_or_else(
-            || {
-                let digest = Sha256::digest(path.to_string_lossy().as_bytes())
-                    .iter()
-                    .map(|byte| format!("{byte:02x}"))
-                    .collect::<String>();
-                format!("script:external:{digest}")
-            },
-            |relative| {
-                format!(
-                    "script:workspace:{}",
-                    relative
-                        .to_string_lossy()
-                        .replace(std::path::MAIN_SEPARATOR, "/")
-                )
-            },
-        );
-    let options = stencila_kernel_micro::RuntimeTraceOptions {
-        identity,
-        code_digest,
-        cache_dir,
-    };
-
-    let runtime = include_str!("tracing.py");
-    let runner = r#"
-import runpy
-_stencila_script = sys.argv[1]
-_stencila_options = json.loads(sys.argv[2])
-sys.argv = [_stencila_script, *sys.argv[4:]]
-sys.path[0] = os.path.dirname(_stencila_script)
-install_runtime_tracer()
-with trace_context(_stencila_options):
-    runpy.run_path(_stencila_script, run_name="__main__")
-"#;
-    let mut bootstrap = tempfile::Builder::new()
-        .prefix("stencila-python-trace-")
-        .suffix(".py")
-        .tempfile()?;
-    bootstrap.write_all(runtime.as_bytes())?;
-    bootstrap.write_all(runner.as_bytes())?;
-
-    let directory = current_dir()?;
-    let (executable, launcher_arguments) = stencila_kernel_micro::resolve_executable(
-        "python3",
-        vec![
-            bootstrap.path().to_string_lossy().to_string(),
-            path.to_string_lossy().to_string(),
-            serde_json::to_string(&options)?,
-            "--".to_string(),
-        ],
-        &directory,
-    )?;
-    let mut command = Command::new(executable);
-    command.args(launcher_arguments).args(arguments);
-
-    Ok(command.status().await?)
-}
 
 impl Kernel for PythonKernel {
     fn name(&self) -> String {
@@ -157,12 +67,7 @@ impl Microkernel for PythonKernel {
     fn microkernel_script(&self) -> (String, String) {
         let kernel = include_str!("kernel.py");
         let theme = include_str!("theme.py");
-        let runtime = include_str!("tracing.py");
-
-        let script = kernel.replace("from .theme import theme", theme).replace(
-            "from .tracing import install_runtime_tracer, trace_context",
-            runtime,
-        );
+        let script = kernel.replace("from .theme import theme", theme);
 
         ("kernel.py".into(), script)
     }
@@ -179,8 +84,7 @@ mod tests {
     use indexmap::IndexMap;
     use pretty_assertions::assert_eq;
     use stencila_kernel_micro::{
-        RuntimeTraceOptions,
-        eyre::{Ok, OptionExt, bail},
+        eyre::{Ok, bail},
         stencila_schema::{
             Array, ArrayHint, ArrayValidator, BooleanValidator, CodeLocation, Datatable,
             DatatableColumn, DatatableColumnHint, DatatableHint, Hint, ImageObject,
@@ -280,172 +184,6 @@ print(a, b)",
             ],
         )
         .await
-    }
-
-    /// Runtime tracing records only successful wrapper operations and retains
-    /// earlier observations when a later execution fails.
-    #[test_log::test(tokio::test)]
-    async fn runtime_tracing() -> Result<()> {
-        let Some(mut instance) = start_instance::<PythonKernel>().await? else {
-            return Ok(());
-        };
-        let temp_dir = tempfile::tempdir()?;
-        let input = temp_dir.path().join("input.txt");
-        let local_module = temp_dir.path().join("runtime_trace_local_example.py");
-        let package_root = temp_dir.path().join("site-packages");
-        let package_dir = package_root.join("example");
-        std::fs::create_dir_all(&package_dir)?;
-        std::fs::write(&input, "value")?;
-        std::fs::write(&local_module, "VALUE = 1\n")?;
-        std::fs::write(package_dir.join("__init__.py"), "VALUE = 1\n")?;
-        let options = RuntimeTraceOptions {
-            identity: "runtime-test".to_string(),
-            code_digest: "digest".to_string(),
-            cache_dir: temp_dir.path().join(".stencila/cache/runtime"),
-        };
-        let input_literal = serde_json::to_string(&input)?;
-        let workspace_literal = serde_json::to_string(temp_dir.path())?;
-        let package_root_literal = serde_json::to_string(&package_root)?;
-
-        let (.., messages) = instance
-            .execute_traced(&format!("open({input_literal}).read()"), &options)
-            .await?;
-        assert!(messages.is_empty());
-        let (.., messages) = instance
-            .execute_traced(
-                &format!(
-                    "import sys\nsys.path.insert(0, {package_root_literal})\nsys.path.insert(0, {workspace_literal})\nimport example\nimport runtime_trace_local_example"
-                ),
-                &options,
-            )
-            .await?;
-        assert!(messages.is_empty());
-        let (.., messages) = instance
-            .execute_traced("open('does-not-exist').read()", &options)
-            .await?;
-        assert!(!messages.is_empty());
-
-        let cache_path = std::fs::read_dir(&options.cache_dir)?
-            .next()
-            .transpose()?
-            .ok_or_eyre("expected runtime cache")?
-            .path();
-        let mut cache: serde_json::Value = serde_json::from_slice(&std::fs::read(&cache_path)?)?;
-        cache["events"]
-            .as_array_mut()
-            .ok_or_eyre("expected runtime events")?
-            .push(serde_json::json!({
-                "operation": "file_read",
-                "resource": "/usr/share/fonts/example.ttf",
-                "location": {"source": "legacy.py", "line": 0},
-                "count": 1
-            }));
-        std::fs::write(&cache_path, serde_json::to_vec(&cache)?)?;
-
-        let (.., messages) = instance
-            .execute_traced(&format!("open({input_literal}).read()"), &options)
-            .await?;
-        assert!(messages.is_empty());
-
-        let cache: serde_json::Value = serde_json::from_slice(&std::fs::read(cache_path)?)?;
-        let events = cache["events"]
-            .as_array()
-            .ok_or_eyre("expected runtime events")?;
-        assert!(events.iter().any(|event| {
-            event["operation"] == "file_read" && event["resource"] == "workspace:input.txt"
-        }));
-        assert!(
-            events
-                .iter()
-                .any(|event| { event["operation"] == "import" && event["resource"] == "example" })
-        );
-        assert!(events.iter().any(|event| {
-            event["operation"] == "import"
-                && event["resource"]
-                    == "runtime_trace_local_example|workspace:runtime_trace_local_example.py"
-        }));
-        assert!(!events.iter().any(|event| {
-            event["resource"]
-                .as_str()
-                .is_some_and(|resource| resource.contains("site-packages"))
-        }));
-        assert!(!events.iter().any(|event| {
-            event["resource"]
-                .as_str()
-                .is_some_and(|resource| resource.contains("does-not-exist"))
-        }));
-        assert!(events.iter().all(|event| {
-            event["operation"]
-                .as_str()
-                .is_none_or(|operation| !operation.starts_with("file_"))
-                || event["resource"]
-                    .as_str()
-                    .is_some_and(|resource| resource.starts_with("workspace:"))
-        }));
-        assert!(!events.iter().any(|event| {
-            event["resource"]
-                .as_str()
-                .is_some_and(|resource| resource.contains("example.ttf"))
-        }));
-        assert!(
-            cache["diagnostics"]
-                .as_array()
-                .is_some_and(|diagnostics| !diagnostics.is_empty())
-        );
-
-        Ok(())
-    }
-
-    #[test_log::test(tokio::test)]
-    async fn standalone_runtime_tracing_preserves_script_semantics() -> Result<()> {
-        let temp_dir = tempfile::tempdir()?;
-        let script = temp_dir.path().join("script.py");
-        std::fs::write(
-            &script,
-            r#"
-import os
-import sys
-assert sys.argv == [__file__, "first", "--second"]
-with open(os.path.join(os.path.dirname(__file__), "input.txt")) as stream:
-    assert stream.read() == "value"
-"#,
-        )?;
-        std::fs::write(temp_dir.path().join("input.txt"), "value")?;
-        let cache_dir = temp_dir.path().join(".stencila/cache/runtime");
-
-        let status = trace_script(
-            &script,
-            &["first".to_string(), "--second".to_string()],
-            cache_dir.clone(),
-        )
-        .await?;
-        assert!(status.success());
-
-        let cache_path = std::fs::read_dir(&cache_dir)?
-            .next()
-            .transpose()?
-            .ok_or_eyre("expected standalone runtime cache")?
-            .path();
-        let cache: serde_json::Value = serde_json::from_slice(&std::fs::read(cache_path)?)?;
-        assert!(
-            cache["events"]
-                .as_array()
-                .is_some_and(|events| events.iter().all(|event| {
-                    event["operation"] != "import"
-                        || event["resource"].as_str().is_none_or(|resource| {
-                            !matches!(
-                                resource.split_once('|').map_or(resource, |(name, ..)| name),
-                                "os" | "sys"
-                            )
-                        })
-                }))
-        );
-
-        std::fs::write(&script, "raise SystemExit(7)\n")?;
-        let status = trace_script(&script, &[], cache_dir).await?;
-        assert_eq!(status.code(), Some(7));
-
-        Ok(())
     }
 
     /// Custom test for indented code

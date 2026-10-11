@@ -11673,10 +11673,7 @@ version = "0.0.0"
 dependencies = [
  "indexmap 2.14.0",
  "pretty_assertions",
- "serde_json",
- "sha2 0.11.0",
  "stencila-kernel-micro",
- "tempfile",
  "test-log",
  "tokio",
 ]
@@ -12191,7 +12188,6 @@ dependencies = [
  "seahash",
  "serde",
  "serde_json",
- "sha2 0.11.0",
  "stencila-codec-biblio",
  "stencila-codec-cbor",
  "stencila-codec-markdown",
@@ -12203,7 +12199,6 @@ dependencies = [
  "stencila-models",
  "stencila-node-contains",
  "stencila-node-diagnostics",
- "stencila-node-stabilize",
  "stencila-parsers",
  "stencila-prompts",
  "stencila-schema",
