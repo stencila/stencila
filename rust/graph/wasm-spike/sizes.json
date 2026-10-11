@@ -1,0 +1,38 @@
+{
+  "all": {
+    "rawBytes": 13011306,
+    "gzipBytes": 1672017
+  },
+  "python": {
+    "rawBytes": 12562246,
+    "gzipBytes": 1608981
+  },
+  "r": {
+    "rawBytes": 12534941,
+    "gzipBytes": 1626866
+  },
+  "javascript": {
+    "rawBytes": 12609738,
+    "gzipBytes": 1625311
+  },
+  "typescript": {
+    "rawBytes": 11610100,
+    "gzipBytes": 1541799
+  },
+  "julia": {
+    "rawBytes": 6747789,
+    "gzipBytes": 1106232
+  },
+  "matlab": {
+    "rawBytes": 12594985,
+    "gzipBytes": 1611641
+  },
+  "rust": {
+    "rawBytes": 11906363,
+    "gzipBytes": 1559082
+  },
+  "snakemake": {
+    "rawBytes": 12214114,
+    "gzipBytes": 1585658
+  }
+}

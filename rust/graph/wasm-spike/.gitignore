@@ -1,0 +1,10 @@
+/target/
+/pkg/
+/rules/
+/src/code/
+/src/code.rs
+/src/package.rs
+/src/reference.rs
+/corpus.json
+/corpus.ndjson
+/__pycache__/
