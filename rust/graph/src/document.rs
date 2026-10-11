@@ -3,10 +3,7 @@
 //! This module turns a single Stencila Schema document node tree into graph
 //! nodes and resource-flow relationships.
 
-use std::{
-    collections::{HashMap, HashSet},
-    path::Path,
-};
+use std::collections::{HashMap, HashSet};
 
 use eyre::Result;
 use stencila_node_stabilize::stabilize;
@@ -24,7 +21,6 @@ use crate::{
     evidence,
     ids::LocalGraphId,
     reference::{bare_doi, has_non_local_uri_scheme},
-    runtime::{RuntimeEvidenceMode, add_cached_runtime_evidence},
     source,
 };
 
@@ -49,35 +45,20 @@ pub fn graph_from_node_with_diagnostics(
     subject: impl Into<String>,
     node: &Node,
 ) -> Result<GraphAnalysis> {
-    let mut builder = GraphBuilder::new(subject);
-    add_document(&mut builder, "document", node, None);
-    let diagnostics = builder.take_diagnostics();
-    let graph_diagnostics = builder.take_graph_diagnostics();
-    let mut graph = builder.build()?;
-    source::set_graph_source_metadata_from_node(&mut graph, node);
-    Ok(GraphAnalysis {
-        graph,
-        diagnostics,
-        graph_diagnostics,
-    })
+    graph_from_node_with_scope(subject, "document", node)
 }
 
-/// Build a document graph and optionally merge cached runtime evidence.
+/// Build a document graph and diagnostics with workspace-relative node identities.
 ///
-/// The default document APIs remain execution- and cache-independent; callers
-/// must explicitly select [`RuntimeEvidenceMode::Cached`].
-pub fn graph_from_node_with_runtime_evidence(
+/// The scope identifies this document within a workspace so graphs built from a
+/// single file retain the same node identities as workspace graphs.
+pub fn graph_from_node_with_scope(
     subject: impl Into<String>,
     scope: impl Into<String>,
     node: &Node,
-    root: &Path,
-    runtime_evidence: RuntimeEvidenceMode,
 ) -> Result<GraphAnalysis> {
     let mut builder = GraphBuilder::new(subject);
     add_document(&mut builder, scope, node, None);
-    if runtime_evidence == RuntimeEvidenceMode::Cached {
-        add_cached_runtime_evidence(&mut builder, root);
-    }
     let diagnostics = builder.take_diagnostics();
     let graph_diagnostics = builder.take_graph_diagnostics();
     let mut graph = builder.build()?;

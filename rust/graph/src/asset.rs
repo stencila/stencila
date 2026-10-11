@@ -37,7 +37,7 @@ pub struct AssetGraphOptions {
     /// Prefer provenance linked to this generating source.
     pub source_path: Option<PathBuf>,
 
-    /// Attach runtime evidence at this source line when available.
+    /// Attach observed provenance at this source line when available.
     pub source_line: Option<u64>,
 
     /// Select the disclosure level applied to the resulting graph.
