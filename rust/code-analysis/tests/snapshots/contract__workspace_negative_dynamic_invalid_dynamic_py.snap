@@ -1,0 +1,83 @@
+---
+source: rust/code-analysis/tests/contract.rs
+expression: analysis
+---
+{
+  "formatVersion": 1,
+  "language": "python",
+  "path": "workspace-negative-dynamic-invalid/dynamic.py",
+  "facts": {
+    "imports": [
+      {
+        "ecosystem": "pypi",
+        "name": "pandas"
+      }
+    ],
+    "assignments": [
+      "sample",
+      "table"
+    ],
+    "declarations": [],
+    "functionDeclarations": [],
+    "uses": [
+      "pd",
+      "read_csv",
+      "to_csv"
+    ],
+    "calls": [
+      "read_csv",
+      "to_csv"
+    ],
+    "io": [
+      {
+        "direction": "read",
+        "path": {
+          "kind": "static",
+          "value": "data/S1.csv"
+        },
+        "operationOffset": 55,
+        "target": "table",
+        "targetOffset": 35,
+        "value": null,
+        "valueOffset": null,
+        "function": "read_csv",
+        "mode": null,
+        "unresolvedReason": null
+      },
+      {
+        "direction": "write",
+        "path": {
+          "kind": "static",
+          "value": "results/S1.csv"
+        },
+        "operationOffset": 90,
+        "target": null,
+        "targetOffset": null,
+        "value": "table",
+        "valueOffset": null,
+        "function": "to_csv",
+        "mode": null,
+        "unresolvedReason": null
+      }
+    ],
+    "columns": [],
+    "variableFlows": [
+      {
+        "source": "f",
+        "target": "table",
+        "targetOffset": 35
+      },
+      {
+        "source": "pd",
+        "target": "table",
+        "targetOffset": 35
+      }
+    ],
+    "workflowUnits": [],
+    "scriptLinks": [],
+    "scriptExecutions": [],
+    "workflowUnitFacts": {},
+    "syntaxError": false
+  },
+  "diagnostics": []
+}

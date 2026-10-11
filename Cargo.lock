@@ -10229,6 +10229,31 @@ dependencies = [
 ]
 
 [[package]]
+name = "stencila-code-analysis"
+version = "0.0.0"
+dependencies = [
+ "ast-grep-config",
+ "ast-grep-core",
+ "eyre",
+ "insta",
+ "serde",
+ "serde_json",
+ "sha2 0.11.0",
+ "stencila-format",
+ "toml 1.1.2+spec-1.1.0",
+ "tree-sitter",
+ "tree-sitter-javascript",
+ "tree-sitter-julia",
+ "tree-sitter-language",
+ "tree-sitter-matlab",
+ "tree-sitter-python",
+ "tree-sitter-r",
+ "tree-sitter-rust",
+ "tree-sitter-snakemake 2.0.0 (git+https://github.com/osthomas/tree-sitter-snakemake?rev=7731408e5e8095fe242fdd423c3d3ae886fbf9fd)",
+ "tree-sitter-typescript",
+]
+
+[[package]]
 name = "stencila-codec"
 version = "0.0.0"
 dependencies = [
@@ -11508,7 +11533,7 @@ dependencies = [
  "tree-sitter-python",
  "tree-sitter-r",
  "tree-sitter-rust",
- "tree-sitter-snakemake",
+ "tree-sitter-snakemake 2.0.0 (git+https://github.com/osthomas/tree-sitter-snakemake?tag=v2.0.0)",
  "tree-sitter-typescript",
 ]
 
@@ -14135,6 +14160,15 @@ dependencies = [
 name = "tree-sitter-snakemake"
 version = "2.0.0"
 source = "git+https://github.com/osthomas/tree-sitter-snakemake?tag=v2.0.0#7731408e5e8095fe242fdd423c3d3ae886fbf9fd"
+dependencies = [
+ "cc",
+ "tree-sitter-language",
+]
+
+[[package]]
+name = "tree-sitter-snakemake"
+version = "2.0.0"
+source = "git+https://github.com/osthomas/tree-sitter-snakemake?rev=7731408e5e8095fe242fdd423c3d3ae886fbf9fd#7731408e5e8095fe242fdd423c3d3ae886fbf9fd"
 dependencies = [
  "cc",
  "tree-sitter-language",

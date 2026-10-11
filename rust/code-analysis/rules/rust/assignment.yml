@@ -1,0 +1,7 @@
+id: rust-assignment
+language: Rust
+rule:
+  any:
+    - pattern: let $TARGET = $VALUE;
+    - pattern: let mut $TARGET = $VALUE;
+    - pattern: $TARGET = $VALUE;

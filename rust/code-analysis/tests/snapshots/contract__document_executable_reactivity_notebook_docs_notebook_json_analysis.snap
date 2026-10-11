@@ -1,0 +1,45 @@
+---
+source: rust/code-analysis/tests/contract.rs
+expression: analysis
+---
+{
+  "formatVersion": 1,
+  "language": "python",
+  "path": "document-executable-reactivity-notebook/docs/notebook.json#analysis",
+  "facts": {
+    "imports": [],
+    "assignments": [
+      "adjusted"
+    ],
+    "declarations": [],
+    "functionDeclarations": [],
+    "uses": [
+      "mean",
+      "samples",
+      "scale"
+    ],
+    "calls": [
+      "mean"
+    ],
+    "io": [],
+    "columns": [],
+    "variableFlows": [
+      {
+        "source": "samples",
+        "target": "adjusted",
+        "targetOffset": 0
+      },
+      {
+        "source": "scale",
+        "target": "adjusted",
+        "targetOffset": 0
+      }
+    ],
+    "workflowUnits": [],
+    "scriptLinks": [],
+    "scriptExecutions": [],
+    "workflowUnitFacts": {},
+    "syntaxError": false
+  },
+  "diagnostics": []
+}

@@ -1,0 +1,118 @@
+---
+source: rust/code-analysis/tests/contract.rs
+expression: analysis
+---
+{
+  "formatVersion": 1,
+  "language": "rust",
+  "path": "code-polyglot-tools-io/src/bin/analysis.rs",
+  "facts": {
+    "imports": [
+      {
+        "ecosystem": "cargo",
+        "name": "serde"
+      }
+    ],
+    "assignments": [
+      "summary",
+      "table"
+    ],
+    "declarations": [
+      "main"
+    ],
+    "functionDeclarations": [
+      {
+        "name": "main",
+        "start": 94,
+        "end": 298
+      }
+    ],
+    "uses": [
+      "derive",
+      "format",
+      "read_to_string",
+      "rows",
+      "write"
+    ],
+    "calls": [
+      "read_to_string",
+      "write"
+    ],
+    "io": [
+      {
+        "direction": "read",
+        "path": {
+          "kind": "static",
+          "value": "../../data/raw/samples.tsv"
+        },
+        "operationOffset": 141,
+        "target": null,
+        "targetOffset": null,
+        "value": null,
+        "valueOffset": null,
+        "function": "read_to_string",
+        "mode": null,
+        "unresolvedReason": null
+      },
+      {
+        "direction": "read",
+        "path": {
+          "kind": "static",
+          "value": "../../data/raw/samples.tsv"
+        },
+        "operationOffset": 141,
+        "target": "table",
+        "targetOffset": 114,
+        "value": null,
+        "valueOffset": null,
+        "function": "read_to_string",
+        "mode": null,
+        "unresolvedReason": null
+      },
+      {
+        "direction": "write",
+        "path": {
+          "kind": "static",
+          "value": "../../results/rust-summary.tsv"
+        },
+        "operationOffset": 225,
+        "target": null,
+        "targetOffset": null,
+        "value": null,
+        "valueOffset": null,
+        "function": "write",
+        "mode": null,
+        "unresolvedReason": null
+      }
+    ],
+    "columns": [],
+    "variableFlows": [
+      {
+        "source": "Summary",
+        "target": "summary",
+        "targetOffset": 180
+      },
+      {
+        "source": "fs",
+        "target": "table",
+        "targetOffset": 114
+      },
+      {
+        "source": "read_to_string",
+        "target": "table",
+        "targetOffset": 114
+      },
+      {
+        "source": "rows",
+        "target": "summary",
+        "targetOffset": 180
+      }
+    ],
+    "workflowUnits": [],
+    "scriptLinks": [],
+    "scriptExecutions": [],
+    "workflowUnitFacts": {},
+    "syntaxError": false
+  },
+  "diagnostics": []
+}

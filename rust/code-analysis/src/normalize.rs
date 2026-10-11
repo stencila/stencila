@@ -1,0 +1,525 @@
+use ast_grep_core::{matcher::NodeMatch, tree_sitter::StrDoc};
+
+use super::{
+    facts::{
+        CodeFacts, IoDirection, IoFact, IoMode, IoPath, VariableFlowFact, record_definition,
+        record_imported_symbol, record_use,
+    },
+    language::CodeLanguage,
+    util::{
+        clean_string_literal, contains_identifier, expression_identifiers, first_identifier_owned,
+        function_name, identifier_target, is_ignored_identifier, is_python_stdlib,
+        is_r_base_package, javascript_package_name, package_name, path_expression,
+        rust_imported_symbol, rust_package_name,
+    },
+};
+use crate::package::PackageFact;
+
+/// Dispatch one ast-grep match to its language-specific normalizer.
+///
+/// Rule ids are the stable bridge between YAML files and Rust code. Matching on
+/// ids here keeps each normalizer small and makes unsupported or future rules a
+/// no-op until graph semantics are added for them.
+pub(super) fn normalize_match(
+    language: CodeLanguage,
+    rule_id: &str,
+    matched: &NodeMatch<StrDoc<CodeLanguage>>,
+    facts: &mut CodeFacts,
+) {
+    match (language, rule_id) {
+        (language, "ecmascript-import") if language.is_ecmascript() => {
+            normalize_javascript_import(matched, facts)
+        }
+        (language, "ecmascript-assignment") if language.is_ecmascript() => {
+            normalize_assignment(language, matched, facts)
+        }
+        (language, "ecmascript-function") if language.is_ecmascript() => {
+            normalize_declaration(matched, "NAME", facts)
+        }
+        (language, "ecmascript-call") if language.is_ecmascript() => {
+            normalize_call(matched, "FUNC", facts)
+        }
+        (CodeLanguage::Rust, "rust-import") => normalize_rust_import(matched, facts),
+        (CodeLanguage::Rust, "rust-assignment") => {
+            normalize_assignment(CodeLanguage::Rust, matched, facts)
+        }
+        (CodeLanguage::Rust, "rust-function") => normalize_declaration(matched, "NAME", facts),
+        (CodeLanguage::Rust, "rust-read") => normalize_io_match(matched, facts, true),
+        (CodeLanguage::Rust, "rust-write") => normalize_io_match(matched, facts, false),
+        (CodeLanguage::Rust, "rust-call") => normalize_call(matched, "FUNC", facts),
+        (CodeLanguage::Python, "python-import") => normalize_python_import(matched, facts),
+        (CodeLanguage::Python, "python-assignment") => {
+            normalize_assignment(CodeLanguage::Python, matched, facts)
+        }
+        (CodeLanguage::Python, "python-function") => normalize_declaration(matched, "NAME", facts),
+        (CodeLanguage::Python, "python-call") => normalize_call(matched, "FUNC", facts),
+        (CodeLanguage::R, "r-import") => normalize_r_import(matched, facts),
+        (CodeLanguage::R, "r-assignment") => normalize_assignment(CodeLanguage::R, matched, facts),
+        (CodeLanguage::R, "r-call") => normalize_call(matched, "FUNC", facts),
+        (CodeLanguage::Julia, "julia-import") => normalize_julia_import(matched, facts),
+        (CodeLanguage::Julia, "julia-assignment") => {
+            normalize_assignment(CodeLanguage::Julia, matched, facts)
+        }
+        (CodeLanguage::Julia, "julia-function") => normalize_declaration(matched, "NAME", facts),
+        (CodeLanguage::Julia, "julia-read") => normalize_io_match(matched, facts, true),
+        (CodeLanguage::Julia, "julia-write") => normalize_io_match(matched, facts, false),
+        (CodeLanguage::Julia, "julia-call") => normalize_call(matched, "FUNC", facts),
+        (CodeLanguage::Matlab, "matlab-import") => normalize_matlab_import(matched, facts),
+        (CodeLanguage::Matlab, "matlab-assignment") => {
+            normalize_assignment(CodeLanguage::Matlab, matched, facts)
+        }
+        (CodeLanguage::Matlab, "matlab-function") => normalize_matlab_function(matched, facts),
+        (CodeLanguage::Matlab, "matlab-read") => normalize_io_match(matched, facts, true),
+        (CodeLanguage::Matlab, "matlab-write") => normalize_io_match(matched, facts, false),
+        (CodeLanguage::Matlab, "matlab-call") => normalize_call(matched, "FUNC", facts),
+        (CodeLanguage::Snakemake, "snakemake-rule") => {
+            if let Some(node) = matched.field("name") {
+                let name = node.text().into_owned();
+                facts.record_workflow_unit(name, Some(node.range().start));
+            }
+        }
+        _ => {}
+    }
+}
+
+/// Normalize a Python import match.
+///
+/// Imports produce package facts, but their local aliases must also be tracked
+/// so identifiers such as `pd` or `plt` do not become false cross-chunk symbol
+/// dependencies.
+fn normalize_python_import(matched: &NodeMatch<StrDoc<CodeLanguage>>, facts: &mut CodeFacts) {
+    if let Some(module) = env_text(matched, "MODULE")
+        .and_then(|module| package_name(&module))
+        .filter(|module| !is_python_stdlib(module))
+    {
+        facts.imports.insert(PackageFact::new("pypi", module));
+    }
+
+    if let Some(alias) = env_text(matched, "ALIAS").and_then(|alias| first_identifier_owned(&alias))
+    {
+        record_imported_symbol(facts, alias, env_range_start(matched, "ALIAS"));
+    } else if let Some(module) =
+        env_text(matched, "MODULE").and_then(|module| first_identifier_owned(&module))
+    {
+        record_imported_symbol(facts, module, env_range_start(matched, "MODULE"));
+    }
+}
+
+/// Normalize a JavaScript or TypeScript import match.
+///
+/// Imports can name runtime packages, local aliases, or CommonJS require
+/// targets. Package facts are limited to bare module specifiers so relative
+/// module paths do not become misleading software package nodes.
+fn normalize_javascript_import(matched: &NodeMatch<StrDoc<CodeLanguage>>, facts: &mut CodeFacts) {
+    if let Some(path) = env_text(matched, "PATH")
+        && let Some(package) = javascript_package_name(&path)
+    {
+        facts.imports.insert(package);
+    }
+
+    for var in ["ALIAS", "TARGET"] {
+        if let Some(alias) = env_text(matched, var).and_then(|alias| first_identifier_owned(&alias))
+        {
+            record_imported_symbol(facts, alias, env_range_start(matched, var));
+        }
+    }
+}
+
+/// Normalize an R import or namespace-qualified call match.
+///
+/// Both `library(pkg)` and `pkg::fn` identify software packages statically. The
+/// package root is enough for graph-level package relationships.
+fn normalize_r_import(matched: &NodeMatch<StrDoc<CodeLanguage>>, facts: &mut CodeFacts) {
+    for name in ["PKG", "MODULE"] {
+        if let Some(package) = env_text(matched, name)
+            .and_then(|package| package_name(&package))
+            .filter(|package| !is_r_base_package(package))
+        {
+            facts.imports.insert(PackageFact::new("cran", package));
+        }
+    }
+}
+
+/// Normalize a Julia import or module-qualified call match.
+///
+/// `using Package`, `import Package`, and calls such as `CSV.read` identify
+/// package roots statically. Imported roots are also tracked as local symbols so
+/// module names do not become variable-use dependencies.
+fn normalize_julia_import(matched: &NodeMatch<StrDoc<CodeLanguage>>, facts: &mut CodeFacts) {
+    if let Some(package) = env_text(matched, "MODULE").and_then(|package| package_name(&package)) {
+        facts
+            .imports
+            .insert(PackageFact::new("julia", package.as_str()));
+        record_imported_symbol(facts, package, env_range_start(matched, "MODULE"));
+    }
+
+    if let Some(package) = env_text(matched, "PKG")
+        .and_then(|package| package_name(&package))
+        .filter(|package| package.chars().next().is_some_and(char::is_uppercase))
+    {
+        facts
+            .imports
+            .insert(PackageFact::new("julia", package.as_str()));
+        record_imported_symbol(facts, package, env_range_start(matched, "PKG"));
+    }
+}
+
+/// Normalize a MATLAB import statement.
+///
+/// MATLAB `import package.member` statements identify a package root
+/// statically. Imported terminal names are tracked when they are concrete so
+/// follow-on symbol use filtering does not treat them as cross-unit variables.
+fn normalize_matlab_import(matched: &NodeMatch<StrDoc<CodeLanguage>>, facts: &mut CodeFacts) {
+    let Some(module) = env_text(matched, "MODULE").or_else(|| {
+        matched
+            .text()
+            .trim()
+            .strip_prefix("import")
+            .map(str::trim)
+            .map(str::to_string)
+    }) else {
+        return;
+    };
+
+    if let Some(package) = package_name(&module) {
+        facts
+            .imports
+            .insert(PackageFact::new("matlab", package.as_str()));
+        record_imported_symbol(facts, package, env_range_start(matched, "MODULE"));
+    }
+
+    if let Some(symbol) = matlab_imported_symbol(&module) {
+        record_imported_symbol(facts, symbol, env_range_start(matched, "MODULE"));
+    }
+}
+
+/// Normalize a MATLAB function definition.
+fn normalize_matlab_function(matched: &NodeMatch<StrDoc<CodeLanguage>>, facts: &mut CodeFacts) {
+    if let Some(node) = matched.field("name") {
+        record_function_declaration(&node, facts);
+    }
+}
+
+/// Extract a concrete local symbol imported by a MATLAB import statement.
+fn matlab_imported_symbol(module: &str) -> Option<String> {
+    let symbol = module.rsplit('.').next()?.trim();
+    if symbol == "*" {
+        None
+    } else {
+        first_identifier_owned(symbol)
+    }
+}
+
+/// Normalize a Rust use item or extern crate match.
+///
+/// Rust imports identify Cargo-style package roots when the path starts outside
+/// `std`, `core`, local crate modules, and other prelude-like namespaces. The
+/// imported terminal name is also recorded so use items do not create symbol-use
+/// noise in document reactivity.
+fn normalize_rust_import(matched: &NodeMatch<StrDoc<CodeLanguage>>, facts: &mut CodeFacts) {
+    let Some(module_node) = matched.get_env().get_match("MODULE") else {
+        return;
+    };
+    let module = module_node.text();
+    let module = module.trim();
+
+    if let Some(package) = rust_package_name(module) {
+        facts.imports.insert(PackageFact::new("cargo", package));
+    }
+
+    if let Some(symbol) = rust_imported_symbol(module) {
+        record_imported_symbol(facts, symbol, Some(module_node.range().start));
+    }
+}
+
+/// Normalize an assignment match.
+///
+/// Assignment targets define symbols. When the assignment came from a read rule
+/// with a captured path, the target is also recorded as a dataframe-like source
+/// so later column accesses can derive from the same static file.
+fn normalize_assignment(
+    language: CodeLanguage,
+    matched: &NodeMatch<StrDoc<CodeLanguage>>,
+    facts: &mut CodeFacts,
+) {
+    let Some(target_node) = matched.get_env().get_match("TARGET") else {
+        return;
+    };
+    let target_text = target_node.text();
+    let Some(target) = identifier_target(target_text.trim()) else {
+        return;
+    };
+    if let Some(value) = env_text(matched, "VALUE") {
+        if contains_identifier(&value, &target)
+            && facts
+                .definition_offsets
+                .get(&target)
+                .is_none_or(|definition_offset| *definition_offset >= target_node.range().start)
+        {
+            facts.read_before_write_symbols.insert(target.clone());
+        }
+
+        for source in expression_identifiers(language, &value) {
+            if source != target {
+                facts.variable_flows.insert(VariableFlowFact {
+                    source,
+                    target: target.clone(),
+                    target_offset: target_node.range().start,
+                });
+            }
+        }
+    }
+    facts.assignments.insert(target.clone());
+    record_definition(facts, &target, target_node.range().start);
+
+    if let Some(path) = env_text(matched, "PATH").and_then(|path| clean_string_literal(&path)) {
+        facts.variable_sources.insert(target, path);
+    }
+}
+
+/// Normalize a function or workflow declaration match.
+///
+/// Declarations are kept distinct from assignments because the graph should
+/// represent declared callables as functions or workflow units, not variables.
+fn normalize_declaration(
+    matched: &NodeMatch<StrDoc<CodeLanguage>>,
+    var: &str,
+    facts: &mut CodeFacts,
+) {
+    if let Some(node) = matched.get_env().get_match(var) {
+        record_function_declaration(node, facts);
+    }
+}
+
+/// Record a function declaration from its captured name node.
+fn record_function_declaration(
+    node: &ast_grep_core::Node<StrDoc<CodeLanguage>>,
+    facts: &mut CodeFacts,
+) {
+    let name = node.text();
+    if let Some(name) = identifier_target(name.trim()) {
+        facts.declarations.insert(name.to_string());
+        let range = declaration_range(node);
+        facts
+            .function_declarations
+            .insert(super::facts::FunctionFact {
+                name: name.to_string(),
+                start: range.start,
+                end: range.end,
+            });
+        record_definition(facts, &name, node.range().start);
+    }
+}
+
+/// Normalize a function-like call match.
+///
+/// Calls are intentionally shallow: the callee name is useful for graph queries
+/// even when static analysis cannot determine whether it is local, imported, or
+/// dynamically rebound.
+fn normalize_call(matched: &NodeMatch<StrDoc<CodeLanguage>>, var: &str, facts: &mut CodeFacts) {
+    let Some(name) = env_text(matched, var).and_then(|name| function_name(&name)) else {
+        return;
+    };
+    facts.calls.insert(name);
+}
+
+/// Normalize a read or write match.
+///
+/// IO rules capture path expressions and sometimes assignment targets or write
+/// values. This helper classifies `open`-style modes, records structured I/O
+/// facts, and links assigned variables back to static read paths when visible.
+fn normalize_io_match(
+    matched: &NodeMatch<StrDoc<CodeLanguage>>,
+    facts: &mut CodeFacts,
+    default_read: bool,
+) {
+    let Some(path_raw) = env_text(matched, "PATH") else {
+        return;
+    };
+    let path = path_expression(&path_raw);
+    if matches!(path, IoPath::Unknown(ref value) if value.is_empty()) {
+        return;
+    }
+
+    let mode = env_text(matched, "MODE")
+        .and_then(|mode| clean_string_literal(&mode))
+        .map(|mode| io_mode(&mode));
+    let direction = match (default_read, mode) {
+        (_, Some(IoMode::ReadWrite)) => IoDirection::ReadWrite,
+        (true, Some(IoMode::Write | IoMode::Append)) => IoDirection::Write,
+        (true, _) => IoDirection::Read,
+        (false, _) => IoDirection::Write,
+    };
+
+    let target = env_text(matched, "TARGET").and_then(|target| identifier_target(target.trim()));
+    let target_offset = target
+        .as_ref()
+        .and_then(|_| env_range_start(matched, "TARGET"));
+    let value_capture = ["VALUE", "OBJ"]
+        .into_iter()
+        .find_map(|var| env_text(matched, var).map(|value| (var, value)));
+    let value = value_capture
+        .as_ref()
+        .and_then(|(_, value)| identifier_target(value.trim()));
+    let value_offset = value
+        .as_ref()
+        .and(value_capture.as_ref())
+        .and_then(|(var, _)| env_range_start(matched, var));
+    let operation_offset = env_range_start(matched, "PATH");
+    let function = io_function_name(matched);
+
+    facts.io.insert(IoFact {
+        direction,
+        path: path.clone(),
+        operation_offset,
+        target: target.clone(),
+        target_offset,
+        value,
+        value_offset,
+        function,
+        mode,
+        unresolved_reason: None,
+    });
+
+    if let Some(target_node) = matched.get_env().get_match("TARGET")
+        && let Some(target) = target
+    {
+        facts.assignments.insert(target.to_string());
+        record_definition(facts, &target, target_node.range().start);
+        if direction.reads()
+            && let IoPath::Static(path) = path
+        {
+            facts.variable_sources.insert(target.to_string(), path);
+        }
+    }
+}
+
+/// Classify a file mode string.
+fn io_mode(mode: &str) -> IoMode {
+    if mode.contains('+') {
+        IoMode::ReadWrite
+    } else if mode.contains('a') {
+        IoMode::Append
+    } else if mode.contains(['w', 'x']) {
+        IoMode::Write
+    } else {
+        IoMode::Read
+    }
+}
+
+/// Best-effort extraction of the called I/O function or method.
+fn io_function_name(matched: &NodeMatch<StrDoc<CodeLanguage>>) -> Option<String> {
+    let text = matched.text();
+    let before_call = text.split_once('(')?.0.trim();
+    let name = before_call
+        .rsplit(['.', ':', ' '])
+        .find(|part| !part.is_empty())?
+        .trim();
+    function_name(name)
+}
+
+/// Collect identifier uses from the parsed syntax tree.
+///
+/// Rule matches find declarations and known operations, but document reactivity
+/// needs a broader symbol-use signal. Walking identifiers gives that signal,
+/// and later filtering removes local definitions, imports, and common builtins.
+pub(super) fn collect_identifier_uses(
+    language: CodeLanguage,
+    grep: &ast_grep_core::AstGrep<StrDoc<CodeLanguage>>,
+    facts: &mut CodeFacts,
+) {
+    for node in grep.root().dfs() {
+        if node.kind().as_ref() != "identifier" {
+            continue;
+        }
+        let name = node.text();
+        let name = name.trim();
+        if is_ignored_identifier(language, name) || is_definition_identifier(language, &node) {
+            continue;
+        }
+        record_use(facts, name, node.range().start);
+    }
+}
+
+/// Return the start offset of a captured metavariable.
+fn env_range_start(matched: &NodeMatch<StrDoc<CodeLanguage>>, var: &str) -> Option<usize> {
+    matched
+        .get_env()
+        .get_match(var)
+        .map(|node| node.range().start)
+}
+
+/// Return the range of the declaration that owns a captured name.
+fn declaration_range(node: &ast_grep_core::Node<StrDoc<CodeLanguage>>) -> std::ops::Range<usize> {
+    let Some(parent) = node.parent() else {
+        return node.range();
+    };
+
+    match parent.kind().as_ref() {
+        "function_declaration"
+        | "function_definition"
+        | "function_item"
+        | "method_definition"
+        | "variable_declarator" => parent.range(),
+        _ => node.range(),
+    }
+}
+
+/// Check whether an identifier node is part of a definition site.
+///
+/// Definition identifiers should not be counted as uses of themselves. The
+/// checks are deliberately limited to grammar shapes this module already
+/// handles, which keeps the fallback conservative for unsupported constructs.
+fn is_definition_identifier(
+    language: CodeLanguage,
+    node: &ast_grep_core::Node<StrDoc<CodeLanguage>>,
+) -> bool {
+    let Some(parent) = node.parent() else {
+        return false;
+    };
+
+    if language == CodeLanguage::Matlab
+        && parent.kind().as_ref() == "function_call"
+        && parent
+            .field("name")
+            .is_some_and(|name| name.range().contains(&node.range().start))
+    {
+        return true;
+    }
+
+    match parent.kind().as_ref() {
+        "assignment" | "augmented_assignment" => parent
+            .field("left")
+            .is_some_and(|left| left.range().contains(&node.range().start)),
+        "variable_declarator" => parent
+            .field("name")
+            .is_some_and(|name| name.range().contains(&node.range().start)),
+        "let_declaration" => parent
+            .field("pattern")
+            .is_some_and(|pattern| pattern.range().contains(&node.range().start)),
+        "function_declaration"
+        | "function_definition"
+        | "function_item"
+        | "rule_definition"
+        | "checkpoint_definition" => parent
+            .field("name")
+            .is_some_and(|name| name.range() == node.range()),
+        "aliased_import" | "import_clause" | "namespace_import" | "import_specifier" => parent
+            .field("alias")
+            .or_else(|| parent.field("name"))
+            .is_some_and(|alias| alias.range().contains(&node.range().start)),
+        _ => false,
+    }
+}
+
+/// Read a captured ast-grep metavariable as trimmed text.
+///
+/// Normalizers operate on source snippets instead of AST node types so YAML
+/// rules can stay small. Centralizing trimming keeps capture handling
+/// consistent across languages.
+fn env_text(matched: &NodeMatch<StrDoc<CodeLanguage>>, var: &str) -> Option<String> {
+    matched
+        .get_env()
+        .get_match(var)
+        .map(|node| node.text().trim().to_string())
+}

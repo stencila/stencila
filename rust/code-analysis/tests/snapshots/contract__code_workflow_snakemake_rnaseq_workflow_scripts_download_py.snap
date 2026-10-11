@@ -1,0 +1,48 @@
+---
+source: rust/code-analysis/tests/contract.rs
+expression: analysis
+---
+{
+  "formatVersion": 1,
+  "language": "python",
+  "path": "code-workflow-snakemake-rnaseq/workflow/scripts/download.py",
+  "facts": {
+    "imports": [],
+    "assignments": [],
+    "declarations": [],
+    "functionDeclarations": [],
+    "uses": [
+      "Path",
+      "write_text"
+    ],
+    "calls": [
+      "Path",
+      "write_text"
+    ],
+    "io": [
+      {
+        "direction": "write",
+        "path": {
+          "kind": "static",
+          "value": "data/raw/S1.fastq"
+        },
+        "operationOffset": 31,
+        "target": null,
+        "targetOffset": null,
+        "value": null,
+        "valueOffset": null,
+        "function": "write_text",
+        "mode": null,
+        "unresolvedReason": null
+      }
+    ],
+    "columns": [],
+    "variableFlows": [],
+    "workflowUnits": [],
+    "scriptLinks": [],
+    "scriptExecutions": [],
+    "workflowUnitFacts": {},
+    "syntaxError": false
+  },
+  "diagnostics": []
+}

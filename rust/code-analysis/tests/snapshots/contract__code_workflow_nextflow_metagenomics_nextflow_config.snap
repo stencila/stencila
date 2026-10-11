@@ -1,0 +1,26 @@
+---
+source: rust/code-analysis/tests/contract.rs
+expression: analysis
+---
+{
+  "formatVersion": 1,
+  "language": "nextflow",
+  "path": "code-workflow-nextflow-metagenomics/nextflow.config",
+  "facts": {
+    "imports": [],
+    "assignments": [],
+    "declarations": [],
+    "functionDeclarations": [],
+    "uses": [],
+    "calls": [],
+    "io": [],
+    "columns": [],
+    "variableFlows": [],
+    "workflowUnits": [],
+    "scriptLinks": [],
+    "scriptExecutions": [],
+    "workflowUnitFacts": {},
+    "syntaxError": false
+  },
+  "diagnostics": []
+}

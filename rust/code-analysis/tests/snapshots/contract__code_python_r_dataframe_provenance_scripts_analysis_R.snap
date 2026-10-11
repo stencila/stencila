@@ -1,0 +1,108 @@
+---
+source: rust/code-analysis/tests/contract.rs
+expression: analysis
+---
+{
+  "formatVersion": 1,
+  "language": "r",
+  "path": "code-python-r-dataframe-provenance/scripts/analysis.R",
+  "facts": {
+    "imports": [
+      {
+        "ecosystem": "cran",
+        "name": "ggplot2"
+      },
+      {
+        "ecosystem": "cran",
+        "name": "readr"
+      }
+    ],
+    "assignments": [
+      "df"
+    ],
+    "declarations": [],
+    "functionDeclarations": [],
+    "uses": [
+      "ggsave",
+      "read.csv",
+      "site",
+      "write.csv"
+    ],
+    "calls": [
+      "csv",
+      "ggsave"
+    ],
+    "io": [
+      {
+        "direction": "read",
+        "path": {
+          "kind": "static",
+          "value": "../data/raw/observations.csv"
+        },
+        "operationOffset": 48,
+        "target": "df",
+        "targetOffset": 33,
+        "value": null,
+        "valueOffset": null,
+        "function": "csv",
+        "mode": null,
+        "unresolvedReason": null
+      },
+      {
+        "direction": "write",
+        "path": {
+          "kind": "static",
+          "value": "../figures/r-counts.png"
+        },
+        "operationOffset": 151,
+        "target": null,
+        "targetOffset": null,
+        "value": null,
+        "valueOffset": null,
+        "function": "ggsave",
+        "mode": null,
+        "unresolvedReason": null
+      },
+      {
+        "direction": "write",
+        "path": {
+          "kind": "static",
+          "value": "../outputs/r-summary.csv"
+        },
+        "operationOffset": 116,
+        "target": null,
+        "targetOffset": null,
+        "value": "df",
+        "valueOffset": null,
+        "function": "csv",
+        "mode": null,
+        "unresolvedReason": null
+      }
+    ],
+    "columns": [
+      {
+        "dataframe": "df",
+        "column": "count",
+        "source": "../data/raw/observations.csv"
+      },
+      {
+        "dataframe": "df",
+        "column": "site",
+        "source": "../data/raw/observations.csv"
+      }
+    ],
+    "variableFlows": [
+      {
+        "source": "read.csv",
+        "target": "df",
+        "targetOffset": 33
+      }
+    ],
+    "workflowUnits": [],
+    "scriptLinks": [],
+    "scriptExecutions": [],
+    "workflowUnitFacts": {},
+    "syntaxError": false
+  },
+  "diagnostics": []
+}

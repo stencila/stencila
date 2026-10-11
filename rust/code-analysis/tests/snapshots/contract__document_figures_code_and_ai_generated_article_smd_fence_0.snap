@@ -1,0 +1,205 @@
+---
+source: rust/code-analysis/tests/contract.rs
+expression: analysis
+---
+{
+  "formatVersion": 1,
+  "language": "r",
+  "path": "document-figures-code-and-ai-generated/article.smd#fence-0",
+  "facts": {
+    "imports": [],
+    "assignments": [
+      "cell_counts",
+      "event_totals",
+      "outcomes",
+      "summaries"
+    ],
+    "declarations": [],
+    "functionDeclarations": [],
+    "uses": [
+      "FUN",
+      "aggregate",
+      "apoptosis_percent",
+      "apoptotic_cells",
+      "as.data.frame",
+      "by",
+      "cbind",
+      "cells_scored",
+      "data",
+      "max",
+      "merge",
+      "mitotic_entries",
+      "mitotic_entry_percent",
+      "names",
+      "quote",
+      "read.csv",
+      "round",
+      "row.names",
+      "sep",
+      "sum",
+      "treatment",
+      "write.table"
+    ],
+    "calls": [
+      "aggregate",
+      "cbind",
+      "csv",
+      "frame",
+      "merge",
+      "names",
+      "round",
+      "table"
+    ],
+    "io": [
+      {
+        "direction": "read",
+        "path": {
+          "kind": "static",
+          "value": "outcomes.csv"
+        },
+        "operationOffset": 21,
+        "target": "outcomes",
+        "targetOffset": 0,
+        "value": null,
+        "valueOffset": null,
+        "function": "csv",
+        "mode": null,
+        "unresolvedReason": null
+      },
+      {
+        "direction": "write",
+        "path": {
+          "kind": "static",
+          "value": "outcome-summaries.tsv"
+        },
+        "operationOffset": 751,
+        "target": null,
+        "targetOffset": null,
+        "value": null,
+        "valueOffset": null,
+        "function": "table",
+        "mode": null,
+        "unresolvedReason": null
+      }
+    ],
+    "columns": [],
+    "variableFlows": [
+      {
+        "source": "FUN",
+        "target": "cell_counts",
+        "targetOffset": 153
+      },
+      {
+        "source": "FUN",
+        "target": "event_totals",
+        "targetOffset": 38
+      },
+      {
+        "source": "aggregate",
+        "target": "cell_counts",
+        "targetOffset": 153
+      },
+      {
+        "source": "aggregate",
+        "target": "event_totals",
+        "targetOffset": 38
+      },
+      {
+        "source": "apoptotic_cells",
+        "target": "event_totals",
+        "targetOffset": 38
+      },
+      {
+        "source": "by",
+        "target": "summaries",
+        "targetOffset": 233
+      },
+      {
+        "source": "c",
+        "target": "summaries",
+        "targetOffset": 499
+      },
+      {
+        "source": "cbind",
+        "target": "event_totals",
+        "targetOffset": 38
+      },
+      {
+        "source": "cell_counts",
+        "target": "summaries",
+        "targetOffset": 233
+      },
+      {
+        "source": "cells_scored",
+        "target": "cell_counts",
+        "targetOffset": 153
+      },
+      {
+        "source": "data",
+        "target": "cell_counts",
+        "targetOffset": 153
+      },
+      {
+        "source": "data",
+        "target": "event_totals",
+        "targetOffset": 38
+      },
+      {
+        "source": "event_totals",
+        "target": "summaries",
+        "targetOffset": 233
+      },
+      {
+        "source": "max",
+        "target": "cell_counts",
+        "targetOffset": 153
+      },
+      {
+        "source": "merge",
+        "target": "summaries",
+        "targetOffset": 233
+      },
+      {
+        "source": "mitotic_entries",
+        "target": "event_totals",
+        "targetOffset": 38
+      },
+      {
+        "source": "outcomes",
+        "target": "cell_counts",
+        "targetOffset": 153
+      },
+      {
+        "source": "outcomes",
+        "target": "event_totals",
+        "targetOffset": 38
+      },
+      {
+        "source": "read.csv",
+        "target": "outcomes",
+        "targetOffset": 0
+      },
+      {
+        "source": "sum",
+        "target": "event_totals",
+        "targetOffset": 38
+      },
+      {
+        "source": "treatment",
+        "target": "cell_counts",
+        "targetOffset": 153
+      },
+      {
+        "source": "treatment",
+        "target": "event_totals",
+        "targetOffset": 38
+      }
+    ],
+    "workflowUnits": [],
+    "scriptLinks": [],
+    "scriptExecutions": [],
+    "workflowUnitFacts": {},
+    "syntaxError": false
+  },
+  "diagnostics": []
+}

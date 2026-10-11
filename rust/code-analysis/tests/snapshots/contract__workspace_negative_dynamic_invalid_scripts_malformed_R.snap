@@ -1,0 +1,38 @@
+---
+source: rust/code-analysis/tests/contract.rs
+expression: analysis
+---
+{
+  "formatVersion": 1,
+  "language": "r",
+  "path": "workspace-negative-dynamic-invalid/scripts/malformed.R",
+  "facts": {
+    "imports": [],
+    "assignments": [
+      "df"
+    ],
+    "declarations": [],
+    "functionDeclarations": [],
+    "uses": [
+      "read.csv"
+    ],
+    "calls": [
+      "csv"
+    ],
+    "io": [],
+    "columns": [],
+    "variableFlows": [
+      {
+        "source": "read.csv",
+        "target": "df",
+        "targetOffset": 0
+      }
+    ],
+    "workflowUnits": [],
+    "scriptLinks": [],
+    "scriptExecutions": [],
+    "workflowUnitFacts": {},
+    "syntaxError": false
+  },
+  "diagnostics": []
+}

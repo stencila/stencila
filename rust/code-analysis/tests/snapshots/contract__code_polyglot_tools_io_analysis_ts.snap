@@ -1,0 +1,78 @@
+---
+source: rust/code-analysis/tests/contract.rs
+expression: analysis
+---
+{
+  "formatVersion": 1,
+  "language": "typescript",
+  "path": "code-polyglot-tools-io/analysis.ts",
+  "facts": {
+    "imports": [
+      {
+        "ecosystem": "node",
+        "name": "fs"
+      },
+      {
+        "ecosystem": "npm",
+        "name": "csv-parse"
+      }
+    ],
+    "assignments": [
+      "table"
+    ],
+    "declarations": [],
+    "functionDeclarations": [],
+    "uses": [],
+    "calls": [
+      "parse",
+      "readFileSync",
+      "writeFileSync"
+    ],
+    "io": [
+      {
+        "direction": "read",
+        "path": {
+          "kind": "static",
+          "value": "data/raw/samples.tsv"
+        },
+        "operationOffset": 114,
+        "target": "table",
+        "targetOffset": 93,
+        "value": null,
+        "valueOffset": null,
+        "function": "readFileSync",
+        "mode": null,
+        "unresolvedReason": null
+      },
+      {
+        "direction": "write",
+        "path": {
+          "kind": "static",
+          "value": "results/ts-summary.tsv"
+        },
+        "operationOffset": 161,
+        "target": null,
+        "targetOffset": null,
+        "value": "table",
+        "valueOffset": null,
+        "function": "writeFileSync",
+        "mode": null,
+        "unresolvedReason": null
+      }
+    ],
+    "columns": [],
+    "variableFlows": [
+      {
+        "source": "readFileSync",
+        "target": "table",
+        "targetOffset": 93
+      }
+    ],
+    "workflowUnits": [],
+    "scriptLinks": [],
+    "scriptExecutions": [],
+    "workflowUnitFacts": {},
+    "syntaxError": false
+  },
+  "diagnostics": []
+}

@@ -1,0 +1,83 @@
+---
+source: rust/code-analysis/tests/contract.rs
+expression: analysis
+---
+{
+  "formatVersion": 1,
+  "language": "javascript",
+  "path": "code-polyglot-tools-io/analysis.js",
+  "facts": {
+    "imports": [
+      {
+        "ecosystem": "npm",
+        "name": "fs-extra"
+      }
+    ],
+    "assignments": [
+      "input"
+    ],
+    "declarations": [
+      "summarize"
+    ],
+    "functionDeclarations": [
+      {
+        "name": "summarize",
+        "start": 57,
+        "end": 207
+      }
+    ],
+    "uses": [],
+    "calls": [
+      "readFileSync",
+      "summarize",
+      "trim",
+      "writeFileSync"
+    ],
+    "io": [
+      {
+        "direction": "read",
+        "path": {
+          "kind": "static",
+          "value": "data/raw/samples.tsv"
+        },
+        "operationOffset": 109,
+        "target": "input",
+        "targetOffset": 88,
+        "value": null,
+        "valueOffset": null,
+        "function": "readFileSync",
+        "mode": null,
+        "unresolvedReason": null
+      },
+      {
+        "direction": "write",
+        "path": {
+          "kind": "static",
+          "value": "results/js-summary.tsv"
+        },
+        "operationOffset": 158,
+        "target": null,
+        "targetOffset": null,
+        "value": null,
+        "valueOffset": null,
+        "function": "writeFileSync",
+        "mode": null,
+        "unresolvedReason": null
+      }
+    ],
+    "columns": [],
+    "variableFlows": [
+      {
+        "source": "readFileSync",
+        "target": "input",
+        "targetOffset": 88
+      }
+    ],
+    "workflowUnits": [],
+    "scriptLinks": [],
+    "scriptExecutions": [],
+    "workflowUnitFacts": {},
+    "syntaxError": false
+  },
+  "diagnostics": []
+}

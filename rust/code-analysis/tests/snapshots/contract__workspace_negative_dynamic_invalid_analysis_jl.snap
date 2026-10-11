@@ -1,0 +1,28 @@
+---
+source: rust/code-analysis/tests/contract.rs
+expression: analysis
+---
+{
+  "formatVersion": 1,
+  "language": "julia",
+  "path": "workspace-negative-dynamic-invalid/analysis.jl",
+  "facts": {
+    "imports": [],
+    "assignments": [
+      "x"
+    ],
+    "declarations": [],
+    "functionDeclarations": [],
+    "uses": [],
+    "calls": [],
+    "io": [],
+    "columns": [],
+    "variableFlows": [],
+    "workflowUnits": [],
+    "scriptLinks": [],
+    "scriptExecutions": [],
+    "workflowUnitFacts": {},
+    "syntaxError": false
+  },
+  "diagnostics": []
+}

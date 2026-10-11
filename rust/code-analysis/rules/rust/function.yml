@@ -1,0 +1,12 @@
+id: rust-function
+language: Rust
+rule:
+  any:
+    - pattern: |
+        fn $NAME($$$ARGS) {
+          $$$BODY
+        }
+    - pattern: |
+        pub fn $NAME($$$ARGS) {
+          $$$BODY
+        }

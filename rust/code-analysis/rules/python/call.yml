@@ -1,0 +1,4 @@
+id: python-call
+language: Python
+rule:
+  pattern: $FUNC($$$ARGS)

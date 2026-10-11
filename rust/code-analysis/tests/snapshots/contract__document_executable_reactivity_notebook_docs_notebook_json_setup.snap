@@ -1,0 +1,61 @@
+---
+source: rust/code-analysis/tests/contract.rs
+expression: analysis
+---
+{
+  "formatVersion": 1,
+  "language": "python",
+  "path": "document-executable-reactivity-notebook/docs/notebook.json#setup",
+  "facts": {
+    "imports": [
+      {
+        "ecosystem": "pypi",
+        "name": "pandas"
+      }
+    ],
+    "assignments": [
+      "samples",
+      "scale"
+    ],
+    "declarations": [],
+    "functionDeclarations": [],
+    "uses": [
+      "pd",
+      "read_csv"
+    ],
+    "calls": [
+      "read_csv"
+    ],
+    "io": [
+      {
+        "direction": "read",
+        "path": {
+          "kind": "static",
+          "value": "../data/samples.dat"
+        },
+        "operationOffset": 52,
+        "target": "samples",
+        "targetOffset": 30,
+        "value": null,
+        "valueOffset": null,
+        "function": "read_csv",
+        "mode": null,
+        "unresolvedReason": null
+      }
+    ],
+    "columns": [],
+    "variableFlows": [
+      {
+        "source": "pd",
+        "target": "samples",
+        "targetOffset": 30
+      }
+    ],
+    "workflowUnits": [],
+    "scriptLinks": [],
+    "scriptExecutions": [],
+    "workflowUnitFacts": {},
+    "syntaxError": false
+  },
+  "diagnostics": []
+}

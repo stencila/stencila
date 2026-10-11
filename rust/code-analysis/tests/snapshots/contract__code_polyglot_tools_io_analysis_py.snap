@@ -1,0 +1,93 @@
+---
+source: rust/code-analysis/tests/contract.rs
+expression: analysis
+---
+{
+  "formatVersion": 1,
+  "language": "python",
+  "path": "code-polyglot-tools-io/analysis.py",
+  "facts": {
+    "imports": [
+      {
+        "ecosystem": "pypi",
+        "name": "pandas"
+      }
+    ],
+    "assignments": [
+      "table"
+    ],
+    "declarations": [
+      "summarize"
+    ],
+    "functionDeclarations": [
+      {
+        "name": "summarize",
+        "start": 22,
+        "end": 166
+      }
+    ],
+    "uses": [
+      "index",
+      "pd",
+      "read_csv",
+      "sep",
+      "to_csv"
+    ],
+    "calls": [
+      "read_csv",
+      "summarize",
+      "to_csv"
+    ],
+    "io": [
+      {
+        "direction": "read",
+        "path": {
+          "kind": "static",
+          "value": "data/raw/samples.tsv"
+        },
+        "operationOffset": 63,
+        "target": "table",
+        "targetOffset": 43,
+        "value": null,
+        "valueOffset": null,
+        "function": "read_csv",
+        "mode": null,
+        "unresolvedReason": null
+      },
+      {
+        "direction": "write",
+        "path": {
+          "kind": "static",
+          "value": "results/python-summary.tsv"
+        },
+        "operationOffset": 114,
+        "target": null,
+        "targetOffset": null,
+        "value": "table",
+        "valueOffset": null,
+        "function": "to_csv",
+        "mode": null,
+        "unresolvedReason": null
+      }
+    ],
+    "columns": [],
+    "variableFlows": [
+      {
+        "source": "pd",
+        "target": "table",
+        "targetOffset": 43
+      },
+      {
+        "source": "sep",
+        "target": "table",
+        "targetOffset": 43
+      }
+    ],
+    "workflowUnits": [],
+    "scriptLinks": [],
+    "scriptExecutions": [],
+    "workflowUnitFacts": {},
+    "syntaxError": false
+  },
+  "diagnostics": []
+}

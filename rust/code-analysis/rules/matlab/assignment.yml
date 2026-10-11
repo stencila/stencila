@@ -1,0 +1,5 @@
+id: matlab-assignment
+language: Matlab
+rule:
+  kind: assignment
+  pattern: $TARGET = $VALUE

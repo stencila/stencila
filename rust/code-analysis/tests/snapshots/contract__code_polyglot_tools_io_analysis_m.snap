@@ -1,0 +1,101 @@
+---
+source: rust/code-analysis/tests/contract.rs
+expression: analysis
+---
+{
+  "formatVersion": 1,
+  "language": "matlab",
+  "path": "code-polyglot-tools-io/analysis.m",
+  "facts": {
+    "imports": [
+      {
+        "ecosystem": "matlab",
+        "name": "stats"
+      }
+    ],
+    "assignments": [
+      "count",
+      "tbl"
+    ],
+    "declarations": [],
+    "functionDeclarations": [],
+    "uses": [],
+    "calls": [
+      "height",
+      "readtable",
+      "table",
+      "writetable"
+    ],
+    "io": [
+      {
+        "direction": "read",
+        "path": {
+          "kind": "static",
+          "value": "data/raw/samples.tsv"
+        },
+        "operationOffset": 32,
+        "target": null,
+        "targetOffset": null,
+        "value": null,
+        "valueOffset": null,
+        "function": "readtable",
+        "mode": null,
+        "unresolvedReason": null
+      },
+      {
+        "direction": "read",
+        "path": {
+          "kind": "static",
+          "value": "data/raw/samples.tsv"
+        },
+        "operationOffset": 32,
+        "target": "tbl",
+        "targetOffset": 16,
+        "value": null,
+        "valueOffset": null,
+        "function": "readtable",
+        "mode": null,
+        "unresolvedReason": null
+      },
+      {
+        "direction": "write",
+        "path": {
+          "kind": "static",
+          "value": "results/matlab-summary.tsv"
+        },
+        "operationOffset": 103,
+        "target": null,
+        "targetOffset": null,
+        "value": null,
+        "valueOffset": null,
+        "function": "writetable",
+        "mode": null,
+        "unresolvedReason": null
+      }
+    ],
+    "columns": [],
+    "variableFlows": [
+      {
+        "source": "height",
+        "target": "count",
+        "targetOffset": 57
+      },
+      {
+        "source": "readtable",
+        "target": "tbl",
+        "targetOffset": 16
+      },
+      {
+        "source": "tbl",
+        "target": "count",
+        "targetOffset": 57
+      }
+    ],
+    "workflowUnits": [],
+    "scriptLinks": [],
+    "scriptExecutions": [],
+    "workflowUnitFacts": {},
+    "syntaxError": false
+  },
+  "diagnostics": []
+}

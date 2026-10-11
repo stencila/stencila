@@ -1,0 +1,4 @@
+id: snakemake-rule
+language: Snakemake
+rule:
+  kind: rule_definition

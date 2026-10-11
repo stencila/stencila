@@ -1,0 +1,89 @@
+---
+source: rust/code-analysis/tests/contract.rs
+expression: analysis
+---
+{
+  "formatVersion": 1,
+  "language": "julia",
+  "path": "code-polyglot-tools-io/analysis.jl",
+  "facts": {
+    "imports": [
+      {
+        "ecosystem": "julia",
+        "name": "CSV"
+      }
+    ],
+    "assignments": [
+      "table"
+    ],
+    "declarations": [],
+    "functionDeclarations": [],
+    "uses": [
+      "File"
+    ],
+    "calls": [
+      "File"
+    ],
+    "io": [
+      {
+        "direction": "read",
+        "path": {
+          "kind": "static",
+          "value": "data/raw/samples.tsv"
+        },
+        "operationOffset": 28,
+        "target": null,
+        "targetOffset": null,
+        "value": null,
+        "valueOffset": null,
+        "function": "File",
+        "mode": null,
+        "unresolvedReason": null
+      },
+      {
+        "direction": "read",
+        "path": {
+          "kind": "static",
+          "value": "data/raw/samples.tsv"
+        },
+        "operationOffset": 28,
+        "target": "table",
+        "targetOffset": 11,
+        "value": null,
+        "valueOffset": null,
+        "function": "File",
+        "mode": null,
+        "unresolvedReason": null
+      },
+      {
+        "direction": "write",
+        "path": {
+          "kind": "static",
+          "value": "results/julia-summary.tsv"
+        },
+        "operationOffset": 62,
+        "target": null,
+        "targetOffset": null,
+        "value": "table",
+        "valueOffset": 91,
+        "function": "write",
+        "mode": null,
+        "unresolvedReason": null
+      }
+    ],
+    "columns": [],
+    "variableFlows": [
+      {
+        "source": "CSV",
+        "target": "table",
+        "targetOffset": 11
+      }
+    ],
+    "workflowUnits": [],
+    "scriptLinks": [],
+    "scriptExecutions": [],
+    "workflowUnitFacts": {},
+    "syntaxError": false
+  },
+  "diagnostics": []
+}

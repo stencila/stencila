@@ -1,0 +1,152 @@
+---
+source: rust/code-analysis/tests/contract.rs
+expression: analysis
+---
+{
+  "formatVersion": 1,
+  "language": "nextflow",
+  "path": "code-workflow-nextflow-metagenomics/main.nf",
+  "facts": {
+    "imports": [],
+    "assignments": [],
+    "declarations": [],
+    "functionDeclarations": [],
+    "uses": [],
+    "calls": [
+      "exec",
+      "script",
+      "shell"
+    ],
+    "io": [],
+    "columns": [],
+    "variableFlows": [],
+    "workflowUnits": [
+      "classify",
+      "qc",
+      "summarize"
+    ],
+    "scriptLinks": [],
+    "scriptExecutions": [],
+    "workflowUnitFacts": {
+      "classify": {
+        "io": [
+          {
+            "direction": "read",
+            "path": {
+              "kind": "static",
+              "value": "results/qc/M1-qc.txt"
+            },
+            "operationOffset": null,
+            "target": null,
+            "targetOffset": null,
+            "value": null,
+            "valueOffset": null,
+            "function": null,
+            "mode": null,
+            "unresolvedReason": null
+          },
+          {
+            "direction": "write",
+            "path": {
+              "kind": "static",
+              "value": "results/classify/M1-taxa.tsv"
+            },
+            "operationOffset": null,
+            "target": null,
+            "targetOffset": null,
+            "value": null,
+            "valueOffset": null,
+            "function": null,
+            "mode": null,
+            "unresolvedReason": null
+          }
+        ],
+        "scriptLinks": [],
+        "scriptExecutions": [],
+        "calls": [
+          "shell"
+        ]
+      },
+      "qc": {
+        "io": [
+          {
+            "direction": "read",
+            "path": {
+              "kind": "static",
+              "value": "data/reads.fastq"
+            },
+            "operationOffset": null,
+            "target": null,
+            "targetOffset": null,
+            "value": null,
+            "valueOffset": null,
+            "function": null,
+            "mode": null,
+            "unresolvedReason": null
+          },
+          {
+            "direction": "write",
+            "path": {
+              "kind": "static",
+              "value": "results/qc/M1-qc.txt"
+            },
+            "operationOffset": null,
+            "target": null,
+            "targetOffset": null,
+            "value": null,
+            "valueOffset": null,
+            "function": null,
+            "mode": null,
+            "unresolvedReason": null
+          }
+        ],
+        "scriptLinks": [],
+        "scriptExecutions": [],
+        "calls": [
+          "script"
+        ]
+      },
+      "summarize": {
+        "io": [
+          {
+            "direction": "read",
+            "path": {
+              "kind": "static",
+              "value": "results/classify/M1-taxa.tsv"
+            },
+            "operationOffset": null,
+            "target": null,
+            "targetOffset": null,
+            "value": null,
+            "valueOffset": null,
+            "function": null,
+            "mode": null,
+            "unresolvedReason": null
+          },
+          {
+            "direction": "write",
+            "path": {
+              "kind": "static",
+              "value": "results/summary/report.html"
+            },
+            "operationOffset": null,
+            "target": null,
+            "targetOffset": null,
+            "value": null,
+            "valueOffset": null,
+            "function": null,
+            "mode": null,
+            "unresolvedReason": null
+          }
+        ],
+        "scriptLinks": [],
+        "scriptExecutions": [],
+        "calls": [
+          "exec"
+        ]
+      }
+    },
+    "syntaxError": false
+  },
+  "diagnostics": []
+}

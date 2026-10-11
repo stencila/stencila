@@ -1,0 +1,443 @@
+---
+source: rust/code-analysis/tests/contract.rs
+expression: analysis
+---
+{
+  "formatVersion": 1,
+  "language": "r",
+  "path": "code-io-resolution-shapes/analysis.R",
+  "facts": {
+    "imports": [],
+    "assignments": [
+      "BASE",
+      "INPUT",
+      "OUTPUT",
+      "SOURCES",
+      "computed",
+      "computed_table",
+      "conditional",
+      "conditional_table",
+      "extra",
+      "helper",
+      "input",
+      "load_table",
+      "local_path",
+      "local_table",
+      "reassigned",
+      "reassigned_table",
+      "templated",
+      "wrapped"
+    ],
+    "declarations": [],
+    "functionDeclarations": [],
+    "uses": [
+      "file",
+      "nrow",
+      "paste0",
+      "path",
+      "read.csv",
+      "readLines",
+      "source_path",
+      "write.csv"
+    ],
+    "calls": [
+      "csv",
+      "file",
+      "load_table",
+      "nrow",
+      "paste0",
+      "readLines"
+    ],
+    "io": [
+      {
+        "direction": "read",
+        "path": {
+          "kind": "static",
+          "value": "data/first.csv"
+        },
+        "operationOffset": 568,
+        "target": "extra",
+        "targetOffset": 550,
+        "value": null,
+        "valueOffset": null,
+        "function": "csv",
+        "mode": null,
+        "unresolvedReason": null
+      },
+      {
+        "direction": "read",
+        "path": {
+          "kind": "static",
+          "value": "data/helper.csv"
+        },
+        "operationOffset": 424,
+        "target": null,
+        "targetOffset": null,
+        "value": null,
+        "valueOffset": null,
+        "function": "csv",
+        "mode": null,
+        "unresolvedReason": null
+      },
+      {
+        "direction": "read",
+        "path": {
+          "kind": "static",
+          "value": "data/input.csv"
+        },
+        "operationOffset": 470,
+        "target": "input",
+        "targetOffset": 452,
+        "value": null,
+        "valueOffset": null,
+        "function": "csv",
+        "mode": null,
+        "unresolvedReason": null
+      },
+      {
+        "direction": "read",
+        "path": {
+          "kind": "static",
+          "value": "data/local.csv"
+        },
+        "operationOffset": 666,
+        "target": "local_table",
+        "targetOffset": 642,
+        "value": null,
+        "valueOffset": null,
+        "function": "csv",
+        "mode": null,
+        "unresolvedReason": null
+      },
+      {
+        "direction": "read",
+        "path": {
+          "kind": "static",
+          "value": "data/second.csv"
+        },
+        "operationOffset": 568,
+        "target": "extra",
+        "targetOffset": 550,
+        "value": null,
+        "valueOffset": null,
+        "function": "csv",
+        "mode": null,
+        "unresolvedReason": null
+      },
+      {
+        "direction": "read",
+        "path": {
+          "kind": "static",
+          "value": "data/template.csv"
+        },
+        "operationOffset": 730,
+        "target": "templated",
+        "targetOffset": 708,
+        "value": null,
+        "valueOffset": null,
+        "function": "csv",
+        "mode": null,
+        "unresolvedReason": null
+      },
+      {
+        "direction": "read",
+        "path": {
+          "kind": "static",
+          "value": "data/wrapped.csv"
+        },
+        "operationOffset": 895,
+        "target": "wrapped",
+        "targetOffset": 874,
+        "value": null,
+        "valueOffset": null,
+        "function": "readLines",
+        "mode": null,
+        "unresolvedReason": null
+      },
+      {
+        "direction": "read",
+        "path": {
+          "kind": "template",
+          "value": {
+            "expression": "computed",
+            "segments": [
+              ".csv"
+            ],
+            "unresolved": [
+              "nrow(input)"
+            ]
+          }
+        },
+        "operationOffset": 1411,
+        "target": "computed_table",
+        "targetOffset": 1384,
+        "value": null,
+        "valueOffset": null,
+        "function": "csv",
+        "mode": null,
+        "unresolvedReason": {
+          "kind": "partialTemplate"
+        }
+      },
+      {
+        "direction": "read",
+        "path": {
+          "kind": "unknown",
+          "value": "conditional"
+        },
+        "operationOffset": 1100,
+        "target": "conditional_table",
+        "targetOffset": 1070,
+        "value": null,
+        "valueOffset": null,
+        "function": "csv",
+        "mode": null,
+        "unresolvedReason": {
+          "kind": "multipleAssignments",
+          "name": "conditional"
+        }
+      },
+      {
+        "direction": "read",
+        "path": {
+          "kind": "unknown",
+          "value": "reassigned"
+        },
+        "operationOffset": 1273,
+        "target": "reassigned_table",
+        "targetOffset": 1244,
+        "value": null,
+        "valueOffset": null,
+        "function": "csv",
+        "mode": null,
+        "unresolvedReason": {
+          "kind": "multipleAssignments",
+          "name": "reassigned"
+        }
+      },
+      {
+        "direction": "write",
+        "path": {
+          "kind": "static",
+          "value": "results/r-summary.csv"
+        },
+        "operationOffset": 1439,
+        "target": null,
+        "targetOffset": null,
+        "value": "input",
+        "valueOffset": null,
+        "function": "csv",
+        "mode": null,
+        "unresolvedReason": null
+      }
+    ],
+    "columns": [],
+    "variableFlows": [
+      {
+        "source": "BASE",
+        "target": "templated",
+        "targetOffset": 708
+      },
+      {
+        "source": "INPUT",
+        "target": "input",
+        "targetOffset": 452
+      },
+      {
+        "source": "c",
+        "target": "SOURCES",
+        "targetOffset": 234
+      },
+      {
+        "source": "computed",
+        "target": "computed_table",
+        "targetOffset": 1384
+      },
+      {
+        "source": "conditional",
+        "target": "conditional_table",
+        "targetOffset": 1070
+      },
+      {
+        "source": "file",
+        "target": "wrapped",
+        "targetOffset": 874
+      },
+      {
+        "source": "function",
+        "target": "load_table",
+        "targetOffset": 382
+      },
+      {
+        "source": "input",
+        "target": "computed",
+        "targetOffset": 1344
+      },
+      {
+        "source": "load_table",
+        "target": "helper",
+        "targetOffset": 794
+      },
+      {
+        "source": "local_path",
+        "target": "local_table",
+        "targetOffset": 642
+      },
+      {
+        "source": "nrow",
+        "target": "computed",
+        "targetOffset": 1344
+      },
+      {
+        "source": "paste0",
+        "target": "computed",
+        "targetOffset": 1344
+      },
+      {
+        "source": "paste0",
+        "target": "templated",
+        "targetOffset": 708
+      },
+      {
+        "source": "path",
+        "target": "load_table",
+        "targetOffset": 382
+      },
+      {
+        "source": "read.csv",
+        "target": "computed_table",
+        "targetOffset": 1384
+      },
+      {
+        "source": "read.csv",
+        "target": "conditional_table",
+        "targetOffset": 1070
+      },
+      {
+        "source": "read.csv",
+        "target": "extra",
+        "targetOffset": 550
+      },
+      {
+        "source": "read.csv",
+        "target": "input",
+        "targetOffset": 452
+      },
+      {
+        "source": "read.csv",
+        "target": "load_table",
+        "targetOffset": 382
+      },
+      {
+        "source": "read.csv",
+        "target": "local_table",
+        "targetOffset": 642
+      },
+      {
+        "source": "read.csv",
+        "target": "reassigned_table",
+        "targetOffset": 1244
+      },
+      {
+        "source": "read.csv",
+        "target": "templated",
+        "targetOffset": 708
+      },
+      {
+        "source": "readLines",
+        "target": "wrapped",
+        "targetOffset": 874
+      },
+      {
+        "source": "reassigned",
+        "target": "reassigned_table",
+        "targetOffset": 1244
+      },
+      {
+        "source": "source_path",
+        "target": "extra",
+        "targetOffset": 550
+      }
+    ],
+    "workflowUnits": [],
+    "scriptLinks": [],
+    "scriptExecutions": [],
+    "workflowUnitFacts": {},
+    "syntaxError": false
+  },
+  "diagnostics": [
+    {
+      "kind": "unresolvedIo",
+      "direction": "read",
+      "expression": "computed",
+      "offset": 1411,
+      "location": {
+        "start": {
+          "line": 55,
+          "column": 27,
+          "offset": 1411
+        },
+        "end": null
+      },
+      "function": "csv",
+      "mode": null,
+      "knownSegments": [
+        ".csv"
+      ],
+      "workflowUnit": null,
+      "reason": {
+        "kind": "partialTemplate"
+      },
+      "message": "the template has placeholders this pass could not resolve",
+      "remedy": "assign each interpolated value to a module constant or single-assignment local"
+    },
+    {
+      "kind": "unresolvedIo",
+      "direction": "read",
+      "expression": "conditional",
+      "offset": 1100,
+      "location": {
+        "start": {
+          "line": 46,
+          "column": 30,
+          "offset": 1100
+        },
+        "end": null
+      },
+      "function": "csv",
+      "mode": null,
+      "knownSegments": [],
+      "workflowUnit": null,
+      "reason": {
+        "kind": "multipleAssignments",
+        "name": "conditional"
+      },
+      "message": "`conditional` is assigned more than once in its scope",
+      "remedy": "assign `conditional` exactly once, unconditionally, before it is used"
+    },
+    {
+      "kind": "unresolvedIo",
+      "direction": "read",
+      "expression": "reassigned",
+      "offset": 1273,
+      "location": {
+        "start": {
+          "line": 51,
+          "column": 29,
+          "offset": 1273
+        },
+        "end": null
+      },
+      "function": "csv",
+      "mode": null,
+      "knownSegments": [],
+      "workflowUnit": null,
+      "reason": {
+        "kind": "multipleAssignments",
+        "name": "reassigned"
+      },
+      "message": "`reassigned` is assigned more than once in its scope",
+      "remedy": "assign `reassigned` exactly once, unconditionally, before it is used"
+    }
+  ]
+}

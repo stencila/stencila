@@ -1,0 +1,12 @@
+rule:
+  any:
+    - pattern: |
+        function $NAME($$$ARGS) {
+          $$$BODY
+        }
+    - pattern: |
+        async function $NAME($$$ARGS) {
+          $$$BODY
+        }
+    - pattern: const $NAME = ($$$ARGS) => $BODY
+    - pattern: const $NAME = function($$$ARGS) { $$$BODY }

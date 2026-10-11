@@ -1,0 +1,87 @@
+---
+source: rust/code-analysis/tests/contract.rs
+expression: analysis
+---
+{
+  "formatVersion": 1,
+  "language": "r",
+  "path": "code-polyglot-tools-io/analysis.R",
+  "facts": {
+    "imports": [
+      {
+        "ecosystem": "cran",
+        "name": "readr"
+      }
+    ],
+    "assignments": [
+      "table"
+    ],
+    "declarations": [],
+    "functionDeclarations": [],
+    "uses": [
+      "read_tsv",
+      "show_col_types",
+      "write_tsv"
+    ],
+    "calls": [
+      "read_tsv",
+      "write_tsv"
+    ],
+    "io": [
+      {
+        "direction": "read",
+        "path": {
+          "kind": "static",
+          "value": "data/raw/samples.tsv"
+        },
+        "operationOffset": 34,
+        "target": "table",
+        "targetOffset": 16,
+        "value": null,
+        "valueOffset": null,
+        "function": "read_tsv",
+        "mode": null,
+        "unresolvedReason": null
+      },
+      {
+        "direction": "write",
+        "path": {
+          "kind": "static",
+          "value": "results/r-summary.tsv"
+        },
+        "operationOffset": 99,
+        "target": null,
+        "targetOffset": null,
+        "value": "table",
+        "valueOffset": null,
+        "function": "write_tsv",
+        "mode": null,
+        "unresolvedReason": null
+      }
+    ],
+    "columns": [],
+    "variableFlows": [
+      {
+        "source": "FALSE",
+        "target": "table",
+        "targetOffset": 16
+      },
+      {
+        "source": "read_tsv",
+        "target": "table",
+        "targetOffset": 16
+      },
+      {
+        "source": "show_col_types",
+        "target": "table",
+        "targetOffset": 16
+      }
+    ],
+    "workflowUnits": [],
+    "scriptLinks": [],
+    "scriptExecutions": [],
+    "workflowUnitFacts": {},
+    "syntaxError": false
+  },
+  "diagnostics": []
+}

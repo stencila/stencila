@@ -1,0 +1,30 @@
+---
+source: rust/code-analysis/tests/contract.rs
+expression: analysis
+---
+{
+  "formatVersion": 1,
+  "language": "python",
+  "path": "workspace-negative-dynamic-invalid/bad.py",
+  "facts": {
+    "imports": [],
+    "assignments": [],
+    "declarations": [],
+    "functionDeclarations": [],
+    "uses": [],
+    "calls": [],
+    "io": [],
+    "columns": [],
+    "variableFlows": [],
+    "workflowUnits": [],
+    "scriptLinks": [],
+    "scriptExecutions": [],
+    "workflowUnitFacts": {},
+    "syntaxError": true
+  },
+  "diagnostics": [
+    {
+      "kind": "syntaxError"
+    }
+  ]
+}

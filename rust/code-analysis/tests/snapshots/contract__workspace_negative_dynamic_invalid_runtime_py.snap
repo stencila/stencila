@@ -1,0 +1,262 @@
+---
+source: rust/code-analysis/tests/contract.rs
+expression: analysis
+---
+{
+  "formatVersion": 1,
+  "language": "python",
+  "path": "workspace-negative-dynamic-invalid/runtime.py",
+  "facts": {
+    "imports": [
+      {
+        "ecosystem": "pypi",
+        "name": "pandas"
+      }
+    ],
+    "assignments": [
+      "buffer",
+      "sample",
+      "table"
+    ],
+    "declarations": [],
+    "functionDeclarations": [],
+    "uses": [
+      "BytesIO",
+      "StringIO",
+      "argv",
+      "environ",
+      "pd",
+      "read_csv",
+      "to_csv"
+    ],
+    "calls": [
+      "BytesIO",
+      "StringIO",
+      "read_csv",
+      "to_csv"
+    ],
+    "io": [
+      {
+        "direction": "read",
+        "path": {
+          "kind": "template",
+          "value": {
+            "expression": "f\"data/{sample}.csv\"",
+            "segments": [
+              "data/",
+              ".csv"
+            ],
+            "unresolved": [
+              "sample"
+            ]
+          }
+        },
+        "operationOffset": 240,
+        "target": "table",
+        "targetOffset": 220,
+        "value": null,
+        "valueOffset": null,
+        "function": "read_csv",
+        "mode": null,
+        "unresolvedReason": {
+          "kind": "partialTemplate"
+        }
+      },
+      {
+        "direction": "read",
+        "path": {
+          "kind": "unknown",
+          "value": "io.StringIO(\"site,count\\na,1\\n\")"
+        },
+        "operationOffset": 413,
+        "target": "buffer",
+        "targetOffset": 392,
+        "value": null,
+        "valueOffset": null,
+        "function": "read_csv",
+        "mode": null,
+        "unresolvedReason": {
+          "kind": "notALiteral"
+        }
+      },
+      {
+        "direction": "write",
+        "path": {
+          "kind": "template",
+          "value": {
+            "expression": "io.BytesIO(b\"results/never-written.csv\")",
+            "segments": [],
+            "unresolved": []
+          }
+        },
+        "operationOffset": 461,
+        "target": null,
+        "targetOffset": null,
+        "value": "buffer",
+        "valueOffset": null,
+        "function": "to_csv",
+        "mode": null,
+        "unresolvedReason": {
+          "kind": "notALiteral"
+        }
+      },
+      {
+        "direction": "write",
+        "path": {
+          "kind": "template",
+          "value": {
+            "expression": "os.environ[\"OUTPUT_DIR\"] + \"/summary.csv\"",
+            "segments": [
+              "/summary.csv"
+            ],
+            "unresolved": [
+              "os.environ[\"OUTPUT_DIR\"]"
+            ]
+          }
+        },
+        "operationOffset": 275,
+        "target": null,
+        "targetOffset": null,
+        "value": "table",
+        "valueOffset": null,
+        "function": "to_csv",
+        "mode": null,
+        "unresolvedReason": {
+          "kind": "partialTemplate"
+        }
+      }
+    ],
+    "columns": [],
+    "variableFlows": [
+      {
+        "source": "f",
+        "target": "table",
+        "targetOffset": 220
+      },
+      {
+        "source": "io",
+        "target": "buffer",
+        "targetOffset": 392
+      },
+      {
+        "source": "pd",
+        "target": "buffer",
+        "targetOffset": 392
+      },
+      {
+        "source": "pd",
+        "target": "table",
+        "targetOffset": 220
+      },
+      {
+        "source": "sys",
+        "target": "sample",
+        "targetOffset": 199
+      }
+    ],
+    "workflowUnits": [],
+    "scriptLinks": [],
+    "scriptExecutions": [],
+    "workflowUnitFacts": {},
+    "syntaxError": false
+  },
+  "diagnostics": [
+    {
+      "kind": "unresolvedIo",
+      "direction": "read",
+      "expression": "f\"data/{sample}.csv\"",
+      "offset": 240,
+      "location": {
+        "start": {
+          "line": 9,
+          "column": 20,
+          "offset": 240
+        },
+        "end": null
+      },
+      "function": "read_csv",
+      "mode": null,
+      "knownSegments": [
+        "data/",
+        ".csv"
+      ],
+      "workflowUnit": null,
+      "reason": {
+        "kind": "partialTemplate"
+      },
+      "message": "the template has placeholders this pass could not resolve",
+      "remedy": "assign each interpolated value to a module constant or single-assignment local"
+    },
+    {
+      "kind": "unresolvedIo",
+      "direction": "read",
+      "expression": "io.StringIO(\"site,count\\na,1\\n\")",
+      "offset": 413,
+      "location": {
+        "start": {
+          "line": 13,
+          "column": 21,
+          "offset": 413
+        },
+        "end": null
+      },
+      "function": "read_csv",
+      "mode": null,
+      "knownSegments": [],
+      "workflowUnit": null,
+      "reason": {
+        "kind": "notALiteral"
+      },
+      "message": "the path is an expression, not a static literal",
+      "remedy": "I/O paths resolve from literals, module constants, or single-assignment locals"
+    },
+    {
+      "kind": "unresolvedIo",
+      "direction": "write",
+      "expression": "io.BytesIO(b\"results/never-written.csv\")",
+      "offset": 461,
+      "location": {
+        "start": {
+          "line": 14,
+          "column": 14,
+          "offset": 461
+        },
+        "end": null
+      },
+      "function": "to_csv",
+      "mode": null,
+      "knownSegments": [],
+      "workflowUnit": null,
+      "reason": {
+        "kind": "notALiteral"
+      },
+      "message": "the path is an expression, not a static literal",
+      "remedy": "I/O paths resolve from literals, module constants, or single-assignment locals"
+    },
+    {
+      "kind": "unresolvedIo",
+      "direction": "write",
+      "expression": "os.environ[\"OUTPUT_DIR\"] + \"/summary.csv\"",
+      "offset": 275,
+      "location": {
+        "start": {
+          "line": 10,
+          "column": 13,
+          "offset": 275
+        },
+        "end": null
+      },
+      "function": "to_csv",
+      "mode": null,
+      "knownSegments": [
+        "/summary.csv"
+      ],
+      "workflowUnit": null,
+      "reason": {
+        "kind": "partialTemplate"
+      },
+      "message": "the template has placeholders this pass could not resolve",
+      "remedy": "assign each interpolated value to a module constant or single-assignment local"
+    }
+  ]
+}

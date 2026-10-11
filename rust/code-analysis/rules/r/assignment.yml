@@ -1,0 +1,6 @@
+id: r-assignment
+language: R
+rule:
+  any:
+    - pattern: $TARGET <- $VALUE
+    - pattern: $TARGET = $VALUE

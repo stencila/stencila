@@ -1,0 +1,4 @@
+id: matlab-function
+language: Matlab
+rule:
+  kind: function_definition

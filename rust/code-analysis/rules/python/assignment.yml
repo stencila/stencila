@@ -1,0 +1,4 @@
+id: python-assignment
+language: Python
+rule:
+  pattern: $TARGET = $VALUE

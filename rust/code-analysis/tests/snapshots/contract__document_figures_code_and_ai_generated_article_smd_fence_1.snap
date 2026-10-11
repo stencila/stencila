@@ -1,0 +1,74 @@
+---
+source: rust/code-analysis/tests/contract.rs
+expression: analysis
+---
+{
+  "formatVersion": 1,
+  "language": "r",
+  "path": "document-figures-code-and-ai-generated/article.smd#fence-1",
+  "facts": {
+    "imports": [],
+    "assignments": [
+      "outcome_matrix"
+    ],
+    "declarations": [],
+    "functionDeclarations": [],
+    "uses": [
+      "Treatment",
+      "args.legend",
+      "as.matrix",
+      "barplot",
+      "beside",
+      "border",
+      "bty",
+      "col",
+      "colnames",
+      "inset",
+      "legend.text",
+      "list",
+      "main",
+      "rownames",
+      "summaries",
+      "x",
+      "ylab",
+      "ylim"
+    ],
+    "calls": [
+      "barplot",
+      "colnames",
+      "list",
+      "matrix",
+      "rownames"
+    ],
+    "io": [],
+    "columns": [],
+    "variableFlows": [
+      {
+        "source": "as.matrix",
+        "target": "outcome_matrix",
+        "targetOffset": 0
+      },
+      {
+        "source": "c",
+        "target": "outcome_matrix",
+        "targetOffset": 0
+      },
+      {
+        "source": "summaries",
+        "target": "outcome_matrix",
+        "targetOffset": 0
+      },
+      {
+        "source": "t",
+        "target": "outcome_matrix",
+        "targetOffset": 0
+      }
+    ],
+    "workflowUnits": [],
+    "scriptLinks": [],
+    "scriptExecutions": [],
+    "workflowUnitFacts": {},
+    "syntaxError": false
+  },
+  "diagnostics": []
+}

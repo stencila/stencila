@@ -1,0 +1,229 @@
+---
+source: rust/code-analysis/tests/contract.rs
+expression: analysis
+---
+{
+  "formatVersion": 1,
+  "language": "snakemake",
+  "path": "code-workflow-snakemake-rnaseq/Snakefile",
+  "facts": {
+    "imports": [],
+    "assignments": [],
+    "declarations": [],
+    "functionDeclarations": [],
+    "uses": [],
+    "calls": [
+      "shell"
+    ],
+    "io": [],
+    "columns": [],
+    "variableFlows": [],
+    "workflowUnits": [
+      "align",
+      "counts",
+      "download",
+      "report",
+      "trim_reads"
+    ],
+    "scriptLinks": [],
+    "scriptExecutions": [],
+    "workflowUnitFacts": {
+      "align": {
+        "io": [
+          {
+            "direction": "read",
+            "path": {
+              "kind": "static",
+              "value": "data/trimmed/S1.fastq"
+            },
+            "operationOffset": 248,
+            "target": null,
+            "targetOffset": null,
+            "value": null,
+            "valueOffset": null,
+            "function": null,
+            "mode": null,
+            "unresolvedReason": null
+          },
+          {
+            "direction": "write",
+            "path": {
+              "kind": "static",
+              "value": "results/alignments/S1.bam"
+            },
+            "operationOffset": 283,
+            "target": null,
+            "targetOffset": null,
+            "value": null,
+            "valueOffset": null,
+            "function": null,
+            "mode": null,
+            "unresolvedReason": null
+          }
+        ],
+        "scriptLinks": [],
+        "scriptExecutions": [],
+        "calls": [
+          "shell"
+        ]
+      },
+      "counts": {
+        "io": [
+          {
+            "direction": "read",
+            "path": {
+              "kind": "static",
+              "value": "results/alignments/S1.bam"
+            },
+            "operationOffset": 382,
+            "target": null,
+            "targetOffset": null,
+            "value": null,
+            "valueOffset": null,
+            "function": null,
+            "mode": null,
+            "unresolvedReason": null
+          },
+          {
+            "direction": "write",
+            "path": {
+              "kind": "static",
+              "value": "results/counts/gene-counts.tsv"
+            },
+            "operationOffset": 421,
+            "target": null,
+            "targetOffset": null,
+            "value": null,
+            "valueOffset": null,
+            "function": null,
+            "mode": null,
+            "unresolvedReason": null
+          }
+        ],
+        "scriptLinks": [
+          "workflow/scripts/counts.py"
+        ],
+        "scriptExecutions": [
+          {
+            "path": "workflow/scripts/counts.py",
+            "kind": "script",
+            "offset": 466,
+            "command": null
+          }
+        ],
+        "calls": []
+      },
+      "download": {
+        "io": [
+          {
+            "direction": "write",
+            "path": {
+              "kind": "static",
+              "value": "data/raw/S1.fastq"
+            },
+            "operationOffset": 19,
+            "target": null,
+            "targetOffset": null,
+            "value": null,
+            "valueOffset": null,
+            "function": null,
+            "mode": null,
+            "unresolvedReason": null
+          }
+        ],
+        "scriptLinks": [
+          "workflow/scripts/download.py"
+        ],
+        "scriptExecutions": [
+          {
+            "path": "workflow/scripts/download.py",
+            "kind": "script",
+            "offset": 51,
+            "command": null
+          }
+        ],
+        "calls": []
+      },
+      "report": {
+        "io": [
+          {
+            "direction": "read",
+            "path": {
+              "kind": "static",
+              "value": "results/counts/gene-counts.tsv"
+            },
+            "operationOffset": 521,
+            "target": null,
+            "targetOffset": null,
+            "value": null,
+            "valueOffset": null,
+            "function": null,
+            "mode": null,
+            "unresolvedReason": null
+          },
+          {
+            "direction": "write",
+            "path": {
+              "kind": "static",
+              "value": "reports/rnaseq.html"
+            },
+            "operationOffset": 565,
+            "target": null,
+            "targetOffset": null,
+            "value": null,
+            "valueOffset": null,
+            "function": null,
+            "mode": null,
+            "unresolvedReason": null
+          }
+        ],
+        "scriptLinks": [],
+        "scriptExecutions": [],
+        "calls": [
+          "shell"
+        ]
+      },
+      "trim_reads": {
+        "io": [
+          {
+            "direction": "read",
+            "path": {
+              "kind": "static",
+              "value": "data/raw/S1.fastq"
+            },
+            "operationOffset": 112,
+            "target": null,
+            "targetOffset": null,
+            "value": null,
+            "valueOffset": null,
+            "function": null,
+            "mode": null,
+            "unresolvedReason": null
+          },
+          {
+            "direction": "write",
+            "path": {
+              "kind": "static",
+              "value": "data/trimmed/S1.fastq"
+            },
+            "operationOffset": 143,
+            "target": null,
+            "targetOffset": null,
+            "value": null,
+            "valueOffset": null,
+            "function": null,
+            "mode": null,
+            "unresolvedReason": null
+          }
+        ],
+        "scriptLinks": [],
+        "scriptExecutions": [],
+        "calls": [
+          "shell"
+        ]
+      }
+    },
+    "syntaxError": false
+  },
+  "diagnostics": []
+}

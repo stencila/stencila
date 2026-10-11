@@ -1,0 +1,5 @@
+id: matlab-import
+language: Matlab
+rule:
+  kind: command
+  regex: '^import\s+'

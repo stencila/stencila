@@ -1,0 +1,5 @@
+id: matlab-call
+language: Matlab
+rule:
+  kind: function_call
+  pattern: $FUNC($$$ARGS)

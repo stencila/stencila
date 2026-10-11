@@ -1,0 +1,266 @@
+---
+source: rust/code-analysis/tests/contract.rs
+expression: analysis
+---
+{
+  "formatVersion": 1,
+  "language": "javascript",
+  "path": "code-io-resolution-shapes/analysis.js",
+  "facts": {
+    "imports": [
+      {
+        "ecosystem": "node",
+        "name": "fs"
+      }
+    ],
+    "assignments": [
+      "BASE",
+      "INPUT",
+      "OUTPUT",
+      "SOURCES",
+      "computed",
+      "conditional",
+      "local",
+      "text"
+    ],
+    "declarations": [
+      "load"
+    ],
+    "functionDeclarations": [
+      {
+        "name": "load",
+        "start": 477,
+        "end": 537
+      }
+    ],
+    "uses": [
+      "path",
+      "source"
+    ],
+    "calls": [
+      "load",
+      "readFileSync",
+      "slice",
+      "writeFileSync"
+    ],
+    "io": [
+      {
+        "direction": "read",
+        "path": {
+          "kind": "static",
+          "value": "data/first.csv"
+        },
+        "operationOffset": 695,
+        "target": null,
+        "targetOffset": null,
+        "value": null,
+        "valueOffset": null,
+        "function": "readFileSync",
+        "mode": null,
+        "unresolvedReason": null
+      },
+      {
+        "direction": "read",
+        "path": {
+          "kind": "static",
+          "value": "data/helper.csv"
+        },
+        "operationOffset": 521,
+        "target": null,
+        "targetOffset": null,
+        "value": null,
+        "valueOffset": null,
+        "function": "readFileSync",
+        "mode": null,
+        "unresolvedReason": null
+      },
+      {
+        "direction": "read",
+        "path": {
+          "kind": "static",
+          "value": "data/input.csv"
+        },
+        "operationOffset": 583,
+        "target": "text",
+        "targetOffset": 563,
+        "value": null,
+        "valueOffset": null,
+        "function": "readFileSync",
+        "mode": null,
+        "unresolvedReason": null
+      },
+      {
+        "direction": "read",
+        "path": {
+          "kind": "static",
+          "value": "data/local.csv"
+        },
+        "operationOffset": 796,
+        "target": null,
+        "targetOffset": null,
+        "value": null,
+        "valueOffset": null,
+        "function": "readFileSync",
+        "mode": null,
+        "unresolvedReason": null
+      },
+      {
+        "direction": "read",
+        "path": {
+          "kind": "static",
+          "value": "data/second.csv"
+        },
+        "operationOffset": 695,
+        "target": null,
+        "targetOffset": null,
+        "value": null,
+        "valueOffset": null,
+        "function": "readFileSync",
+        "mode": null,
+        "unresolvedReason": null
+      },
+      {
+        "direction": "read",
+        "path": {
+          "kind": "static",
+          "value": "data/template.csv"
+        },
+        "operationOffset": 864,
+        "target": null,
+        "targetOffset": null,
+        "value": null,
+        "valueOffset": null,
+        "function": "readFileSync",
+        "mode": null,
+        "unresolvedReason": null
+      },
+      {
+        "direction": "read",
+        "path": {
+          "kind": "template",
+          "value": {
+            "expression": "computed",
+            "segments": [
+              ".csv"
+            ],
+            "unresolved": [
+              "text.slice(0, 3)"
+            ]
+          }
+        },
+        "operationOffset": 1299,
+        "target": null,
+        "targetOffset": null,
+        "value": null,
+        "valueOffset": null,
+        "function": "readFileSync",
+        "mode": null,
+        "unresolvedReason": {
+          "kind": "partialTemplate"
+        }
+      },
+      {
+        "direction": "read",
+        "path": {
+          "kind": "unknown",
+          "value": "conditional"
+        },
+        "operationOffset": 1152,
+        "target": null,
+        "targetOffset": null,
+        "value": null,
+        "valueOffset": null,
+        "function": "readFileSync",
+        "mode": null,
+        "unresolvedReason": {
+          "kind": "multipleAssignments",
+          "name": "conditional"
+        }
+      },
+      {
+        "direction": "write",
+        "path": {
+          "kind": "static",
+          "value": "results/js-summary.csv"
+        },
+        "operationOffset": 1333,
+        "target": null,
+        "targetOffset": null,
+        "value": "text",
+        "valueOffset": null,
+        "function": "writeFileSync",
+        "mode": null,
+        "unresolvedReason": null
+      }
+    ],
+    "columns": [],
+    "variableFlows": [
+      {
+        "source": "INPUT",
+        "target": "text",
+        "targetOffset": 563
+      },
+      {
+        "source": "readFileSync",
+        "target": "text",
+        "targetOffset": 563
+      }
+    ],
+    "workflowUnits": [],
+    "scriptLinks": [],
+    "scriptExecutions": [],
+    "workflowUnitFacts": {},
+    "syntaxError": false
+  },
+  "diagnostics": [
+    {
+      "kind": "unresolvedIo",
+      "direction": "read",
+      "expression": "computed",
+      "offset": 1299,
+      "location": {
+        "start": {
+          "line": 50,
+          "column": 21,
+          "offset": 1299
+        },
+        "end": null
+      },
+      "function": "readFileSync",
+      "mode": null,
+      "knownSegments": [
+        ".csv"
+      ],
+      "workflowUnit": null,
+      "reason": {
+        "kind": "partialTemplate"
+      },
+      "message": "the template has placeholders this pass could not resolve",
+      "remedy": "assign each interpolated value to a module constant or single-assignment local"
+    },
+    {
+      "kind": "unresolvedIo",
+      "direction": "read",
+      "expression": "conditional",
+      "offset": 1152,
+      "location": {
+        "start": {
+          "line": 46,
+          "column": 21,
+          "offset": 1152
+        },
+        "end": null
+      },
+      "function": "readFileSync",
+      "mode": null,
+      "knownSegments": [],
+      "workflowUnit": null,
+      "reason": {
+        "kind": "multipleAssignments",
+        "name": "conditional"
+      },
+      "message": "`conditional` is assigned more than once in its scope",
+      "remedy": "assign `conditional` exactly once, unconditionally, before it is used"
+    }
+  ]
+}
