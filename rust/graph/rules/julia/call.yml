@@ -1,4 +1,0 @@
-id: julia-call
-language: Julia
-rule:
-  pattern: $FUNC($$$ARGS)

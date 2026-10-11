@@ -1,4 +1,0 @@
-id: julia-assignment
-language: Julia
-rule:
-  pattern: $TARGET = $VALUE

@@ -1,4 +1,0 @@
-id: rust-call
-language: Rust
-rule:
-  pattern: $FUNC($$$ARGS)

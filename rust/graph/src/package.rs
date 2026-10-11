@@ -10,25 +10,7 @@ use stencila_schema::{Primitive, PropertyValue, PropertyValueOrString, SoftwareS
 
 use crate::ids::LocalGraphId;
 
-/// A package imported by source code.
-#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord)]
-pub struct PackageFact {
-    /// Package ecosystem or registry namespace, such as `pypi`, `cran`, or `npm`.
-    pub ecosystem: String,
-
-    /// Package name as detected from source.
-    pub name: String,
-}
-
-impl PackageFact {
-    /// Create a source-code package fact.
-    pub fn new(ecosystem: impl Into<String>, name: impl Into<String>) -> Self {
-        Self {
-            ecosystem: ecosystem.into(),
-            name: name.into(),
-        }
-    }
-}
+pub use stencila_code_analysis::PackageFact;
 
 /// Create the graph-local id for a package concept.
 ///

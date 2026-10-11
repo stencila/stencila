@@ -10249,7 +10249,7 @@ dependencies = [
  "tree-sitter-python",
  "tree-sitter-r",
  "tree-sitter-rust",
- "tree-sitter-snakemake 2.0.0 (git+https://github.com/osthomas/tree-sitter-snakemake?rev=7731408e5e8095fe242fdd423c3d3ae886fbf9fd)",
+ "tree-sitter-snakemake",
  "tree-sitter-typescript",
 ]
 
@@ -11504,8 +11504,6 @@ dependencies = [
 name = "stencila-graph"
 version = "0.0.0"
 dependencies = [
- "ast-grep-config",
- "ast-grep-core",
  "chrono",
  "clap",
  "derive_more 2.1.1",
@@ -11518,6 +11516,7 @@ dependencies = [
  "serde_json",
  "serde_yaml",
  "sha2 0.11.0",
+ "stencila-code-analysis",
  "stencila-codec-utils",
  "stencila-codecs",
  "stencila-content-credentials",
@@ -11527,14 +11526,6 @@ dependencies = [
  "tempfile",
  "tokio",
  "toml 1.1.2+spec-1.1.0",
- "tree-sitter-javascript",
- "tree-sitter-julia",
- "tree-sitter-matlab",
- "tree-sitter-python",
- "tree-sitter-r",
- "tree-sitter-rust",
- "tree-sitter-snakemake 2.0.0 (git+https://github.com/osthomas/tree-sitter-snakemake?tag=v2.0.0)",
- "tree-sitter-typescript",
 ]
 
 [[package]]
@@ -14151,15 +14142,6 @@ name = "tree-sitter-rust"
 version = "0.24.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "439e577dbe07423ec2582ac62c7531120dbfccfa6e5f92406f93dd271a120e45"
-dependencies = [
- "cc",
- "tree-sitter-language",
-]
-
-[[package]]
-name = "tree-sitter-snakemake"
-version = "2.0.0"
-source = "git+https://github.com/osthomas/tree-sitter-snakemake?tag=v2.0.0#7731408e5e8095fe242fdd423c3d3ae886fbf9fd"
 dependencies = [
  "cc",
  "tree-sitter-language",

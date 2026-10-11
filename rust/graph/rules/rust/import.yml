@@ -1,7 +1,0 @@
-id: rust-import
-language: Rust
-rule:
-  any:
-    - pattern: use $MODULE;
-    - pattern: use $MODULE::{ $$$NAMES };
-    - pattern: extern crate $MODULE;

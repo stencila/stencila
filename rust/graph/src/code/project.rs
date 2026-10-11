@@ -13,7 +13,7 @@ use crate::{
 };
 
 use super::{
-    diagnostics::{StaticAnalysisDiagnostic, UnresolvedIoReason},
+    diagnostics::StaticAnalysisDiagnostic,
     facts::{
         CodeFacts, ColumnFact, FunctionFact, IoFact, IoMode, IoPath, WorkflowScriptExecutionFact,
     },
@@ -215,7 +215,7 @@ fn add_reactive_symbol_edges(
         let symbol_id = add_variable_node(builder, context.scope, context.language, symbol);
         let evidence = context
             .evidence
-            .static_analysis(facts.definition_offsets.get(symbol).copied());
+            .static_analysis(facts.definition_offset(symbol));
         builder.add_containment(&symbol_id, context.unit_id, vec![evidence.clone()]);
         if !derived_assignments.contains(symbol) {
             builder.add_generation(context.unit_id, symbol_id, vec![evidence]);
@@ -233,9 +233,7 @@ fn add_reactive_symbol_edges(
 
     for symbol in &facts.uses {
         let symbol_id = add_variable_node(builder, context.scope, context.language, symbol);
-        let evidence = context
-            .evidence
-            .static_analysis(facts.use_offsets.get(symbol).copied());
+        let evidence = context.evidence.static_analysis(facts.use_offset(symbol));
         builder.add_containment(&symbol_id, context.unit_id, vec![evidence.clone()]);
         builder.add_edge_with_evidence(
             symbol_id,
@@ -335,9 +333,7 @@ fn add_workflow_edges(
 ) {
     for unit in &facts.workflow_units {
         let workflow_unit_id = add_workflow_unit_node(builder, context.scope, unit);
-        let evidence = context
-            .evidence
-            .declared(facts.definition_offsets.get(unit).copied());
+        let evidence = context.evidence.declared(facts.definition_offset(unit));
         builder.add_containment(&workflow_unit_id, context.unit_id, vec![evidence.clone()]);
         builder.add_declaration(context.unit_id, &workflow_unit_id, vec![evidence]);
         let workflow_unit_facts = facts.workflow_unit_facts.get(unit);
@@ -983,7 +979,7 @@ fn local_variables(facts: &CodeFacts) -> BTreeSet<String> {
     facts
         .assignments
         .iter()
-        .filter(|symbol| !facts.imported_symbols.contains(*symbol))
+        .filter(|symbol| !facts.is_imported_symbol(symbol))
         .cloned()
         .collect()
 }
@@ -1194,9 +1190,8 @@ fn add_resource_generation(
 /// Check whether a local variable has been defined by a given source offset.
 fn variable_available_at(facts: &CodeFacts, variable: &str, offset: usize) -> bool {
     facts
-        .definition_offsets
-        .get(variable)
-        .is_none_or(|definition_offset| *definition_offset <= offset)
+        .definition_offset(variable)
+        .is_none_or(|definition_offset| definition_offset <= offset)
 }
 
 /// Get the source offset for a function declaration by name.
@@ -1219,34 +1214,22 @@ fn add_unresolved_io_diagnostics(
     source: &CodeGraphSource,
     facts: &CodeFacts,
 ) {
-    let unit_io = facts
-        .workflow_unit_facts
-        .values()
-        .flat_map(|unit| unit.io.iter());
-
-    for fact in facts.io.iter().chain(unit_io) {
-        if fact.path.is_static() {
-            continue;
-        }
-
-        let reason = fact.unresolved_reason.clone().unwrap_or(match fact.path {
-            IoPath::Template(..) => UnresolvedIoReason::PartialTemplate,
-            _ => UnresolvedIoReason::NotALiteral,
-        });
-
+    for diagnostic in
+        stencila_code_analysis::integration::unresolved_io_diagnostics(facts, source.source_text)
+    {
         builder.add_diagnostic(StaticAnalysisDiagnostic::new(
             source.node_type,
             source.node_id,
             source.scope,
             source.language.id_component(),
             source.source_text,
-            fact.direction,
-            fact.path.value(),
-            fact.operation_offset,
-            fact.function.clone(),
-            fact.mode,
-            fact.path.resolved_segments(),
-            &reason,
+            diagnostic.direction,
+            &diagnostic.expression,
+            diagnostic.offset,
+            diagnostic.function,
+            diagnostic.mode,
+            diagnostic.known_segments,
+            &diagnostic.reason,
         ));
     }
 }

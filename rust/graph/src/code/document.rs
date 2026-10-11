@@ -138,7 +138,7 @@ impl DocumentCodeIndex {
                     source_text: Some(&unit.code),
                     language: unit.language,
                     symbol,
-                    offset: unit.facts.use_offsets.get(symbol).copied(),
+                    offset: unit.facts.use_offset(symbol),
                 };
                 match prior_definition.kind {
                     DocumentDefinitionKind::Variable => {
@@ -174,9 +174,8 @@ impl DocumentCodeIndex {
 
 fn local_definition_available_at(facts: &CodeFacts, symbol: &str, offset: usize) -> bool {
     facts
-        .definition_offsets
-        .get(symbol)
-        .is_some_and(|definition_offset| *definition_offset <= offset)
+        .definition_offset(symbol)
+        .is_some_and(|definition_offset| definition_offset <= offset)
 }
 
 fn symbol_definition<'a>(
@@ -190,6 +189,6 @@ fn symbol_definition<'a>(
         source_text: Some(&unit.code),
         language: unit.language,
         symbol,
-        offset: unit.facts.definition_offsets.get(symbol).copied(),
+        offset: unit.facts.definition_offset(symbol),
     }
 }

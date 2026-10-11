@@ -20,127 +20,7 @@ use stencila_schema::{CodeLocation, NodeId, NodeProperty, NodeType};
 
 use super::facts::{IoDirection, IoMode};
 
-/// The generic remedy shown when no more specific advice applies.
-const DEFAULT_REMEDY: &str =
-    "I/O paths resolve from literals, module constants, or single-assignment locals";
-
-/// Why an I/O path expression could not be resolved to a concrete resource.
-///
-/// Reasons are recorded by the analyzer at the point the resolution attempt
-/// fails, so the message shown to an author names the specific binding or call
-/// that defeated resolution rather than restating that the path was dynamic.
-#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord)]
-pub enum UnresolvedIoReason {
-    /// The path argument is an expression rather than a string literal.
-    NotALiteral,
-
-    /// A template resolved some segments but not all of them.
-    PartialTemplate,
-
-    /// An identifier has no binding visible in the enclosing scopes.
-    UnboundIdentifier {
-        /// Name of the identifier.
-        name: String,
-    },
-
-    /// An identifier is assigned more than once in its scope.
-    MultipleAssignments {
-        /// Name of the identifier.
-        name: String,
-    },
-
-    /// An identifier is assigned inside a branch or loop body.
-    ConditionalAssignment {
-        /// Name of the identifier.
-        name: String,
-    },
-
-    /// An identifier is used before its only visible assignment.
-    UseBeforeDefinition {
-        /// Name of the identifier.
-        name: String,
-    },
-
-    /// An identifier is bound to an expression rather than a literal value.
-    NonLiteralValue {
-        /// Name of the identifier.
-        name: String,
-    },
-
-    /// A parameter reaches the path but its function has no resolvable calls.
-    UnresolvedParameter {
-        /// Name of the parameter.
-        parameter: String,
-
-        /// Name of the function declaring the parameter.
-        function: String,
-    },
-
-    /// A call could not be bound to exactly one local function declaration.
-    AmbiguousCallee {
-        /// Callee spelling at the call site.
-        callee: String,
-    },
-}
-
-impl UnresolvedIoReason {
-    /// One-line explanation of what defeated resolution.
-    pub fn reason(&self) -> String {
-        match self {
-            Self::NotALiteral => "the path is an expression, not a static literal".to_string(),
-            Self::PartialTemplate => {
-                "the template has placeholders this pass could not resolve".to_string()
-            }
-            Self::UnboundIdentifier { name } => {
-                format!("`{name}` has no assignment visible in this file")
-            }
-            Self::MultipleAssignments { name } => {
-                format!("`{name}` is assigned more than once in its scope")
-            }
-            Self::ConditionalAssignment { name } => {
-                format!("`{name}` is assigned conditionally, so its value depends on control flow")
-            }
-            Self::UseBeforeDefinition { name } => {
-                format!("`{name}` is used before its only visible assignment")
-            }
-            Self::NonLiteralValue { name } => {
-                format!("`{name}` is assigned an expression rather than a literal value")
-            }
-            Self::UnresolvedParameter {
-                parameter,
-                function,
-            } => format!(
-                "`{parameter}` is a parameter of `{function}`, called with values this pass could not resolve"
-            ),
-            Self::AmbiguousCallee { callee } => {
-                format!("`{callee}` does not resolve to exactly one function declared in this file")
-            }
-        }
-    }
-
-    /// One-line suggestion for making the operation resolvable.
-    pub fn remedy(&self) -> String {
-        match self {
-            Self::PartialTemplate => {
-                "assign each interpolated value to a module constant or single-assignment local"
-                    .to_string()
-            }
-            Self::MultipleAssignments { name } | Self::ConditionalAssignment { name } => {
-                format!("assign `{name}` exactly once, unconditionally, before it is used")
-            }
-            Self::UseBeforeDefinition { name } => {
-                format!("move the assignment of `{name}` above the I/O call")
-            }
-            Self::NonLiteralValue { name } => {
-                format!("assign `{name}` from a literal, or pass the literal at the call site")
-            }
-            Self::UnresolvedParameter { function, .. } => {
-                format!("call `{function}` with literal or constant arguments")
-            }
-            _ => DEFAULT_REMEDY.to_string(),
-        }
-    }
-}
+pub use stencila_code_analysis::UnresolvedIoReason;
 
 /// One unresolved I/O operation reported to the author.
 ///
@@ -308,16 +188,10 @@ impl Display for StaticAnalysisDiagnostic {
 
 /// Convert a byte offset into one-based line and column numbers.
 fn line_and_column(text: &str, offset: usize) -> (Option<usize>, Option<usize>) {
-    if offset > text.len() {
-        return (None, None);
+    match stencila_code_analysis::integration::source_position(text, offset) {
+        Some(position) => (Some(position.line + 1), Some(position.column + 1)),
+        None => (None, None),
     }
-
-    let before = &text[..offset];
-    let line = before.matches('\n').count() + 1;
-    let column = before.rfind('\n').map_or(before.chars().count(), |index| {
-        before[index + 1..].chars().count()
-    }) + 1;
-    (Some(line), Some(column))
 }
 
 #[cfg(test)]

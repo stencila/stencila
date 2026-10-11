@@ -19,18 +19,14 @@
 //! Keeping those phases separate lets tests exercise parser behavior directly
 //! and lets workspace and document callers share the same normalization logic.
 
-mod analyze;
-mod ast;
+use stencila_code_analysis as analyze;
+use stencila_code_analysis as facts;
+use stencila_code_analysis as language;
+use stencila_code_analysis::integration as util;
+
 mod diagnostics;
 mod document;
-mod facts;
-mod io_table;
-mod language;
-mod normalize;
 mod project;
-mod resolve;
-mod scan;
-mod util;
 mod workspace;
 
 pub use crate::package::PackageFact;
@@ -211,21 +207,19 @@ df.to_csv("output.csv")
 
     #[test]
     fn full_graph_keeps_coarse_io_when_precise_lineage_is_missing() -> eyre::Result<()> {
-        let facts = CodeFacts {
-            io: std::collections::BTreeSet::from([IoFact {
-                direction: IoDirection::Write,
-                path: IoPath::Static("output.csv".to_string()),
-                operation_offset: None,
-                target: None,
-                target_offset: None,
-                value: None,
-                value_offset: None,
-                function: None,
-                mode: None,
-                unresolved_reason: None,
-            }]),
-            ..Default::default()
-        };
+        let mut facts = CodeFacts::default();
+        facts.io.extend([IoFact {
+            direction: IoDirection::Write,
+            path: IoPath::Static("output.csv".to_string()),
+            operation_offset: None,
+            target: None,
+            target_offset: None,
+            value: None,
+            value_offset: None,
+            function: None,
+            mode: None,
+            unresolved_reason: None,
+        }]);
         let graph = project_reactive_graph("analysis.py", CodeLanguage::Python, &facts)?;
 
         assert!(has_graph_edge(
@@ -544,14 +538,11 @@ writePNG(png_image, target = "outputs/image.png")
         assert_no_io(&facts, "comment-r.parquet");
         assert_no_io(&facts, "string-r.parquet");
         assert_no_io(&facts, "helper-r.parquet");
-        assert_eq!(
-            facts.variable_sources.get("table").map(String::as_str),
-            Some("data/table.parquet")
-        );
-        assert!(!facts.variable_sources.contains_key("input"));
-        assert!(!facts.variable_sources.contains_key("downloaded"));
-        assert!(!facts.variable_sources.contains_key("copied"));
-        assert!(!facts.variable_sources.contains_key("renamed"));
+        assert_eq!(facts.variable_source("table"), Some("data/table.parquet"));
+        assert!(facts.variable_source("input").is_none());
+        assert!(facts.variable_source("downloaded").is_none());
+        assert!(facts.variable_source("copied").is_none());
+        assert!(facts.variable_source("renamed").is_none());
         assert!(facts.columns.iter().any(|column| column.column == "count"));
     }
 
@@ -697,11 +688,8 @@ savefig(; filename = "outputs/plot.png")
         assert_no_io(&facts, "comment-julia.csv");
         assert_no_io(&facts, "string-julia.csv");
         assert_no_io(&facts, "helper-julia.csv");
-        assert_eq!(
-            facts.variable_sources.get("rows").map(String::as_str),
-            Some("data/rows.csv")
-        );
-        assert!(!facts.variable_sources.contains_key("nested"));
+        assert_eq!(facts.variable_source("rows"), Some("data/rows.csv"));
+        assert!(facts.variable_source("nested").is_none());
         assert!(facts.columns.iter().any(|column| column.column == "count"));
     }
 
@@ -1024,36 +1012,34 @@ summarize();
 
     #[test]
     fn keeps_code_mediated_io_when_precise_chain_is_partial() -> eyre::Result<()> {
-        let facts = CodeFacts {
-            assignments: std::collections::BTreeSet::from(["df".to_string()]),
-            io: std::collections::BTreeSet::from([
-                IoFact {
-                    direction: IoDirection::Read,
-                    path: IoPath::Static("input.csv".to_string()),
-                    operation_offset: None,
-                    target: None,
-                    target_offset: None,
-                    value: None,
-                    value_offset: None,
-                    function: None,
-                    mode: None,
-                    unresolved_reason: None,
-                },
-                IoFact {
-                    direction: IoDirection::Write,
-                    path: IoPath::Static("output.csv".to_string()),
-                    operation_offset: None,
-                    target: None,
-                    target_offset: None,
-                    value: Some("df".to_string()),
-                    value_offset: None,
-                    function: None,
-                    mode: None,
-                    unresolved_reason: None,
-                },
-            ]),
-            ..Default::default()
-        };
+        let mut facts = CodeFacts::default();
+        facts.assignments.insert("df".to_string());
+        facts.io.extend([
+            IoFact {
+                direction: IoDirection::Read,
+                path: IoPath::Static("input.csv".to_string()),
+                operation_offset: None,
+                target: None,
+                target_offset: None,
+                value: None,
+                value_offset: None,
+                function: None,
+                mode: None,
+                unresolved_reason: None,
+            },
+            IoFact {
+                direction: IoDirection::Write,
+                path: IoPath::Static("output.csv".to_string()),
+                operation_offset: None,
+                target: None,
+                target_offset: None,
+                value: Some("df".to_string()),
+                value_offset: None,
+                function: None,
+                mode: None,
+                unresolved_reason: None,
+            },
+        ]);
         let graph = project_test_graph("partial.py", CodeLanguage::Python, &facts)?;
 
         assert!(!has_graph_edge(

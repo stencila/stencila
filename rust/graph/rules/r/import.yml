@@ -1,7 +1,0 @@
-id: r-import
-language: R
-rule:
-  any:
-    - pattern: library($PKG)
-    - pattern: require($PKG)
-    - pattern: $PKG::$FUN

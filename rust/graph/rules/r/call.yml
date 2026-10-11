@@ -1,4 +1,0 @@
-id: r-call
-language: R
-rule:
-  pattern: $FUNC($$$ARGS)

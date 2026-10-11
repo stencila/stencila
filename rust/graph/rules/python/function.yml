@@ -1,6 +1,0 @@
-id: python-function
-language: Python
-rule:
-  pattern: |
-    def $NAME($$$ARGS):
-        $$$BODY

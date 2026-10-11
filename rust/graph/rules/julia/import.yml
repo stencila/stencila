@@ -1,7 +1,0 @@
-id: julia-import
-language: Julia
-rule:
-  any:
-    - pattern: using $MODULE
-    - pattern: import $MODULE
-    - pattern: $PKG.$FUN

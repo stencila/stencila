@@ -1,2 +1,0 @@
-rule:
-  pattern: $FUNC($$$ARGS)

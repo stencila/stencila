@@ -1,4 +1,0 @@
-id: snakemake-directive
-language: Snakemake
-rule:
-  kind: directive
