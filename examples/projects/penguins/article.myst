@@ -48,7 +48,7 @@ Sexual size dimorphism may accompany ecological niche differentiation when males
 
 # Data and provenance
 
-The source comprises species-specific, citable Environmental Data Initiative packages for Adelie, Chinstrap, and Gentoo penguins. The normalized table retains all 344 observations, converts the source's `.` sex code to missing, derives year from egg date, and assigns a stable species/sample row ID. Quality flags expose missing sex, morphology, and isotope measurements rather than silently deleting rows. The ASTRA manifest records each source, methodological decision, output, and evidence link; the Snakefile and Stencila runtime traces record how declared artifacts were produced.
+The source comprises species-specific, citable Environmental Data Initiative packages for Adelie, Chinstrap, and Gentoo penguins. The normalized table retains all 344 observations, converts the source's `.` sex code to missing, derives year from egg date, and assigns a stable species/sample row ID. Quality flags expose missing sex, morphology, and isotope measurements rather than silently deleting rows. The ASTRA manifest records each source, methodological decision, output, and evidence link; the Snakefile records how declared artifacts are produced.
 
 :::{figure}
 :label: 1
@@ -100,4 +100,4 @@ Species and island are observationally confounded: all Gentoo records are from B
 
 # Reproducibility
 
-Python 3.13 dependencies are locked by `uv.lock`. Every Python-producing workflow rule runs through `stencila execute --trace`, the executable claims above read committed CSV artifacts, and the PDF is rendered with Stencila content credentials. `astra.yaml`, the eight universe files, the Snakefile, runtime evidence, and the credentialed PDF are merged into `graph.yaml` by the repository's current Stencila graph exporter.
+Python 3.13 dependencies are locked by `uv.lock`. Every Python-producing workflow rule runs through `uv run python`, the executable claims above read committed CSV artifacts, and the PDF is rendered with Stencila content credentials. `astra.yaml`, the eight universe files, the Snakefile, static analysis, and the credentialed PDF are merged into `graph.yaml` by the repository's current Stencila graph exporter.

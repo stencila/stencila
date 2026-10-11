@@ -32,6 +32,12 @@ stencila graph report.smd graph.yaml
 # Export graph YAML to stdout
 stencila graph . - --to yaml
 
+# Export research discourse as MIRA JSON-LD
+stencila graph report.smd report.mira.jsonld
+
+# Export MIRA JSON-LD to stdout using an explicit format
+stencila graph report.smd - --to mira-jsonld
+
 # Export a projected data flow graph as Graphviz DOT
 stencila graph . graph.dot --view flow
 
@@ -66,6 +72,7 @@ stencila graph . --explain
 | Name                      | Description                                                                                                     |
 | ------------------------- | --------------------------------------------------------------------------------------------------------------- |
 | `--to`                    | Output format, overriding inference from the output extension.                                                  |
+| `--output-losses`         | How to respond to information lost when exporting MIRA JSON-LD. Default value: `warn`.                          |
 | `--view`                  | Projection preset for DOT, SVG, and PNG graph exports. Default value: `auto`.                                   |
 | `--detail`                | Detail level for projected graph exports. Default value: `medium`.                                              |
 | `--containment`           | How to represent containment in projected graph exports.                                                        |
@@ -76,7 +83,6 @@ stencila graph . --explain
 | `--explain`               | Report I/O that static analysis could not resolve, instead of serving. Possible values: `true`, `false`.        |
 | `--no-c2pa`               | Do not inspect C2PA content credentials while building workspace graphs. Possible values: `true`, `false`.      |
 | `--no-git-authors`        | Do not include Git commit authors on file-backed workspace graph nodes. Possible values: `true`, `false`.       |
-| `--no-runtime-evidence`   | Do not merge cached evidence from prior traced executions. Possible values: `true`, `false`.                    |
 | `--connected-to`          | Filter projected graph exports to nodes connected to matching nodes.                                            |
 | `--connected-mode`        | How to traverse graph edges for connected-to filtering. Default value: `directed`.                              |
 | `-a, --address`           | The address to serve on. Default value: `127.0.0.1`.                                                            |
@@ -86,14 +92,15 @@ stencila graph . --explain
 
 **Possible values of `--view`**
 
-| Value   | Description                                                              |
-| ------- | ------------------------------------------------------------------------ |
-| `auto`  | Choose the first useful projection from the graph's relationships        |
-| `all`   | Show every graph node and edge without applying a focused projection     |
-| `flow`  | Show resource flow, data lineage, and provenance relationships           |
-| `deps`  | Show software imports, calls, environments, packages, and dependency use |
-| `cite`  | Show bibliographic references, citations, and external resource links    |
-| `react` | Show executable document reactivity dependencies                         |
+| Value       | Description                                                              |
+| ----------- | ------------------------------------------------------------------------ |
+| `auto`      | Choose the first useful projection from the graph's relationships        |
+| `all`       | Show every graph node and edge without applying a focused projection     |
+| `flow`      | Show resource flow, data lineage, and provenance relationships           |
+| `deps`      | Show software imports, calls, environments, packages, and dependency use |
+| `cite`      | Show bibliographic references, citations, and external resource links    |
+| `react`     | Show executable document reactivity dependencies                         |
+| `discourse` | Show authored research-object discourse relationships                    |
 
 **Possible values of `--connected-mode`**
 
@@ -104,13 +111,14 @@ stencila graph . --explain
 
 **Possible values of `--to`**
 
-| Value  | Description                                 |
-| ------ | ------------------------------------------- |
-| `json` | Stencila Schema Graph as JSON               |
-| `yaml` | Stencila Schema Graph as YAML               |
-| `dot`  | Projected graph as Graphviz DOT             |
-| `svg`  | Projected graph rendered to SVG by Graphviz |
-| `png`  | Projected graph rendered to PNG by Graphviz |
+| Value         | Description                                 |
+| ------------- | ------------------------------------------- |
+| `json`        | Stencila Schema Graph as JSON               |
+| `yaml`        | Stencila Schema Graph as YAML               |
+| `mira-jsonld` | Research discourse graph as MIRA JSON-LD    |
+| `dot`         | Projected graph as Graphviz DOT             |
+| `svg`         | Projected graph rendered to SVG by Graphviz |
+| `png`         | Projected graph rendered to PNG by Graphviz |
 
 **Possible values of `--detail`**
 

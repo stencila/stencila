@@ -1,3 +1,9 @@
+# Unreleased
+
+### Breaking Changes
+
+* **Python runtime dependency tracing:** Remove `--trace` from `stencila execute`, `stencila render`, and `stencila demo`, and `--no-runtime-evidence` from `stencila graph`. The in-process Python tracer and runtime cache reader have been removed. Existing `.stencila/cache/runtime` directories are ignored and can be deleted. Runtime observation now belongs to the Stencila lab execution runner; the `RuntimeAnalysis` graph evidence kind remains available for exported observations.
+
 # [2.16.0](https://github.com/stencila/stencila/compare/v2.15.0...v2.16.0) (2026-08-19)
 
 

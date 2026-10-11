@@ -14,10 +14,9 @@ use stencila_document::Document;
 use stencila_format::Format;
 use stencila_graph::{
     Graph, GraphConnectedMode, GraphContainmentMode, GraphDiagnostic, GraphProjectionDetail,
-    GraphProjectionOptions, GraphProjectionPreset, RuntimeEvidenceMode, StaticAnalysisDiagnostic,
-    WorkspaceOptions, dot::to_dot, filter_graph_view_connected_to,
-    graph_from_node_with_runtime_evidence, graph_from_path_with_diagnostics, project_graph,
-    set_graph_source_metadata_from_path,
+    GraphProjectionOptions, GraphProjectionPreset, StaticAnalysisDiagnostic, WorkspaceOptions,
+    dot::to_dot, filter_graph_view_connected_to, graph_from_node_with_scope,
+    graph_from_path_with_diagnostics, project_graph, set_graph_source_metadata_from_path,
 };
 use stencila_server::{DEFAULT_PORT, ServeOptions, ServerStarted, get_server_token};
 
@@ -86,10 +85,6 @@ pub struct Cli {
     /// Do not include Git commit authors on file-backed workspace graph nodes
     #[arg(long)]
     no_git_authors: bool,
-
-    /// Do not merge cached evidence from prior traced executions
-    #[arg(long)]
-    no_runtime_evidence: bool,
 
     /// Filter projected graph exports to nodes connected to matching nodes
     #[arg(long, value_name = "PATTERN")]
@@ -195,13 +190,7 @@ impl Cli {
             diagnostics,
             graph_diagnostics,
             path,
-        } = build_graph(
-            &self.path,
-            self.no_c2pa,
-            self.no_git_authors,
-            self.no_runtime_evidence,
-        )
-        .await?;
+        } = build_graph(&self.path, self.no_c2pa, self.no_git_authors).await?;
 
         if self.explain {
             if let Some(output) = &self.output {
@@ -497,12 +486,7 @@ fn report_graph_diagnostics(diagnostics: &[GraphDiagnostic]) {
     }
 }
 
-async fn build_graph(
-    path: &Path,
-    no_c2pa: bool,
-    no_git_authors: bool,
-    no_runtime_evidence: bool,
-) -> Result<GraphSource> {
+async fn build_graph(path: &Path, no_c2pa: bool, no_git_authors: bool) -> Result<GraphSource> {
     let path = path.canonicalize()?;
 
     if path.is_dir() {
@@ -511,11 +495,6 @@ async fn build_graph(
             Some(WorkspaceOptions {
                 include_c2pa: !no_c2pa,
                 git_file_authors: !no_git_authors,
-                runtime_evidence: if no_runtime_evidence {
-                    RuntimeEvidenceMode::None
-                } else {
-                    RuntimeEvidenceMode::Cached
-                },
                 ..Default::default()
             }),
         )
@@ -543,17 +522,7 @@ async fn build_graph(
             .unwrap_or_else(|| PathBuf::from("document"))
             .to_string_lossy()
             .replace(std::path::MAIN_SEPARATOR, "/");
-        let mut analysis = graph_from_node_with_runtime_evidence(
-            subject,
-            &scope,
-            &node,
-            &root,
-            if no_runtime_evidence {
-                RuntimeEvidenceMode::None
-            } else {
-                RuntimeEvidenceMode::Cached
-            },
-        )?;
+        let mut analysis = graph_from_node_with_scope(subject, &scope, &node)?;
         set_graph_source_metadata_from_path(&mut analysis.graph, &path)?;
         return Ok(GraphSource {
             graph: analysis.graph,
@@ -920,7 +889,7 @@ mod tests {
     #[tokio::test(flavor = "multi_thread")]
     async fn exports_markdown_research_relations_as_mira_jsonld() -> Result<()> {
         let temp_dir = tempfile::tempdir()?;
-        std::fs::create_dir_all(temp_dir.path().join(".stencila/cache/runtime"))?;
+        std::fs::create_dir_all(temp_dir.path().join(".stencila"))?;
         let path = temp_dir.path().join("report.smd");
         std::fs::write(
             &path,
@@ -939,7 +908,7 @@ Participants recovered sooner.
 "#,
         )?;
 
-        let source = build_graph(&path, true, true, true).await?;
+        let source = build_graph(&path, true, true).await?;
         validate_mira_export_options(&source.graph, &GraphProjectionOptions::default(), &[])?;
         let inferred_output = temp_dir.path().join("report.mira.jsonld");
         export_graph(
@@ -1004,15 +973,15 @@ Participants recovered sooner.
     }
 
     #[tokio::test(flavor = "multi_thread")]
-    async fn file_graph_uses_closest_runtime_workspace() -> Result<()> {
+    async fn file_graph_uses_closest_workspace() -> Result<()> {
         let temp_dir = tempfile::tempdir()?;
         let nested = temp_dir.path().join("nested");
-        std::fs::create_dir_all(temp_dir.path().join(".stencila/cache/runtime"))?;
+        std::fs::create_dir_all(temp_dir.path().join(".stencila"))?;
         std::fs::create_dir_all(&nested)?;
         let path = nested.join("report.md");
         std::fs::write(&path, "# Report\n")?;
 
-        let source = build_graph(&path, true, true, true).await?;
+        let source = build_graph(&path, true, true).await?;
 
         assert!(
             source
@@ -1028,7 +997,7 @@ Participants recovered sooner.
     async fn file_graph_preserves_repository_source_metadata() -> Result<()> {
         let temp_dir = tempfile::tempdir()?;
         let nested = temp_dir.path().join("nested");
-        std::fs::create_dir_all(temp_dir.path().join(".stencila/cache/runtime"))?;
+        std::fs::create_dir_all(temp_dir.path().join(".stencila"))?;
         std::fs::create_dir_all(&nested)?;
         run_git(temp_dir.path(), &["init", "--quiet"])?;
         run_git(
@@ -1043,7 +1012,7 @@ Participants recovered sooner.
         let path = nested.join("report.smd");
         std::fs::write(&path, "::: claim #claim-1\n\nClaim.\n\n:::\n")?;
 
-        let source = build_graph(&path, true, true, true).await?;
+        let source = build_graph(&path, true, true).await?;
 
         assert_eq!(
             source.graph.options.repository.as_deref(),

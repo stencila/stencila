@@ -233,25 +233,6 @@ impl Cli {
     }
 }
 
-#[cfg(test)]
-mod tests {
-    use clap::Parser;
-
-    use super::Cli;
-
-    #[test]
-    fn runtime_trace_is_distinct_from_trace_logging() -> Result<(), clap::Error> {
-        let cli = Cli::try_parse_from(["stencila", "execute", "--debug", "--trace", "report.smd"])?;
-        assert!(cli.debug);
-        assert!(!cli.trace_logging);
-
-        let cli = Cli::try_parse_from(["stencila", "--trace-logging", "execute", "report.smd"])?;
-        assert!(cli.trace_logging);
-
-        Ok(())
-    }
-}
-
 #[derive(Debug, Subcommand)]
 pub enum Command {
     New(new::Cli),

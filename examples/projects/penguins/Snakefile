@@ -2,6 +2,7 @@ import yaml
 
 UNIVERSES = sorted(glob_wildcards("universes/{universe}.yaml").universe)
 STENCILA = "MPLCONFIGDIR=.stencila/cache/matplotlib ../../../target/debug/stencila"
+PYTHON = "MPLCONFIGDIR=.stencila/cache/matplotlib uv run python"
 
 def config(name):
     with open(f"universes/{name}.yaml") as stream:
@@ -23,25 +24,25 @@ rule all:
 rule prepare:
     input: data="penguins.csv", script="src/prepare.py"
     output: "penguins_normalized.csv"
-    shell: STENCILA + " execute --trace {input.script} -- --input {input.data} --output {output}"
+    shell: PYTHON + " {input.script} --input {input.data} --output {output}"
 
 rule universe_models:
     input: data="penguins_normalized.csv", script="src/analyze.py", config="universes/{universe}.yaml"
     output: ".stencila/cache/penguins/{universe}/isotope_models.csv"
     params: args=lambda wildcards: decision_args(wildcards.universe)
-    shell: STENCILA + " execute --trace {input.script} -- isotopes --input {input.data} --universe-id {wildcards.universe} {params.args} --output {output}"
+    shell: PYTHON + " {input.script} isotopes --input {input.data} --universe-id {wildcards.universe} {params.args} --output {output}"
 
 rule baseline_audit:
     input: data="penguins_normalized.csv", script="src/analyze.py", config="universes/baseline.yaml"
     output: "results/audit.csv"
     params: args=decision_args("baseline")
-    shell: STENCILA + " execute --trace {input.script} -- audit --input {input.data} --universe-id baseline {params.args} --output {output}"
+    shell: PYTHON + " {input.script} audit --input {input.data} --universe-id baseline {params.args} --output {output}"
 
 rule baseline_dimorphism:
     input: data="penguins_normalized.csv", script="src/analyze.py", config="universes/baseline.yaml"
     output: "results/dimorphism.csv"
     params: args=decision_args("baseline")
-    shell: STENCILA + " execute --trace {input.script} -- dimorphism --input {input.data} --universe-id baseline {params.args} --output {output}"
+    shell: PYTHON + " {input.script} dimorphism --input {input.data} --universe-id baseline {params.args} --output {output}"
 
 rule publish_baseline_models:
     input: ".stencila/cache/penguins/baseline/isotope_models.csv"
@@ -54,22 +55,22 @@ rule sensitivity:
         configs=expand("universes/{universe}.yaml", universe=UNIVERSES),
         script="src/analyze.py"
     output: "results/sensitivity.csv"
-    shell: STENCILA + " execute --trace {input.script} -- sensitivity --input {input.models} --universe-config {input.configs} --output {output}"
+    shell: PYTHON + " {input.script} sensitivity --input {input.models} --universe-config {input.configs} --output {output}"
 
 rule plot_dimorphism:
     input: data="results/dimorphism.csv", script="src/plot.py"
     output: "figures/dimorphism.png"
-    shell: STENCILA + " execute --trace {input.script} -- dimorphism --input {input.data} --output {output}"
+    shell: PYTHON + " {input.script} dimorphism --input {input.data} --output {output}"
 
 rule plot_isotopes:
     input: data="results/isotope_models.csv", script="src/plot.py"
     output: "figures/isotopes.png"
-    shell: STENCILA + " execute --trace {input.script} -- isotopes --input {input.data} --output {output}"
+    shell: PYTHON + " {input.script} isotopes --input {input.data} --output {output}"
 
 rule plot_sensitivity:
     input: data="results/sensitivity.csv", script="src/plot.py"
     output: "figures/sensitivity.png"
-    shell: STENCILA + " execute --trace {input.script} -- sensitivity --input {input.data} --output {output}"
+    shell: PYTHON + " {input.script} sensitivity --input {input.data} --output {output}"
 
 rule execute_article:
     input:
@@ -78,7 +79,7 @@ rule execute_article:
         schematic="schematic.png", figure_dimorphism="figures/dimorphism.png",
         figure_isotopes="figures/isotopes.png", figure_sensitivity="figures/sensitivity.png"
     output: touch(".stencila/cache/penguins/article.executed")
-    shell: STENCILA + " execute --trace {input.article} && touch {output}"
+    shell: STENCILA + " execute {input.article} && touch {output}"
 
 rule render_article:
     input:
