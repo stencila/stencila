@@ -71,6 +71,8 @@ import { type Grant } from "./Grant.js";
 import { type Graph } from "./Graph.js";
 import { type GraphEdge } from "./GraphEdge.js";
 import { type GraphEvidence } from "./GraphEvidence.js";
+import { type GraphGap } from "./GraphGap.js";
+import { type GraphGapTarget } from "./GraphGapTarget.js";
 import { type GraphNode } from "./GraphNode.js";
 import { type Heading } from "./Heading.js";
 import { type Icon } from "./Icon.js";
@@ -235,6 +237,8 @@ export type Node =
   Graph |
   GraphEdge |
   GraphEvidence |
+  GraphGap |
+  GraphGapTarget |
   GraphNode |
   Heading |
   Icon |
@@ -395,6 +399,8 @@ export function node(other: Node): Node {
     case "Graph":
     case "GraphEdge":
     case "GraphEvidence":
+    case "GraphGap":
+    case "GraphGapTarget":
     case "GraphNode":
     case "Heading":
     case "Icon":

@@ -27,6 +27,12 @@
           "@id": "stencila:ChatMessage"
         },
         {
+          "@id": "stencila:GraphEdge"
+        },
+        {
+          "@id": "stencila:GraphGapTarget"
+        },
+        {
           "@id": "stencila:InstructionMessage"
         }
       ],

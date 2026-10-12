@@ -2,6 +2,7 @@
 
 import { CreativeWork } from "./CreativeWork.js";
 import { GraphEdge } from "./GraphEdge.js";
+import { GraphGap } from "./GraphGap.js";
 import { GraphNode } from "./GraphNode.js";
 
 /**
@@ -25,6 +26,11 @@ export class Graph extends CreativeWork {
    * The directed edges in the graph.
    */
   edges: GraphEdge[];
+
+  /**
+   * Sourced limitations; absence means no gaps were reported, not complete coverage.
+   */
+  gaps?: GraphGap[];
 
   constructor(subject: string, nodes: GraphNode[], edges: GraphEdge[], options?: Partial<Graph>) {
     super();

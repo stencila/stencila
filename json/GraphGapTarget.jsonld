@@ -1,0 +1,103 @@
+{
+  "@id": "https://stencila.org/GraphGapTarget",
+  "name": "GraphGapTarget",
+  "license": "https://creativecommons.org/publicdomain/zero/1.0/",
+  "@context": {
+    "rdfs": "http://www.w3.org/2000/01/rdf-schema#",
+    "schema": "https://schema.org/",
+    "stencila": "https://stencila.org/"
+  },
+  "@graph": [
+    {
+      "@id": "stencila:GraphGapTarget",
+      "@type": "rdfs:Class",
+      "rdfs:label": "GraphGapTarget",
+      "rdfs:comment": "The structured scope of a graph limitation.",
+      "rdfs:subClassOf": {
+        "@id": "stencila:Entity"
+      }
+    },
+    {
+      "@id": "stencila:kind",
+      "@type": "rdfs:Property",
+      "rdfs:label": "kind",
+      "rdfs:comment": "Whether the limitation qualifies an item, property or relationship.",
+      "schema:domainIncludes": [
+        {
+          "@id": "stencila:GraphEdge"
+        },
+        {
+          "@id": "stencila:GraphEvidence"
+        },
+        {
+          "@id": "stencila:GraphGapTarget"
+        },
+        {
+          "@id": "stencila:ResearchObjectRelation"
+        }
+      ],
+      "schema:rangeIncludes": {
+        "@id": "stencila:GraphGapTargetKind"
+      }
+    },
+    {
+      "@id": "stencila:property",
+      "@type": "rdfs:Property",
+      "rdfs:label": "property",
+      "rdfs:comment": "A property path, required for a Property target.",
+      "schema:domainIncludes": {
+        "@id": "stencila:GraphGapTarget"
+      },
+      "schema:rangeIncludes": {
+        "@id": "schema:Text"
+      }
+    },
+    {
+      "@id": "stencila:relationship",
+      "@type": "rdfs:Property",
+      "rdfs:label": "relationship",
+      "rdfs:comment": "The edge kind, required for a Relationship target.",
+      "schema:domainIncludes": {
+        "@id": "stencila:GraphGapTarget"
+      },
+      "schema:rangeIncludes": {
+        "@id": "stencila:GraphEdgeKind"
+      }
+    },
+    {
+      "@id": "stencila:direction",
+      "@type": "rdfs:Property",
+      "rdfs:label": "direction",
+      "rdfs:comment": "The edge direction relative to the containing item, required for a Relationship target.",
+      "schema:domainIncludes": {
+        "@id": "stencila:GraphGapTarget"
+      },
+      "schema:rangeIncludes": {
+        "@id": "stencila:GraphGapDirection"
+      }
+    },
+    {
+      "@id": "stencila:role",
+      "@type": "rdfs:Property",
+      "rdfs:label": "role",
+      "rdfs:comment": "An optional relationship role narrowing its scope.",
+      "schema:domainIncludes": [
+        {
+          "@id": "stencila:ChatMessage"
+        },
+        {
+          "@id": "stencila:GraphEdge"
+        },
+        {
+          "@id": "stencila:GraphGapTarget"
+        },
+        {
+          "@id": "stencila:InstructionMessage"
+        }
+      ],
+      "schema:rangeIncludes": {
+        "@id": "schema:Text"
+      }
+    }
+  ]
+}

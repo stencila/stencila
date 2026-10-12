@@ -35,6 +35,25 @@
       "@id": "stencila:node",
       "description": "The embedded Stencila node represented by this graph node.",
       "$ref": "Node.schema.json"
+    },
+    "gaps": {
+      "@id": "stencila:gaps",
+      "description": "Sourced limitations; absence means no gaps were reported, not complete coverage.",
+      "aliases": [
+        "gap"
+      ],
+      "type": "array",
+      "items": {
+        "$ref": "GraphGap.schema.json"
+      }
+    },
+    "evidence": {
+      "@id": "stencila:evidence",
+      "description": "Evidence of this node's events, including events supporting no relationship.",
+      "type": "array",
+      "items": {
+        "$ref": "GraphEvidence.schema.json"
+      }
     }
   }
 }

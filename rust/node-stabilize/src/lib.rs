@@ -239,6 +239,8 @@ impl VisitorMut for Stabilizer {
             Graph,
             GraphEdge,
             GraphEvidence,
+            GraphGap,
+            GraphGapTarget,
             GraphNode,
             Heading,
             Icon,

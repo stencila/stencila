@@ -1,0 +1,12 @@
+title: GraphGapDirection
+'@id': stencila:GraphGapDirection
+extends: Enumeration
+category: flow
+description: The direction of a relationship qualified by a gap.
+anyOf:
+  - const: Incoming
+    '@id': stencila:Incoming
+    description: A relationship into the containing item.
+  - const: Outgoing
+    '@id': stencila:Outgoing
+    description: A relationship from the containing item.

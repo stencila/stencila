@@ -30,6 +30,9 @@
           "@id": "stencila:GraphEdge"
         },
         {
+          "@id": "stencila:GraphGap"
+        },
+        {
           "@id": "stencila:Link"
         },
         {

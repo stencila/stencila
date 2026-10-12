@@ -1,0 +1,24 @@
+title: GraphGapState
+'@id': stencila:GraphGapState
+extends: Enumeration
+category: flow
+description: Distinct evidence availability and coverage limitations.
+anyOf:
+  - const: Missing
+    '@id': stencila:Missing
+    description: The evidence or property is unavailable or was never recorded.
+  - const: Expired
+    '@id': stencila:Expired
+    description: The material was removed by ordinary retention.
+  - const: Withheld
+    '@id': stencila:Withheld
+    description: Authority or disclosure policy prevents returning the material.
+  - const: Unobserved
+    '@id': stencila:Unobserved
+    description: This source did not observe the operation or relationship.
+  - const: Purged
+    '@id': stencila:Purged
+    description: The owner explicitly removed the retained material.
+  - const: Omitted
+    '@id': stencila:Omitted
+    description: Inspection or projection stopped at a budget, without claiming availability.

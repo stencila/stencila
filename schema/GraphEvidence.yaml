@@ -67,3 +67,9 @@ properties:
     '@id': schema:description
     description: Optional human-readable explanation of the evidence.
     type: string
+  gaps:
+    '@id': stencila:gaps
+    description: Sourced limitations; absence means no gaps were reported, not complete coverage.
+    type: array
+    items:
+      $ref: GraphGap

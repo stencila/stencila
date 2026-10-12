@@ -159,6 +159,5 @@
       "description": "The action failed.",
       "const": "FailedActionStatus"
     }
-  ],
-  "default": "CompletedActionStatus"
+  ]
 }

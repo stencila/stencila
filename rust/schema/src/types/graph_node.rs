@@ -2,6 +2,8 @@
 
 use crate::prelude::*;
 
+use super::graph_evidence::GraphEvidence;
+use super::graph_gap::GraphGap;
 use super::node::Node;
 use super::string::String;
 
@@ -22,9 +24,30 @@ pub struct GraphNode {
     /// The embedded Stencila node represented by this graph node.
     pub node: Box<Node>,
 
+    /// Non-core optional fields
+    #[serde(flatten)]
+    #[html(flatten)]
+    #[jats(flatten)]
+    pub options: Box<GraphNodeOptions>,
+
     /// A unique identifier for a node within a document
     #[serde(skip)]
     pub uid: NodeUid
+}
+
+#[skip_serializing_none]
+#[serde_as]
+#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, InspectNode, ProbeNode, StripNode, WalkNode, WriteNode, ReadNode, PatchNode, DomCodec, HtmlCodec, JatsCodec, LatexCodec, MarkdownCodec, TextCodec)]
+#[serde(rename_all = "camelCase")]
+pub struct GraphNodeOptions {
+    /// Sourced limitations; absence means no gaps were reported, not complete coverage.
+    #[serde(alias = "gap")]
+    #[serde(default, deserialize_with = "option_one_or_many")]
+    pub gaps: Option<Vec<GraphGap>>,
+
+    /// Evidence of this node's events, including events supporting no relationship.
+    #[serde(default, deserialize_with = "option_one_or_many")]
+    pub evidence: Option<Vec<GraphEvidence>>,
 }
 
 impl GraphNode {

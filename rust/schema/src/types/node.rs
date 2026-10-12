@@ -72,6 +72,8 @@ use super::grant::Grant;
 use super::graph::Graph;
 use super::graph_edge::GraphEdge;
 use super::graph_evidence::GraphEvidence;
+use super::graph_gap::GraphGap;
+use super::graph_gap_target::GraphGapTarget;
 use super::graph_node::GraphNode;
 use super::heading::Heading;
 use super::icon::Icon;
@@ -313,6 +315,10 @@ pub enum Node {
     GraphEdge(GraphEdge),
 
     GraphEvidence(GraphEvidence),
+
+    GraphGap(GraphGap),
+
+    GraphGapTarget(GraphGapTarget),
 
     GraphNode(GraphNode),
 

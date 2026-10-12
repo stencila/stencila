@@ -39,6 +39,9 @@
           "@id": "stencila:GraphEvidence"
         },
         {
+          "@id": "stencila:GraphGap"
+        },
+        {
           "@id": "stencila:IncludeBlock"
         },
         {
@@ -63,6 +66,9 @@
         },
         {
           "@id": "stencila:GraphEdge"
+        },
+        {
+          "@id": "stencila:GraphGap"
         },
         {
           "@id": "stencila:Link"
@@ -97,6 +103,9 @@
           "@id": "stencila:GraphEvidence"
         },
         {
+          "@id": "stencila:GraphGapTarget"
+        },
+        {
           "@id": "stencila:ResearchObjectRelation"
         }
       ],
@@ -109,9 +118,14 @@
       "@type": "rdfs:Property",
       "rdfs:label": "evidence",
       "rdfs:comment": "Evidence supporting the edge.",
-      "schema:domainIncludes": {
-        "@id": "stencila:GraphEdge"
-      },
+      "schema:domainIncludes": [
+        {
+          "@id": "stencila:GraphEdge"
+        },
+        {
+          "@id": "stencila:GraphNode"
+        }
+      ],
       "schema:rangeIncludes": {
         "@id": "stencila:GraphEvidence"
       }
@@ -126,6 +140,52 @@
       },
       "schema:rangeIncludes": {
         "@id": "stencila:GraphAction"
+      }
+    },
+    {
+      "@id": "stencila:gaps",
+      "@type": "rdfs:Property",
+      "rdfs:label": "gaps",
+      "rdfs:comment": "Sourced limitations; absence means no gaps were reported, not complete coverage.",
+      "schema:domainIncludes": [
+        {
+          "@id": "stencila:Graph"
+        },
+        {
+          "@id": "stencila:GraphEdge"
+        },
+        {
+          "@id": "stencila:GraphEvidence"
+        },
+        {
+          "@id": "stencila:GraphNode"
+        }
+      ],
+      "schema:rangeIncludes": {
+        "@id": "stencila:GraphGap"
+      }
+    },
+    {
+      "@id": "stencila:role",
+      "@type": "rdfs:Property",
+      "rdfs:label": "role",
+      "rdfs:comment": "A role narrowing the relationship without weakening its kind.",
+      "schema:domainIncludes": [
+        {
+          "@id": "stencila:ChatMessage"
+        },
+        {
+          "@id": "stencila:GraphEdge"
+        },
+        {
+          "@id": "stencila:GraphGapTarget"
+        },
+        {
+          "@id": "stencila:InstructionMessage"
+        }
+      ],
+      "schema:rangeIncludes": {
+        "@id": "schema:Text"
       }
     }
   ]

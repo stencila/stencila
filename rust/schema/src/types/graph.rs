@@ -12,6 +12,7 @@ use super::creative_work_variant_or_string::CreativeWorkVariantOrString;
 use super::date_time::DateTime;
 use super::grant_or_monetary_grant::GrantOrMonetaryGrant;
 use super::graph_edge::GraphEdge;
+use super::graph_gap::GraphGap;
 use super::graph_node::GraphNode;
 use super::image_object::ImageObject;
 use super::inline::Inline;
@@ -296,6 +297,11 @@ pub struct GraphOptions {
     /// The version of the creative work.
     #[strip(metadata)]
     pub version: Option<StringOrNumber>,
+
+    /// Sourced limitations; absence means no gaps were reported, not complete coverage.
+    #[serde(alias = "gap")]
+    #[serde(default, deserialize_with = "option_one_or_many")]
+    pub gaps: Option<Vec<GraphGap>>,
 }
 
 impl Graph {

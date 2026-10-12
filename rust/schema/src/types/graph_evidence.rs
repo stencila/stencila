@@ -5,6 +5,7 @@ use crate::prelude::*;
 use super::code_location::CodeLocation;
 use super::graph_evidence_confidence::GraphEvidenceConfidence;
 use super::graph_evidence_kind::GraphEvidenceKind;
+use super::graph_gap::GraphGap;
 use super::object::Object;
 use super::string::String;
 use super::thing_variant_or_string::ThingVariantOrString;
@@ -67,6 +68,11 @@ pub struct GraphEvidenceOptions {
 
     /// Optional human-readable explanation of the evidence.
     pub description: Option<String>,
+
+    /// Sourced limitations; absence means no gaps were reported, not complete coverage.
+    #[serde(alias = "gap")]
+    #[serde(default, deserialize_with = "option_one_or_many")]
+    pub gaps: Option<Vec<GraphGap>>,
 }
 
 impl GraphEvidence {

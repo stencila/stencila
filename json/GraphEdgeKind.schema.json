@@ -140,6 +140,21 @@
   },
   "anyOf": [
     {
+      "@id": "stencila:SuppliedTo",
+      "description": "The upstream resource was available to the downstream activity, without claiming it was consumed.",
+      "const": "SuppliedTo"
+    },
+    {
+      "@id": "stencila:Collected",
+      "description": "The upstream activity found the downstream resource at a declared destination, without claiming a write.",
+      "const": "Collected"
+    },
+    {
+      "@id": "stencila:Precedes",
+      "description": "The upstream activity preceded the downstream activity through a recorded link, without claiming resource flow.",
+      "const": "Precedes"
+    },
+    {
       "@id": "stencila:UsedBy",
       "description": "The upstream node is used by the downstream node. Related to `prov:used` with inverse direction.",
       "const": "UsedBy"

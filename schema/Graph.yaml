@@ -54,3 +54,9 @@ properties:
     type: array
     items:
       $ref: GraphEdge
+  gaps:
+    '@id': stencila:gaps
+    description: Sourced limitations; absence means no gaps were reported, not complete coverage.
+    type: array
+    items:
+      $ref: GraphGap

@@ -1,0 +1,77 @@
+{
+  "$schema": "https://stencila.org/meta.schema.json",
+  "$id": "https://stencila.org/GraphGapTarget.schema.json",
+  "@id": "stencila:GraphGapTarget",
+  "title": "GraphGapTarget",
+  "nick": "ggt",
+  "extends": [
+    "Entity"
+  ],
+  "category": "flow",
+  "description": "The structured scope of a graph limitation.",
+  "$comment": "Item qualifies the containing node, edge, evidence item or whole graph.\nProperty requires a property path; Relationship requires an edge kind and a\ndirection, and may name a role. Unused fields should be absent.\n",
+  "required": [
+    "type",
+    "kind"
+  ],
+  "core": [
+    "id"
+  ],
+  "properties": {
+    "type": {
+      "@id": "schema:type",
+      "description": "The type of this item.",
+      "$comment": "This is a special property analogous to JSON-LD's `@type` keyword.\n",
+      "type": "string"
+    },
+    "id": {
+      "@id": "schema:id",
+      "description": "The identifier for this item.",
+      "$comment": "This is a special property analogous to JSON-LD's `@id` keyword.\n",
+      "strip": [
+        "metadata"
+      ],
+      "patch": {
+        "formats": [
+          "md",
+          "smd",
+          "myst",
+          "qmd",
+          "tiptap"
+        ]
+      },
+      "html": {
+        "attr": "id"
+      },
+      "jats": {
+        "attr": "id"
+      },
+      "type": "string"
+    },
+    "kind": {
+      "@id": "stencila:kind",
+      "description": "Whether the limitation qualifies an item, property or relationship.",
+      "$ref": "GraphGapTargetKind.schema.json"
+    },
+    "property": {
+      "@id": "stencila:property",
+      "description": "A property path, required for a Property target.",
+      "type": "string"
+    },
+    "relationship": {
+      "@id": "stencila:relationship",
+      "description": "The edge kind, required for a Relationship target.",
+      "$ref": "GraphEdgeKind.schema.json"
+    },
+    "direction": {
+      "@id": "stencila:direction",
+      "description": "The edge direction relative to the containing item, required for a Relationship target.",
+      "$ref": "GraphGapDirection.schema.json"
+    },
+    "role": {
+      "@id": "stencila:role",
+      "description": "An optional relationship role narrowing its scope.",
+      "type": "string"
+    }
+  }
+}

@@ -225,6 +225,12 @@
       "$ref": "GraphEvidence.schema.json"
     },
     {
+      "$ref": "GraphGap.schema.json"
+    },
+    {
+      "$ref": "GraphGapTarget.schema.json"
+    },
+    {
       "$ref": "GraphNode.schema.json"
     },
     {

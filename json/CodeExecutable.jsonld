@@ -241,6 +241,9 @@
           "@id": "stencila:CodeStatic"
         },
         {
+          "@id": "stencila:GraphGap"
+        },
+        {
           "@id": "stencila:Math"
         },
         {

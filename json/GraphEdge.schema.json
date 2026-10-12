@@ -87,6 +87,22 @@
       "items": {
         "$ref": "GraphAction.schema.json"
       }
+    },
+    "gaps": {
+      "@id": "stencila:gaps",
+      "description": "Sourced limitations; absence means no gaps were reported, not complete coverage.",
+      "aliases": [
+        "gap"
+      ],
+      "type": "array",
+      "items": {
+        "$ref": "GraphGap.schema.json"
+      }
+    },
+    "role": {
+      "@id": "stencila:role",
+      "description": "A role narrowing the relationship without weakening its kind.",
+      "type": "string"
     }
   }
 }

@@ -40,6 +40,9 @@
         },
         {
           "@id": "stencila:GraphEvidence"
+        },
+        {
+          "@id": "stencila:GraphGap"
         }
       ],
       "schema:rangeIncludes": {

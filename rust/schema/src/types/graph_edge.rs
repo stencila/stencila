@@ -5,6 +5,7 @@ use crate::prelude::*;
 use super::graph_action::GraphAction;
 use super::graph_edge_kind::GraphEdgeKind;
 use super::graph_evidence::GraphEvidence;
+use super::graph_gap::GraphGap;
 use super::string::String;
 
 /// A directed edge in a graph.
@@ -58,6 +59,14 @@ pub struct GraphEdgeOptions {
     #[serde(alias = "action")]
     #[serde(default, deserialize_with = "option_one_or_many")]
     pub actions: Option<Vec<GraphAction>>,
+
+    /// Sourced limitations; absence means no gaps were reported, not complete coverage.
+    #[serde(alias = "gap")]
+    #[serde(default, deserialize_with = "option_one_or_many")]
+    pub gaps: Option<Vec<GraphGap>>,
+
+    /// A role narrowing the relationship without weakening its kind.
+    pub role: Option<String>,
 }
 
 impl GraphEdge {

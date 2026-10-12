@@ -30,6 +30,9 @@
           "@id": "stencila:GraphEvidence"
         },
         {
+          "@id": "stencila:GraphGapTarget"
+        },
+        {
           "@id": "stencila:ResearchObjectRelation"
         }
       ],
@@ -91,6 +94,9 @@
           "@id": "stencila:GraphEvidence"
         },
         {
+          "@id": "stencila:GraphGap"
+        },
+        {
           "@id": "stencila:IncludeBlock"
         },
         {
@@ -139,10 +145,36 @@
         },
         {
           "@id": "stencila:GraphEvidence"
+        },
+        {
+          "@id": "stencila:GraphGap"
         }
       ],
       "schema:rangeIncludes": {
         "@id": "schema:Text"
+      }
+    },
+    {
+      "@id": "stencila:gaps",
+      "@type": "rdfs:Property",
+      "rdfs:label": "gaps",
+      "rdfs:comment": "Sourced limitations; absence means no gaps were reported, not complete coverage.",
+      "schema:domainIncludes": [
+        {
+          "@id": "stencila:Graph"
+        },
+        {
+          "@id": "stencila:GraphEdge"
+        },
+        {
+          "@id": "stencila:GraphEvidence"
+        },
+        {
+          "@id": "stencila:GraphNode"
+        }
+      ],
+      "schema:rangeIncludes": {
+        "@id": "stencila:GraphGap"
       }
     }
   ]

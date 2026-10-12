@@ -3,7 +3,6 @@ title: GraphEvidenceConfidence
 extends: Enumeration
 category: flow
 description: The confidence level for graph evidence.
-default: Certain
 anyOf:
   - const: Low
     '@id': stencila:Low

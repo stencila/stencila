@@ -1,0 +1,167 @@
+{
+  "@id": "https://stencila.org/GraphGap",
+  "name": "GraphGap",
+  "license": "https://creativecommons.org/publicdomain/zero/1.0/",
+  "@context": {
+    "rdfs": "http://www.w3.org/2000/01/rdf-schema#",
+    "schema": "https://schema.org/",
+    "stencila": "https://stencila.org/"
+  },
+  "@graph": [
+    {
+      "@id": "stencila:GraphGap",
+      "@type": "rdfs:Class",
+      "rdfs:label": "GraphGap",
+      "rdfs:comment": "A sourced limitation of an account, occurrence, relationship or evidentiary basis.",
+      "rdfs:subClassOf": {
+        "@id": "stencila:Entity"
+      }
+    },
+    {
+      "@id": "stencila:state",
+      "@type": "rdfs:Property",
+      "rdfs:label": "state",
+      "rdfs:comment": "The distinct availability or coverage state.",
+      "schema:domainIncludes": {
+        "@id": "stencila:GraphGap"
+      },
+      "schema:rangeIncludes": {
+        "@id": "stencila:GraphGapState"
+      }
+    },
+    {
+      "@id": "stencila:source",
+      "@type": "rdfs:Property",
+      "rdfs:label": "source",
+      "rdfs:comment": "The producer whose account this gap qualifies.",
+      "schema:domainIncludes": [
+        {
+          "@id": "stencila:Bibliography"
+        },
+        {
+          "@id": "stencila:CodeLocation"
+        },
+        {
+          "@id": "stencila:Excerpt"
+        },
+        {
+          "@id": "stencila:GraphEdge"
+        },
+        {
+          "@id": "stencila:GraphEvidence"
+        },
+        {
+          "@id": "stencila:GraphGap"
+        },
+        {
+          "@id": "stencila:IncludeBlock"
+        },
+        {
+          "@id": "stencila:QuoteBlock"
+        },
+        {
+          "@id": "stencila:QuoteInline"
+        }
+      ],
+      "schema:rangeIncludes": {
+        "@id": "schema:Text"
+      }
+    },
+    {
+      "@id": "stencila:target",
+      "@type": "rdfs:Property",
+      "rdfs:label": "target",
+      "rdfs:comment": "The structured scope of the limitation.",
+      "schema:domainIncludes": [
+        {
+          "@id": "stencila:Citation"
+        },
+        {
+          "@id": "stencila:GraphEdge"
+        },
+        {
+          "@id": "stencila:GraphGap"
+        },
+        {
+          "@id": "stencila:Link"
+        },
+        {
+          "@id": "stencila:PromptBlock"
+        },
+        {
+          "@id": "stencila:ResearchObjectRelation"
+        },
+        {
+          "@id": "stencila:Supplement"
+        },
+        {
+          "@id": "stencila:SymbolicLink"
+        }
+      ],
+      "schema:rangeIncludes": {
+        "@id": "stencila:GraphGapTarget"
+      }
+    },
+    {
+      "@id": "stencila:resource",
+      "@type": "rdfs:Property",
+      "rdfs:label": "resource",
+      "rdfs:comment": "The affected resource's durable identity, never a graph-local node id.",
+      "schema:domainIncludes": {
+        "@id": "stencila:GraphGap"
+      },
+      "schema:rangeIncludes": {
+        "@id": "schema:Text"
+      }
+    },
+    {
+      "@id": "stencila:code",
+      "@type": "rdfs:Property",
+      "rdfs:label": "code",
+      "rdfs:comment": "A stable producer-specific reason code.",
+      "schema:domainIncludes": [
+        {
+          "@id": "stencila:CallArgument"
+        },
+        {
+          "@id": "stencila:CodeExecutable"
+        },
+        {
+          "@id": "stencila:CodeStatic"
+        },
+        {
+          "@id": "stencila:GraphGap"
+        },
+        {
+          "@id": "stencila:Math"
+        },
+        {
+          "@id": "stencila:Styled"
+        }
+      ],
+      "schema:rangeIncludes": {
+        "@id": "schema:Text"
+      }
+    },
+    {
+      "@id": "schema:description",
+      "@type": "rdfs:Property",
+      "rdfs:label": "description",
+      "rdfs:comment": "Human-readable scope of the limitation.",
+      "schema:domainIncludes": [
+        {
+          "@id": "schema:Thing"
+        },
+        {
+          "@id": "stencila:GraphEvidence"
+        },
+        {
+          "@id": "stencila:GraphGap"
+        }
+      ],
+      "schema:rangeIncludes": {
+        "@id": "schema:Text"
+      }
+    }
+  ]
+}

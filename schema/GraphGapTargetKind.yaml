@@ -1,0 +1,15 @@
+title: GraphGapTargetKind
+'@id': stencila:GraphGapTargetKind
+extends: Enumeration
+category: flow
+description: The scope of a graph limitation.
+anyOf:
+  - const: Item
+    '@id': stencila:Item
+    description: The containing item or account as a whole.
+  - const: Property
+    '@id': stencila:Property
+    description: The named property path.
+  - const: Relationship
+    '@id': stencila:Relationship
+    description: The named edge kind and direction, optionally narrowed by a role.

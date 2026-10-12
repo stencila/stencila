@@ -75,6 +75,8 @@ export type NodeType =
   | "Graph"
   | "GraphEdge"
   | "GraphEvidence"
+  | "GraphGap"
+  | "GraphGapTarget"
   | "GraphNode"
   | "Heading"
   | "Icon"
@@ -235,6 +237,8 @@ export const NodeTypeList = [
   "Graph",
   "GraphEdge",
   "GraphEvidence",
+  "GraphGap",
+  "GraphGapTarget",
   "GraphNode",
   "Heading",
   "Icon",

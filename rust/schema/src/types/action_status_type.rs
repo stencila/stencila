@@ -7,13 +7,13 @@ use crate::prelude::*;
 #[strum(ascii_case_insensitive)]
 pub enum ActionStatusType {
     /// The action is proposed or possible but has not started.
+    #[default]
     PotentialActionStatus,
 
     /// The action is currently in progress.
     ActiveActionStatus,
 
     /// The action has completed successfully.
-    #[default]
     CompletedActionStatus,
 
     /// The action failed.

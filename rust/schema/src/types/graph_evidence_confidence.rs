@@ -7,6 +7,7 @@ use crate::prelude::*;
 #[strum(ascii_case_insensitive)]
 pub enum GraphEvidenceConfidence {
     /// Plausible but weakly supported or not independently verified.
+    #[default]
     Low,
 
     /// Supported by one reliable signal, but not enough to treat as definitive.
@@ -16,6 +17,5 @@ pub enum GraphEvidenceConfidence {
     High,
 
     /// Directly observed, deterministically proven, or cryptographically attested with no known contrary evidence.
-    #[default]
     Certain,
 }

@@ -4,6 +4,7 @@ import { CodeLocation } from "./CodeLocation.js";
 import { Entity } from "./Entity.js";
 import { GraphEvidenceConfidence } from "./GraphEvidenceConfidence.js";
 import { GraphEvidenceKind } from "./GraphEvidenceKind.js";
+import { GraphGap } from "./GraphGap.js";
 import { type Object } from "./Object.js";
 import { ThingVariantOrString } from "./ThingVariantOrString.js";
 import { Timestamp } from "./Timestamp.js";
@@ -49,6 +50,11 @@ export class GraphEvidence extends Entity {
    * Optional human-readable explanation of the evidence.
    */
   description?: string;
+
+  /**
+   * Sourced limitations; absence means no gaps were reported, not complete coverage.
+   */
+  gaps?: GraphGap[];
 
   constructor(kind: GraphEvidenceKind, options?: Partial<GraphEvidence>) {
     super();

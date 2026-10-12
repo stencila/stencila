@@ -177,6 +177,10 @@ export function hydrate(value: types.Node): types.Node {
       return Object.setPrototypeOf(value, types.GraphEdge.prototype);
     case "GraphEvidence":
       return Object.setPrototypeOf(value, types.GraphEvidence.prototype);
+    case "GraphGap":
+      return Object.setPrototypeOf(value, types.GraphGap.prototype);
+    case "GraphGapTarget":
+      return Object.setPrototypeOf(value, types.GraphGapTarget.prototype);
     case "GraphNode":
       return Object.setPrototypeOf(value, types.GraphNode.prototype);
     case "Heading":

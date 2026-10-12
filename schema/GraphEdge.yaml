@@ -51,3 +51,13 @@ properties:
     type: array
     items:
       $ref: GraphAction
+  gaps:
+    '@id': stencila:gaps
+    description: Sourced limitations; absence means no gaps were reported, not complete coverage.
+    type: array
+    items:
+      $ref: GraphGap
+  role:
+    '@id': stencila:role
+    description: A role narrowing the relationship without weakening its kind.
+    type: string

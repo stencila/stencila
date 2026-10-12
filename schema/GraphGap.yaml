@@ -1,0 +1,40 @@
+title: GraphGap
+'@id': stencila:GraphGap
+nick: ggp
+extends: Entity
+category: flow
+description: A sourced limitation of an account, occurrence, relationship or evidentiary basis.
+$comment: |
+  Gaps qualify the account of their source, not evidence from other sources. An
+  absent gaps list means no gaps were reported, never that coverage is complete.
+  A gap may stand for several like items; its count is not an item count.
+  Resource identities must survive graph-local node renumbering. Withheld gaps
+  omit any identity whose disclosure would reveal the withheld material.
+required: [state, source, target, description]
+properties:
+  state:
+    '@id': stencila:state
+    description: The distinct availability or coverage state.
+    $ref: GraphGapState
+  source:
+    '@id': stencila:source
+    description: The producer whose account this gap qualifies.
+    anyOf:
+      - $ref: ThingVariant
+      - type: string
+  target:
+    '@id': stencila:target
+    description: The structured scope of the limitation.
+    $ref: GraphGapTarget
+  resource:
+    '@id': stencila:resource
+    description: The affected resource's durable identity, never a graph-local node id.
+    type: string
+  code:
+    '@id': stencila:code
+    description: A stable producer-specific reason code.
+    type: string
+  description:
+    '@id': schema:description
+    description: Human-readable scope of the limitation.
+    type: string

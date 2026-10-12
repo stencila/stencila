@@ -6,8 +6,17 @@ use crate::prelude::*;
 #[derive(Debug, strum::Display, Clone, PartialEq, Serialize, Deserialize, InspectNode, ProbeNode, StripNode, WalkNode, WriteNode, SmartDefault, Copy, EnumString, Eq, PartialOrd, Ord, Hash, ReadNode, PatchNode, DomCodec, HtmlCodec, JatsCodec, LatexCodec, MarkdownCodec, TextCodec)]
 #[strum(ascii_case_insensitive)]
 pub enum GraphEdgeKind {
-    /// The upstream node is used by the downstream node. Related to `prov:used` with inverse direction.
+    /// The upstream resource was available to the downstream activity, without claiming it was consumed.
     #[default]
+    SuppliedTo,
+
+    /// The upstream activity found the downstream resource at a declared destination, without claiming a write.
+    Collected,
+
+    /// The upstream activity preceded the downstream activity through a recorded link, without claiming resource flow.
+    Precedes,
+
+    /// The upstream node is used by the downstream node. Related to `prov:used` with inverse direction.
     UsedBy,
 
     /// The upstream node is read by the downstream node. Related to `prov:used` with inverse direction.

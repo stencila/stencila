@@ -158,6 +158,5 @@
       "description": "Directly observed, deterministically proven, or cryptographically attested with no known contrary evidence.",
       "const": "Certain"
     }
-  ],
-  "default": "Certain"
+  ]
 }

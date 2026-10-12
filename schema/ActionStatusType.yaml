@@ -11,7 +11,6 @@ $comment: |
   provenance graphs it allows imported, observed, and Stencila-native actions to
   carry an explicit lifecycle state without relying on action-specific status
   fields.
-default: CompletedActionStatus
 anyOf:
   - const: PotentialActionStatus
     '@id': schema:PotentialActionStatus

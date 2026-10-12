@@ -79,6 +79,8 @@ pub fn inspect_declared_properties(node_type: NodeType) -> Option<Vec<PropertyDe
         NodeType::Graph => <Graph as InspectType>::declared_properties(),
         NodeType::GraphEdge => <GraphEdge as InspectType>::declared_properties(),
         NodeType::GraphEvidence => <GraphEvidence as InspectType>::declared_properties(),
+        NodeType::GraphGap => <GraphGap as InspectType>::declared_properties(),
+        NodeType::GraphGapTarget => <GraphGapTarget as InspectType>::declared_properties(),
         NodeType::GraphNode => <GraphNode as InspectType>::declared_properties(),
         NodeType::Heading => <Heading as InspectType>::declared_properties(),
         NodeType::Icon => <Icon as InspectType>::declared_properties(),

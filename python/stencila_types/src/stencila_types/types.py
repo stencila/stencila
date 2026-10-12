@@ -360,6 +360,9 @@ class GraphEdgeKind(StrEnum):
     The kind of directed relationship represented by a graph edge.
     """
 
+    SuppliedTo = "SuppliedTo"
+    Collected = "Collected"
+    Precedes = "Precedes"
     UsedBy = "UsedBy"
     ReadBy = "ReadBy"
     ReceivedBy = "ReceivedBy"
@@ -418,6 +421,38 @@ class GraphEvidenceKind(StrEnum):
     UserAssertion = "UserAssertion"
     Attested = "Attested"
     Inferred = "Inferred"
+
+
+class GraphGapDirection(StrEnum):
+    """
+    The direction of a relationship qualified by a gap.
+    """
+
+    Incoming = "Incoming"
+    Outgoing = "Outgoing"
+
+
+class GraphGapState(StrEnum):
+    """
+    Distinct evidence availability and coverage limitations.
+    """
+
+    Missing = "Missing"
+    Expired = "Expired"
+    Withheld = "Withheld"
+    Unobserved = "Unobserved"
+    Purged = "Purged"
+    Omitted = "Omitted"
+
+
+class GraphGapTargetKind(StrEnum):
+    """
+    The scope of a graph limitation.
+    """
+
+    Item = "Item"
+    Property = "Property"
+    Relationship = "Relationship"
 
 
 class HorizontalAlignment(StrEnum):
@@ -2440,6 +2475,9 @@ class Graph(CreativeWork):
     edges: list[GraphEdge]
     """The directed edges in the graph."""
 
+    gaps: list[GraphGap] | None = None
+    """Sourced limitations; absence means no gaps were reported, not complete coverage."""
+
 
 @dataclass(kw_only=True, repr=False)
 class GraphEdge(Entity):
@@ -2463,6 +2501,12 @@ class GraphEdge(Entity):
 
     actions: list[GraphAction] | None = None
     """Concrete activities associated with the edge."""
+
+    gaps: list[GraphGap] | None = None
+    """Sourced limitations; absence means no gaps were reported, not complete coverage."""
+
+    role: str | None = None
+    """A role narrowing the relationship without weakening its kind."""
 
 
 @dataclass(kw_only=True, repr=False)
@@ -2494,6 +2538,60 @@ class GraphEvidence(Entity):
     description: str | None = None
     """Optional human-readable explanation of the evidence."""
 
+    gaps: list[GraphGap] | None = None
+    """Sourced limitations; absence means no gaps were reported, not complete coverage."""
+
+
+@dataclass(kw_only=True, repr=False)
+class GraphGap(Entity):
+    """
+    A sourced limitation of an account, occurrence, relationship or evidentiary basis.
+    """
+
+    type: Literal["GraphGap"] = "GraphGap"
+
+    state: GraphGapState
+    """The distinct availability or coverage state."""
+
+    source: ThingVariant | str
+    """The producer whose account this gap qualifies."""
+
+    target: GraphGapTarget
+    """The structured scope of the limitation."""
+
+    resource: str | None = None
+    """The affected resource's durable identity, never a graph-local node id."""
+
+    code: str | None = None
+    """A stable producer-specific reason code."""
+
+    description: str
+    """Human-readable scope of the limitation."""
+
+
+@dataclass(kw_only=True, repr=False)
+class GraphGapTarget(Entity):
+    """
+    The structured scope of a graph limitation.
+    """
+
+    type: Literal["GraphGapTarget"] = "GraphGapTarget"
+
+    kind: GraphGapTargetKind
+    """Whether the limitation qualifies an item, property or relationship."""
+
+    property: str | None = None
+    """A property path, required for a Property target."""
+
+    relationship: GraphEdgeKind | None = None
+    """The edge kind, required for a Relationship target."""
+
+    direction: GraphGapDirection | None = None
+    """The edge direction relative to the containing item, required for a Relationship target."""
+
+    role: str | None = None
+    """An optional relationship role narrowing its scope."""
+
 
 @dataclass(kw_only=True, repr=False)
 class GraphNode(Entity):
@@ -2508,6 +2606,12 @@ class GraphNode(Entity):
 
     node: Node
     """The embedded Stencila node represented by this graph node."""
+
+    gaps: list[GraphGap] | None = None
+    """Sourced limitations; absence means no gaps were reported, not complete coverage."""
+
+    evidence: list[GraphEvidence] | None = None
+    """Evidence of this node's events, including events supporting no relationship."""
 
 
 @dataclass(kw_only=True, repr=False)
@@ -4204,6 +4308,8 @@ Node = Union[
     Graph,
     GraphEdge,
     GraphEvidence,
+    GraphGap,
+    GraphGapTarget,
     GraphNode,
     Heading,
     Icon,
@@ -4453,6 +4559,8 @@ TYPES = [
     Graph,
     GraphEdge,
     GraphEvidence,
+    GraphGap,
+    GraphGapTarget,
     GraphNode,
     Heading,
     Icon,

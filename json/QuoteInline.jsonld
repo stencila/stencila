@@ -179,6 +179,9 @@
           "@id": "stencila:GraphEvidence"
         },
         {
+          "@id": "stencila:GraphGap"
+        },
+        {
           "@id": "stencila:IncludeBlock"
         },
         {

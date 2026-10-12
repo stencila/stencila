@@ -719,6 +719,17 @@
       "items": {
         "$ref": "GraphEdge.schema.json"
       }
+    },
+    "gaps": {
+      "@id": "stencila:gaps",
+      "description": "Sourced limitations; absence means no gaps were reported, not complete coverage.",
+      "aliases": [
+        "gap"
+      ],
+      "type": "array",
+      "items": {
+        "$ref": "GraphGap.schema.json"
+      }
     }
   }
 }

@@ -1,6 +1,8 @@
 // Generated file; do not edit. See https://github.com/stencila/stencila/tree/main/rust/schema-gen
 
 import { Entity } from "./Entity.js";
+import { GraphEvidence } from "./GraphEvidence.js";
+import { GraphGap } from "./GraphGap.js";
 import { Node } from "./Node.js";
 
 /**
@@ -19,6 +21,16 @@ export class GraphNode extends Entity {
    * The embedded Stencila node represented by this graph node.
    */
   node: Node;
+
+  /**
+   * Sourced limitations; absence means no gaps were reported, not complete coverage.
+   */
+  gaps?: GraphGap[];
+
+  /**
+   * Evidence of this node's events, including events supporting no relationship.
+   */
+  evidence?: GraphEvidence[];
 
   constructor(id: string, node: Node, options?: Partial<GraphNode>) {
     super();

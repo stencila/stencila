@@ -4,6 +4,7 @@ import { Entity } from "./Entity.js";
 import { GraphAction } from "./GraphAction.js";
 import { GraphEdgeKind } from "./GraphEdgeKind.js";
 import { GraphEvidence } from "./GraphEvidence.js";
+import { GraphGap } from "./GraphGap.js";
 
 /**
  * A directed edge in a graph.
@@ -36,6 +37,16 @@ export class GraphEdge extends Entity {
    * Concrete activities associated with the edge.
    */
   actions?: GraphAction[];
+
+  /**
+   * Sourced limitations; absence means no gaps were reported, not complete coverage.
+   */
+  gaps?: GraphGap[];
+
+  /**
+   * A role narrowing the relationship without weakening its kind.
+   */
+  role?: string;
 
   constructor(source: string, target: string, kind: GraphEdgeKind, options?: Partial<GraphEdge>) {
     super();

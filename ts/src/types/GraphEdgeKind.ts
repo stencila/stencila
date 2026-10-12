@@ -3,6 +3,9 @@
  * The kind of directed relationship represented by a graph edge.
  */
 export type GraphEdgeKind =
+  'SuppliedTo' |
+  'Collected' |
+  'Precedes' |
   'UsedBy' |
   'ReadBy' |
   'ReceivedBy' |

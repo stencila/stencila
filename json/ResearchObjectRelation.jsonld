@@ -30,6 +30,9 @@
           "@id": "stencila:GraphEvidence"
         },
         {
+          "@id": "stencila:GraphGapTarget"
+        },
+        {
           "@id": "stencila:ResearchObjectRelation"
         }
       ],
@@ -48,6 +51,9 @@
         },
         {
           "@id": "stencila:GraphEdge"
+        },
+        {
+          "@id": "stencila:GraphGap"
         },
         {
           "@id": "stencila:Link"
