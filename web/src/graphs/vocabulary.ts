@@ -26,6 +26,9 @@ const EDGE_PRESETS_BY_KIND: Record<
   GraphEdgeKind,
   readonly ResolvedGraphViewPreset[]
 > = {
+  SuppliedTo: ['data-flow'],
+  Collected: ['data-flow'],
+  Precedes: ['data-flow'],
   UsedBy: ['data-flow', 'software-dependencies'],
   ReadBy: ['data-flow'],
   ReceivedBy: ['data-flow'],

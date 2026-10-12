@@ -81,7 +81,7 @@ describe('evidence presentation', () => {
       })
     )
 
-    expect(presented.confidence).toBe('Certain')
+    expect(presented.confidence).toBeUndefined()
     expect(presented.location).toBe('analysis.py:3:5–3:10')
     expect(presented.details).toEqual([
       ['alpha', 'parser'],

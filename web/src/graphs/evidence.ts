@@ -19,6 +19,7 @@ export type EdgeRole =
   | 'software'
   | 'structure'
   | 'discourse'
+  | 'activity'
 
 export type EvidenceMarker = 'none' | 'recorded' | 'attested'
 
@@ -29,7 +30,7 @@ export type PresentedDetail = [string, unknown]
 export interface PresentedEvidence {
   evidence: GraphEvidence
   graphEdge: GraphEdge
-  confidence: GraphEvidenceConfidence
+  confidence?: GraphEvidenceConfidence
   location?: string
   source?: GraphEvidence['source']
   details: PresentedDetail[]
@@ -55,6 +56,9 @@ export interface MetadataIdentity {
 }
 
 const EDGE_ROLES: Record<GraphViewEdge['kind'], EdgeRole> = {
+  SuppliedTo: 'input',
+  Collected: 'output',
+  Precedes: 'activity',
   UsedBy: 'input',
   ReadBy: 'input',
   ReceivedBy: 'input',
@@ -103,6 +107,7 @@ export function relationshipBadgeTone(
     software: 'amber',
     structure: 'gray',
     discourse: 'gray',
+    activity: 'gray',
   }[edgeRole(kind)] as BadgeTone
 }
 
@@ -151,7 +156,7 @@ export function evidenceBadgeTone(kind: GraphEvidenceKind): BadgeTone {
 }
 
 export function confidenceBadgeTone(
-  confidence: GraphEvidenceConfidence
+  confidence?: GraphEvidenceConfidence
 ): BadgeTone {
   return {
     Low: 'amber',
@@ -223,7 +228,7 @@ export function presentEvidence(edge: GraphViewEdge): PresentedEvidence[] {
     (graphEdge.evidence ?? []).map((evidence) => ({
       evidence,
       graphEdge,
-      confidence: evidence.confidence ?? 'Certain',
+      confidence: evidence.confidence,
       location: formatCodeLocation(evidence.codeLocation),
       source: evidence.source,
       details: sortedDetails(evidence.details),

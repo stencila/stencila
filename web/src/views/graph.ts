@@ -1500,10 +1500,9 @@ export class GraphViewElement extends LitElement {
                 humanizeLabel(item.evidence.kind),
                 evidenceBadgeTone(item.evidence.kind)
               )}
-              ${this.renderBadge(
-                item.confidence,
-                confidenceBadgeTone(item.confidence)
-              )}
+              ${item.confidence
+                ? this.renderBadge(item.confidence, confidenceBadgeTone(item.confidence))
+                : this.renderBadge('Confidence not stated', 'gray')}
               ${aggregated
                 ? this.renderBadge(`#${item.contributor}`, 'gray')
                 : null}
