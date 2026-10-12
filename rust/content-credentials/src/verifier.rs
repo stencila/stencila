@@ -29,7 +29,7 @@ use stencila_schema::Graph;
 
 use crate::{
     error::{Error, Result},
-    graph::{PROVENANCE_LABEL, PROVENANCE_SCHEMA},
+    graph::{COMPATIBLE_PROVENANCE_SCHEMAS, PROVENANCE_LABEL, PROVENANCE_SCHEMA},
     media,
     report::{
         AssetBindingStatus, ManifestStatus, ProvenanceStatus, ReproducibilityStatus, SignerStatus,
@@ -598,9 +598,9 @@ fn parse_provenance(
             .and_then(Value::as_str)
             .map(ToString::to_string);
         status.schema_url.clone_from(&schema_url);
-        let schema_known = schema_url
-            .as_deref()
-            .is_none_or(|schema| schema == PROVENANCE_SCHEMA);
+        let schema_known = schema_url.as_deref().is_none_or(|schema| {
+            schema == PROVENANCE_SCHEMA || COMPATIBLE_PROVENANCE_SCHEMAS.contains(&schema)
+        });
         status.schema_known = schema_known;
         if !schema_known {
             return (status, problem);

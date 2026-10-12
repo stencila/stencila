@@ -75,6 +75,12 @@ const PROP_PROGRAMMING_LANGUAGE: &str = "org.stencila.programmingLanguage";
 const PROP_EXECUTION: &str = "org.stencila.execution";
 const PROP_AI_STANDARD_ASSERTION: &str = "org.stencila.aiDisclosure.standardAssertion";
 
+/// Earlier schema versions whose graphs this release reads with unchanged meaning.
+///
+/// Empty for the A1–A5 release: 2.16.0 supplied confidence and action-status defaults.
+/// Successful deserialization alone never adds a version to this contract.
+pub const COMPATIBLE_PROVENANCE_SCHEMAS: &[&str] = &[];
+
 /// Compact metadata extracted from the credential graph for C2PA projections.
 #[derive(Debug, Clone, Default)]
 pub(crate) struct GraphMetadata {
@@ -346,28 +352,15 @@ pub(crate) fn metadata_from_graph(graph: &Graph) -> GraphMetadata {
     if let Ok(value) = serde_json::to_value(graph) {
         read_identifiers(value.get("identifiers"), &mut metadata);
 
+        // Standard assertions describe the signed asset, never upstream nodes or evidence.
         for node in value
             .get("nodes")
             .and_then(Value::as_array)
             .into_iter()
             .flatten()
         {
-            read_identifiers(node.pointer("/node/identifiers"), &mut metadata);
-        }
-
-        for edge in value
-            .get("edges")
-            .and_then(Value::as_array)
-            .into_iter()
-            .flatten()
-        {
-            for evidence in evidence_values(edge) {
-                read_identifiers(
-                    evidence
-                        .get("details")
-                        .and_then(|details| details.get("identifiers")),
-                    &mut metadata,
-                );
+            if node.get("id").and_then(Value::as_str) == Some("asset:signed") {
+                read_identifiers(node.pointer("/node/identifiers"), &mut metadata);
             }
         }
     }
@@ -1116,14 +1109,6 @@ fn read_identifiers(value: Option<&Value>, metadata: &mut GraphMetadata) {
             PROP_AI_STANDARD_ASSERTION => metadata.ai_standard_assertion = value_string(value),
             _ => {}
         }
-    }
-}
-
-fn evidence_values(edge: &Value) -> Vec<&Value> {
-    match edge.get("evidence") {
-        Some(Value::Array(values)) => values.iter().collect(),
-        Some(value) => vec![value],
-        None => Vec::new(),
     }
 }
 

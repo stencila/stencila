@@ -303,6 +303,8 @@ impl CredentialProducer {
             fallback_title,
             &policy,
         );
+        let ingredients =
+            opening_ingredients(&assertion, &ingredients, Some(&input_path), &media_type)?;
         policy.validate_assertion_size(&graph_assertion_payload(&assertion)?)?;
 
         let media_for_task = media_type.clone();
@@ -450,6 +452,8 @@ impl CredentialProducer {
         if !input_path.exists() {
             return Err(Error::InputNotFound(input_path));
         }
+        let ingredients =
+            opening_ingredients(&assertion, &ingredients, Some(&input_path), &media_type)?;
         ProjectionPolicy::for_profile(credential_profile)
             .validate_assertion_size(&graph_assertion_payload(&assertion)?)?;
 
@@ -1311,6 +1315,41 @@ fn build_builder_with_signer(
 }
 
 #[allow(clippy::too_many_arguments)]
+fn opening_ingredients(
+    assertion: &Graph,
+    ingredients: &[IngredientSnapshot],
+    asset_path: Option<&Path>,
+    media_type: &str,
+) -> Result<Vec<IngredientSnapshot>> {
+    let parents = ingredients
+        .iter()
+        .filter(|item| item.relationship == IngredientRelationship::ParentOf)
+        .count();
+    if parents > 1 {
+        return Err(Error::other("at most one parentOf ingredient is permitted"));
+    }
+    let mut ingredients = ingredients.to_vec();
+    if parents == 0 && digital_source_type(assertion).is_none() {
+        let path = asset_path.ok_or_else(|| {
+            Error::other("creation requires a digital source type or parent bytes")
+        })?;
+        ingredients.push(IngredientSnapshot {
+            label: Some("stencila-unsigned-parent".to_string()),
+            title: path
+                .file_name()
+                .and_then(|name| name.to_str())
+                .map(ToString::to_string),
+            media_type: Some(media_type.to_string()),
+            content_digest: Some(media::sha256_file(path)?),
+            relationship: IngredientRelationship::ParentOf,
+            manifest_source: Some(path.to_path_buf()),
+            ..Default::default()
+        });
+    }
+    Ok(ingredients)
+}
+
+#[allow(clippy::too_many_arguments)]
 fn build_builder_with_context(
     context: Context,
     media_type: &str,
@@ -1321,6 +1360,8 @@ fn build_builder_with_context(
     thumbnail_source: Option<&Path>,
     claim_generator: &CredentialClaimGeneratorInfo,
 ) -> Result<Builder> {
+    let ingredients = opening_ingredients(assertion, ingredients, thumbnail_source, media_type)?;
+    let ingredients = ingredients.as_slice();
     let definition = manifest_definition(
         media_type,
         title,
@@ -1463,7 +1504,14 @@ fn standard_assertions(
 ) -> Vec<Value> {
     let mut assertions = vec![
         actions_assertion(assertion, ingredients, soft_bindings),
-        metadata_assertion(assertion, media_type, title),
+        metadata_assertion(
+            assertion,
+            media_type,
+            title,
+            ingredients
+                .iter()
+                .any(|item| item.relationship == IngredientRelationship::ParentOf),
+        ),
         asset_type_assertion(assertion),
     ];
 
@@ -1509,7 +1557,6 @@ fn actions_assertion(
         if let Some(executed) = executed_action(assertion, ingredients) {
             actions.push(executed);
         }
-        actions.push(created);
     } else {
         actions.push(created);
         if let Some(executed) = executed_action(assertion, ingredients) {
@@ -1522,16 +1569,13 @@ fn actions_assertion(
             .iter()
             .filter(|binding| binding.watermark)
             .map(|binding| {
-                let mut action = json!({
+                let action = json!({
                     "action": "c2pa.watermarked.bound",
                     "softwareAgent": software_agent_value(assertion),
                     "parameters": {
                         "alg": binding.alg,
                     },
                 });
-                if let Some(when) = action_timestamp(assertion) {
-                    action["when"] = json!(when);
-                }
                 action
             }),
     );
@@ -1583,15 +1627,11 @@ fn opened_action(assertion: &Graph, ingredients: &[IngredientSnapshot]) -> Optio
             .as_deref()
             .map_or_else(|| "Open parent asset".to_string(), |title| format!("Open {title}")),
         "softwareAgent": software_agent_value(assertion),
-        "parameters": {
-            "ingredientIds": [ingredient_label(ingredient, index)]
-        }
+        "parameters": action_parameters(assertion, ingredients, true)
     });
-
-    if let Some(when) = action_timestamp(assertion) {
-        action["when"] = json!(when);
-    }
-
+    // The export has no recorded opening time. Its producing activity's time describes a
+    // different event and must never date an opening.
+    action["parameters"]["ingredientIds"] = json!([ingredient_label(ingredient, index)]);
     Some(action)
 }
 
@@ -1635,7 +1675,6 @@ fn executed_action(assertion: &Graph, ingredients: &[IngredientSnapshot]) -> Opt
         .get("endedAt")
         .and_then(Value::as_str)
         .map(ToString::to_string)
-        .or_else(|| action_timestamp(assertion))
     {
         action["when"] = json!(when);
     }
@@ -1658,7 +1697,7 @@ fn digital_source_type(assertion: &Graph) -> Option<&'static str> {
     }
 }
 
-fn metadata_assertion(assertion: &Graph, media_type: &str, title: &str) -> Value {
+fn metadata_assertion(assertion: &Graph, media_type: &str, title: &str, opened: bool) -> Value {
     let metadata = metadata_from_graph(assertion);
     let label = metadata
         .asset_title
@@ -1685,7 +1724,7 @@ fn metadata_assertion(assertion: &Graph, media_type: &str, title: &str) -> Value
         data["dc:type"] = json!(dcmi_type);
     }
 
-    if let Some(when) = action_timestamp(assertion) {
+    if !opened && let Some(when) = action_timestamp(assertion) {
         data["xmp:CreateDate"] = json!(when);
     }
 
@@ -2078,7 +2117,7 @@ fn action_description(assertion: &Graph) -> String {
 
 fn action_timestamp(assertion: &Graph) -> Option<String> {
     let metadata = metadata_from_graph(assertion);
-    metadata.activity_ended_at.or(metadata.activity_started_at)
+    metadata.activity_ended_at
 }
 
 fn action_parameters(
@@ -2126,7 +2165,7 @@ fn placed_actions(assertion: &Graph, ingredients: &[IngredientSnapshot]) -> Vec<
         .enumerate()
         .filter(|(_, ingredient)| ingredient.relationship == IngredientRelationship::ComponentOf)
         .map(|(index, ingredient)| {
-            let mut action = json!({
+            let action = json!({
                 "action": "c2pa.placed",
                 "description": ingredient
                     .title
@@ -2137,10 +2176,6 @@ fn placed_actions(assertion: &Graph, ingredients: &[IngredientSnapshot]) -> Vec<
                     "ingredientIds": [ingredient_label(ingredient, index)]
                 }
             });
-
-            if let Some(when) = action_timestamp(assertion) {
-                action["when"] = json!(when);
-            }
 
             action
         })
