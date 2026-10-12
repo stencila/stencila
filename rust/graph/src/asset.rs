@@ -346,12 +346,21 @@ pub fn credential_graph_for_asset(
 /// the workspace, so containment for directories is restored afterwards by
 /// [`retain_containers`] instead.
 fn retain_upstream(graph: &Graph, start: &str, retained: &mut BTreeSet<String>) {
+    retain_dependency_edges(graph, start, retained, false);
+}
+
+fn retain_dependency_edges(
+    graph: &Graph,
+    start: &str,
+    retained: &mut BTreeSet<String>,
+    skip_parts: bool,
+) {
     let mut queue = VecDeque::from([start.to_string()]);
     while let Some(target) = queue.pop_front() {
         if !retained.insert(target.clone()) {
             continue;
         }
-        let expands_siblings = target.starts_with("dir:");
+        let expands_siblings = skip_parts || target.starts_with("dir:");
         for edge in &graph.edges {
             if edge.target == target && !(expands_siblings && edge.kind == GraphEdgeKind::PartOf) {
                 queue.push_back(edge.source.clone());
@@ -373,7 +382,9 @@ fn retain_containers(graph: &Graph, retained: &mut BTreeSet<String>) {
         if parents.is_empty() {
             break;
         }
-        retained.extend(parents);
+        for parent in parents {
+            retain_dependency_edges(graph, &parent, retained, true);
+        }
     }
 }
 

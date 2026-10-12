@@ -7,8 +7,8 @@ use std::collections::{BTreeMap, BTreeSet};
 
 use eyre::{Result, bail};
 use stencila_schema::{
-    Author, Cord, Graph, GraphAction, GraphEdge, GraphEdgeKind, GraphEvidence, GraphNode, Node,
-    StripNode, StripScope, StripTargets,
+    Author, Cord, Graph, GraphAction, GraphEdge, GraphEdgeKind, GraphEvidence, GraphGap, GraphNode,
+    Node, StripNode, StripScope, StripTargets,
 };
 
 use crate::{analysis::GraphDiagnostic, code::StaticAnalysisDiagnostic};
@@ -84,6 +84,7 @@ struct EdgeKey {
     /// The kind is part of identity so the same endpoints may carry multiple
     /// distinct relationships when the graph model requires it.
     kind: GraphEdgeKind,
+    role: Option<String>,
 }
 
 /// Optional metadata attached to a graph edge.
@@ -95,6 +96,7 @@ struct EdgeKey {
 struct EdgeMetadata {
     evidence: Vec<GraphEvidence>,
     actions: Vec<GraphAction>,
+    gaps: Vec<GraphGap>,
 }
 
 impl GraphBuilder {
@@ -197,6 +199,61 @@ impl GraphBuilder {
                 ));
             }
             std::collections::btree_map::Entry::Occupied(..) => {}
+        }
+    }
+
+    /// Import a bounded signed graph occurrence without stripping its retained event metadata.
+    pub(crate) fn add_imported_node(&mut self, node: GraphNode) {
+        if let Some(stored) = self.nodes.get_mut(&node.id) {
+            stored
+                .options
+                .evidence
+                .get_or_insert_default()
+                .extend(node.options.evidence.unwrap_or_default());
+            stored
+                .options
+                .gaps
+                .get_or_insert_default()
+                .extend(node.options.gaps.unwrap_or_default());
+        } else {
+            self.nodes.insert(node.id.clone(), node);
+        }
+    }
+
+    /// Add evidence and account limitations once to the credential that carries them.
+    pub(crate) fn attest_import(&mut self, id: &str, evidence: GraphEvidence, gaps: Vec<GraphGap>) {
+        if let Some(node) = self.nodes.get_mut(id) {
+            node.options.evidence.get_or_insert_default().push(evidence);
+            node.options.gaps.get_or_insert_default().extend(gaps);
+        }
+    }
+
+    /// Import an edge without merging roles or upgrading its original evidentiary basis.
+    pub(crate) fn add_imported_edge(&mut self, edge: GraphEdge) {
+        if edge.source == edge.target {
+            return;
+        }
+        let key = EdgeKey {
+            source: edge.source,
+            target: edge.target,
+            kind: edge.kind,
+            role: edge.options.role,
+        };
+        let stored = self.edges.entry(key).or_default();
+        for evidence in edge.options.evidence.unwrap_or_default() {
+            if !stored.evidence.contains(&evidence) {
+                stored.evidence.push(evidence);
+            }
+        }
+        for action in edge.options.actions.unwrap_or_default() {
+            if !stored.actions.contains(&action) {
+                stored.actions.push(action);
+            }
+        }
+        for gap in edge.options.gaps.unwrap_or_default() {
+            if !stored.gaps.contains(&gap) {
+                stored.gaps.push(gap);
+            }
         }
     }
 
@@ -414,6 +471,7 @@ impl GraphBuilder {
             source,
             target,
             kind,
+            role: None,
         };
         let stored = self.edges.entry(edge).or_default();
         for evidence in evidence {
@@ -471,6 +529,10 @@ impl GraphBuilder {
                 .into_iter()
                 .map(|(edge, metadata)| {
                     let mut graph_edge = GraphEdge::new(edge.source, edge.target, edge.kind);
+                    graph_edge.options.role = edge.role;
+                    if !metadata.gaps.is_empty() {
+                        graph_edge.options.gaps = Some(metadata.gaps);
+                    }
                     if !metadata.evidence.is_empty() {
                         graph_edge.options.evidence = Some(metadata.evidence);
                     }

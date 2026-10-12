@@ -209,7 +209,14 @@ fn add_inspection(
         &ingredient_ids,
         &projected_evidence,
     );
-    add_stencila_assertion(builder, &scope, asset_id, inspection, &projected_evidence);
+    add_stencila_assertion(
+        builder,
+        &scope,
+        asset_id,
+        &credential_id,
+        inspection,
+        &projected_evidence,
+    );
     add_ai_disclosure(builder, &scope, asset_id, manifest, &projected_evidence);
 
     Ok(())
@@ -338,12 +345,27 @@ fn add_actions(
         let kind = action.get("action").and_then(Value::as_str);
         let edge_kind = match kind {
             Some("c2pa.created") => GraphEdgeKind::Generated,
-            Some("c2pa.opened" | "c2pa.converted") => GraphEdgeKind::ConvertedInto,
+            Some("c2pa.opened") => GraphEdgeKind::DerivedInto,
+            Some("c2pa.converted") => GraphEdgeKind::ConvertedInto,
             Some("c2pa.placed") => GraphEdgeKind::PartOf,
-            Some("org.stencila.executed") => GraphEdgeKind::Generated,
-            _ => GraphEdgeKind::Generated,
+            Some("org.stencila.executed") => GraphEdgeKind::CalledBy,
+            _ => continue,
         };
         let graph_action = graph_action(scope, action, index);
+        let execution_id = format!("action:c2pa:{scope}:{index}");
+        let target = if kind == Some("org.stencila.executed") {
+            if let GraphAction::ExecuteAction(execution) = &graph_action {
+                let mut wrapper = stencila_schema::GraphNode::new(
+                    execution_id.clone(),
+                    Box::new(Node::ExecuteAction(execution.clone())),
+                );
+                wrapper.options.evidence = Some(vec![evidence.clone()]);
+                builder.add_imported_node(wrapper);
+            }
+            execution_id.as_str()
+        } else {
+            asset_id
+        };
 
         let mut sources = action_ingredient_ids(action, ingredient_ids);
         if sources.is_empty()
@@ -355,7 +377,7 @@ fn add_actions(
         for source in sources {
             builder.add_edge_with_evidence_and_actions(
                 source,
-                asset_id,
+                target,
                 edge_kind,
                 [evidence.clone()],
                 [graph_action.clone()],
@@ -368,6 +390,7 @@ fn add_stencila_assertion(
     builder: &mut GraphBuilder,
     scope: &str,
     asset_id: Option<&str>,
+    credential_id: &str,
     inspection: &C2paInspection,
     evidence: &GraphEvidence,
 ) {
@@ -386,10 +409,9 @@ fn add_stencila_assertion(
         };
         id_map.insert(graph_node.id.clone(), id.clone());
 
-        if Some(id.as_str()) == asset_id {
-            continue;
-        }
-        builder.add_schema_node(id, graph_node.node.as_ref().clone());
+        let mut imported = graph_node.clone();
+        imported.id = id;
+        builder.add_imported_node(imported);
     }
 
     for edge in &graph.edges {
@@ -401,18 +423,16 @@ fn add_stencila_assertion(
             .get(&edge.target)
             .cloned()
             .unwrap_or_else(|| scoped_stencila_graph_node_id(scope, 0, &edge.target));
-        let actions = edge.options.actions.clone().unwrap_or_default();
-        let mut evidence_items = edge.options.evidence.clone().unwrap_or_default();
-        evidence_items.push(evidence.clone());
-
-        builder.add_edge_with_evidence_and_actions(
-            source,
-            target,
-            edge.kind,
-            evidence_items,
-            actions,
-        );
+        let mut imported = edge.clone();
+        imported.source = source;
+        imported.target = target;
+        builder.add_imported_edge(imported);
     }
+    builder.attest_import(
+        credential_id,
+        evidence.clone(),
+        graph.options.gaps.clone().unwrap_or_default(),
+    );
 }
 
 fn add_ai_disclosure(

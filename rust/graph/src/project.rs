@@ -196,7 +196,9 @@ pub enum GraphEdgeFamily {
 pub fn edge_family(kind: GraphEdgeKind) -> GraphEdgeFamily {
     match kind {
         GraphEdgeKind::PartOf => GraphEdgeFamily::Structure,
-        GraphEdgeKind::ReadBy
+        GraphEdgeKind::SuppliedTo
+        | GraphEdgeKind::Collected
+        | GraphEdgeKind::ReadBy
         | GraphEdgeKind::ReceivedBy
         | GraphEdgeKind::Generated
         | GraphEdgeKind::WrittenTo
@@ -210,9 +212,10 @@ pub fn edge_family(kind: GraphEdgeKind) -> GraphEdgeFamily {
         | GraphEdgeKind::Pins
         | GraphEdgeKind::Configures => GraphEdgeFamily::Software,
         GraphEdgeKind::CitedBy => GraphEdgeFamily::Citation,
-        GraphEdgeKind::UsedBy | GraphEdgeKind::LinkedBy | GraphEdgeKind::IncludedBy => {
-            GraphEdgeFamily::Reference
-        }
+        GraphEdgeKind::Precedes
+        | GraphEdgeKind::UsedBy
+        | GraphEdgeKind::LinkedBy
+        | GraphEdgeKind::IncludedBy => GraphEdgeFamily::Reference,
         GraphEdgeKind::Supports
         | GraphEdgeKind::SupportedBy
         | GraphEdgeKind::Opposes
@@ -1280,6 +1283,13 @@ fn edge_score(
     }
 
     match edge.kind {
+        GraphEdgeKind::SuppliedTo | GraphEdgeKind::Collected | GraphEdgeKind::Precedes => {
+            if preset == GraphProjectionPreset::Flow {
+                4
+            } else {
+                0
+            }
+        }
         GraphEdgeKind::UsedBy => {
             if preset == GraphProjectionPreset::React && is_reactive_use_edge(edge, nodes_by_id) {
                 20
