@@ -237,12 +237,13 @@ Use `nodes` and `report_nodes` for in-memory Stencila Schema nodes, and `strings
 `right_format` for those, since there is no path to infer the format from).
 
 Differences can be filtered with `exclude` (and, alongside it, `include`). A selector is
-a property (`jatsRefType`), a property of one node type (`Link.id`), a node type
+a property (`jatsRefType`), a property of one node type (`Figure.label`), a node type
 (`Link`), or `*` for everything; the most specific matching selector wins, whatever
-order they are given in.
+order they are given in. Changes to `id` are never reported, so `id` needs no
+excluding.
 
 ```py
-comparison = paths("a.md", "b.md", exclude=["id", "Link"])
+comparison = paths("a.md", "b.md", exclude=["label", "Link"], include=["Figure.label"])
 ```
 
 Reports take `format="text"` (the default) or `format="html"` for a self-contained

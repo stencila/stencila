@@ -48,9 +48,10 @@ def nodes(  # noqa: PLR0913
             alongside a broader `exclude`, because with nothing excluded every
             difference is already reported.
         exclude (Sequence[str]): Selectors for differences not to report. A selector is
-            a property (`jatsRefType`), a property of one node type (`Link.id`), a node
-            type (`Link`), or `*` (or `all`) for everything. The most specific matching
-            selector wins, whatever order they are given in.
+            a property (`jatsRefType`), a property of one node type (`Figure.label`), a
+            node type (`Link`), or `*` (or `all`) for everything. The most specific
+            matching selector wins, whatever order they are given in. Changes to `id`
+            are never reported, so `id` needs no excluding.
         normalize (Sequence[Normalization]): Rules for classifying value differences
             as cosmetic: "whitespace", "typography" and "initials". Cosmetic
             differences are still reported, each marked `cosmetic`, and do not affect

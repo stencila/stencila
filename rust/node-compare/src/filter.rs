@@ -140,7 +140,7 @@ impl fmt::Display for SelectorError {
     fn fmt(&self, formatter: &mut fmt::Formatter) -> fmt::Result {
         match self {
             Self::Empty => formatter.write_str(
-                "Expected a selector such as `id`, `Link.id`, `Link` or `*`, but it was empty",
+                "Expected a selector such as `label`, `Figure.label`, `Link` or `*`, but it was empty",
             ),
             Self::UnknownType { name } => write!(
                 formatter,
