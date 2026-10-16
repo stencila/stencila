@@ -12161,6 +12161,7 @@ name = "stencila-node-compare-report"
 version = "0.0.0"
 dependencies = [
  "eyre",
+ "serde",
  "serde_json",
  "similar 3.1.0",
  "stencila-codec-dom-trait",

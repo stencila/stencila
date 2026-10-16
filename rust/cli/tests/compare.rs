@@ -113,6 +113,155 @@ fn different_documents_still_write_their_output() -> Result<()> {
 }
 
 #[test]
+fn multiple_formats_share_the_comparison_and_readable_locations() -> Result<()> {
+    let dir = workspace()?;
+    let output = compare(
+        dir.path(),
+        [
+            "before.smd",
+            "after.smd",
+            "comparison.json",
+            "comparison.yaml",
+            "comparison.html",
+            "--compact",
+            "--locations",
+        ],
+    );
+    assert_eq!(
+        code(&output)?,
+        1,
+        "{}",
+        String::from_utf8_lossy(&output.stderr)
+    );
+    assert!(output.stdout.is_empty());
+
+    let json = read_to_string(dir.path().join("comparison.json"))?;
+    assert_eq!(json.lines().count(), 1);
+    let mut artifact: serde_json::Value = serde_json::from_str(&json)?;
+    let yaml: serde_json::Value =
+        serde_yaml::from_str(&read_to_string(dir.path().join("comparison.yaml"))?)?;
+    assert_eq!(artifact, yaml);
+
+    let html = read_to_string(dir.path().join("comparison.html"))?;
+    let Some(locations) = artifact["report"]["locations"]["left"].as_object() else {
+        bail!("Expected readable locations indexed by path");
+    };
+    assert_eq!(locations.get("$"), Some(&serde_json::json!("Article")));
+    assert_eq!(
+        locations.get("$/content/0"),
+        Some(&serde_json::json!("“Methods”"))
+    );
+    assert!(html.contains("“Methods” › Text 1 › value"), "{html}");
+    assert!(html.contains("“Method” › Text 1 › value"), "{html}");
+
+    let plain = compare(dir.path(), ["before.smd", "after.smd", "--to", "json"]);
+    assert_eq!(code(&plain)?, 1);
+    let faithful: serde_json::Value = serde_json::from_slice(&plain.stdout)?;
+    let Some(object) = artifact.as_object_mut() else {
+        bail!("Expected a comparison object")
+    };
+    object.remove("report");
+    assert_eq!(
+        artifact, faithful,
+        "Presentation must not change the comparison"
+    );
+    assert!(String::from_utf8(plain.stdout)?.lines().count() > 1);
+    Ok(())
+}
+
+#[test]
+fn compact_stdout_preserves_equality_and_the_json_artifact() -> Result<()> {
+    let dir = workspace()?;
+    let output = compare(
+        dir.path(),
+        ["before.smd", "copy.smd", "--to", "json", "--compact"],
+    );
+    assert_eq!(code(&output)?, 0);
+    let json = String::from_utf8(output.stdout)?;
+    assert_eq!(json.lines().count(), 1);
+    assert!(json.ends_with('\n'));
+    let comparison: stencila_node_compare::Comparison = serde_json::from_str(&json)?;
+    assert!(comparison.is_equal());
+    Ok(())
+}
+
+#[test]
+fn mixed_outputs_allow_summary_and_one_stdout_destination() -> Result<()> {
+    let dir = workspace()?;
+    let output = compare(
+        dir.path(),
+        [
+            "before.smd",
+            "after.smd",
+            "comparison.json",
+            "-",
+            "--summary",
+        ],
+    );
+    assert_eq!(code(&output)?, 1);
+    let stdout = String::from_utf8(output.stdout)?;
+    assert!(stdout.starts_with("different\n"));
+    assert!(!stdout.contains("~ value"));
+    let json: serde_json::Value =
+        serde_json::from_str(&read_to_string(dir.path().join("comparison.json"))?)?;
+    assert_eq!(json["differences"].as_array().map(Vec::len), Some(1));
+    Ok(())
+}
+
+#[test]
+fn invalid_multiple_outputs_fail_before_writing_anything() -> Result<()> {
+    let dir = workspace()?;
+    let before = read(dir.path().join("before.smd"))?;
+    for extra in ["before.smd", "bad.unknown", "report.json", "./report.json"] {
+        let output = compare(
+            dir.path(),
+            ["before.smd", "after.smd", "report.json", extra],
+        );
+        assert_eq!(code(&output)?, 2, "extra output: {extra}");
+        assert!(!dir.path().join("report.json").exists());
+        assert!(output.stdout.is_empty());
+    }
+    assert_eq!(read(dir.path().join("before.smd"))?, before);
+    let output = compare(dir.path(), ["before.smd", "after.smd", "-", "-"]);
+    assert_eq!(code(&output)?, 2);
+    assert!(output.stdout.is_empty());
+    for flag in ["--compact", "--locations"] {
+        let output = compare(dir.path(), ["before.smd", "after.smd", "report.txt", flag]);
+        assert_eq!(code(&output)?, 2);
+        assert!(!dir.path().join("report.txt").exists());
+    }
+    Ok(())
+}
+
+/// A merged document that cannot be encoded leaves every output untouched
+#[test]
+fn failed_suggestions_encoding_writes_nothing() -> Result<()> {
+    let dir = workspace()?;
+    write(dir.path().join("report.json"), "previous\n")?;
+    let output = compare(
+        dir.path(),
+        ["before.smd", "after.smd", "report.json", "merged.csv"],
+    );
+    assert_eq!(
+        code(&output)?,
+        2,
+        "{}",
+        String::from_utf8_lossy(&output.stderr)
+    );
+    assert_eq!(
+        read_to_string(dir.path().join("report.json"))?,
+        "previous\n"
+    );
+    assert!(!dir.path().join("merged.csv").exists());
+    // Nor is a partly encoded temporary file left behind
+    let leftover = std::fs::read_dir(dir.path())?
+        .filter_map(|entry| entry.ok())
+        .any(|entry| entry.file_name().to_string_lossy().starts_with(".stencila"));
+    assert!(!leftover);
+    Ok(())
+}
+
+#[test]
 fn machine_output_has_no_styling_or_prose() -> Result<()> {
     let dir = workspace()?;
 

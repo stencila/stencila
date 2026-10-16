@@ -9,6 +9,10 @@
 //! Two renderings are offered, both deterministic human presentation rather than stable
 //! interchange formats: use the serialized `Comparison` for that.
 
+mod locations;
+
+pub use locations::{LocationLabels, ReportMetadata};
+
 use std::{fmt::Write as _, time::Duration};
 
 use eyre::Result;
@@ -123,18 +127,23 @@ pub fn html_report(
     right: Snapshot,
     summary: bool,
 ) -> Result<String> {
-    html_report_inner(comparison, left, right, summary, None)
+    html_report_inner(comparison, left, right, summary, None, None)
 }
 
 /// Render the HTML view for a comparison with a merged-document overlay
+///
+/// Pass `locations` when they have already been derived from the same snapshots, for
+/// example for [`ReportMetadata`], so that they are not derived again. Otherwise only
+/// the occurrences that the view shows are described.
 pub fn html_report_with_overlay(
     comparison: &Comparison,
     left: Snapshot,
     right: Snapshot,
     summary: bool,
     overlay: &Node,
+    locations: Option<&LocationLabels>,
 ) -> Result<String> {
-    html_report_inner(comparison, left, right, summary, Some(overlay))
+    html_report_inner(comparison, left, right, summary, Some(overlay), locations)
 }
 
 /// Render the HTML view for a comparison
@@ -159,6 +168,7 @@ fn html_report_inner(
     right: Snapshot,
     summary: bool,
     overlay: Option<&Node>,
+    locations: Option<&LocationLabels>,
 ) -> Result<String> {
     let alignment = comparison.alignment();
     let differences = comparison.differences();
@@ -173,17 +183,42 @@ fn html_report_inner(
 
     // Rows are read down the page, so they are put into the reading order of the
     // documents rather than grouped by kind
-    let anchors = LeftAnchors::collect(alignment);
+    let equal = one_sided.left.is_empty() && one_sided.right.is_empty() && differences.is_empty();
     let mut rows = Vec::new();
-    for root in one_sided.left.iter().chain(one_sided.right.iter()) {
-        rows.push(ViewRow::one_sided(root, &anchors));
+    if !summary && !equal {
+        // Only the occurrences that rows show need describing
+        let described;
+        let locations = match locations {
+            Some(locations) => locations,
+            None => {
+                described = LocationLabels::describe(
+                    left,
+                    right,
+                    one_sided
+                        .left
+                        .iter()
+                        .map(|root| root.node)
+                        .chain(differences.iter().map(Difference::left)),
+                    one_sided
+                        .right
+                        .iter()
+                        .map(|root| root.node)
+                        .chain(differences.iter().map(Difference::right)),
+                )?;
+                &described
+            }
+        };
+        let anchors = LeftAnchors::collect(alignment);
+        for root in one_sided.left.iter().chain(one_sided.right.iter()) {
+            rows.push(ViewRow::one_sided(root, &anchors, locations));
+        }
+        for difference in differences {
+            rows.push(ViewRow::difference(difference, locations));
+        }
+        // A stable sort, so that several rows about the same occurrence keep the
+        // canonical order that the comparison put them in
+        rows.sort_by(|first, second| first.order.cmp(&second.order));
     }
-    for difference in differences {
-        rows.push(ViewRow::difference(difference));
-    }
-    // A stable sort, so that several rows about the same occurrence keep the
-    // canonical order that the comparison put them in
-    rows.sort_by(|first, second| first.order.cmp(&second.order));
 
     let mut html = String::new();
 
@@ -274,8 +309,8 @@ fn html_report_inner(
         },
     )?;
 
-    if summary || rows.is_empty() {
-        let note = if rows.is_empty() {
+    if rows.is_empty() {
+        let note = if equal {
             "The documents are equal."
         } else {
             "Only counts are reported because <code>--summary</code> was used."
@@ -545,6 +580,7 @@ h1 { font-size: 1.25rem; margin: 0 0 0.75rem; }
   color: var(--muted);
 }
 .path, code, .subject, .detail { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
+.location { display: block; margin: 0.25rem 0; font-weight: 500; }
 .counts { display: flex; flex-wrap: wrap; gap: 0.5rem; list-style: none; margin: 0; padding: 0; }
 .counts li {
   background: var(--surface);
@@ -809,6 +845,8 @@ impl<'comparison> LeftAnchors<'comparison> {
 
 /// One side of a row of the side-by-side view
 struct ViewCell {
+    /// A readable breadcrumb derived from the same snapshot as the comparison
+    location: Option<String>,
     /// What the row is about on this side, usually a path
     subject: String,
 
@@ -823,6 +861,7 @@ impl ViewCell {
     /// A cell whose state is shown as it is, without shading
     fn new(subject: String, detail: Option<String>) -> Self {
         Self {
+            location: None,
             subject,
             detail: detail.into_iter().map(Segment::unchanged).collect(),
         }
@@ -957,11 +996,17 @@ struct ViewRow {
 
 impl ViewRow {
     /// Build a row for a one-sided subtree root
-    fn one_sided(root: &OneSidedRoot, anchors: &LeftAnchors) -> Self {
+    fn one_sided(root: &OneSidedRoot, anchors: &LeftAnchors, locations: &LocationLabels) -> Self {
         // The whole subtree is on one side, so all of its content is shaded, the same
         // way a value that only one side has is
         let cell = ViewCell {
             subject: occurrence(root.node),
+            location: match root.side {
+                Side::Left => &locations.left,
+                Side::Right => &locations.right,
+            }
+            .get(&path(&root.node.path))
+            .cloned(),
             detail: root
                 .content
                 .iter()
@@ -1013,8 +1058,8 @@ impl ViewRow {
     }
 
     /// Build a row for a difference
-    fn difference(difference: &Difference) -> Self {
-        let (kind, marker, left, right) = match difference {
+    fn difference(difference: &Difference, locations: &LocationLabels) -> Self {
+        let (kind, marker, mut left, mut right) = match difference {
             Difference::NodeTypeChanged { left, right } => (
                 "node type",
                 "≠",
@@ -1054,6 +1099,7 @@ impl ViewRow {
                     if *cosmetic { "cosmetic" } else { "value" },
                     "~",
                     ViewCell {
+                        location: None,
                         subject: value_subject(
                             &location.left,
                             location.property.as_ref(),
@@ -1062,6 +1108,7 @@ impl ViewRow {
                         detail: left_detail,
                     },
                     ViewCell {
+                        location: None,
                         subject: value_subject(
                             &location.right,
                             location.property.as_ref(),
@@ -1099,6 +1146,29 @@ impl ViewRow {
                 ViewCell::new(occurrence(right), None),
             ),
         };
+
+        left.location = locations.left.get(&path(&difference.left().path)).cloned();
+        right.location = locations
+            .right
+            .get(&path(&difference.right().path))
+            .cloned();
+        let (property, left_index, right_index) = match difference {
+            Difference::ValueChanged { location, .. } => {
+                (location.property, location.left_index, location.right_index)
+            }
+            Difference::PropertyPresenceChanged { property, .. } => (Some(*property), None, None),
+            _ => (None, None, None),
+        };
+        for (cell, index) in [(&mut left, left_index), (&mut right, right_index)] {
+            if let Some(label) = &mut cell.location {
+                if let Some(property) = property {
+                    label.push_str(&format!(" › {property}"));
+                }
+                if let Some(index) = index {
+                    label.push_str(&format!(" › {}", index + 1));
+                }
+            }
+        }
 
         Self {
             kind,
@@ -1148,6 +1218,12 @@ fn view_cell(cell: Option<&ViewCell>, note: Option<&str>, shading: &str) -> Stri
         "<td><span class=\"subject\">{}</span>",
         escape(&cell.subject)
     );
+    if let Some(location) = &cell.location {
+        rendered.push_str(&format!(
+            "<span class=\"location\">{}</span>",
+            escape(location)
+        ));
+    }
     if !cell.detail.is_empty() {
         rendered.push_str("<span class=\"detail\">");
         for segment in &cell.detail {
@@ -1714,7 +1790,7 @@ mod tests {
         let comparison = compare(left, right)?;
         let overlay = left.clone();
         let (left, right) = snapshots(left, right);
-        html_report_with_overlay(&comparison, left, right, false, &overlay)
+        html_report_with_overlay(&comparison, left, right, false, &overlay, None)
     }
 
     #[test]
@@ -2044,7 +2120,7 @@ differences: 1
         let right = article(vec![para("Two")]);
         let comparison = compare(&left, &right)?;
         let (left, right) = snapshots(&left, &right);
-        let page = html_report_with_overlay(&comparison, left, right, false, &overlay)?;
+        let page = html_report_with_overlay(&comparison, left, right, false, &overlay, None)?;
 
         // The comment marks the heading in place and says what it says on hover, so
         // the reader meets it where it applies rather than in a list below
@@ -2077,7 +2153,7 @@ differences: 1
         let right = article(vec![para("Two")]);
         let comparison = compare(&left, &right)?;
         let (left, right) = snapshots(&left, &right);
-        let page = html_report_with_overlay(&comparison, left, right, false, &overlay)?;
+        let page = html_report_with_overlay(&comparison, left, right, false, &overlay, None)?;
 
         assert!(page.contains("Elsewhere in the document"), "{page}");
         assert!(page.contains("An author was removed"), "{page}");
@@ -2109,7 +2185,7 @@ differences: 1
         let right = article(vec![para("Two")]);
         let comparison = compare(&left, &right)?;
         let (left, right) = snapshots(&left, &right);
-        let page = html_report_with_overlay(&comparison, left, right, false, &overlay)?;
+        let page = html_report_with_overlay(&comparison, left, right, false, &overlay, None)?;
 
         assert!(!page.contains("<script>"), "{page}");
         assert!(page.contains(r"\3c /style>\3c script>"), "{page}");

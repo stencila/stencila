@@ -3,7 +3,8 @@
 //! A terminal-first adapter over the `stencila-node-compare` crate: it decodes two
 //! local documents independently, compares them with neutral left/right roles, and
 //! either prints a human-readable report, opens a side-by-side view of it in a
-//! browser, or writes the unchanged `Comparison` artifact as JSON or YAML.
+//! browser, or writes the `Comparison` artifact as JSON or YAML, optionally with
+//! derived report metadata. Several outputs share one comparison.
 //!
 //! Only argument handling and input/output live here. Comparison itself comes from
 //! `stencila-node-compare`, and the text and HTML renderings from
@@ -17,15 +18,20 @@ use std::{
 
 use clap::{Parser, ValueEnum};
 use eyre::{Context, Result, bail};
+use serde::Serialize;
+use tempfile::TempPath;
 use url::Url;
 
 use stencila_cli_utils::{color_print::cstr, message};
 use stencila_codecs::{DecodeOptions, EncodeOptions, LossesResponse};
 use stencila_format::Format;
 use stencila_node_compare::{
-    CompareOptions, DifferenceFilter, Normalization, Selector, Side, compare_with_options,
+    CompareOptions, Comparison, DifferenceFilter, Normalization, Selector, Side,
+    compare_with_options,
 };
-use stencila_node_compare_report::{Snapshot, html_report_with_overlay, text_report};
+use stencila_node_compare_report::{
+    ReportMetadata, Snapshot, html_report_with_overlay, text_report,
+};
 use stencila_node_merge::{MergeOptions, MergeReport, merge_comparison_with_options};
 use stencila_schema::Node;
 
@@ -39,6 +45,12 @@ use stencila_schema::Node;
 /// changes while retaining their raw values. Classification is disabled by default
 /// and does not change equality or exit status.
 ///
+/// Supply several output paths to write multiple formats from one comparison. Use
+/// `--compact` for JSON without indentation, and `--locations` to add readable labels
+/// under `report.locations.left` and `report.locations.right`, indexed by node path.
+/// These labels are display metadata; the comparison and its node references remain
+/// unchanged. HTML always shows readable labels alongside the precise paths.
+///
 /// Exits with 0 when the documents are equal, 1 when they differ, and 2 on error.
 #[derive(Debug, Parser)]
 #[command(after_long_help = CLI_AFTER_LONG_HELP)]
@@ -51,10 +63,12 @@ pub struct Cli {
     /// May be in a different format to the left document.
     right: PathBuf,
 
-    /// The path of the output file
+    /// The paths of the output files
     ///
+    /// Each output's format is inferred from its extension, unless `--to` is supplied.
+    /// Both inputs are decoded and compared once, regardless of the number of outputs.
     /// If not supplied, or if "-", the report is written to `stdout`.
-    output: Option<PathBuf>,
+    outputs: Vec<PathBuf>,
 
     /// The format of the left document
     ///
@@ -75,14 +89,14 @@ pub struct Cli {
     /// If not supplied, is inferred from the extension of the output file:
     /// `.txt`, `.html`, `.json`, `.yaml` and `.yml` give a report about the
     /// comparison, and any other document extension gives `suggestions`. Defaults to
-    /// `text` when writing to `stdout`.
+    /// `text` when writing to `stdout`. Applies to all output paths.
     #[arg(long, short)]
     to: Option<OutputFormat>,
 
     /// Open a side-by-side view of the comparison in a browser
     ///
-    /// Implies `--to html`. Unless an output path is supplied, the view is written
-    /// to a temporary file.
+    /// Opens each HTML output. With no outputs, or for `-`, writes HTML to a
+    /// temporary file and opens that. At least one output must be HTML.
     #[arg(long)]
     view: bool,
 
@@ -91,6 +105,20 @@ pub struct Cli {
     /// Only applies to `text` and `html` output.
     #[arg(long)]
     summary: bool,
+
+    /// Write JSON without indentation
+    ///
+    /// Requires at least one JSON output. Other output formats are unaffected.
+    #[arg(long)]
+    compact: bool,
+
+    /// Include readable locations in JSON and YAML reports
+    ///
+    /// Adds `report.locations.left` and `report.locations.right` maps, keyed by node
+    /// path (`$` for the root, `$/content/0` for a child). Labels are presentation
+    /// metadata, not node identities. HTML reports always include readable locations.
+    #[arg(long)]
+    locations: bool,
 
     /// Action when there are losses decoding either input document
     #[arg(long, default_value = "warn")]
@@ -218,6 +246,9 @@ pub static CLI_AFTER_LONG_HELP: &str = cstr!(
   <dim># Write the comparison artifact to a file</dim>
   <b>stencila compare</> <g>before.smd</> <g>after.smd</> <g>comparison.yaml</>
 
+  <dim># Write JSON and HTML from one comparison, with readable locations in the JSON</dim>
+  <b>stencila compare</> <g>before.smd</> <g>after.smd</> <g>comparison.json</> <g>comparison.html</> <c>--locations --compact</>
+
   <dim># Ignore differences that are only about labels</dim>
   <b>stencila compare</> <g>before.smd</> <g>after.jats.xml</> <c>--exclude</> <g>label</>
 
@@ -246,12 +277,14 @@ impl Cli {
         let Self {
             left,
             right,
-            output,
+            outputs,
             left_from,
             right_from,
             to,
             view,
             summary,
+            compact,
+            locations,
             input_losses,
             include,
             exclude,
@@ -261,13 +294,33 @@ impl Cli {
 
         // Validate everything that can be validated without touching document
         // content, so that an unusable invocation fails before any decoding
-        let destination = Destination::resolve(output.as_deref(), to, view)?;
-        if summary && !matches!(destination.format, OutputFormat::Text | OutputFormat::Html) {
-            bail!("The `--summary` option is only supported for `text` and `html` output");
+        let destinations = Destination::resolve_many(&outputs, to, view)?;
+        if summary
+            && !destinations.iter().any(|destination| {
+                matches!(destination.format, OutputFormat::Text | OutputFormat::Html)
+            })
+        {
+            bail!("The `--summary` option requires a `text` or `html` output");
+        }
+        if compact
+            && !destinations
+                .iter()
+                .any(|destination| destination.format == OutputFormat::Json)
+        {
+            bail!("The `--compact` option requires a `json` output");
+        }
+        if locations
+            && !destinations.iter().any(|destination| {
+                matches!(destination.format, OutputFormat::Json | OutputFormat::Yaml)
+            })
+        {
+            bail!("The `--locations` option requires a `json` or `yaml` output");
         }
         check_input(&left, Side::Left)?;
         check_input(&right, Side::Right)?;
-        destination.check_not_input(&left, &right)?;
+        for destination in &destinations {
+            destination.check_not_input(&left, &right)?;
+        }
 
         let left_node = decode(&left, left_from.as_deref(), Side::Left, input_losses).await?;
         let right_node = decode(&right, right_from.as_deref(), Side::Right, input_losses).await?;
@@ -299,8 +352,13 @@ impl Cli {
 
         // The merged document is what the overlay renders and what `suggestions`
         // writes, so it is built once, only when one of them needs it
-        let merged = match destination.format {
-            OutputFormat::Html | OutputFormat::Suggestions => Some(
+        let merged = if destinations.iter().any(|destination| {
+            matches!(
+                destination.format,
+                OutputFormat::Html | OutputFormat::Suggestions
+            )
+        }) {
+            Some(
                 merge_comparison_with_options(
                     &left_node,
                     &right_node,
@@ -308,60 +366,92 @@ impl Cli {
                     &MergeOptions::default(),
                 )
                 .wrap_err("Unable to merge the two documents")?,
-            ),
-            _ => None,
+            )
+        } else {
+            None
         };
 
         if let Some(merged) = &merged {
             report_unrepresentable(merged.report());
         }
 
-        match destination.format {
-            OutputFormat::Suggestions => {
-                let Some(merged) = &merged else {
-                    bail!("The merged document was not built for suggestions output")
-                };
-                destination.write_suggestions(merged.node()).await?;
-            }
-            format => {
-                let content = match format {
-                    OutputFormat::Text => {
-                        text_report(&comparison, left_snapshot, right_snapshot, summary)?
+        let artifact = ComparisonArtifact {
+            comparison: &comparison,
+            report: locations
+                .then(|| ReportMetadata::new(&comparison, left_snapshot, right_snapshot))
+                .transpose()?,
+        };
+
+        // Render and encode every output before writing any of them, so that a failure
+        // to produce one leaves all of them untouched. Each file is then replaced
+        // atomically; the set of output files is not a transaction.
+        let mut rendered = Vec::with_capacity(destinations.len());
+        for destination in &destinations {
+            let output = match destination.format {
+                OutputFormat::Text => Rendered::Content(text_report(
+                    &comparison,
+                    left_snapshot,
+                    right_snapshot,
+                    summary,
+                )?),
+                OutputFormat::Html => {
+                    let Some(merged) = &merged else {
+                        bail!("The merged document was not built for HTML output")
+                    };
+                    Rendered::Content(html_report_with_overlay(
+                        &comparison,
+                        left_snapshot,
+                        right_snapshot,
+                        summary,
+                        merged.node(),
+                        artifact.report.as_ref().map(|report| &report.locations),
+                    )?)
+                }
+                OutputFormat::Json => {
+                    let mut json = if compact {
+                        serde_json::to_string(&artifact)
+                    } else {
+                        serde_json::to_string_pretty(&artifact)
                     }
-                    OutputFormat::Html => {
-                        let Some(merged) = &merged else {
-                            bail!("The merged document was not built for HTML output")
-                        };
-                        html_report_with_overlay(
-                            &comparison,
-                            left_snapshot,
-                            right_snapshot,
-                            summary,
-                            merged.node(),
-                        )?
+                    .wrap_err("Unable to serialize the comparison as JSON")?;
+                    json.push('\n');
+                    Rendered::Content(json)
+                }
+                OutputFormat::Yaml => {
+                    let mut yaml = serde_yaml::to_string(&artifact)
+                        .wrap_err("Unable to serialize the comparison as YAML")?;
+                    if !yaml.ends_with('\n') {
+                        yaml.push('\n');
                     }
-                    OutputFormat::Json => {
-                        let mut json = serde_json::to_string_pretty(&comparison)
-                            .wrap_err("Unable to serialize the comparison as JSON")?;
-                        json.push('\n');
-                        json
-                    }
-                    OutputFormat::Yaml => {
-                        let mut yaml = serde_yaml::to_string(&comparison)
-                            .wrap_err("Unable to serialize the comparison as YAML")?;
-                        if !yaml.ends_with('\n') {
-                            yaml.push('\n');
+                    Rendered::Content(yaml)
+                }
+                OutputFormat::Suggestions => {
+                    let Some(merged) = &merged else {
+                        bail!("The merged document was not built for suggestions output")
+                    };
+                    match destination.path.as_deref() {
+                        Some(path) => {
+                            Rendered::Encoded(encode_suggestions_beside(merged.node(), path).await?)
                         }
-                        yaml
+                        None => Rendered::Content(encode_suggestions(merged.node()).await?),
                     }
-                    OutputFormat::Suggestions => {
-                        bail!("Suggestions output was routed as a report")
+                }
+            };
+            rendered.push(output);
+        }
+        for (destination, output) in destinations.iter().zip(rendered) {
+            match output {
+                Rendered::Content(content) => destination.write(&content)?,
+                Rendered::Encoded(temporary) => {
+                    if let Some(path) = destination.path.as_deref() {
+                        temporary.persist(path).map_err(|error| error.error)?;
                     }
-                };
-                destination.write(&content)?;
+                }
             }
         }
-        destination.open()?;
+        for destination in &destinations {
+            destination.open()?;
+        }
 
         Ok(if comparison.is_equal() {
             CompareOutcome::Equal
@@ -369,6 +459,24 @@ impl Cli {
             CompareOutcome::Different
         })
     }
+}
+
+/// An output produced in full, but not yet written to its destination
+enum Rendered {
+    /// Text to write
+    Content(String),
+
+    /// A document already encoded to a temporary file beside its destination
+    Encoded(TempPath),
+}
+
+/// The original comparison, optionally accompanied by derived presentation metadata
+#[derive(Serialize)]
+struct ComparisonArtifact<'comparison> {
+    #[serde(flatten)]
+    comparison: &'comparison Comparison,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    report: Option<ReportMetadata>,
 }
 
 /// Whether an extension names a format a document can be written in
@@ -404,8 +512,11 @@ async fn encode_suggestions(node: &Node) -> Result<String> {
     Ok(content)
 }
 
-/// Encode a suggestions document to a path, including binary document formats
-async fn encode_suggestions_to_path(node: &Node, path: &Path) -> Result<()> {
+/// Encode a suggestions document for a path, including binary document formats
+///
+/// Encodes to a temporary file beside the path, for the caller to persist once every
+/// output has been produced.
+async fn encode_suggestions_beside(node: &Node, path: &Path) -> Result<TempPath> {
     let format = Format::from_path(path);
     let options = EncodeOptions {
         format: Some(format),
@@ -440,8 +551,7 @@ async fn encode_suggestions_to_path(node: &Node, path: &Path) -> Result<()> {
         bail!("Encoding the merged document was cancelled")
     }
 
-    temporary.persist(path).map_err(|error| error.error)?;
-    Ok(())
+    Ok(temporary)
 }
 
 /// Say what the merge could not express
@@ -546,6 +656,56 @@ struct Destination {
 }
 
 impl Destination {
+    /// Resolve and validate all destinations before decoding or writing anything
+    fn resolve_many(
+        outputs: &[PathBuf],
+        to: Option<OutputFormat>,
+        view: bool,
+    ) -> Result<Vec<Self>> {
+        if outputs.is_empty() {
+            return Ok(vec![Self::resolve(None, to, view)?]);
+        }
+        if outputs
+            .iter()
+            .filter(|output| output.as_path() == Path::new("-"))
+            .count()
+            > 1
+        {
+            bail!("An output destination was supplied more than once: -");
+        }
+
+        let mut destinations = Vec::<Self>::with_capacity(outputs.len());
+        for output in outputs {
+            // `-` stands for an omitted output however many outputs there are, so with
+            // `--view` it is an HTML view in a temporary file, as it is alone
+            let destination = if output.as_path() == Path::new("-") {
+                Self::resolve(Some(output), to, view)?
+            } else {
+                let mut destination = Self::resolve(Some(output), to, false)?;
+                destination.open = view && destination.format == OutputFormat::Html;
+                destination
+            };
+            for previous in &destinations {
+                let duplicate = match (&previous.path, &destination.path) {
+                    (Some(first), Some(second)) => same_file(first, second),
+                    (None, None) => true,
+                    _ => false,
+                };
+                if duplicate {
+                    bail!(
+                        "An output destination was supplied more than once: {}",
+                        output.display()
+                    );
+                }
+            }
+            destinations.push(destination);
+        }
+        if view && !destinations.iter().any(|destination| destination.open) {
+            bail!("The `--view` option requires an `html` output");
+        }
+        Ok(destinations)
+    }
+
     /// Resolve the output destination and format from the arguments
     fn resolve(output: Option<&Path>, to: Option<OutputFormat>, view: bool) -> Result<Self> {
         let mut path = match output {
@@ -659,14 +819,6 @@ impl Destination {
         Ok(())
     }
 
-    /// Write a merged document using string or path encoding as appropriate
-    async fn write_suggestions(&self, node: &Node) -> Result<()> {
-        match self.path.as_deref() {
-            Some(path) => encode_suggestions_to_path(node, path).await,
-            None => self.write(&encode_suggestions(node).await?),
-        }
-    }
-
     /// Open the written file in a browser, if the view was asked for
     ///
     /// The path is always reported, so that the view is still reachable when no
@@ -714,13 +866,25 @@ fn temporary_view_path() -> PathBuf {
 
 /// Whether two paths refer to the same file
 ///
-/// Falls back to comparing the paths themselves when either cannot be canonicalized,
-/// which is the case for an output path that does not exist yet.
+/// For outputs that do not exist yet, resolve the parent directory instead. This
+/// still catches aliases such as `report.json` and `./report.json`.
 fn same_file(first: &Path, second: &Path) -> bool {
-    match (first.canonicalize(), second.canonicalize()) {
-        (Ok(first), Ok(second)) => first == second,
-        _ => first == second,
+    fn resolve(path: &Path) -> PathBuf {
+        if let Ok(path) = path.canonicalize() {
+            return path;
+        }
+        if let Some(name) = path.file_name() {
+            let parent = path
+                .parent()
+                .filter(|parent| !parent.as_os_str().is_empty())
+                .unwrap_or(Path::new("."));
+            if let Ok(parent) = parent.canonicalize() {
+                return parent.join(name);
+            }
+        }
+        path.to_path_buf()
     }
+    resolve(first) == resolve(second)
 }
 
 #[cfg(test)]
@@ -778,7 +942,7 @@ mod tests {
 
         assert_eq!(cli.left, PathBuf::from("left.smd"));
         assert_eq!(cli.right, PathBuf::from("right.docx"));
-        assert_eq!(cli.output, Some(PathBuf::from("out.json")));
+        assert_eq!(cli.outputs, [PathBuf::from("out.json")]);
         assert_eq!(cli.left_from.as_deref(), Some("smd"));
         assert_eq!(cli.right_from.as_deref(), Some("docx"));
         assert_eq!(cli.to, Some(OutputFormat::Yaml));
@@ -822,7 +986,7 @@ mod tests {
     fn defaults_are_terminal_first() {
         let cli = parse(&["left.smd", "right.smd"]).unwrap();
 
-        assert_eq!(cli.output, None);
+        assert!(cli.outputs.is_empty());
         assert_eq!(cli.to, None);
         assert!(!cli.view);
         assert!(!cli.summary);
@@ -956,6 +1120,48 @@ mod tests {
             Destination::resolve(Some(Path::new("comparison.html")), None, false).unwrap();
         assert_eq!(destination.format, OutputFormat::Html);
         assert!(!destination.open);
+    }
+
+    #[test]
+    fn multiple_destinations_preserve_view_and_format_options() -> Result<()> {
+        let outputs = [PathBuf::from("report.json"), PathBuf::from("report.html")];
+        let destinations = Destination::resolve_many(&outputs, None, true)?;
+        assert_eq!(destinations[0].format, OutputFormat::Json);
+        assert!(!destinations[0].open);
+        assert_eq!(destinations[1].format, OutputFormat::Html);
+        assert!(destinations[1].open);
+        let destinations = Destination::resolve_many(&outputs, Some(OutputFormat::Yaml), false)?;
+        assert!(
+            destinations
+                .iter()
+                .all(|destination| destination.format == OutputFormat::Yaml)
+        );
+
+        let destinations = Destination::resolve_many(&[PathBuf::from("-")], None, true)?;
+        assert_eq!(destinations[0].format, OutputFormat::Html);
+        assert!(destinations[0].open);
+        assert!(destinations[0].path.is_some());
+
+        // `-` means the same alongside other outputs as it does alone
+        let outputs = [PathBuf::from("-"), PathBuf::from("report.json")];
+        let destinations = Destination::resolve_many(&outputs, None, true)?;
+        assert_eq!(destinations[0].format, OutputFormat::Html);
+        assert!(destinations[0].open);
+        assert!(destinations[0].path.is_some());
+        assert_eq!(destinations[1].format, OutputFormat::Json);
+        assert!(!destinations[1].open);
+        let destinations = Destination::resolve_many(&outputs, None, false)?;
+        assert_eq!(destinations[0].format, OutputFormat::Text);
+        assert_eq!(destinations[0].path, None);
+        assert!(
+            Destination::resolve_many(
+                &[PathBuf::from("-"), PathBuf::from("-")],
+                Some(OutputFormat::Html),
+                true
+            )
+            .is_err()
+        );
+        Ok(())
     }
 
     #[test]

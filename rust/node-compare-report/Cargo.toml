@@ -7,6 +7,7 @@ repository.workspace = true
 
 [dependencies]
 eyre = { workspace = true }
+serde = { workspace = true }
 serde_json = { workspace = true }
 similar = { workspace = true }
 stencila-codec-dom-trait = { path = "../codec-dom-trait" }

@@ -9,12 +9,14 @@ Compares the two documents semantically, rather than as text, and reports how th
 
 Use `--normalize whitespace,typography,initials` to explicitly classify cosmetic changes while retaining their raw values. Classification is disabled by default and does not change equality or exit status.
 
+Supply several output paths to write multiple formats from one comparison. Use `--compact` for JSON without indentation, and `--locations` to add readable labels under `report.locations.left` and `report.locations.right`, indexed by node path. These labels are display metadata; the comparison and its node references remain unchanged. HTML always shows readable labels alongside the precise paths.
+
 Exits with 0 when the documents are equal, 1 when they differ, and 2 on error.
 
 # Usage
 
 ```sh
-stencila compare [OPTIONS] <LEFT> <RIGHT> [OUTPUT]
+stencila compare [OPTIONS] <LEFT> <RIGHT> [OUTPUTS]...
 ```
 
 # Examples
@@ -44,6 +46,9 @@ stencila compare before.smd after.smd --to json
 # Write the comparison artifact to a file
 stencila compare before.smd after.smd comparison.yaml
 
+# Write JSON and HTML from one comparison, with readable locations in the JSON
+stencila compare before.smd after.smd comparison.json comparison.html --locations --compact
+
 # Ignore differences that are only about labels
 stencila compare before.smd after.jats.xml --exclude label
 
@@ -68,11 +73,11 @@ stencila compare before.smd after.smd --to suggestions
 
 # Arguments
 
-| Name       | Description                     |
-| ---------- | ------------------------------- |
-| `<LEFT>`   | The path of the left document.  |
-| `<RIGHT>`  | The path of the right document. |
-| `[OUTPUT]` | The path of the output file.    |
+| Name        | Description                     |
+| ----------- | ------------------------------- |
+| `<LEFT>`    | The path of the left document.  |
+| `<RIGHT>`   | The path of the right document. |
+| `[OUTPUTS]` | The paths of the output files.  |
 
 # Options
 
@@ -83,6 +88,8 @@ stencila compare before.smd after.smd --to suggestions
 | `-t, --to`                | The format of the output.                                                                  |
 | `--view`                  | Open a side-by-side view of the comparison in a browser. Possible values: `true`, `false`. |
 | `--summary`               | Only report counts, not individual differences. Possible values: `true`, `false`.          |
+| `--compact`               | Write JSON without indentation. Possible values: `true`, `false`.                          |
+| `--locations`             | Include readable locations in JSON and YAML reports. Possible values: `true`, `false`.     |
 | `--input-losses`          | Action when there are losses decoding either input document. Default value: `warn`.        |
 | `--include`               | Only report differences matching this selector.                                            |
 | `--exclude`               | Do not report differences matching this selector.                                          |
