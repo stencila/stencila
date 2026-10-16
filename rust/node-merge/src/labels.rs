@@ -8,18 +8,23 @@
 //! would point at nothing once accepted.
 //!
 //! So before anything is copied, the copied parts of the right document are translated
-//! into the left document's scheme. A node paired with an identified left node takes
-//! that node's ID. A node with no identified counterpart keeps its own ID, or a fresh
-//! one where that is already taken on the left. A cross-reference is rewritten to
-//! whatever its target is called on the left, and a paired left node that has no ID
-//! but is referenced by copied content is given one.
+//! into the left document's scheme. A node that replaces an identified left node, one
+//! the merge deletes, takes that node's ID. Any other node keeps its own ID, or a
+//! fresh one where that is already taken on the left: a left counterpart that the
+//! merge keeps, such as the original of an unrepresentable move, keeps its ID, and two
+//! nodes must not share it. A cross-reference is rewritten to whatever its target is
+//! called on the left, and a kept left node that has no ID but is referenced by copied
+//! content is given one.
 //!
 //! Resolution mirrors comparison: citations resolve against reference IDs, fragment
 //! links against any ID, IDs within a citation's cached copy of a reference are not
 //! addressable, and an ID duplicated within either namespace resolves to nothing in it. Anything unresolved on the right
 //! is copied unchanged, since it pointed at nothing there either.
 
-use std::collections::{BTreeMap, BTreeSet};
+use std::{
+    borrow::Cow,
+    collections::{BTreeMap, BTreeSet},
+};
 
 use stencila_node_compare::{Comparison, Correspondence, NodeRef};
 use stencila_node_path::{NodePath, NodeSlot};
@@ -38,13 +43,13 @@ use crate::{
 /// Returns the right document with its copied labels rewritten, and gives an ID to
 /// each left node that copied content refers to but that had none. Paths are
 /// unchanged, since only scalar properties are rewritten, so the plan still addresses
-/// the translated document.
-pub(crate) fn translate(
+/// the translated document. The right document is borrowed until a label is rewritten.
+pub(crate) fn translate<'right>(
     working: &mut Node,
-    right: &Node,
+    right: &'right Node,
     comparison: &Comparison,
     plan: &MergePlan,
-) -> MergeResult<Node> {
+) -> MergeResult<Cow<'right, Node>> {
     let sources: Vec<&NodePath> = plan
         .containers
         .values()
@@ -55,10 +60,49 @@ pub(crate) fn translate(
         })
         .collect();
     if sources.is_empty() {
-        return Ok(right.clone());
+        return Ok(Cow::Borrowed(right));
     }
 
     let index = Index::collect(comparison.alignment(), comparison.filter());
+
+    // The left items that accepting the merge removes. Only a copy of one of these
+    // can take over its ID. A text replacement removes its item too, since the runs
+    // that replace it do not carry the original's ID.
+    let removed: Vec<NodePath> = plan
+        .containers
+        .values()
+        .flat_map(|container| {
+            container
+                .edits
+                .iter()
+                .filter_map(|edit| match edit {
+                    Edit::Delete { range } | Edit::Replace { range, .. } => Some(range.clone()),
+                    Edit::ReplaceText { at, .. } => Some(*at..*at + 1),
+                    Edit::Insert { .. } => None,
+                })
+                .flatten()
+                .map(|position| {
+                    let mut path = container.container.clone();
+                    path.push_back(NodeSlot::Index(position));
+                    path
+                })
+        })
+        .collect();
+    let counterpart = |working: &Node, node: &NodeRef| -> Counterpart {
+        let Some(left) = index.left_of(&node.path) else {
+            return Counterpart::Unpaired;
+        };
+        let id = existing_id(working, left);
+        if removed.iter().any(|root| starts_with(left, root)) {
+            Counterpart::Replaced(id)
+        } else {
+            Counterpart::Kept {
+                path: left.clone(),
+                id,
+            }
+        }
+    };
+
     let right_nodes: Vec<&NodeRef> = comparison
         .alignment()
         .correspondences()
@@ -105,20 +149,26 @@ pub(crate) fn translate(
         translated: BTreeMap::new(),
         assignments: BTreeMap::new(),
     };
-    let mut translated = right.clone();
+    let mut translated = Cow::Borrowed(right);
 
     for node in right_nodes
         .iter()
         .filter(|node| sources.iter().any(|source| starts_with(&node.path, source)))
     {
-        // The node's own ID, which a cached copy shares with its original. A reference
-        // is looked up as citations look it up, so that the two are translated alike.
+        // The node's own ID. A cached copy of a reference names its original, so it is
+        // translated as the citation holding it is. A reference is looked up as
+        // citations look it up, so that the two are translated alike.
         if let Some(id) = existing_id(right, &node.path)
             && let Some(target) = resolve(&id, node.node_type)
         {
-            let label = labels.label(&id, counterpart(working, &index, target));
+            let counterpart = counterpart(working, target);
+            let label = if is_cached(&node.path) {
+                labels.reference(&id, counterpart)
+            } else {
+                labels.own(&id, counterpart)
+            };
             if label != id {
-                set(&mut translated, &node.path, NodeProperty::Id, &label)?;
+                set(translated.to_mut(), &node.path, NodeProperty::Id, &label)?;
             }
         }
 
@@ -128,21 +178,25 @@ pub(crate) fn translate(
                 string(right, &node.path, NodeProperty::Target).and_then(|target| {
                     let label = target.trim();
                     let referenced = resolve(label, NodeType::Citation)?;
-                    let translated =
-                        labels.reference(label, counterpart(working, &index, referenced));
+                    let translated = labels.reference(label, counterpart(working, referenced));
                     (translated != label).then_some(translated)
                 })
             }
             NodeType::Link => string(right, &node.path, NodeProperty::Target).and_then(|target| {
                 let label = target.strip_prefix('#')?;
                 let referenced = resolve(label, NodeType::Link)?;
-                let translated = labels.reference(label, counterpart(working, &index, referenced));
+                let translated = labels.reference(label, counterpart(working, referenced));
                 (translated != label).then(|| format!("#{translated}"))
             }),
             _ => None,
         };
         if let Some(target) = rewritten {
-            set(&mut translated, &node.path, NodeProperty::Target, &target)?;
+            set(
+                translated.to_mut(),
+                &node.path,
+                NodeProperty::Target,
+                &target,
+            )?;
         }
     }
 
@@ -153,27 +207,16 @@ pub(crate) fn translate(
     Ok(translated)
 }
 
-/// What a right node is called in the left document
+/// What a right node corresponds to in the left document
 enum Counterpart {
-    /// It is paired with a left node that has this ID
-    Identified(String),
+    /// A left node, with its ID if any, that the merge keeps
+    Kept { path: NodePath, id: Option<String> },
 
-    /// It is paired with a left node that has no ID
-    Unidentified(NodePath),
+    /// A left node, with its ID if any, that accepting the merge removes
+    Replaced(Option<String>),
 
-    /// It exists only on the right
+    /// Nothing: it exists only on the right
     Unpaired,
-}
-
-/// The counterpart of a right node
-fn counterpart(working: &Node, index: &Index, node: &NodeRef) -> Counterpart {
-    match index.left_of(&node.path) {
-        Some(left) => match existing_id(working, left) {
-            Some(id) => Counterpart::Identified(id),
-            None => Counterpart::Unidentified(left.clone()),
-        },
-        None => Counterpart::Unpaired,
-    }
 }
 
 /// The labels allocated while translating
@@ -189,38 +232,52 @@ struct Labels {
 }
 
 impl Labels {
-    /// The left label for a right one
-    fn label(&mut self, right: &str, counterpart: Counterpart) -> String {
-        if let Counterpart::Identified(left) = counterpart {
-            return left;
+    /// The left label for the ID of a copied right node
+    fn own(&mut self, right: &str, counterpart: Counterpart) -> String {
+        match counterpart {
+            // The copy takes the place, and so the ID, of the node it replaces
+            Counterpart::Replaced(Some(left)) => left,
+            // A kept counterpart keeps its ID, so the copy needs one of its own
+            _ => self.translate(right),
         }
+    }
+
+    /// The left label for a right one that copied content refers to
+    fn reference(&mut self, right: &str, counterpart: Counterpart) -> String {
+        match counterpart {
+            Counterpart::Kept { id: Some(left), .. } | Counterpart::Replaced(Some(left)) => left,
+            // A kept left node without an ID needs one for the reference to resolve,
+            // distinct from that of any copy of it
+            Counterpart::Kept { path, id: None } => {
+                if let Some(label) = self.assignments.get(&path) {
+                    return label.clone();
+                }
+                let label = self.fresh(right);
+                self.assignments.insert(path, label.clone());
+                label
+            }
+            Counterpart::Replaced(None) | Counterpart::Unpaired => self.translate(right),
+        }
+    }
+
+    /// The label for a copied right label, allocated once
+    fn translate(&mut self, right: &str) -> String {
         if let Some(label) = self.translated.get(right) {
             return label.clone();
         }
+        let label = self.fresh(right);
+        self.translated.insert(right.to_string(), label.clone());
+        label
+    }
 
-        // Keep the right label where the left document does not use it, otherwise
-        // derive a fresh one from it
+    /// The right label where the left document does not use it, otherwise a fresh
+    /// one derived from it
+    fn fresh(&mut self, right: &str) -> String {
         let mut label = right.to_string();
         let mut suffix = 2;
         while !self.used.insert(label.clone()) {
             label = format!("{right}-{suffix}");
             suffix += 1;
-        }
-        self.translated.insert(right.to_string(), label.clone());
-        label
-    }
-
-    /// The left label for a right one that copied content refers to
-    ///
-    /// A paired left node without an ID needs one for the reference to resolve.
-    fn reference(&mut self, right: &str, counterpart: Counterpart) -> String {
-        let unidentified = match &counterpart {
-            Counterpart::Unidentified(path) => Some(path.clone()),
-            _ => None,
-        };
-        let label = self.label(right, counterpart);
-        if let Some(path) = unidentified {
-            self.assignments.insert(path, label.clone());
         }
         label
     }

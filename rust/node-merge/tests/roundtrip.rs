@@ -575,3 +575,105 @@ fn referenced_left_nodes_are_identified() -> Result<()> {
     assert_eq!(strings(&accepted, "Link", "target")?, ["#results"]);
     Ok(())
 }
+
+/// The original of an unrepresentable move keeps its ID, so the copy needs another
+#[test]
+fn moved_nodes_do_not_duplicate_ids() -> Result<()> {
+    let moved = json!({"type": "Paragraph", "id": "old", "content": [
+        {"type": "Text", "value": "Auxin gradients orient the growth of the root tip"}
+    ]});
+    let left = node(json!({"type": "Article", "content": [
+        {"type": "Paragraph", "content": [{"type": "Text", "value": "Introduction"}]},
+        moved.clone()
+    ]}))?;
+    let right = node(json!({"type": "Article", "content": [
+        {"type": "Paragraph", "content": [{"type": "Text", "value": "Introduction"}]},
+        {"type": "Section", "content": [
+            {"type": "Heading", "level": 1, "content": [{"type": "Text", "value": "Results"}]},
+            moved,
+            link_paragraph("See ", "#old")
+        ]}
+    ]}))?;
+
+    let merged = merge_with_options(&left, &right, &options())?;
+    let merged = serde_json::to_value(merged.node())?;
+    // The original, kept in place, and the copy, inside the inserted section
+    assert_eq!(merged.pointer("/content/2/id"), Some(&json!("old")));
+    assert_eq!(
+        merged.pointer("/content/1/content/0/content/1/id"),
+        Some(&json!("old-2"))
+    );
+    // A copied reference names the counterpart, as comparison resolves it
+    assert_eq!(
+        merged.pointer("/content/1/content/0/content/2/content/1/target"),
+        Some(&json!("#old"))
+    );
+    Ok(())
+}
+
+/// A kept left node given an ID for a reference does not share it with a copy of itself
+#[test]
+fn referenced_left_nodes_do_not_share_ids_with_their_copies() -> Result<()> {
+    let moved = |id: Option<&str>| {
+        let mut paragraph = json!({"type": "Paragraph", "content": [
+            {"type": "Text", "value": "Auxin gradients orient the growth of the root tip"}
+        ]});
+        if let Some(id) = id {
+            paragraph["id"] = json!(id);
+        }
+        paragraph
+    };
+    let left = node(json!({"type": "Article", "content": [
+        {"type": "Paragraph", "content": [{"type": "Text", "value": "Introduction"}]},
+        moved(None)
+    ]}))?;
+    let right = node(json!({"type": "Article", "content": [
+        {"type": "Paragraph", "content": [{"type": "Text", "value": "Introduction"}]},
+        {"type": "Section", "content": [
+            {"type": "Heading", "level": 1, "content": [{"type": "Text", "value": "Results"}]},
+            moved(Some("tip")),
+            link_paragraph("See ", "#tip")
+        ]}
+    ]}))?;
+
+    let merged = merge_with_options(&left, &right, &options())?;
+    let merged = serde_json::to_value(merged.node())?;
+    assert_eq!(merged.pointer("/content/2/id"), Some(&json!("tip")));
+    assert_eq!(
+        merged.pointer("/content/1/content/0/content/1/id"),
+        Some(&json!("tip-2"))
+    );
+    assert_eq!(
+        merged.pointer("/content/1/content/0/content/2/content/1/target"),
+        Some(&json!("#tip"))
+    );
+    Ok(())
+}
+
+/// A text replacement does not keep the original's ID, so a moved copy of that text
+/// takes it over, and a copied reference to it still resolves once accepted
+#[test]
+fn moved_text_with_replaced_text_keeps_its_id() -> Result<()> {
+    let paragraph = |value: &str| {
+        json!({"type": "Paragraph", "content": [
+            {"type": "Text", "id": "old", "value": value}
+        ]})
+    };
+    let left = node(json!({"type": "Article", "content": [
+        {"type": "Paragraph", "content": [{"type": "Text", "value": "Introduction"}]},
+        paragraph("Auxin gradients orient the growth of the root tip")
+    ]}))?;
+    let right = node(json!({"type": "Article", "content": [
+        {"type": "Paragraph", "content": [{"type": "Text", "value": "Introduction"}]},
+        {"type": "Section", "content": [
+            {"type": "Heading", "level": 1, "content": [{"type": "Text", "value": "Results"}]},
+            paragraph("Auxin gradients orient the growth of the root tips"),
+            link_paragraph("See ", "#old")
+        ]}
+    ]}))?;
+
+    let accepted = accepted(&left, &right, &options())?;
+    assert_eq!(strings(&accepted, "Text", "id")?, ["old"]);
+    assert_eq!(strings(&accepted, "Link", "target")?, ["#old"]);
+    Ok(())
+}
