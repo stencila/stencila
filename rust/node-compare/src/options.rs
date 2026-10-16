@@ -1,8 +1,10 @@
 //! Options for aligning and comparing nodes
 
+use std::collections::BTreeSet;
+
 use serde::{Deserialize, Serialize};
 
-use crate::filter::DifferenceFilter;
+use crate::{filter::DifferenceFilter, normalization::Normalization};
 
 /// The default candidate-cell budget
 ///
@@ -18,15 +20,13 @@ pub const DEFAULT_ALIGNMENT_CELL_BUDGET: usize = 1_000_000;
 
 /// Options for aligning and comparing nodes
 ///
-/// Deliberately free of weights, thresholds, and normalization knobs: those belong to
-/// the built-in schema-native policy, and changing them would change what an alignment
-/// means rather than what it costs to produce.
+/// Alignment weights, thresholds, and the normalization used while matching belong
+/// to the built-in schema-native policy, rather than caller options. The rules in
+/// [`CompareOptions::normalize`] are separate: they only classify differences after
+/// matching.
 ///
-/// [`CompareOptions::filter`] is the one option that is about meaning rather than cost,
-/// and it is confined to reporting. A filter selects which differences a comparison
-/// reports; it is never consulted while matching, so no filter can change which
-/// occurrences pair with which. The alignment of a filtered comparison is bit-for-bit
-/// the alignment of an unfiltered one.
+/// [`CompareOptions::filter`] and [`CompareOptions::normalize`] only affect reporting.
+/// Neither is consulted while matching, so the alignment is bit-for-bit unchanged.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(default, rename_all = "camelCase")]
 pub struct CompareOptions {
@@ -42,6 +42,13 @@ pub struct CompareOptions {
     /// Empty by default, which reports every difference. See [`DifferenceFilter`] for
     /// the selector grammar and the precedence rule.
     pub filter: DifferenceFilter,
+
+    /// Normalizations used to classify value differences as cosmetic
+    ///
+    /// Empty by default. Classification preserves raw values, every difference, and
+    /// the equality verdict. The selected rules are recorded in the comparison.
+    #[serde(skip_serializing_if = "BTreeSet::is_empty")]
+    pub normalize: BTreeSet<Normalization>,
 }
 
 impl Default for CompareOptions {
@@ -49,6 +56,7 @@ impl Default for CompareOptions {
         Self {
             alignment_cell_budget: DEFAULT_ALIGNMENT_CELL_BUDGET,
             filter: DifferenceFilter::none(),
+            normalize: BTreeSet::new(),
         }
     }
 }

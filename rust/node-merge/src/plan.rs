@@ -245,6 +245,7 @@ impl MergePlan {
                 location,
                 left,
                 right,
+                ..
             } => {
                 let owns_content = location
                     .property

@@ -12,10 +12,12 @@ proptest-high = ["stencila-schema/proptest-high"]
 proptest-max = ["stencila-schema/proptest-max"]
 
 [dependencies]
+clap = { workspace = true }
 serde = { workspace = true }
 stencila-node-path = { path = "../node-path" }
 stencila-node-type = { path = "../node-type" }
 stencila-schema = { path = "../schema" }
+strum = { workspace = true }
 thiserror = { workspace = true }
 unicode-normalization = { workspace = true }
 

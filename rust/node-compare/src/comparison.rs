@@ -13,7 +13,10 @@
 //! factual artifact, and which reduction is wanted varies by use case, so no reduction
 //! belongs here.
 
-use std::{cmp::Ordering, collections::HashSet};
+use std::{
+    cmp::Ordering,
+    collections::{BTreeSet, HashSet},
+};
 
 use serde::{Deserialize, Serialize};
 
@@ -24,6 +27,7 @@ use crate::{
     alignment::{AlgorithmInfo, Alignment, Correspondence, NodeRef},
     error::{CompareError, CompareResult},
     filter::DifferenceFilter,
+    normalization::Normalization,
     scalar::ScalarValue,
 };
 
@@ -151,6 +155,14 @@ pub enum Difference {
         location: ValueLocation,
         left: ValueState,
         right: ValueState,
+        /// Whether the explicitly selected normalizations explain this entire change
+        ///
+        /// The raw values are retained. Recorded when the comparison is made and not
+        /// re-derived when it is loaded, so a saved comparison keeps the classification
+        /// of the rules that produced it. Omitted when false for compatibility with
+        /// comparisons produced without cosmetic classification.
+        #[serde(default, skip_serializing_if = "is_false")]
+        cosmetic: bool,
     },
 
     /// A pair whose aligned parents, or containing properties, differ
@@ -177,6 +189,35 @@ pub enum Difference {
 }
 
 impl Difference {
+    /// Whether this difference is cosmetic under the comparison's selected rules
+    pub fn is_cosmetic(&self) -> bool {
+        matches!(self, Self::ValueChanged { cosmetic: true, .. })
+    }
+
+    /// Whether two differences report the same change, however each is classified
+    ///
+    /// Classification is an annotation on a change rather than part of it, so two
+    /// records of one change are duplicates even when they disagree about it.
+    fn is_same_change(&self, other: &Self) -> bool {
+        match (self, other) {
+            (
+                Self::ValueChanged {
+                    location,
+                    left,
+                    right,
+                    ..
+                },
+                Self::ValueChanged {
+                    location: other_location,
+                    left: other_left,
+                    right: other_right,
+                    ..
+                },
+            ) => (location, left, right) == (other_location, other_left, other_right),
+            _ => self == other,
+        }
+    }
+
     /// The left occurrence this difference is about
     pub fn left(&self) -> &NodeRef {
         match self {
@@ -270,6 +311,7 @@ impl Difference {
                 location,
                 left,
                 right,
+                cosmetic,
             } => Self::ValueChanged {
                 location: ValueLocation {
                     left: location.right,
@@ -280,6 +322,7 @@ impl Difference {
                 },
                 left: right,
                 right: left,
+                cosmetic,
             },
             Self::ParentChanged {
                 left,
@@ -358,13 +401,20 @@ impl Ord for Difference {
                         location,
                         left,
                         right,
+                        cosmetic,
                     },
                     Self::ValueChanged {
                         location: other_location,
                         left: other_left,
                         right: other_right,
+                        cosmetic: other_cosmetic,
                     },
-                ) => (location, left, right).cmp(&(other_location, other_left, other_right)),
+                ) => (location, left, right, cosmetic).cmp(&(
+                    other_location,
+                    other_left,
+                    other_right,
+                    other_cosmetic,
+                )),
                 (
                     Self::ParentChanged {
                         left,
@@ -437,6 +487,10 @@ impl Ord for Difference {
 /// the observations about paired occurrences are narrowed. The filter and the number of
 /// differences it suppressed are both carried by the artifact, so a filtered comparison
 /// can never be mistaken for an exhaustive one.
+///
+/// Optional cosmetic classification preserves every raw difference and records both
+/// the selected [`Normalization`] rules and an explicit flag on each cosmetic value
+/// change. These annotations do not affect equality or the embedded alignment.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase", try_from = "ComparisonData")]
 pub struct Comparison {
@@ -448,6 +502,10 @@ pub struct Comparison {
 
     /// The differences, in canonical order
     differences: Vec<Difference>,
+
+    /// The explicit rules used to classify cosmetic differences
+    #[serde(skip_serializing_if = "BTreeSet::is_empty")]
+    normalize: BTreeSet<Normalization>,
 
     /// The filter that selected which differences are reported
     #[serde(skip_serializing_if = "DifferenceFilter::is_empty")]
@@ -496,12 +554,18 @@ fn is_zero(count: &usize) -> bool {
     *count == 0
 }
 
+fn is_false(value: &bool) -> bool {
+    !value
+}
+
 #[derive(Deserialize)]
 #[serde(rename_all = "camelCase")]
 struct ComparisonData {
     format_version: String,
     alignment: Alignment,
     differences: Vec<Difference>,
+    #[serde(default)]
+    normalize: BTreeSet<Normalization>,
     #[serde(default)]
     filter: DifferenceFilter,
     #[serde(default)]
@@ -527,6 +591,7 @@ impl TryFrom<ComparisonData> for Comparison {
             data.differences,
             data.filter,
             data.suppressed_differences,
+            data.normalize,
         )
     }
 }
@@ -540,6 +605,7 @@ impl Comparison {
             differences,
             DifferenceFilter::none(),
             0,
+            BTreeSet::new(),
         )
     }
 
@@ -552,8 +618,9 @@ impl Comparison {
         alignment: Alignment,
         differences: Vec<Difference>,
         filter: DifferenceFilter,
+        normalize: BTreeSet<Normalization>,
     ) -> CompareResult<Self> {
-        if filter.is_empty() {
+        if filter.is_empty() && normalize.is_empty() {
             return Self::new(alignment, differences);
         }
 
@@ -570,6 +637,7 @@ impl Comparison {
             differences,
             filter,
             suppressed,
+            normalize,
         )
     }
 
@@ -579,6 +647,7 @@ impl Comparison {
         differences: Vec<Difference>,
         filter: DifferenceFilter,
         suppressed_differences: usize,
+        normalize: BTreeSet<Normalization>,
     ) -> CompareResult<Self> {
         let mut comparison = Self {
             format_version,
@@ -586,6 +655,7 @@ impl Comparison {
             differences,
             filter,
             suppressed_differences,
+            normalize,
         };
         comparison.canonicalize();
         comparison.validate_local()?;
@@ -612,6 +682,11 @@ impl Comparison {
     /// Only those the [`Comparison::filter`] selects, when the comparison is filtered.
     pub fn differences(&self) -> &[Difference] {
         &self.differences
+    }
+
+    /// The explicit rules used to classify cosmetic differences
+    pub fn normalizations(&self) -> &BTreeSet<Normalization> {
+        &self.normalize
     }
 
     /// The filter that selected which differences are reported
@@ -706,6 +781,14 @@ impl Comparison {
             .collect();
 
         for difference in &self.differences {
+            // The rules are not re-applied: a classification is recorded, not derived,
+            // so that changing a rule never reinterprets or rejects a saved comparison
+            if difference.is_cosmetic() && self.normalize.is_empty() {
+                return Err(CompareError::Invariant {
+                    message: "A cosmetic difference requires at least one normalization"
+                        .to_string(),
+                });
+            }
             if !pairs.contains(&(difference.left(), difference.right())) {
                 return Err(CompareError::Invariant {
                     message: format!(
@@ -717,8 +800,10 @@ impl Comparison {
             }
         }
 
+        // Canonical order compares classification last, so records of one change that
+        // differ only in it are still adjacent
         for duplicates in self.differences.windows(2) {
-            if duplicates[0] == duplicates[1] {
+            if duplicates[0].is_same_change(&duplicates[1]) {
                 return Err(CompareError::Invariant {
                     message: "The same difference occurs more than once".to_string(),
                 });
@@ -770,6 +855,7 @@ impl Comparison {
             // and inverts to itself
             filter: self.filter,
             suppressed_differences: self.suppressed_differences,
+            normalize: self.normalize,
         };
         inverted.canonicalize();
         inverted

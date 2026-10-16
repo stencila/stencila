@@ -12141,6 +12141,7 @@ dependencies = [
 name = "stencila-node-compare"
 version = "0.0.0"
 dependencies = [
+ "clap",
  "eyre",
  "insta",
  "pretty_assertions",
@@ -12150,6 +12151,7 @@ dependencies = [
  "stencila-node-path",
  "stencila-node-type",
  "stencila-schema",
+ "strum 0.28.0",
  "thiserror 2.0.18",
  "unicode-normalization",
 ]

@@ -25,6 +25,7 @@ mod filter;
 mod fingerprint;
 mod increasing;
 mod moves;
+mod normalization;
 mod options;
 mod person;
 mod policy;
@@ -47,6 +48,7 @@ pub use comparison::{
 };
 pub use error::{BudgetScope, CompareError, CompareResult, Side};
 pub use filter::{DifferenceFilter, Selector, SelectorError};
+pub use normalization::Normalization;
 pub use options::{CompareOptions, DEFAULT_ALIGNMENT_CELL_BUDGET};
 pub use projection::MAX_DEPTH as MAX_COMPARISON_DEPTH;
 pub use scalar::{CanonicalNumber, DuplicateObjectKeyError, ObjectEntries, ScalarValue};
@@ -146,9 +148,17 @@ pub fn compare_with_options(
         &aligned,
     )?);
 
+    // Classify only completed differences, preserving their raw values and alignment
+    normalization::classify(&mut differences, &options.normalize);
+
     // Filtering happens after every difference has been derived, so that what a filter
     // selects can never depend on the order differences were produced in
-    Comparison::new_filtered(aligned.alignment, differences, options.filter.clone())
+    Comparison::new_filtered(
+        aligned.alignment,
+        differences,
+        options.filter.clone(),
+        options.normalize.clone(),
+    )
 }
 
 /// Whether the canonical projections of two nodes are exactly equal

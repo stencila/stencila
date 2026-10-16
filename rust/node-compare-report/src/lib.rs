@@ -83,6 +83,13 @@ pub fn text_report(
         "  node type: {}  presence: {}  value: {}  parent: {}  reordered: {}",
         counts.node_type, counts.presence, counts.value, counts.parent, counts.reordered
     )?;
+    if let Some(rules) = normalization_description(comparison) {
+        writeln!(
+            report,
+            "  cosmetic: {} (normalize: {rules})",
+            counts.cosmetic
+        )?;
+    }
     if let Some((selectors, suppressed)) = filter_description(comparison) {
         writeln!(report, "filter:     {selectors}")?;
         writeln!(report, "suppressed: {suppressed}")?;
@@ -207,6 +214,7 @@ fn html_report_inner(
     <li><span>value</span> {value}</li>
     <li><span>parent</span> {parent}</li>
     <li><span>reordered</span> {reordered}</li>
+    {normalization}
   </ul>
   {filter}
 </header>"#,
@@ -225,6 +233,14 @@ fn html_report_inner(
         value = counts.value,
         parent = counts.parent,
         reordered = counts.reordered,
+        normalization = match normalization_description(comparison) {
+            Some(rules) => format!(
+                "<li><span>cosmetic</span> {} <em>(normalize: {})</em></li>",
+                counts.cosmetic,
+                escape(&rules),
+            ),
+            None => String::new(),
+        },
         filter = match filter_description(comparison) {
             Some((selectors, suppressed)) => format!(
                 "<div class=\"filter\"><span class=\"label\">filter</span> \
@@ -1029,12 +1045,13 @@ impl ViewRow {
                 location,
                 left,
                 right,
+                cosmetic,
             } => {
                 // The only difference where both sides carry content that is worth
                 // comparing within, rather than a single term
                 let (left_detail, right_detail) = shade(&value_state(left), &value_state(right));
                 (
-                    "value",
+                    if *cosmetic { "cosmetic" } else { "value" },
                     "~",
                     ViewCell {
                         subject: value_subject(
@@ -1179,6 +1196,7 @@ struct Counts {
     node_type: usize,
     presence: usize,
     value: usize,
+    cosmetic: usize,
     parent: usize,
     reordered: usize,
 }
@@ -1203,6 +1221,9 @@ impl Counts {
         counts.right_only = tally.right_only();
 
         for difference in comparison.differences() {
+            if difference.is_cosmetic() {
+                counts.cosmetic += 1;
+            }
             match difference {
                 Difference::NodeTypeChanged { .. } => counts.node_type += 1,
                 Difference::PropertyPresenceChanged { .. } => counts.presence += 1,
@@ -1371,6 +1392,7 @@ fn write_difference(report: &mut String, difference: &Difference) -> Result<()> 
             location,
             left,
             right,
+            cosmetic,
         } => {
             let left_subject = value_subject(
                 &location.left,
@@ -1385,7 +1407,7 @@ fn write_difference(report: &mut String, difference: &Difference) -> Result<()> 
             writeln!(
                 report,
                 "~ {:<10} {}",
-                "value",
+                if *cosmetic { "cosmetic" } else { "value" },
                 sides(&left_subject, &right_subject)
             )?;
             writeln!(report, "  left:  {}", value_state(left))?;
@@ -1509,6 +1531,18 @@ fn filter_description(comparison: &Comparison) -> Option<(String, String)> {
     );
 
     Some((selectors, suppressed))
+}
+
+/// Describe the explicit rules used to classify cosmetic differences
+fn normalization_description(comparison: &Comparison) -> Option<String> {
+    (!comparison.normalizations().is_empty()).then(|| {
+        comparison
+            .normalizations()
+            .iter()
+            .map(ToString::to_string)
+            .collect::<Vec<_>>()
+            .join(",")
+    })
 }
 
 /// Render a path, using `$` for the root
@@ -1699,6 +1733,38 @@ differences: 0
   node type: 0  presence: 0  value: 0  parent: 0  reordered: 0
 "#
         );
+    }
+
+    #[test]
+    fn cosmetic_differences_are_counted_and_labeled_in_reports() -> Result<()> {
+        use stencila_node_compare::{CompareOptions, Normalization, compare_with_options};
+
+        let left = article(vec![para("Auxin signalling")]);
+        let right = article(vec![para("Auxin  signalling")]);
+        let comparison = compare_with_options(
+            &left,
+            &right,
+            &CompareOptions {
+                normalize: [Normalization::Whitespace].into(),
+                ..Default::default()
+            },
+        )?;
+        let (left, right) = snapshots(&left, &right);
+        for summary in [false, true] {
+            let text = text_report(&comparison, left, right, summary)?;
+            assert!(text.starts_with("different\n"));
+            assert!(text.contains("differences: 1\n"));
+            assert!(text.contains("cosmetic: 1 (normalize: whitespace)"));
+            assert_eq!(text.contains("~ cosmetic"), !summary);
+
+            let html = html_report(&comparison, left, right, summary)?;
+            assert!(html.contains("<span>cosmetic</span> 1 <em>(normalize: whitespace)</em>"));
+            assert_eq!(
+                html.contains("<span class=\"kind-label\">cosmetic</span>"),
+                !summary
+            );
+        }
+        Ok(())
     }
 
     /// A one-sided subtree shows what it says, not just where it is

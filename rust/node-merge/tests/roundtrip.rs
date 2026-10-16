@@ -39,6 +39,38 @@ fn options() -> MergeOptions {
     }
 }
 
+#[test]
+fn cosmetic_changes_still_round_trip() -> Result<()> {
+    use stencila_node_compare::{CompareOptions, Normalization, compare_with_options};
+    use stencila_node_merge::merge_comparison_with_options;
+
+    let left = art([p([t("Auxin’s role")])]);
+    let right = art([p([t("Auxin's  role")])]);
+    let comparison = compare_with_options(
+        &left,
+        &right,
+        &CompareOptions {
+            normalize: [Normalization::Whitespace, Normalization::Typography].into(),
+            ..Default::default()
+        },
+    )?;
+    assert!(
+        comparison
+            .differences()
+            .iter()
+            .all(|difference| difference.is_cosmetic())
+    );
+    let merged = merge_comparison_with_options(&left, &right, &comparison, &options())?;
+    assert!(merged.report().is_complete());
+    let mut accepted = merged.node().clone();
+    accepted.resolve_suggestions(&SuggestionAction::AcceptAll);
+    assert!(same(&accepted, &right)?);
+    let mut rejected = merged.into_node();
+    rejected.resolve_suggestions(&SuggestionAction::RejectAll);
+    assert!(same(&rejected, &left)?);
+    Ok(())
+}
+
 /// Whether two nodes are the same document, up to adjacent text nodes being one node
 fn same(one: &Node, other: &Node) -> Result<bool> {
     Ok(compare(&coalesce_text(one)?, &coalesce_text(other)?)?.is_equal_unfiltered())

@@ -63,6 +63,7 @@ fn values(comparison: &Comparison) -> Vec<(Option<usize>, Option<usize>, ValueSt
                 location,
                 left,
                 right,
+                ..
             } if location.property == Some(NodeProperty::Outputs) => Some((
                 location.left_index,
                 location.right_index,
@@ -356,6 +357,7 @@ fn a_homogeneous_scalar_property_is_one_difference() -> Result<()> {
         location,
         left,
         right,
+        ..
     }) = keyword_differences.first()
     else {
         bail!("Expected one value difference for the whole sequence")
@@ -449,6 +451,7 @@ fn same_type_primitive_roots_compare_by_value() -> Result<()> {
         location,
         left,
         right,
+        ..
     }) = comparison.differences().first()
     else {
         bail!("Expected a root value difference")

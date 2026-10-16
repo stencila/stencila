@@ -131,6 +131,78 @@ fn machine_output_has_no_styling_or_prose() -> Result<()> {
 }
 
 #[test]
+fn cosmetic_classification_is_explicit_and_preserves_raw_differences() -> Result<()> {
+    use serde_json::{Value, json};
+
+    let dir = tempfile::tempdir()?;
+    for (file, text, names) in [
+        ("left.json", "Auxin’s role", json!(["S.S"])),
+        ("right.json", "Auxin's  role", json!(["S", "S"])),
+    ] {
+        write(
+            dir.path().join(file),
+            serde_json::to_string(&json!({
+                "type": "Article",
+                "authors": [{ "type": "Person", "familyNames": ["Smith"], "givenNames": names }],
+                "content": [{ "type": "Paragraph", "content": [{ "type": "Text", "value": text }] }],
+            }))?,
+        )?;
+    }
+    let output = compare(dir.path(), ["left.json", "right.json", "--to", "json"]);
+    assert_eq!(code(&output)?, 1);
+    let faithful: Value = serde_json::from_slice(&output.stdout)?;
+    assert!(faithful.get("normalize").is_none());
+    assert_eq!(faithful["differences"].as_array().map(Vec::len), Some(2));
+
+    for format in ["json", "yaml"] {
+        let output = compare(
+            dir.path(),
+            [
+                "left.json",
+                "right.json",
+                "--to",
+                format,
+                "--normalize",
+                "whitespace,typography,initials",
+            ],
+        );
+        assert_eq!(code(&output)?, 1);
+        let mut classified: Value = match format {
+            "json" => serde_json::from_slice(&output.stdout)?,
+            _ => serde_yaml::from_slice(&output.stdout)?,
+        };
+        assert_eq!(
+            classified["normalize"],
+            json!(["whitespace", "typography", "initials"])
+        );
+        assert_eq!(classified["alignment"], faithful["alignment"]);
+        let Some(differences) = classified["differences"].as_array_mut() else {
+            bail!("Expected a differences array");
+        };
+        for difference in differences {
+            let Some(difference) = difference.as_object_mut() else {
+                bail!("Expected a difference object");
+            };
+            assert_eq!(difference.remove("cosmetic"), Some(json!(true)));
+        }
+        assert_eq!(classified["differences"], faithful["differences"]);
+    }
+    let output = compare(
+        dir.path(),
+        [
+            "left.json",
+            "right.json",
+            "--summary",
+            "--normalize",
+            "whitespace,typography,initials",
+        ],
+    );
+    assert_eq!(code(&output)?, 1);
+    assert!(String::from_utf8(output.stdout)?.contains("cosmetic: 2"));
+    Ok(())
+}
+
+#[test]
 fn yaml_is_inferred_from_the_output_extension() -> Result<()> {
     let dir = workspace()?;
 

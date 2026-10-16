@@ -7,6 +7,8 @@ Compare two documents
 
 Compares the two documents semantically, rather than as text, and reports how their nodes correspond and differ. Neither document is presumed correct: they are simply the left and right snapshots that you selected.
 
+Use `--normalize whitespace,typography,initials` to explicitly classify cosmetic changes while retaining their raw values. Classification is disabled by default and does not change equality or exit status.
+
 Exits with 0 when the documents are equal, 1 when they differ, and 2 on error.
 
 # Usage
@@ -26,6 +28,9 @@ stencila compare original.smd roundtripped.docx
 
 # Only report how many differences there are
 stencila compare before.smd after.smd --summary
+
+# Classify cosmetic differences while preserving the original values
+stencila compare before.jats.xml after.jats.xml --normalize whitespace,typography,initials
 
 # Open a side-by-side view of the comparison in a browser
 stencila compare before.smd after.smd --view
@@ -81,6 +86,7 @@ stencila compare before.smd after.smd --to suggestions
 | `--input-losses`          | Action when there are losses decoding either input document. Default value: `warn`.        |
 | `--include`               | Only report differences matching this selector.                                            |
 | `--exclude`               | Do not report differences matching this selector.                                          |
+| `--normalize`             | Classify cosmetic differences using comma-separated normalization rules.                   |
 | `--alignment-cell-budget` | The maximum number of candidate cells that sequence alignment may use.                     |
 
 **Possible values of `--to`**
@@ -100,3 +106,11 @@ stencila compare before.smd after.smd --to suggestions
 | `warn`   | Warn about losses and continue |
 | `ignore` | Say nothing about losses       |
 | `abort`  | Abort without comparing        |
+
+**Possible values of `--normalize`**
+
+| Value        | Description                                                                       |
+| ------------ | --------------------------------------------------------------------------------- |
+| `whitespace` | Collapse runs of Unicode whitespace to a single space                             |
+| `typography` | Fold curly quotes, typographic dashes and ellipses to their ASCII forms           |
+| `initials`   | Equate dotted or space-separated single-letter given names with separate initials |

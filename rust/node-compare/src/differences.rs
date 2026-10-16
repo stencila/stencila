@@ -133,6 +133,7 @@ impl Differ<'_> {
 
         if left_value != right_value {
             self.differences.push(Difference::ValueChanged {
+                cosmetic: false,
                 location: ValueLocation {
                     left: left_ref,
                     right: right_ref,
@@ -285,6 +286,7 @@ impl Differ<'_> {
 
             if both_scalar_kind || holds_only_scalars {
                 self.differences.push(Difference::ValueChanged {
+                    cosmetic: false,
                     location: location(None, None),
                     left: scalar_property_state(left_property),
                     right: scalar_property_state(right_property),
@@ -331,6 +333,7 @@ impl Differ<'_> {
             };
             if !equal {
                 self.differences.push(Difference::ValueChanged {
+                    cosmetic: false,
                     location: location(None, None),
                     left: state(left_value),
                     right: state(right_value),
@@ -348,6 +351,7 @@ impl Differ<'_> {
             let right_values = scalars(right_property);
             if left_values != right_values {
                 self.differences.push(Difference::ValueChanged {
+                    cosmetic: false,
                     location: location(None, None),
                     left: ValueState::Many {
                         values: left_values,
@@ -381,6 +385,7 @@ impl Differ<'_> {
                     if (left_value.is_some() || right_value.is_some()) && left_value != right_value
                     {
                         self.differences.push(Difference::ValueChanged {
+                            cosmetic: false,
                             location: location(Some(left_index), Some(right_index)),
                             left: state(left_value),
                             right: state(right_value),
@@ -390,6 +395,7 @@ impl Differ<'_> {
                 Step::LeftGap { left: left_index } => {
                     if let Some(value) = scalar(left_property.items.get(left_index)) {
                         self.differences.push(Difference::ValueChanged {
+                            cosmetic: false,
                             location: location(Some(left_index), None),
                             left: ValueState::One {
                                 value: value.clone(),
@@ -401,6 +407,7 @@ impl Differ<'_> {
                 Step::RightGap { right: right_index } => {
                     if let Some(value) = scalar(right_property.items.get(right_index)) {
                         self.differences.push(Difference::ValueChanged {
+                            cosmetic: false,
                             location: location(None, Some(right_index)),
                             left: ValueState::Absent,
                             right: ValueState::One {

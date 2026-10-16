@@ -432,6 +432,7 @@ fn a_union_property_appearing_reports_its_value() -> Result<()> {
         location,
         left,
         right,
+        ..
     } = difference
     else {
         bail!("Expected a value difference, got {difference:?}");

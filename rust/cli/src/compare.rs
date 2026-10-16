@@ -23,7 +23,7 @@ use stencila_cli_utils::{color_print::cstr, message};
 use stencila_codecs::{DecodeOptions, EncodeOptions, LossesResponse};
 use stencila_format::Format;
 use stencila_node_compare::{
-    CompareOptions, DifferenceFilter, Selector, Side, compare_with_options,
+    CompareOptions, DifferenceFilter, Normalization, Selector, Side, compare_with_options,
 };
 use stencila_node_compare_report::{Snapshot, html_report_with_overlay, text_report};
 use stencila_node_merge::{MergeOptions, MergeReport, merge_comparison_with_options};
@@ -34,6 +34,10 @@ use stencila_schema::Node;
 /// Compares the two documents semantically, rather than as text, and reports how
 /// their nodes correspond and differ. Neither document is presumed correct: they are
 /// simply the left and right snapshots that you selected.
+///
+/// Use `--normalize whitespace,typography,initials` to explicitly classify cosmetic
+/// changes while retaining their raw values. Classification is disabled by default
+/// and does not change equality or exit status.
 ///
 /// Exits with 0 when the documents are equal, 1 when they differ, and 2 on error.
 #[derive(Debug, Parser)]
@@ -112,6 +116,20 @@ pub struct Cli {
     #[arg(long, value_name = "SELECTOR", value_parser = parse_selector)]
     exclude: Vec<Selector>,
 
+    /// Classify cosmetic differences using comma-separated normalization rules
+    ///
+    /// Rules: whitespace, typography, initials. Whitespace collapses runs, keeping
+    /// any at the edges of Text.value as word boundaries; typography folds curly
+    /// quotes, dashes and ellipses. Both apply to Text.value and Person.givenNames.
+    /// Initials equates dotted or space-separated initials in Person.givenNames
+    /// (S.S and [S, S]), preserving case, accents and full names.
+    ///
+    /// Raw values and all differences are retained, with cosmetic changes marked
+    /// explicitly in JSON/YAML and counted separately in reports. Alignment,
+    /// equality and exit status are unchanged. Repeatable; disabled by default.
+    #[arg(long, value_name = "RULES", value_delimiter = ',')]
+    normalize: Vec<Normalization>,
+
     /// The maximum number of candidate cells that sequence alignment may use
     ///
     /// Increase this when comparing documents with very large collections of
@@ -185,6 +203,9 @@ pub static CLI_AFTER_LONG_HELP: &str = cstr!(
   <dim># Only report how many differences there are</dim>
   <b>stencila compare</> <g>before.smd</> <g>after.smd</> <c>--summary</>
 
+  <dim># Classify cosmetic differences while preserving the original values</dim>
+  <b>stencila compare</> <g>before.jats.xml</> <g>after.jats.xml</> <c>--normalize</> <g>whitespace,typography,initials</>
+
   <dim># Open a side-by-side view of the comparison in a browser</dim>
   <b>stencila compare</> <g>before.smd</> <g>after.smd</> <c>--view</>
 
@@ -234,6 +255,7 @@ impl Cli {
             input_losses,
             include,
             exclude,
+            normalize,
             alignment_cell_budget,
         } = self;
 
@@ -258,6 +280,7 @@ impl Cli {
             options.alignment_cell_budget = budget;
         }
         options.filter = DifferenceFilter { include, exclude };
+        options.normalize = normalize.into_iter().collect();
 
         let comparison = compare_with_options(&left_node, &right_node, &options)?;
 
@@ -807,6 +830,31 @@ mod tests {
         assert_eq!(cli.alignment_cell_budget, None);
         assert!(cli.include.is_empty());
         assert!(cli.exclude.is_empty());
+        assert!(cli.normalize.is_empty());
+    }
+
+    #[test]
+    fn parses_and_validates_normalizations() -> Result<()> {
+        let cli = parse(&[
+            "left.smd",
+            "right.smd",
+            "--normalize",
+            "whitespace,typography",
+            "--normalize",
+            "initials",
+        ])?;
+        assert_eq!(
+            cli.normalize,
+            [
+                Normalization::Whitespace,
+                Normalization::Typography,
+                Normalization::Initials
+            ]
+        );
+        for invalid in ["", "all", "whitespaces", "whitespace,unknown"] {
+            assert!(parse(&["left.smd", "right.smd", "--normalize", invalid]).is_err());
+        }
+        Ok(())
     }
 
     #[test]
