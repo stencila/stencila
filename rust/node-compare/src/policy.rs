@@ -22,6 +22,7 @@ use crate::{
     alignment::{AlignmentCost, AlignmentSignal, EvidenceValue, MatchEvidence, PairCost},
     error::CompareResult,
     features::Features,
+    person,
     projection::{Item, OccurrenceId, Projection},
     scalar::{CanonicalNumber, ScalarValue},
     text,
@@ -74,7 +75,8 @@ mod weights {
     /// differs is not.
     pub const NODE_TYPE: i64 = 250;
 
-    /// Similarity of the normalized text of the two subtrees
+    /// Similarity of the normalized text of the two subtrees, or of two people's
+    /// identifiers and own names
     pub const TEXT: i64 = 650;
 
     /// Whether the occurrences' own scalar properties agree
@@ -205,10 +207,19 @@ pub fn pair_cost(
                 contribution: units(node_type * weights::NODE_TYPE / scale),
             });
 
-            let similarity = text::similarity(&left.grams, &right.grams);
+            let subtree = text::similarity(&left.grams, &right.grams);
+            // A person and a role are left to subtree text: pairing them by the person
+            // would leave the person within the role unmatched
+            let (signal, similarity) = match (&left.person, &right.person) {
+                (Some(left), Some(right)) if same_type => (
+                    AlignmentSignal::PersonIdentity,
+                    person::similarity(left, right, subtree),
+                ),
+                _ => (AlignmentSignal::TextSimilarity, subtree),
+            };
             let text = scale - similarity.units();
             evidence.push(MatchEvidence {
-                signal: AlignmentSignal::TextSimilarity,
+                signal,
                 value: EvidenceValue::Number {
                     value: CanonicalNumber::new(similarity.units() as f64 / scale as f64),
                 },

@@ -26,6 +26,7 @@ mod fingerprint;
 mod increasing;
 mod moves;
 mod options;
+mod person;
 mod policy;
 mod reorder;
 mod scalar;

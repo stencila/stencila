@@ -12,6 +12,7 @@ use stencila_node_type::{NodeProperty, NodeType};
 use crate::{
     error::{CompareError, CompareResult},
     fingerprint::{self, Identity},
+    person::PersonIdentity,
     projection::{Item, OccurrenceId, Presence, Projection},
     scalar::ScalarValue,
     text::{Grams, NormalizedText},
@@ -45,6 +46,10 @@ pub struct Features {
 
     /// The number of structured occurrences in the subtree, including this one
     pub subtree_size: i64,
+
+    /// The identifiers and own names of a person, for every `Person` occurrence and
+    /// every `AuthorRole` of a person
+    pub person: Option<PersonIdentity>,
 }
 
 /// The features of every occurrence of a projection, indexed by occurrence id
@@ -93,6 +98,7 @@ impl FeatureSet {
                     text: texts[index].as_str().to_string(),
                     grams: Grams::new(texts[index].as_str()),
                     subtree_size: occurrence.subtree_size,
+                    person: PersonIdentity::new(projection, id)?,
                 })
             })
             .collect::<CompareResult<Vec<_>>>()?;

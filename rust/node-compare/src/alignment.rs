@@ -205,6 +205,10 @@ pub enum AlignmentSignal {
     /// Similarity of normalized descendant text
     TextSimilarity,
 
+    /// Similarity of two people, or two roles of people, by the people's identifiers and own names, in place of
+    /// descendant text, so that metadata such as affiliations cannot decide the pair
+    PersonIdentity,
+
     /// The original position of an occurrence within its sibling scope
     Position,
 }
