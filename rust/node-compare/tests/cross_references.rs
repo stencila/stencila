@@ -381,3 +381,44 @@ fn a_shared_target_does_not_override_text_similarity() -> Result<()> {
     );
     Ok(())
 }
+
+#[test]
+fn a_reused_positional_label_does_not_pair_citations_of_different_works() -> Result<()> {
+    let rendered = |id: &str, content: &str| {
+        let mut citation = citation(id);
+        citation["content"] = json!([text(content)]);
+        citation
+    };
+    // The right drops the first work, so `b0` now names what the left calls `b1`
+    let left = document(
+        json!([paragraph(json!([
+            rendered("b0", "Alpha 2020"),
+            rendered("b1", "Beta 2021")
+        ]))]),
+        json!([
+            reference("b0", "Auxin signalling in roots"),
+            reference("b1", "Cell wall remodelling")
+        ]),
+    )?;
+    let right = document(
+        json!([paragraph(json!([rendered("b0", "B. 2021")]))]),
+        json!([reference("b0", "Cell wall remodelling")]),
+    )?;
+    let comparison = symmetric_comparison(&left, &right)?;
+    let citations: Vec<_> = comparison
+        .alignment()
+        .pairs()
+        .filter(|(left, ..)| left.node_type == NodeType::Citation)
+        .map(|(left, right, ..)| (left.path.to_string(), right.path.to_string()))
+        .collect();
+    assert_eq!(
+        citations,
+        [(
+            "content/0/content/1".to_string(),
+            "content/0/content/0".to_string()
+        )],
+        "{comparison:#?}"
+    );
+    assert!(target_changes(&comparison).is_empty(), "{comparison:#?}");
+    Ok(())
+}

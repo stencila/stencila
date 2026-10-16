@@ -146,9 +146,29 @@ pub fn id_corroborated(left: CandidateKind<'_>, right: CandidateKind<'_>) -> boo
         (CandidateKind::Structured(left), CandidateKind::Structured(right))
             if left.node_type == NodeType::Reference || right.node_type == NodeType::Reference =>
         {
-            text::similarity(&left.grams, &right.grams).units() * 2 > weights::SCALE
+            corroborates(&left.grams, &right.grams)
         }
         _ => true,
+    }
+}
+
+/// Whether two texts are more than half similar, enough to corroborate a shared label
+fn corroborates(left: &text::Grams, right: &text::Grams) -> bool {
+    text::similarity(left, right).units() * 2 > weights::SCALE
+}
+
+/// Whether two cross-references evidently refer to the same thing
+///
+/// Two citations that each resolve to a reference are judged by those references'
+/// text, whatever their labels, for the reason [`id_corroborated`] gives. Otherwise
+/// only an unchanged label is evidence.
+fn same_target(left: &Features, right: &Features) -> bool {
+    match (&left.cited, &right.cited) {
+        (Some(left), Some(right)) => corroborates(left, right),
+        (None, None) => {
+            left.reference_target.is_some() && left.reference_target == right.reference_target
+        }
+        _ => false,
     }
 }
 
@@ -229,23 +249,18 @@ pub fn pair_cost(
             // A person and a role are left to subtree text: pairing them by the person
             // would leave the person within the role unmatched
             let (signal, similarity) = match (&left.person, &right.person) {
-                // An unchanged target keeps a citation paired when its rendering
+                // The same target keeps a citation paired when its rendering
                 // appears or changes, by closing half of the remaining text
                 // dissimilarity. It is a bonus rather than a replacement for text, so
                 // that among several references to the same target the one whose
-                // text is closest still wins. A different label contributes no
+                // text is closest still wins. A different target contributes no
                 // penalty: target equality is decided through the completed alignment.
-                _ if same_type
-                    && left.reference_target.is_some()
-                    && left.reference_target == right.reference_target =>
-                {
-                    (
-                        AlignmentSignal::ReferenceTarget,
-                        AlignmentCost::from_units(
-                            subtree.units() + (AlignmentCost::ONE.units() - subtree.units()) / 2,
-                        ),
-                    )
-                }
+                _ if same_type && same_target(left, right) => (
+                    AlignmentSignal::ReferenceTarget,
+                    AlignmentCost::from_units(
+                        subtree.units() + (AlignmentCost::ONE.units() - subtree.units()) / 2,
+                    ),
+                ),
                 (Some(left), Some(right)) if same_type => (
                     AlignmentSignal::PersonIdentity,
                     person::similarity(left, right, subtree),

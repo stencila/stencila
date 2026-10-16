@@ -14,7 +14,7 @@ use crate::{
     fingerprint::{self, Identity},
     person::PersonIdentity,
     projection::{Item, OccurrenceId, Presence, Projection},
-    references::is_identity,
+    references::{TargetIndex, is_identity},
     scalar::ScalarValue,
     text::{Grams, NormalizedText},
 };
@@ -31,6 +31,13 @@ pub struct Features {
     /// A citation or internal link target, used only as positive matching evidence.
     /// Different local labels are not evidence of different content.
     pub reference_target: Option<String>,
+
+    /// The n-grams of the reference that a citation resolves to on its own side
+    ///
+    /// Citation labels are often positional, reassigned whenever a reference is added
+    /// or removed, so whether two citations cite the same work is judged by this rather
+    /// than by their labels.
+    pub cited: Option<Grams>,
 
     /// The canonical structural fingerprint of the subtree
     pub fingerprint: u64,
@@ -85,26 +92,42 @@ impl FeatureSet {
             texts[index] = subtree_text(projection, id, &texts)?;
         }
 
+        let targets = TargetIndex::new(projection);
         let features = (0..count)
             .map(|index| {
                 let id = OccurrenceId::new(index);
                 let occurrence = projection.occurrence(id)?;
+                let reference_target = occurrence.properties.iter().find_map(|property| {
+                    if property.decl.property == NodeProperty::Target
+                        && is_identity(occurrence.node_type, property)
+                        && let Some(Item::Scalar(ScalarValue::String { value })) =
+                            property.items.first()
+                        && !value.is_empty()
+                    {
+                        Some(value.clone())
+                    } else {
+                        None
+                    }
+                });
+                let cited = match (occurrence.node_type, &reference_target) {
+                    (NodeType::Citation, Some(target)) => targets
+                        .resolve(
+                            NodeType::Citation,
+                            &ScalarValue::String {
+                                value: target.clone(),
+                            },
+                        )
+                        .and_then(|reference| texts.get(reference.index()))
+                        .filter(|text| !text.as_str().is_empty())
+                        .map(|text| Grams::new(text.as_str())),
+                    _ => None,
+                };
 
                 Ok(Features {
                     node_type: occurrence.node_type,
                     explicit_id: explicit_id(projection, id)?,
-                    reference_target: occurrence.properties.iter().find_map(|property| {
-                        if property.decl.property == NodeProperty::Target
-                            && is_identity(occurrence.node_type, property)
-                            && let Some(Item::Scalar(ScalarValue::String { value })) =
-                                property.items.first()
-                            && !value.is_empty()
-                        {
-                            Some(value.clone())
-                        } else {
-                            None
-                        }
-                    }),
+                    reference_target,
+                    cited,
                     fingerprint: fingerprints[index],
                     identity_neutral_fingerprint: identity_neutral[index],
                     scalar_signature: fingerprint::scalar_signature(
