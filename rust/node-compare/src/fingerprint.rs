@@ -8,12 +8,13 @@
 //! default hasher's output is explicitly not stable across releases and artifacts must
 //! be byte-for-byte reproducible.
 
-use stencila_node_type::NodeProperty;
+use stencila_node_type::NodeType;
 use stencila_schema::ValueKind;
 
 use crate::{
     error::{CompareError, CompareResult},
-    projection::{Item, OccurrenceId, Presence, Projection},
+    projection::{Item, OccurrenceId, Presence, ProjectedProperty, Projection},
+    references::is_identity,
     scalar::ScalarValue,
 };
 
@@ -58,21 +59,21 @@ impl Fingerprinter {
     }
 }
 
-/// Whether a fingerprint covers the explicit schema `id` of the occurrences it spans
+/// Whether a fingerprint covers identifiers and cross-reference targets
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum Identity {
     /// The explicit `id` is part of the fingerprint
     Included,
 
-    /// The explicit `id` is excluded, so that editing an `id` cannot hide an otherwise
-    /// exact match
+    /// IDs and cross-reference targets are excluded, so that renaming local labels
+    /// cannot hide an otherwise exact match
     Neutral,
 }
 
 impl Identity {
     /// Whether a property is excluded under this identity
-    fn excludes(self, property: NodeProperty) -> bool {
-        self == Self::Neutral && property == NodeProperty::Id
+    pub(crate) fn excludes(self, node_type: NodeType, property: &ProjectedProperty) -> bool {
+        self == Self::Neutral && is_identity(node_type, property)
     }
 }
 
@@ -97,7 +98,7 @@ pub fn subtree(
     let mut fingerprinter = Fingerprinter::new();
     fingerprinter.write_str(&occurrence.node_type.to_string());
     for property in &occurrence.properties {
-        if identity.excludes(property.decl.property) {
+        if identity.excludes(occurrence.node_type, property) {
             continue;
         }
 
@@ -150,7 +151,7 @@ pub fn scalar_signature(
     let mut fingerprinter = Fingerprinter::new();
     fingerprinter.write_str(&occurrence.node_type.to_string());
     for property in &occurrence.properties {
-        if identity.excludes(property.decl.property) {
+        if identity.excludes(occurrence.node_type, property) {
             continue;
         }
         let scalars: Vec<&ScalarValue> = property

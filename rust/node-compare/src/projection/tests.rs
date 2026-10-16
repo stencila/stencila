@@ -250,7 +250,8 @@ fn declared_schema_data_is_projected() -> Result<()> {
     // Present but absent-valued properties are still projected
     assert!(scalar(occurrence, NodeProperty::Provenance)?.is_none());
 
-    // An explicit `id` is an ordinary compared value
+    // Canonical projection equality preserves IDs even though comparison ignores
+    // their spelling after alignment.
     let mut other = Paragraph::new(vec![t("Hello")]);
     other.id = Some("para-2".to_string());
     assert!(!projections_equal(

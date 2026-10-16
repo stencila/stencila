@@ -497,12 +497,20 @@ impl<'projection> Aligner<'projection> {
             }
         };
 
+        let corroborated = |left_index: usize, right_index: usize| -> CompareResult<bool> {
+            Ok(crate::policy::id_corroborated(
+                left_kinds[left_index],
+                right_kinds[right_index],
+            ))
+        };
+
         // Verified unique anchors fix part of the alignment and partition the rest into
         // smaller gaps, which is what keeps the dynamic program affordable
         let anchors = anchors::find(
             &anchor_candidates(&left_kinds),
             &anchor_candidates(&right_kinds),
             &compatible,
+            &corroborated,
             &verified_eq,
         )?;
 
@@ -569,6 +577,9 @@ impl<'projection> Aligner<'projection> {
             &select_candidates_at(&anchor_candidates(&right_kinds), &right_leftover),
             &|left_index, right_index| {
                 compatible(left_leftover[left_index], right_leftover[right_index])
+            },
+            &|left_index, right_index| {
+                corroborated(left_leftover[left_index], right_leftover[right_index])
             },
             &|left_index, right_index| {
                 verified_eq(left_leftover[left_index], right_leftover[right_index])
@@ -1066,10 +1077,17 @@ impl<'projection> Aligner<'projection> {
             )
         };
 
+        let corroborated = |left_index: usize, right_index: usize| -> CompareResult<bool> {
+            Ok(crate::policy::id_corroborated(
+                CandidateKind::Structured(self.left_features.get(left[left_index])?),
+                CandidateKind::Structured(self.right_features.get(right[right_index])?),
+            ))
+        };
         let anchors = anchors::find_crossing(
             &left_candidates,
             &right_candidates,
             &compatible,
+            &corroborated,
             &verified_eq,
         )?;
 

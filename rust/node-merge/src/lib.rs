@@ -28,6 +28,10 @@
 //! comparison into edits, and applies them with the schema's own patching machinery.
 //! No matching, projection or difference logic is duplicated from the comparison.
 //!
+//! Since comparison never reports a renamed ID, the merged document keeps the left
+//! document's IDs. Content copied in from the right document is translated into them
+//! first, so that its citations and internal links still resolve once accepted.
+//!
 //! # What it cannot express
 //!
 //! Not every difference is a substitution of content. An occurrence that moved or was
@@ -43,6 +47,7 @@ mod container;
 mod diff;
 mod error;
 mod index;
+mod labels;
 mod options;
 mod plan;
 mod report;
@@ -121,12 +126,13 @@ pub fn merge_comparison_with_options(
     let mut node = left.clone();
 
     // Before any rewrite, while the comparison's paths still address the document
-    // they were derived from
+    // they were derived from. Labels first, so that comments reuse any ID they assign.
+    let right = labels::translate(&mut node, right, comparison, &plan)?;
     let locations = comments::identify_targets(&mut node, &plan.comments, options);
 
     // The report is taken out so that applying can add to it while reading the plan
     let mut report = std::mem::take(&mut plan.report);
-    apply::apply(&mut node, right, &plan, options, &mut report)?;
+    apply::apply(&mut node, &right, &plan, options, &mut report)?;
 
     report.comments = comments::attach(&mut node, &plan.comments, &locations, options)?;
 

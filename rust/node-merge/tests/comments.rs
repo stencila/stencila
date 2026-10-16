@@ -237,7 +237,8 @@ fn comments_reuse_an_existing_target_id() -> Result<()> {
     let Some(comments) = &article.options.comments else {
         bail!("expected comments")
     };
-    assert!(comments.len() >= 2, "{comments:#?}");
+    // Only the level change produces a comment; renaming the local ID is ignored.
+    assert_eq!(comments.len(), 1, "{comments:#?}");
     for comment in comments {
         assert_eq!(
             comment.options.start_location.as_deref(),

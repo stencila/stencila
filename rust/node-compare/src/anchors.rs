@@ -74,18 +74,21 @@ pub struct Candidate {
 
 /// Find the compulsory anchors between two sequences
 ///
-/// `compatible` decides whether two positions may be paired at all, and `verified_eq`
+/// `compatible` decides whether two positions may be paired at all, `corroborated`
+/// whether a shared explicit id is enough on its own to pair them, and `verified_eq`
 /// confirms that two positions with equal fingerprints really do hold equal subtrees.
 pub fn find(
     left: &[Option<Candidate>],
     right: &[Option<Candidate>],
     compatible: &dyn Fn(usize, usize) -> CompareResult<bool>,
+    corroborated: &dyn Fn(usize, usize) -> CompareResult<bool>,
     verified_eq: &dyn Fn(usize, usize) -> CompareResult<bool>,
 ) -> CompareResult<Vec<Anchor>> {
     Ok(non_crossing(find_crossing(
         left,
         right,
         compatible,
+        corroborated,
         verified_eq,
     )?))
 }
@@ -99,6 +102,7 @@ pub fn find_crossing(
     left: &[Option<Candidate>],
     right: &[Option<Candidate>],
     compatible: &dyn Fn(usize, usize) -> CompareResult<bool>,
+    corroborated: &dyn Fn(usize, usize) -> CompareResult<bool>,
     verified_eq: &dyn Fn(usize, usize) -> CompareResult<bool>,
 ) -> CompareResult<Vec<Anchor>> {
     let mut anchors = Vec::new();
@@ -117,7 +121,7 @@ pub fn find_crossing(
         let Some(right_index) = right_ids.get(id) else {
             continue;
         };
-        if !compatible(*left_index, *right_index)? {
+        if !compatible(*left_index, *right_index)? || !corroborated(*left_index, *right_index)? {
             continue;
         }
         take(

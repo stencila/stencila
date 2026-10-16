@@ -11,7 +11,7 @@ use stencila_node_compare::{
 };
 use stencila_node_type::{NodeProperty, NodeType};
 use stencila_schema::{
-    Block, Link, Node, Paragraph, Section,
+    Block, Figure, Link, Node, Paragraph, Table,
     shortcuts::{art, p, t},
 };
 
@@ -53,6 +53,22 @@ fn linked(paragraph_id: &str, link_id: &str, target: &str, text: &str) -> Block 
             ..Link::new(vec![t(text)], target.to_string())
         })])
     })
+}
+
+/// A figure and table with stable identities and editable labels.
+fn labelled(figure_label: &str, table_label: &str) -> Node {
+    art([
+        Block::Figure(Figure {
+            id: Some("figure".to_string()),
+            label: Some(figure_label.to_string()),
+            ..Default::default()
+        }),
+        Block::Table(Table {
+            id: Some("table".to_string()),
+            label: Some(table_label.to_string()),
+            ..Default::default()
+        }),
+    ])
 }
 
 /// The selector grammar covers each of its four forms, and round-trips
@@ -100,36 +116,35 @@ fn impossible_selectors_are_rejected() {
 /// Excluding a property hides only differences about that property
 #[test]
 fn excluding_a_property_hides_only_that_property() -> Result<()> {
-    // Same content on both sides, so both paragraphs pair and the only differences are
-    // the identifiers
-    let left = art([para("one", "Hello"), para("two", "World")]);
-    let right = art([para("three", "Hello"), para("four", "World")]);
+    // Stable IDs pair both nodes; only their labels differ.
+    let left = labelled("1", "2");
+    let right = labelled("3", "4");
 
     let all = compare(&left, &right)?;
-    let ids: Vec<_> = all
+    let labels: Vec<_> = all
         .differences()
         .iter()
-        .filter(|difference| difference.property() == Some(NodeProperty::Id))
+        .filter(|difference| difference.property() == Some(NodeProperty::Label))
         .collect();
-    assert_eq!(ids.len(), 2, "both paragraphs differ in `id`");
+    assert_eq!(labels.len(), 2, "both nodes differ in `label`");
 
-    let filtered = filtered(&left, &right, &["id"], &[])?;
+    let filtered = filtered(&left, &right, &["label"], &[])?;
     assert_eq!(
         filtered.differences().len(),
         all.differences().len() - 2,
-        "exactly the `id` differences are suppressed"
+        "exactly the `label` differences are suppressed"
     );
     assert_eq!(filtered.suppressed_differences(), 2);
     assert!(
         filtered
             .differences()
             .iter()
-            .all(|difference| difference.property() != Some(NodeProperty::Id)),
-        "no `id` difference survives"
+            .all(|difference| difference.property() != Some(NodeProperty::Label)),
+        "no `label` difference survives"
     );
     assert!(
         filtered.is_equal(),
-        "identifiers aside, these two documents say the same thing"
+        "labels aside, these two documents say the same thing"
     );
     assert!(
         !filtered.is_equal_unfiltered(),
@@ -142,38 +157,38 @@ fn excluding_a_property_hides_only_that_property() -> Result<()> {
 /// A more specific selector beats a less specific one, whatever order they are given in
 #[test]
 fn the_most_specific_selector_wins_regardless_of_order() -> Result<()> {
-    let left = art([linked("p1", "l1", "http://example.com", "here")]);
-    let right = art([linked("p2", "l2", "http://example.com", "here")]);
+    let left = labelled("1", "2");
+    let right = labelled("3", "4");
 
-    // Both the paragraph and the link differ in `id`
-    let excluded = filtered(&left, &right, &["id"], &[])?;
+    // Both the figure and the table differ in `label`
+    let excluded = filtered(&left, &right, &["label"], &[])?;
     assert_eq!(excluded.suppressed_differences(), 2);
 
-    // Re-including one type's `id` beats the bare property exclusion
-    let reincluded = filtered(&left, &right, &["id"], &["Link.id"])?;
+    // Re-including one type's `label` beats the bare property exclusion
+    let reincluded = filtered(&left, &right, &["label"], &["Table.label"])?;
     assert_eq!(reincluded.suppressed_differences(), 1);
     assert_eq!(
         reincluded
             .differences()
             .iter()
-            .filter(|difference| difference.property() == Some(NodeProperty::Id))
+            .filter(|difference| difference.property() == Some(NodeProperty::Label))
             .count(),
         1,
-        "the link's `id` is reported again"
+        "the table's `label` is reported again"
     );
 
     // Order within the selector lists is not significant either
     let one_way = filtered(
         &left,
         &right,
-        &["id", "Paragraph.authors"],
-        &["Link.id", "*"],
+        &["label", "Paragraph.authors"],
+        &["Table.label", "*"],
     )?;
     let other_way = filtered(
         &left,
         &right,
-        &["Paragraph.authors", "id"],
-        &["*", "Link.id"],
+        &["Paragraph.authors", "label"],
+        &["*", "Table.label"],
     )?;
     assert_eq!(one_way.differences(), other_way.differences());
     assert_eq!(
@@ -188,9 +203,9 @@ fn the_most_specific_selector_wins_regardless_of_order() -> Result<()> {
 /// `*` makes the filter an allowlist
 #[test]
 fn everything_can_be_excluded_and_selectively_restored() -> Result<()> {
-    // Identical but for the identifiers, so there is exactly one difference to restore
-    let left = art([para("one", "Hello")]);
-    let right = art([para("two", "Hello")]);
+    // Identical but for one label, so there is exactly one difference to restore
+    let left = labelled("1", "2");
+    let right = labelled("3", "2");
 
     let nothing = filtered(&left, &right, &["*"], &[])?;
     assert!(nothing.differences().is_empty(), "`*` excludes everything");
@@ -199,12 +214,12 @@ fn everything_can_be_excluded_and_selectively_restored() -> Result<()> {
         "with every difference suppressed, the nodes are equal modulo the filter"
     );
 
-    let only_ids = filtered(&left, &right, &["*"], &["id"])?;
-    assert_eq!(only_ids.differences().len(), 1);
+    let only_labels = filtered(&left, &right, &["*"], &["label"])?;
+    assert_eq!(only_labels.differences().len(), 1);
     assert_eq!(
-        only_ids.differences()[0].property(),
-        Some(NodeProperty::Id),
-        "only the `id` difference is restored"
+        only_labels.differences()[0].property(),
+        Some(NodeProperty::Label),
+        "only the `label` difference is restored"
     );
 
     Ok(())
@@ -290,14 +305,14 @@ fn one_sided_subtrees_are_hidden_whole() -> Result<()> {
 /// A filtered comparison says so, and cannot be mistaken for an exhaustive one
 #[test]
 fn a_filtered_comparison_is_self_describing() -> Result<()> {
-    let left = art([para("one", "Hello")]);
-    let right = art([para("two", "Hello")]);
+    let left = labelled("1", "2");
+    let right = labelled("3", "2");
 
     let unfiltered = compare(&left, &right)?;
     assert!(!unfiltered.is_filtered());
     assert!(!unfiltered.is_equal_unfiltered());
 
-    let filtered = filtered(&left, &right, &["id"], &[])?;
+    let filtered = filtered(&left, &right, &["label"], &[])?;
     assert!(filtered.is_filtered());
     assert!(filtered.is_equal(), "equal, modulo the filter");
     assert!(
@@ -350,34 +365,19 @@ fn the_filter_round_trips_through_json() -> Result<()> {
     Ok(())
 }
 
-/// A section is a different node type, so `Section` selectors do not touch paragraphs
+/// Type-specific selectors do not touch the same property on other types.
 #[test]
 fn type_selectors_are_specific_to_their_type() -> Result<()> {
-    let left = art([
-        para("one", "Hello"),
-        Block::Section(Section {
-            id: Some("s1".to_string()),
-            ..Section::new(vec![p([t("Inside")])])
-        }),
-    ]);
-    let right = art([
-        para("two", "Hello"),
-        Block::Section(Section {
-            id: Some("s2".to_string()),
-            ..Section::new(vec![p([t("Inside")])])
-        }),
-    ]);
+    let left = labelled("1", "2");
+    let right = labelled("3", "4");
 
     let all = filtered(&left, &right, &[], &[])?;
-    let paragraph_only = filtered(&left, &right, &["Section.id"], &[])?;
-    let section_only = filtered(&left, &right, &["Paragraph.id"], &[])?;
+    let figure_only = filtered(&left, &right, &["Table.label"], &[])?;
+    let table_only = filtered(&left, &right, &["Figure.label"], &[])?;
 
-    assert_eq!(paragraph_only.suppressed_differences(), 1);
-    assert_eq!(section_only.suppressed_differences(), 1);
-    assert_eq!(
-        paragraph_only.differences().len() + 1,
-        all.differences().len()
-    );
+    assert_eq!(figure_only.suppressed_differences(), 1);
+    assert_eq!(table_only.suppressed_differences(), 1);
+    assert_eq!(figure_only.differences().len() + 1, all.differences().len());
 
     Ok(())
 }

@@ -28,6 +28,7 @@ mod moves;
 mod options;
 mod person;
 mod policy;
+mod references;
 mod reorder;
 mod scalar;
 mod sequence;
@@ -119,6 +120,9 @@ pub fn align_with_options(
 ///
 /// Returns the alignment of the two nodes, plus sparse, atomic observations about how
 /// their paired occurrences differ. Neither node is presumed correct.
+/// Local `id` changes are ignored; citation and internal link targets compare through
+/// the alignment when they resolve uniquely. Targets that are unresolved on both
+/// sides retain literal comparison.
 pub fn compare(left: &Node, right: &Node) -> CompareResult<Comparison> {
     compare_with_options(left, right, &CompareOptions::default())
 }

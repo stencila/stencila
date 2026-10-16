@@ -14,6 +14,7 @@ use crate::{
     fingerprint::{self, Identity},
     person::PersonIdentity,
     projection::{Item, OccurrenceId, Presence, Projection},
+    references::is_identity,
     scalar::ScalarValue,
     text::{Grams, NormalizedText},
 };
@@ -27,12 +28,16 @@ pub struct Features {
     /// The explicit schema `id`, when present and not empty
     pub explicit_id: Option<String>,
 
+    /// A citation or internal link target, used only as positive matching evidence.
+    /// Different local labels are not evidence of different content.
+    pub reference_target: Option<String>,
+
     /// The canonical structural fingerprint of the subtree
     pub fingerprint: u64,
 
-    /// The structural fingerprint of the subtree, excluding explicit `id`
+    /// The structural fingerprint of the subtree, excluding IDs and cross-reference targets
     ///
-    /// Excluding `id` means that editing an `id` cannot hide an otherwise exact match.
+    /// Renaming local labels cannot hide an otherwise exact match.
     pub identity_neutral_fingerprint: u64,
 
     /// The shallow signature of the occurrence's own scalar properties
@@ -88,12 +93,24 @@ impl FeatureSet {
                 Ok(Features {
                     node_type: occurrence.node_type,
                     explicit_id: explicit_id(projection, id)?,
+                    reference_target: occurrence.properties.iter().find_map(|property| {
+                        if property.decl.property == NodeProperty::Target
+                            && is_identity(occurrence.node_type, property)
+                            && let Some(Item::Scalar(ScalarValue::String { value })) =
+                                property.items.first()
+                            && !value.is_empty()
+                        {
+                            Some(value.clone())
+                        } else {
+                            None
+                        }
+                    }),
                     fingerprint: fingerprints[index],
                     identity_neutral_fingerprint: identity_neutral[index],
                     scalar_signature: fingerprint::scalar_signature(
                         projection,
                         id,
-                        Identity::Included,
+                        Identity::Neutral,
                     )?,
                     text: texts[index].as_str().to_string(),
                     grams: Grams::new(texts[index].as_str()),
@@ -135,11 +152,18 @@ fn explicit_id(projection: &Projection, id: OccurrenceId) -> CompareResult<Optio
     Ok(None)
 }
 
+/// The matching text that stands in for any cross-reference target
+///
+/// Long enough to form n-grams, so a citation compared with its rendered self shares
+/// most of them, and bracketed so that it is unlikely to coincide with prose.
+const TARGET_PLACEHOLDER: &str = "⟦target⟧";
+
 /// The text of an occurrence and its descendants, before normalization
 ///
-/// Every string scalar the occurrence declares contributes, except its explicit `id`,
-/// which is a separate identity signal rather than content. Which properties are text
-/// is a schema fact, so no property names are interpreted here.
+/// Every string scalar contributes except IDs and cross-reference targets, which
+/// identify nodes rather than describe their content. A cross-reference still
+/// contributes a fixed placeholder whatever its label, so that content consisting only
+/// of a citation stays comparable with the same content once the citation is rendered.
 fn subtree_text(
     projection: &Projection,
     id: OccurrenceId,
@@ -147,8 +171,15 @@ fn subtree_text(
 ) -> CompareResult<NormalizedText> {
     let mut text = NormalizedText::default();
 
-    for property in &projection.occurrence(id)?.properties {
-        if property.decl.property == NodeProperty::Id || property.presence == Presence::Absent {
+    let occurrence = projection.occurrence(id)?;
+    for property in &occurrence.properties {
+        if property.presence == Presence::Absent {
+            continue;
+        }
+        if is_identity(occurrence.node_type, property) {
+            if property.decl.property == NodeProperty::Target {
+                text.append(TARGET_PLACEHOLDER);
+            }
             continue;
         }
 

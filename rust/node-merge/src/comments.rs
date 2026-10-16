@@ -128,7 +128,7 @@ pub(crate) fn attach(
 ///
 /// Only sets one where the occurrence has none, so a document that already identifies
 /// its nodes keeps the identifiers it came with.
-fn identify(working: &mut Node, target: &NodePath, id: &str) -> MergeResult<()> {
+pub(crate) fn identify(working: &mut Node, target: &NodePath, id: &str) -> MergeResult<()> {
     let mut path = target.clone();
     path.push_back(NodeSlot::Property(NodeProperty::Id));
 
@@ -148,7 +148,7 @@ fn identify(working: &mut Node, target: &NodePath, id: &str) -> MergeResult<()> 
 }
 
 /// The existing identifier of a target occurrence, if it has one
-fn existing_id(working: &Node, target: &NodePath) -> Option<String> {
+pub(crate) fn existing_id(working: &Node, target: &NodePath) -> Option<String> {
     let mut path = target.clone();
     path.push_back(NodeSlot::Property(NodeProperty::Id));
 
@@ -175,7 +175,7 @@ fn next_available_id(
 }
 
 /// Collect serialized `id` properties without maintaining a list of schema node types
-fn identifiers(node: &Node) -> BTreeSet<String> {
+pub(crate) fn identifiers(node: &Node) -> BTreeSet<String> {
     let mut identifiers = BTreeSet::new();
     if let Ok(value) = serde_json::to_value(node) {
         collect_identifiers(&value, &mut identifiers);

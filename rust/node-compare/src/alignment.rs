@@ -193,10 +193,13 @@ pub enum AlignmentSignal {
     /// A non-empty explicit schema `id`
     ExplicitId,
 
+    /// An unchanged citation or internal link target, used as positive evidence
+    ReferenceTarget,
+
     /// The canonical structural fingerprint of the subtree
     CanonicalFingerprint,
 
-    /// The structural fingerprint of the subtree, excluding explicit `id`
+    /// The structural fingerprint excluding IDs and cross-reference targets
     IdentityNeutralFingerprint,
 
     /// The shallow signature of an occurrence's scalar properties

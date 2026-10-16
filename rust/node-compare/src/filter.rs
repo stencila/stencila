@@ -8,7 +8,7 @@
 //!
 //! Filters exist because two documents in different formats legitimately disagree about
 //! format-carried bookkeeping. A JATS document declares `jatsRefType` where Markdown has
-//! nothing to say, and identifiers are minted independently on each side. Those are real
+//! nothing to say, and generated labels can differ between formats. Those are real
 //! differences, so the comparison is right to derive them, but they are rarely the
 //! differences a reader is asking about.
 //!
@@ -16,28 +16,35 @@
 //!
 //! | Form | Matches |
 //! | --- | --- |
-//! | `id` | that property, on any node type |
-//! | `Link.id` | that property, on that node type only |
-//! | `Link` | everything about that node type |
+//! | `label` | that property, on any node type |
+//! | `Figure.label` | that property, on that node type only |
+//! | `Figure` | everything about that node type |
 //! | `*`, or `all` | everything |
 //!
 //! `all` is a synonym for `*`, for the sake of shells in which a bare `*` would be
 //! expanded to a list of file names before the command ever sees it.
 //!
 //! Node types are PascalCase and properties are camelCase, which is what tells a bare
-//! `Link` from a bare `id` without any ambiguity.
+//! `Figure` from a bare `label` without any ambiguity.
 //!
 //! # Precedence
 //!
 //! The *most specific* matching selector wins, regardless of the order the selectors
-//! were given in: `Link.id` beats `id`, which beats `Link`, which beats `*`. Order
+//! were given in: `Figure.label` beats `label`, which beats `Figure`, which beats `*`. Order
 //! independence is deliberate, so that a filter means the same thing on a command line,
 //! in a configuration file, and through a language binding. An exclusion wins a tie with
 //! an inclusion of equal specificity, because hiding too little is easier to notice than
 //! hiding too much. Anything no selector matches is reported.
 //!
-//! So `--exclude id --include Figure.id` reports figure identifiers and no others, and
+//! So `--exclude label --include Figure.label` reports figure labels and no others, and
 //! `--exclude '*' --include title` reports nothing but titles.
+//!
+//! # What filters cannot restore
+//!
+//! A filter only hides differences that comparison derived. Changes to `id` are never
+//! derived, because IDs are document-local labels, and citation and internal link
+//! targets differ only when they resolve to nodes that are not paired. So `id` is a
+//! valid selector that matches nothing, and `--include id` restores nothing.
 
 use std::{fmt, str::FromStr};
 
@@ -297,8 +304,8 @@ impl DifferenceFilter {
     /// Whether a one-sided occurrence is reported
     ///
     /// One-sided structure has no property, so only type selectors and `*` can hide it.
-    /// A property selector never does: excluding `id` means "do not tell me about
-    /// identifiers", not "pretend this whole missing subtree is not missing".
+    /// A property selector never does: excluding `label` hides label differences,
+    /// while a missing subtree remains visible.
     pub fn allows_node(&self, node: &NodeRef) -> bool {
         self.allows(&Subject {
             left_type: node.node_type,

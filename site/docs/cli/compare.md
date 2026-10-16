@@ -39,11 +39,11 @@ stencila compare before.smd after.smd --to json
 # Write the comparison artifact to a file
 stencila compare before.smd after.smd comparison.yaml
 
-# Ignore differences that are only about identifiers
-stencila compare before.smd after.jats.xml --exclude id
+# Ignore differences that are only about labels
+stencila compare before.smd after.jats.xml --exclude label
 
-# Ignore identifiers everywhere except on figures
-stencila compare before.smd after.jats.xml --exclude id --include Figure.id
+# Ignore labels everywhere except on figures
+stencila compare before.smd after.jats.xml --exclude label --include Figure.label
 
 # Ignore everything about links, and JATS reference types anywhere
 stencila compare before.smd after.jats.xml --exclude Link --exclude jatsRefType
@@ -53,6 +53,12 @@ stencila compare before.smd after.smd --exclude all --include Heading
 
 # Override the format of an input document
 stencila compare before.txt after.smd --left-from smd
+
+# Write the changes into the first document as suggestions and comments
+stencila compare before.smd after.smd merged.smd
+
+# Same, printed as Stencila Markdown
+stencila compare before.smd after.smd --to suggestions
 ```
 
 # Arguments
@@ -79,12 +85,13 @@ stencila compare before.txt after.smd --left-from smd
 
 **Possible values of `--to`**
 
-| Value  | Description                                         |
-| ------ | --------------------------------------------------- |
-| `text` | A human-readable report                             |
-| `html` | A side-by-side report as a self-contained HTML page |
-| `json` | The comparison artifact as JSON                     |
-| `yaml` | The comparison artifact as YAML                     |
+| Value         | Description                                                        |
+| ------------- | ------------------------------------------------------------------ |
+| `text`        | A human-readable report                                            |
+| `html`        | A side-by-side report as a self-contained HTML page                |
+| `json`        | The comparison artifact as JSON                                    |
+| `yaml`        | The comparison artifact as YAML                                    |
+| `suggestions` | The left document with the right document's changes as suggestions |
 
 **Possible values of `--input-losses`**
 

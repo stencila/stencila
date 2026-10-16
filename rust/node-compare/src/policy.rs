@@ -134,6 +134,24 @@ pub fn compatible(
     }
 }
 
+/// Whether a shared explicit `id` is enough, on its own, to anchor two items
+///
+/// An ID is normally a deliberate identity. A reference's ID is different: tools
+/// commonly number references by position (`b0`, `b1`, …), so after one is dropped the
+/// same label names a different work on each side. Two references sharing an ID
+/// therefore anchor only when they are also more than half similar, the threshold at
+/// which the pair cost would pair them anyway; otherwise they are left to that cost.
+pub fn id_corroborated(left: CandidateKind<'_>, right: CandidateKind<'_>) -> bool {
+    match (left, right) {
+        (CandidateKind::Structured(left), CandidateKind::Structured(right))
+            if left.node_type == NodeType::Reference || right.node_type == NodeType::Reference =>
+        {
+            text::similarity(&left.grams, &right.grams).units() * 2 > weights::SCALE
+        }
+        _ => true,
+    }
+}
+
 /// One side of a candidate pair
 #[derive(Debug, Clone, Copy)]
 pub enum CandidateKind<'features> {
@@ -211,6 +229,23 @@ pub fn pair_cost(
             // A person and a role are left to subtree text: pairing them by the person
             // would leave the person within the role unmatched
             let (signal, similarity) = match (&left.person, &right.person) {
+                // An unchanged target keeps a citation paired when its rendering
+                // appears or changes, by closing half of the remaining text
+                // dissimilarity. It is a bonus rather than a replacement for text, so
+                // that among several references to the same target the one whose
+                // text is closest still wins. A different label contributes no
+                // penalty: target equality is decided through the completed alignment.
+                _ if same_type
+                    && left.reference_target.is_some()
+                    && left.reference_target == right.reference_target =>
+                {
+                    (
+                        AlignmentSignal::ReferenceTarget,
+                        AlignmentCost::from_units(
+                            subtree.units() + (AlignmentCost::ONE.units() - subtree.units()) / 2,
+                        ),
+                    )
+                }
                 (Some(left), Some(right)) if same_type => (
                     AlignmentSignal::PersonIdentity,
                     person::similarity(left, right, subtree),

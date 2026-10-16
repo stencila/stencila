@@ -18,13 +18,16 @@
 //! identically; only the node boundaries differ. `coalesce_text` below rejoins them so
 //! that the comparison is about content rather than about where a mark happened to fall.
 
+use std::collections::BTreeSet;
+
 use eyre::Result;
+use serde_json::{Value, json};
 
 use stencila_node_compare::compare;
 use stencila_node_merge::{CommentMode, MergeOptions, MetadataChanges, merge_with_options};
 use stencila_node_suggestions::{ResolveSuggestions, SuggestionAction};
 use stencila_schema::{
-    Block, Node, Section,
+    Block, Node, Section, SectionType,
     shortcuts::{art, h1, h2, p, sec, t},
 };
 
@@ -131,14 +134,70 @@ fn round_trips_with_options(left: &Node, right: &Node, options: &MergeOptions) -
         residue(&accepted, right)?
     );
 
+    // Comparison resolves targets through the alignment, so equality alone cannot
+    // tell a translated target from one that resolves to nothing
+    let dangling = dangling_targets(&accepted)?;
+    assert!(
+        dangling.is_subset(&dangling_targets(right)?),
+        "accepting left targets that resolve to nothing: {dangling:?}"
+    );
+
     let (rejected, ..) = resolved(left, right, &SuggestionAction::RejectAll, options)?;
     assert!(
         same(&rejected, left)?,
         "rejecting did not yield the left document:\n{}",
         residue(&rejected, left)?
     );
+    let dangling = dangling_targets(&rejected)?;
+    assert!(
+        dangling.is_subset(&dangling_targets(left)?),
+        "rejecting left targets that resolve to nothing: {dangling:?}"
+    );
 
     Ok(())
+}
+
+/// The citation and fragment link targets that no ID in a document resolves
+///
+/// IDs within a citation's cached copy of a reference are not addressable, as in
+/// comparison.
+fn dangling_targets(node: &Node) -> Result<BTreeSet<String>> {
+    fn walk(value: &Value, ids: &mut BTreeSet<String>, targets: &mut BTreeSet<String>) {
+        match value {
+            Value::Array(items) => {
+                for item in items {
+                    walk(item, ids, targets);
+                }
+            }
+            Value::Object(entries) => {
+                if let Some(id) = entries.get("id").and_then(Value::as_str) {
+                    ids.insert(id.to_string());
+                }
+                let target = entries.get("target").and_then(Value::as_str);
+                match (entries.get("type").and_then(Value::as_str), target) {
+                    (Some("Citation"), Some(target)) => {
+                        targets.insert(target.trim().to_string());
+                    }
+                    (Some("Link"), Some(target)) => {
+                        if let Some(fragment) = target.strip_prefix('#') {
+                            targets.insert(fragment.to_string());
+                        }
+                    }
+                    _ => {}
+                }
+                for (key, entry) in entries {
+                    if key != "cites" {
+                        walk(entry, ids, targets);
+                    }
+                }
+            }
+            _ => {}
+        }
+    }
+
+    let (mut ids, mut targets) = (BTreeSet::new(), BTreeSet::new());
+    walk(&serde_json::to_value(node)?, &mut ids, &mut targets);
+    Ok(targets.difference(&ids).cloned().collect())
 }
 
 /// What still differs between two documents, for a failure message
@@ -222,11 +281,11 @@ fn metadata_and_nested_content_changes_round_trip_together() -> Result<()> {
 #[test]
 fn metadata_on_a_block_container_can_be_suggested() -> Result<()> {
     let left = art([Block::Section(Section {
-        id: Some("old-section".to_string()),
+        section_type: Some(SectionType::Introduction),
         ..Section::new(vec![p([t("Body")])])
     })]);
     let right = art([Block::Section(Section {
-        id: Some("new-section".to_string()),
+        section_type: Some(SectionType::Discussion),
         ..Section::new(vec![p([t("Body")])])
     })]);
     let options = MergeOptions {
@@ -297,4 +356,154 @@ fn a_document_with_many_kinds_of_change_round_trips() -> Result<()> {
             sec([h1([t("Results")]), p([t("Everything worked.")])]),
         ]),
     )
+}
+
+/// Build a node from its JSON form
+fn node(value: Value) -> Result<Node> {
+    Ok(serde_json::from_value(value)?)
+}
+
+/// A string property of every node of a type, in document order
+fn strings(node: &Node, node_type: &str, property: &str) -> Result<Vec<String>> {
+    fn walk(value: &Value, node_type: &str, property: &str, found: &mut Vec<String>) {
+        match value {
+            Value::Array(items) => {
+                for item in items {
+                    walk(item, node_type, property, found);
+                }
+            }
+            Value::Object(entries) => {
+                if entries.get("type").and_then(Value::as_str) == Some(node_type)
+                    && let Some(value) = entries.get(property).and_then(Value::as_str)
+                {
+                    found.push(value.to_string());
+                }
+                for entry in entries.values() {
+                    walk(entry, node_type, property, found);
+                }
+            }
+            _ => {}
+        }
+    }
+
+    let mut found = Vec::new();
+    walk(
+        &serde_json::to_value(node)?,
+        node_type,
+        property,
+        &mut found,
+    );
+    Ok(found)
+}
+
+/// Accept every suggestion
+fn accepted(left: &Node, right: &Node, options: &MergeOptions) -> Result<Node> {
+    Ok(resolved(left, right, &SuggestionAction::AcceptAll, options)?.0)
+}
+
+fn section(id: Option<&str>, text: &str) -> Value {
+    let mut section = json!({"type": "Section", "content": [
+        {"type": "Paragraph", "content": [{"type": "Text", "value": text}]}
+    ]});
+    if let Some(id) = id {
+        section["id"] = json!(id);
+    }
+    section
+}
+
+fn link_paragraph(text: &str, target: &str) -> Value {
+    json!({"type": "Paragraph", "content": [
+        {"type": "Text", "value": text},
+        {"type": "Link", "target": target, "content": [{"type": "Text", "value": "here"}]}
+    ]})
+}
+
+/// A link added beside a renamed section points at the name the left document keeps
+#[test]
+fn inserted_links_follow_the_retained_ids() -> Result<()> {
+    let left = node(json!({"type": "Article", "content": [section(Some("old"), "Results")]}))?;
+    let right = node(json!({"type": "Article", "content": [
+        section(Some("new"), "Results"),
+        link_paragraph("See the results ", "#new")
+    ]}))?;
+    round_trips(&left, &right)?;
+
+    let accepted = accepted(&left, &right, &options())?;
+    assert_eq!(strings(&accepted, "Section", "id")?, ["old"]);
+    assert_eq!(strings(&accepted, "Link", "target")?, ["#old"]);
+    Ok(())
+}
+
+/// A citation changed to cite a different work names that work as the left does
+#[test]
+fn changed_citations_follow_the_retained_reference_ids() -> Result<()> {
+    let article = |first: &str, second: &str, target: &str| {
+        node(json!({
+            "type": "Article",
+            "content": [{"type": "Paragraph", "content": [
+                {"type": "Text", "value": "As shown "},
+                {"type": "Citation", "target": target}
+            ]}],
+            "references": [
+                {"type": "Reference", "id": first, "title": [{"type": "Text", "value": "Auxin signalling"}]},
+                {"type": "Reference", "id": second, "title": [{"type": "Text", "value": "Root growth"}]}
+            ]
+        }))
+    };
+    let left = article("c1", "c2", "c1")?;
+    let right = article("b0", "b1", "b1")?;
+    let options = MergeOptions {
+        comments: CommentMode::Omit,
+        metadata_changes: MetadataChanges::CommentAndSuggest,
+        ..Default::default()
+    };
+    round_trips_with_options(&left, &right, &options)?;
+
+    assert_eq!(
+        strings(&accepted(&left, &right, &options)?, "Citation", "target")?,
+        ["c2"]
+    );
+    Ok(())
+}
+
+/// New content keeps its own IDs, renamed where the left document already uses them
+#[test]
+fn inserted_ids_do_not_collide_with_retained_ones() -> Result<()> {
+    // The right renames the section `results` to `findings`, and gives `results` to
+    // new inline text, which cannot be the section's counterpart
+    let left = node(json!({"type": "Article", "content": [section(Some("results"), "Results")]}))?;
+    let right = node(json!({"type": "Article", "content": [
+        section(Some("findings"), "Results"),
+        {"type": "Paragraph", "content": [
+            {"type": "Text", "id": "results", "value": "A new remark. "},
+            {"type": "Link", "target": "#results", "content": [{"type": "Text", "value": "This"}]},
+            {"type": "Link", "target": "#findings", "content": [{"type": "Text", "value": "That"}]}
+        ]}
+    ]}))?;
+    round_trips(&left, &right)?;
+
+    let accepted = accepted(&left, &right, &options())?;
+    assert_eq!(strings(&accepted, "Section", "id")?, ["results"]);
+    assert_eq!(strings(&accepted, "Text", "id")?, ["results-2"]);
+    assert_eq!(
+        strings(&accepted, "Link", "target")?,
+        ["#results-2", "#results"]
+    );
+    Ok(())
+}
+
+/// A left node that new content refers to is given the ID the reference needs
+#[test]
+fn referenced_left_nodes_are_identified() -> Result<()> {
+    let left = node(json!({"type": "Article", "content": [section(None, "Results")]}))?;
+    let right = node(json!({"type": "Article", "content": [
+        section(Some("results"), "Results"),
+        link_paragraph("See the results ", "#results")
+    ]}))?;
+    round_trips(&left, &right)?;
+
+    let accepted = accepted(&left, &right, &options())?;
+    assert_eq!(strings(&accepted, "Section", "id")?, ["results"]);
+    assert_eq!(strings(&accepted, "Link", "target")?, ["#results"]);
+    Ok(())
 }

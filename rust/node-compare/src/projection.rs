@@ -21,9 +21,9 @@
 //! - dynamic object entries are canonically ordered by key, so insertion order affects
 //!   neither comparison nor serialization.
 //!
-//! Everything else the schema declares — explicit `id`, provenance, authorship
-//! outside a `Cord`, execution state, compilation messages — is projected and compared
-//! by default.
+//! Everything else the schema declares is projected, including explicit `id` and
+//! cross-reference targets. Difference derivation ignores local ID changes and
+//! compares resolved targets through the alignment; the original values stay here.
 //!
 //! This module is an implementation detail of comparison rather than a stable artifact
 //! contract. Its observable semantics are exercised through the crate's comparison
@@ -505,10 +505,10 @@ impl Projection {
         self.eq_occurrence_with(left, other, right, Identity::Included)
     }
 
-    /// Whether two projected subtrees are equal apart from their explicit `id`s
+    /// Whether subtrees are equal apart from IDs and cross-reference targets
     ///
     /// Identity-neutral equality is what makes an otherwise exact move recognisable
-    /// even when its `id` was edited along the way.
+    /// even when local labels were renamed along the way.
     pub fn eq_subtrees_identity_neutral(
         &self,
         left: OccurrenceId,
@@ -542,8 +542,9 @@ impl Projection {
             return Ok(false);
         }
 
+        let node_type = left.node_type;
         for (left, right) in left.properties.iter().zip(right.properties.iter()) {
-            if identity == Identity::Neutral && left.decl.property == NodeProperty::Id {
+            if identity.excludes(node_type, left) && identity.excludes(node_type, right) {
                 continue;
             }
 

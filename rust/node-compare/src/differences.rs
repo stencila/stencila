@@ -28,6 +28,7 @@ use crate::{
         Item, OccurrenceId, Presence, ProjectedProperty, Projection, PropertyPair, Root,
         property_union,
     },
+    references::TargetIndex,
     scalar::ScalarValue,
     sequence::Step,
 };
@@ -41,6 +42,8 @@ pub(crate) fn derive(
     let mut differ = Differ {
         left,
         right,
+        left_targets: TargetIndex::new(left),
+        right_targets: TargetIndex::new(right),
         pairing: aligned.pairs.iter().copied().collect(),
         property_alignments: aligned
             .properties
@@ -71,6 +74,8 @@ pub(crate) fn derive(
 struct Differ<'projection> {
     left: &'projection Projection,
     right: &'projection Projection,
+    left_targets: TargetIndex<'projection>,
+    right_targets: TargetIndex<'projection>,
 
     /// The counterpart of each left occurrence
     pairing: HashMap<OccurrenceId, OccurrenceId>,
@@ -203,6 +208,13 @@ impl Differ<'_> {
         let right_properties = &self.right.occurrence(right)?.properties;
 
         for properties in property_union(left_properties, right_properties) {
+            let property = match &properties {
+                PropertyPair::Both(left, _) | PropertyPair::LeftOnly(left) => left,
+                PropertyPair::RightOnly(right) => right,
+            };
+            if property.decl.property == NodeProperty::Id {
+                continue;
+            }
             match properties {
                 PropertyPair::Both(left_property, right_property) => self.derive_property(
                     (left, &left_ref, left_property),
@@ -301,7 +313,23 @@ impl Differ<'_> {
         if !left_property.decl.repeated && !right_property.decl.repeated {
             let left_value = scalar(left_property.items.first());
             let right_value = scalar(right_property.items.first());
-            if left_value != right_value {
+            // Resolve even identical strings: the same label may identify different
+            // nodes in the two snapshots. Only completed pairs prove equivalence.
+            let equal = if left_property.decl.property == NodeProperty::Target {
+                match (
+                    left_value
+                        .and_then(|value| self.left_targets.resolve(left_ref.node_type, value)),
+                    right_value
+                        .and_then(|value| self.right_targets.resolve(right_ref.node_type, value)),
+                ) {
+                    (Some(left), Some(right)) => self.pairing.get(&left) == Some(&right),
+                    (None, None) => left_value == right_value,
+                    _ => false,
+                }
+            } else {
+                left_value == right_value
+            };
+            if !equal {
                 self.differences.push(Difference::ValueChanged {
                     location: location(None, None),
                     left: state(left_value),

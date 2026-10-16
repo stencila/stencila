@@ -102,10 +102,13 @@ pub struct Cli {
     /// Do not report differences matching this selector
     ///
     /// Repeatable. A selector is a property (`jatsRefType`), a property of one node type
-    /// (`Link.id`), a node type (`Link`), or `*` (or `all`) for everything. The most
-    /// specific
-    /// matching selector wins, whatever order they are given in, so
-    /// `--exclude id --include Figure.id` reports figure identifiers and no others.
+    /// (`Figure.label`), a node type (`Link`), or `*` (or `all`) for everything. The most
+    /// specific matching selector wins, whatever order they are given in, so
+    /// `--exclude label --include Figure.label` reports figure labels and no others.
+    ///
+    /// Changes to `id` are never reported, and citation and internal link targets are
+    /// reported only when they refer to different nodes, so neither needs excluding and
+    /// `--include id` cannot restore them.
     #[arg(long, value_name = "SELECTOR", value_parser = parse_selector)]
     exclude: Vec<Selector>,
 
@@ -194,11 +197,11 @@ pub static CLI_AFTER_LONG_HELP: &str = cstr!(
   <dim># Write the comparison artifact to a file</dim>
   <b>stencila compare</> <g>before.smd</> <g>after.smd</> <g>comparison.yaml</>
 
-  <dim># Ignore differences that are only about identifiers</dim>
-  <b>stencila compare</> <g>before.smd</> <g>after.jats.xml</> <c>--exclude</> <g>id</>
+  <dim># Ignore differences that are only about labels</dim>
+  <b>stencila compare</> <g>before.smd</> <g>after.jats.xml</> <c>--exclude</> <g>label</>
 
-  <dim># Ignore identifiers everywhere except on figures</dim>
-  <b>stencila compare</> <g>before.smd</> <g>after.jats.xml</> <c>--exclude</> <g>id</> <c>--include</> <g>Figure.id</>
+  <dim># Ignore labels everywhere except on figures</dim>
+  <b>stencila compare</> <g>before.smd</> <g>after.jats.xml</> <c>--exclude</> <g>label</> <c>--include</> <g>Figure.label</>
 
   <dim># Ignore everything about links, and JATS reference types anywhere</dim>
   <b>stencila compare</> <g>before.smd</> <g>after.jats.xml</> <c>--exclude</> <g>Link</> <c>--exclude</> <g>jatsRefType</>
