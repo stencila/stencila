@@ -6,7 +6,7 @@ expression: "align(&left, &right)?"
   "formatVersion": "1",
   "algorithm": {
     "name": "stencila-schema-native",
-    "version": "1",
+    "version": "2",
     "projectionVersion": "1",
     "policy": "schema-native"
   },

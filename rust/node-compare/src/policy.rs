@@ -15,6 +15,7 @@
 //! The first release has one built-in schema-native implementation of each, and no
 //! serialized policy language.
 
+use stencila_node_type::NodeType;
 use stencila_schema::{PropertyDecl, ValueKind};
 
 use crate::{
@@ -30,7 +31,7 @@ use crate::{
 pub const ALGORITHM_NAME: &str = "stencila-schema-native";
 
 /// The version of the alignment algorithm
-pub const ALGORITHM_VERSION: &str = "1";
+pub const ALGORITHM_VERSION: &str = "2";
 
 /// The name of the built-in policy
 pub const POLICY_NAME: &str = "schema-native";
@@ -100,6 +101,8 @@ const PAIR_COST_FACTOR: i64 = 2;
 /// when the property is declared identically on both sides and its values are a
 /// heterogeneous union, so that both types genuinely belong there. Text similarity
 /// alone never makes a cross-type pair compatible.
+/// A section additionally needs a shared explicit identity to match a non-section;
+/// its descendant text is not evidence that the wrapper replaced a content block.
 ///
 /// Structured and scalar items are never compatible with each other.
 pub fn compatible(
@@ -115,7 +118,14 @@ pub fn compatible(
             // identically on both sides — same cardinality, same union — so that both
             // variants really are valid for the same schema slot.
             left.node_type == right.node_type
-                || (left_decl == right_decl && left_decl.kind == ValueKind::Union)
+                || (left_decl == right_decl
+                    && left_decl.kind == ValueKind::Union
+                    // A section's text comes from its blocks. Pairing the wrapper
+                    // with one of those blocks consumes the block's real counterpart
+                    // before cross-parent reconciliation can find it. Only explicit
+                    // identity justifies treating a section as a replacement block.
+                    && (left.node_type != NodeType::Section && right.node_type != NodeType::Section
+                        || left.explicit_id.is_some() && left.explicit_id == right.explicit_id))
         }
         (CandidateKind::Scalar(..), CandidateKind::Scalar(..)) => true,
         _ => false,

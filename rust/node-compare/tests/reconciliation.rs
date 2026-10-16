@@ -142,9 +142,9 @@ fn a_cross_parent_move_by_identity_neutral_equality() -> Result<()> {
     Ok(())
 }
 
-/// A modified, id-less cross-parent candidate is deliberately left unmatched
+/// A distinctive edited paragraph can move without an explicit id
 #[test]
-fn a_modified_id_less_move_is_left_unmatched() -> Result<()> {
+fn a_modified_id_less_move_is_reconciled() -> Result<()> {
     let left = art([
         sec([p([t("A distinctive and quite unmistakable paragraph")])]),
         sec([]),
@@ -158,15 +158,24 @@ fn a_modified_id_less_move_is_left_unmatched() -> Result<()> {
 
     let alignment = align(&left, &right)?;
 
-    // No fuzzy text similarity is used across parents, so the two remain one-sided
     let from = path([
         NodeSlot::Property(NodeProperty::Content),
         NodeSlot::Index(0),
         NodeSlot::Property(NodeProperty::Content),
         NodeSlot::Index(0),
     ]);
-    assert_eq!(pairing(&alignment, &from), None);
-    assert!(alignment.has_one_sided());
+    let (to, rule) = pairing(&alignment, &from)
+        .ok_or_else(|| eyre::eyre!("Expected the edited paragraph to be paired"))?;
+    assert_eq!(
+        to,
+        path([
+            NodeSlot::Property(NodeProperty::Content),
+            NodeSlot::Index(1),
+            NodeSlot::Property(NodeProperty::Content),
+            NodeSlot::Index(0),
+        ])
+    );
+    assert_eq!(rule, MatchRule::CrossParentReconciliation);
 
     Ok(())
 }
@@ -317,11 +326,6 @@ fn coverage_holds_after_reconciliation() -> Result<()> {
     Ok(())
 }
 
-/// A shared explicit id does not pair two differently typed subtrees across parents
-///
-/// Within a sibling scope, two differently typed items may still be compatible when
-/// the property is declared identically on both sides and holds a union. Across
-/// parents there is no such shared declaration to appeal to, so an id alone must not
 /// A cross-parent pair may cross type within one union
 ///
 /// Two occurrences in different parents are never weighed against each other by the

@@ -26,7 +26,7 @@ use std::{
 };
 
 use stencila_node_path::NodePath;
-use stencila_node_type::NodeProperty;
+use stencila_node_type::{NodeProperty, NodeType};
 
 use crate::{
     alignment::{
@@ -34,9 +34,9 @@ use crate::{
         MatchEvidence, MatchInfo, MatchRule, NodeRef, UnmatchedReason,
     },
     anchors,
-    error::{CompareError, CompareResult, Side},
+    error::{BudgetScope, CompareError, CompareResult, Side},
     features::FeatureSet,
-    fingerprint,
+    fingerprint, moves,
     options::CompareOptions,
     policy::{
         ALGORITHM_NAME, ALGORITHM_VERSION, CandidateKind, POLICY_NAME, gap_cost, item_gap_cost,
@@ -93,6 +93,16 @@ enum Coverage {
     Uncovered,
     Paired(Option<OccurrenceId>),
     OneSided,
+}
+
+/// How far reconciliation looks inside unmatched containers.
+#[derive(Clone, Copy, PartialEq, Eq)]
+enum Exposure {
+    /// Expose block content, at any depth, except inside the containers that
+    /// similarity reconciliation matches as wholes.
+    Blocks,
+    /// Also expose the immediate children of each unmatched root, inlines included.
+    Children,
 }
 
 /// Builds a complete alignment while keeping occurrence coverage in one source of truth
@@ -693,11 +703,21 @@ impl<'projection> Aligner<'projection> {
             .map(|(left, right)| sequence::cells(left.len(), right.len()))
             .sum();
 
+        self.charge_candidate_cells(
+            required,
+            BudgetScope::Property {
+                left_path: property_path(self.left, left.0, left.1.decl.property)?,
+                right_path: property_path(self.right, right.0, right.1.decl.property)?,
+            },
+        )
+    }
+
+    /// Share the work budget between local alignment and cross-parent searches.
+    fn charge_candidate_cells(&mut self, required: usize, scope: BudgetScope) -> CompareResult<()> {
         self.cells_used = self.cells_used.saturating_add(required);
         if self.cells_used > self.options.alignment_cell_budget {
             return Err(CompareError::BudgetExhausted {
-                left_path: property_path(self.left, left.0, left.1.decl.property)?,
-                right_path: property_path(self.right, right.0, right.1.decl.property)?,
+                scope,
                 // Cumulative across the whole alignment, because the budget is for the
                 // run rather than for any one property
                 required: self.cells_used,
@@ -774,23 +794,30 @@ impl<'projection> Aligner<'projection> {
     /// Only after every parent has been aligned locally is it safe to look outside the
     /// parent, and then only on strong, unique evidence: a unique matching non-empty
     /// explicit schema `id`, or a unique, fully verified equal identity-neutral
-    /// subtree. Fuzzy text similarity is deliberately not used across parents:
-    /// repeated boilerplate and short scholarly passages make a false cross-parent move
-    /// more damaging than leaving a modified move unmatched, so a modified, id-less
-    /// candidate is left as two one-sided records.
+    /// subtree. After those identities are settled, content blocks may also move on
+    /// high text similarity, provided each is the other's unambiguous best match.
     ///
     /// Maximal unmatched subtree roots are reconciled first, parents before
     /// descendants, so that the descendants of one coherent moved subtree are not
-    /// scattered across unrelated parents. A second, bounded pass then exposes the
-    /// children of the roots that could not be reconciled, so that a strongly
-    /// identified child can still move out of a removed container.
+    /// scattered across unrelated parents. A second pass exposes their block content,
+    /// looking through section and other block wrappers so that they cannot hide
+    /// blocks, and so that exact identities are settled before similarity is used.
     fn reconcile(&mut self) -> CompareResult<()> {
         let left_roots = self.unmatched_roots(Side::Left);
         let right_roots = self.unmatched_roots(Side::Right);
         self.reconcile_candidates(&left_roots, &right_roots)?;
 
-        let left_exposed = self.unmatched_exposed(Side::Left)?;
-        let right_exposed = self.unmatched_exposed(Side::Right)?;
+        let left_exposed = self.unmatched_exposed(Side::Left, Exposure::Blocks)?;
+        let right_exposed = self.unmatched_exposed(Side::Right, Exposure::Blocks)?;
+        self.reconcile_candidates(&left_exposed, &right_exposed)?;
+
+        self.reconcile_similar()?;
+
+        // Only expose inline children after matching their blocks. Otherwise an
+        // exact Text move can consume the children of a heading whose level changed,
+        // preventing that heading from being paired as a coherent subtree.
+        let left_exposed = self.unmatched_exposed(Side::Left, Exposure::Children)?;
+        let right_exposed = self.unmatched_exposed(Side::Right, Exposure::Children)?;
         self.reconcile_candidates(&left_exposed, &right_exposed)?;
 
         Ok(())
@@ -820,20 +847,149 @@ impl<'projection> Aligner<'projection> {
     /// The roots are exposed again alongside their children because a container may
     /// have been removed on one side while its child survived on the other, in which
     /// case the surviving child is a root on its own side and a child on the other.
-    fn unmatched_exposed(&self, side: Side) -> CompareResult<Vec<OccurrenceId>> {
+    /// Block content is exposed recursively, independently of nesting depth, except
+    /// inside figures and tables: similarity reconciliation pairs those as wholes, so
+    /// their content must not be claimed by exact matches beforehand.
+    fn unmatched_exposed(
+        &self,
+        side: Side,
+        exposure: Exposure,
+    ) -> CompareResult<Vec<OccurrenceId>> {
         let projection = self.projection(side);
+        let opens = |id: OccurrenceId| -> CompareResult<bool> {
+            Ok(!matches!(
+                projection.occurrence(id)?.node_type,
+                NodeType::Figure | NodeType::Table
+            ))
+        };
+        let is_block = |id: OccurrenceId| -> CompareResult<bool> {
+            Ok(containing_decl(projection, id)?.is_some_and(|decl| decl.slot == "Block"))
+        };
 
         let mut exposed = Vec::new();
         for root in self.unmatched_roots(side) {
             exposed.push(root);
-            for child in crate::policy::children(projection, root)? {
-                if !self.is_paired(side, child) {
-                    exposed.push(child);
+            if exposure == Exposure::Children {
+                exposed.extend(
+                    crate::policy::children(projection, root)?
+                        .into_iter()
+                        .filter(|child| !self.is_paired(side, *child)),
+                );
+            }
+
+            let mut containers = vec![root];
+            while let Some(container) = containers.pop() {
+                if !opens(container)? {
+                    continue;
+                }
+                for child in crate::policy::children(projection, container)? {
+                    if !self.is_paired(side, child) && is_block(child)? {
+                        exposed.push(child);
+                        containers.push(child);
+                    }
                 }
             }
         }
 
+        exposed.sort_unstable();
+        exposed.dedup();
+
         Ok(exposed)
+    }
+
+    /// Reconcile edited content, without weakening identity rules for arbitrary nodes.
+    fn reconcile_similar(&mut self) -> CompareResult<()> {
+        // Match coherent containers before their captions and other text blocks.
+        for node_type in [
+            NodeType::Figure,
+            NodeType::Table,
+            NodeType::Heading,
+            NodeType::Paragraph,
+        ] {
+            let candidates = |side, features: &FeatureSet| -> CompareResult<Vec<OccurrenceId>> {
+                self.unmatched_exposed(side, Exposure::Blocks)?
+                    .into_iter()
+                    .filter_map(|id| match features.get(id) {
+                        Ok(features)
+                            if features.node_type == node_type && !features.grams.is_empty() =>
+                        {
+                            Some(Ok(id))
+                        }
+                        Ok(_) => None,
+                        Err(error) => Some(Err(error)),
+                    })
+                    .collect()
+            };
+            let left = candidates(Side::Left, self.left_features)?;
+            let right = candidates(Side::Right, self.right_features)?;
+            self.charge_candidate_cells(
+                left.len().saturating_mul(right.len()),
+                BudgetScope::Reconciliation { node_type },
+            )?;
+            let left_features = left
+                .iter()
+                .map(|id| self.left_features.get(*id))
+                .collect::<CompareResult<Vec<_>>>()?;
+            let right_features = right
+                .iter()
+                .map(|id| self.right_features.get(*id))
+                .collect::<CompareResult<Vec<_>>>()?;
+            let pairs = moves::find(&left_features, &right_features);
+            let left_selected: HashSet<_> = pairs.iter().map(|(index, _)| left[*index]).collect();
+            let right_selected: HashSet<_> = pairs.iter().map(|(_, index)| right[*index]).collect();
+            for (left_index, right_index) in pairs {
+                let (left_id, right_id) = (left[left_index], right[right_index]);
+                // Do not scatter descendants of a selected container into separate
+                // moves. The paired container aligns its own properties normally.
+                if has_selected_ancestor(self.left, left_id, &left_selected)?
+                    || has_selected_ancestor(self.right, right_id, &right_selected)?
+                    || !self.can_reconcile(left_id, right_id)?
+                {
+                    continue;
+                }
+                let (Some(left_decl), Some(right_decl)) = (
+                    containing_decl(self.left, left_id)?,
+                    containing_decl(self.right, right_id)?,
+                ) else {
+                    continue;
+                };
+                let evidence = pair_cost(
+                    CandidateKind::Structured(left_features[left_index]),
+                    CandidateKind::Structured(right_features[right_index]),
+                    left_decl,
+                    right_decl,
+                )
+                .evidence;
+                self.pair(
+                    left_id,
+                    right_id,
+                    MatchRule::CrossParentReconciliation,
+                    evidence,
+                )?;
+            }
+        }
+        Ok(())
+    }
+
+    /// Whether two occurrences can still be paired across parents
+    ///
+    /// Pairing aligns both subtrees, so neither may already contain a pair: a
+    /// descendant matched by an earlier pass keeps that match, and its ancestor is
+    /// not paired around it.
+    fn can_reconcile(&self, left: OccurrenceId, right: OccurrenceId) -> CompareResult<bool> {
+        for (side, id) in [(Side::Left, left), (Side::Right, right)] {
+            let size = usize::try_from(self.projection(side).occurrence(id)?.subtree_size)
+                .map_err(|_| CompareError::Invariant {
+                    message: format!("Negative subtree size for the {side} occurrence {id}"),
+                })?;
+            // Projection is depth first, so a subtree is a contiguous run of ids
+            if (id.index()..id.index() + size)
+                .any(|index| self.is_paired(side, OccurrenceId::new(index)))
+            {
+                return Ok(false);
+            }
+        }
+        Ok(true)
     }
 
     /// Pair the candidates that carry strong, unique evidence of being the same subtree
@@ -880,24 +1036,6 @@ impl<'projection> Aligner<'projection> {
         // What remains refused is a pair drawn from different unions — a block against
         // an inline — and a pair whose cardinality differs, neither of which could
         // stand in for the other anywhere.
-        let containing_decl = |projection: &'projection Projection,
-                               id: OccurrenceId|
-         -> CompareResult<
-            Option<&'projection stencila_schema::PropertyDecl>,
-        > {
-            let occurrence = projection.occurrence(id)?;
-            let (Some(parent), Some(property)) = (occurrence.parent, occurrence.parent_property)
-            else {
-                return Ok(None);
-            };
-            Ok(projection
-                .occurrence(parent)?
-                .properties
-                .iter()
-                .find(|projected| projected.decl.property == property)
-                .map(|projected| &projected.decl))
-        };
-
         let compatible = |left_index: usize, right_index: usize| -> CompareResult<bool> {
             let (left_id, right_id) = (left[left_index], right[right_index]);
             if self.left_features.get(left_id)?.node_type
@@ -935,9 +1073,25 @@ impl<'projection> Aligner<'projection> {
             &verified_eq,
         )?;
 
+        // The exposed candidates include containers alongside their own content, and
+        // anchors are ordered by left position only, so a right container can follow
+        // an anchor inside it. Pairing a container aligns its content, so anchors
+        // inside a selected container, on either side, are left to that alignment.
+        let mut selectable = Vec::new();
         for anchor in anchors {
             let (left_id, right_id) = (left[anchor.left], right[anchor.right]);
-            if self.is_paired(Side::Left, left_id) || self.is_paired(Side::Right, right_id) {
+            if self.can_reconcile(left_id, right_id)? {
+                selectable.push((anchor, left_id, right_id));
+            }
+        }
+        let left_selected: HashSet<_> = selectable.iter().map(|(_, id, _)| *id).collect();
+        let right_selected: HashSet<_> = selectable.iter().map(|(.., id)| *id).collect();
+
+        for (anchor, left_id, right_id) in selectable {
+            if has_selected_ancestor(self.left, left_id, &left_selected)?
+                || has_selected_ancestor(self.right, right_id, &right_selected)?
+                || !self.can_reconcile(left_id, right_id)?
+            {
                 continue;
             }
 
@@ -1186,7 +1340,8 @@ fn segments(
 /// Whether each item of a sequence had any compatible candidate on the other side
 ///
 /// Compatibility depends only on whether an item is scalar, its concrete node type,
-/// and the two property declarations. Indexing those facts avoids rescanning the full
+/// explicit identity for section replacements, and the two property declarations.
+/// Indexing those facts avoids rescanning the full
 /// candidate cross-product after the dynamic program has already completed.
 fn has_candidates(
     kinds: &[CandidateKind<'_>],
@@ -1204,6 +1359,24 @@ fn has_candidates(
             CandidateKind::Scalar(..) => None,
         })
         .collect();
+    let ids = |sections: bool| -> BTreeSet<&str> {
+        others
+            .iter()
+            .filter_map(|kind| match kind {
+                CandidateKind::Structured(features)
+                    if (features.node_type == NodeType::Section) == sections =>
+                {
+                    features.explicit_id.as_deref()
+                }
+                _ => None,
+            })
+            .collect()
+    };
+    let section_ids = ids(true);
+    let block_ids = ids(false);
+    let has_non_section = structured_types
+        .iter()
+        .any(|node_type| *node_type != NodeType::Section);
     let shared_union = decl == other_decl && decl.kind == stencila_schema::ValueKind::Union;
 
     kinds
@@ -1211,8 +1384,20 @@ fn has_candidates(
         .map(|kind| match kind {
             CandidateKind::Scalar(..) => has_scalar,
             CandidateKind::Structured(features) => {
-                (shared_union && !structured_types.is_empty())
-                    || structured_types.contains(&features.node_type)
+                structured_types.contains(&features.node_type)
+                    || (shared_union
+                        && if features.node_type == NodeType::Section {
+                            features
+                                .explicit_id
+                                .as_deref()
+                                .is_some_and(|id| block_ids.contains(id))
+                        } else {
+                            has_non_section
+                                || features
+                                    .explicit_id
+                                    .as_deref()
+                                    .is_some_and(|id| section_ids.contains(id))
+                        })
             }
         })
         .collect()
@@ -1225,4 +1410,37 @@ fn unmatched_reason(had_candidate: bool) -> UnmatchedReason {
     } else {
         UnmatchedReason::NoCompatibleCandidate
     }
+}
+
+/// The schema declaration of the property containing an occurrence.
+fn containing_decl(
+    projection: &Projection,
+    id: OccurrenceId,
+) -> CompareResult<Option<&stencila_schema::PropertyDecl>> {
+    let occurrence = projection.occurrence(id)?;
+    let (Some(parent), Some(property)) = (occurrence.parent, occurrence.parent_property) else {
+        return Ok(None);
+    };
+    Ok(projection
+        .occurrence(parent)?
+        .properties
+        .iter()
+        .find(|projected| projected.decl.property == property)
+        .map(|projected| &projected.decl))
+}
+
+/// Whether a selected container will align this occurrence as one of its descendants.
+fn has_selected_ancestor(
+    projection: &Projection,
+    id: OccurrenceId,
+    selected: &HashSet<OccurrenceId>,
+) -> CompareResult<bool> {
+    let mut parent = projection.occurrence(id)?.parent;
+    while let Some(id) = parent {
+        if selected.contains(&id) {
+            return Ok(true);
+        }
+        parent = projection.occurrence(id)?.parent;
+    }
+    Ok(false)
 }

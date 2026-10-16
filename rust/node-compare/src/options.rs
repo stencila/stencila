@@ -30,8 +30,8 @@ pub const DEFAULT_ALIGNMENT_CELL_BUDGET: usize = 1_000_000;
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(default, rename_all = "camelCase")]
 pub struct CompareOptions {
-    /// The maximum number of candidate cells that the ordered sequence alignment of
-    /// repeated properties may use
+    /// The maximum number of candidate cells that local sequence alignment and
+    /// cross-parent text reconciliation may use together
     ///
     /// Exceeding the budget returns [`crate::CompareError::BudgetExhausted`] rather
     /// than silently selecting an approximate result.

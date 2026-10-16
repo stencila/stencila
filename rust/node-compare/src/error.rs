@@ -41,6 +41,34 @@ impl Display for Side {
     }
 }
 
+/// The part of an alignment that exhausted the candidate-cell budget
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub enum BudgetScope {
+    /// The local sequence alignment of one repeated property of two paired parents
+    Property {
+        left_path: NodePath,
+        right_path: NodePath,
+    },
+
+    /// The cross-parent text reconciliation of one node type, across both inputs
+    Reconciliation { node_type: NodeType },
+}
+
+impl Display for BudgetScope {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match self {
+            Self::Property {
+                left_path,
+                right_path,
+            } => write!(f, "Aligning `{left_path}` with `{right_path}`"),
+            Self::Reconciliation { node_type } => write!(
+                f,
+                "Reconciling `{node_type}` occurrences that moved between parents"
+            ),
+        }
+    }
+}
+
 /// An error from aligning or comparing two nodes
 #[derive(Debug, Error)]
 pub enum CompareError {
@@ -84,14 +112,11 @@ pub enum CompareError {
         allowed: usize,
     },
 
-    /// The alignment of a repeated property needed more candidate cells than the
-    /// budget allows
-    #[error(
-        "Aligning `{left_path}` with `{right_path}` requires {required} candidate cells but the budget is {allowed}"
-    )]
+    /// Local alignment or cross-parent reconciliation needed more candidate cells
+    /// than the budget allows
+    #[error("{scope} requires {required} candidate cells but the budget is {allowed}")]
     BudgetExhausted {
-        left_path: NodePath,
-        right_path: NodePath,
+        scope: BudgetScope,
         required: usize,
         allowed: usize,
     },

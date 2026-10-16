@@ -37,6 +37,9 @@ pub struct Features {
     /// The shallow signature of the occurrence's own scalar properties
     pub scalar_signature: u64,
 
+    /// The normalized text of the subtree, truncated to the matching limit
+    pub text: String,
+
     /// The character n-grams of that text
     pub grams: Grams,
 
@@ -87,6 +90,7 @@ impl FeatureSet {
                         id,
                         Identity::Included,
                     )?,
+                    text: texts[index].as_str().to_string(),
                     grams: Grams::new(texts[index].as_str()),
                     subtree_size: occurrence.subtree_size,
                 })

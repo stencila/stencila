@@ -24,6 +24,7 @@ mod features;
 mod filter;
 mod fingerprint;
 mod increasing;
+mod moves;
 mod options;
 mod policy;
 mod reorder;
@@ -42,7 +43,7 @@ pub use comparison::{
     Comparison, ComparisonFormatVersion, Difference, OneSidedTally, PropertyPresence,
     ValueLocation, ValueState,
 };
-pub use error::{CompareError, CompareResult, Side};
+pub use error::{BudgetScope, CompareError, CompareResult, Side};
 pub use filter::{DifferenceFilter, Selector, SelectorError};
 pub use options::{CompareOptions, DEFAULT_ALIGNMENT_CELL_BUDGET};
 pub use projection::MAX_DEPTH as MAX_COMPARISON_DEPTH;
