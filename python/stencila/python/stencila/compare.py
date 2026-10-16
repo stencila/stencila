@@ -22,18 +22,20 @@ from ._errors import StencilaError
 
 Comparison: TypeAlias = dict[str, Any]
 Report: TypeAlias = Literal["text", "html"]
+Normalization: TypeAlias = Literal["whitespace", "typography", "initials"]
 
 
 class CompareError(StencilaError):
     """Raised when two documents cannot be compared."""
 
 
-def nodes(
+def nodes(  # noqa: PLR0913
     left: Node,
     right: Node,
     *,
     include: Sequence[str] = (),
     exclude: Sequence[str] = (),
+    normalize: Sequence[Normalization] = (),
     alignment_cell_budget: int | None = None,
 ) -> Comparison:
     """
@@ -49,6 +51,10 @@ def nodes(
             a property (`jatsRefType`), a property of one node type (`Link.id`), a node
             type (`Link`), or `*` (or `all`) for everything. The most specific matching
             selector wins, whatever order they are given in.
+        normalize (Sequence[Normalization]): Rules for classifying value differences
+            as cosmetic: "whitespace", "typography" and "initials". Cosmetic
+            differences are still reported, each marked `cosmetic`, and do not affect
+            equality or alignment.
         alignment_cell_budget (Optional[int]): The maximum number of candidate cells
             that sequence alignment may use.
 
@@ -61,6 +67,7 @@ def nodes(
         to_json(right),
         include=list(include),
         exclude=list(exclude),
+        normalize=list(normalize),
         alignment_cell_budget=alignment_cell_budget,
     )
 
@@ -73,6 +80,7 @@ def strings(  # noqa: PLR0913
     right_format: str | None = None,
     include: Sequence[str] = (),
     exclude: Sequence[str] = (),
+    normalize: Sequence[Normalization] = (),
     alignment_cell_budget: int | None = None,
 ) -> Comparison:
     """
@@ -99,6 +107,7 @@ def strings(  # noqa: PLR0913
         right_format=right_format,
         include=list(include),
         exclude=list(exclude),
+        normalize=list(normalize),
         alignment_cell_budget=alignment_cell_budget,
     )
 
@@ -111,6 +120,7 @@ def paths(  # noqa: PLR0913
     right_format: str | None = None,
     include: Sequence[str] = (),
     exclude: Sequence[str] = (),
+    normalize: Sequence[Normalization] = (),
     alignment_cell_budget: int | None = None,
 ) -> Comparison:
     """
@@ -139,6 +149,7 @@ def paths(  # noqa: PLR0913
         right_format=right_format,
         include=list(include),
         exclude=list(exclude),
+        normalize=list(normalize),
         alignment_cell_budget=alignment_cell_budget,
     )
 
@@ -153,6 +164,7 @@ def report_nodes(  # noqa: PLR0913
     right_label: str = "right",
     include: Sequence[str] = (),
     exclude: Sequence[str] = (),
+    normalize: Sequence[Normalization] = (),
     alignment_cell_budget: int | None = None,
 ) -> str:
     """
@@ -177,6 +189,7 @@ def report_nodes(  # noqa: PLR0913
         format,
         include=list(include),
         exclude=list(exclude),
+        normalize=list(normalize),
         alignment_cell_budget=alignment_cell_budget,
         reports=[_format(format)],
         summary=summary,
@@ -197,6 +210,7 @@ def report_strings(  # noqa: PLR0913
     right_label: str = "right",
     include: Sequence[str] = (),
     exclude: Sequence[str] = (),
+    normalize: Sequence[Normalization] = (),
     alignment_cell_budget: int | None = None,
 ) -> str:
     """
@@ -216,6 +230,7 @@ def report_strings(  # noqa: PLR0913
         right_format=right_format,
         include=list(include),
         exclude=list(exclude),
+        normalize=list(normalize),
         alignment_cell_budget=alignment_cell_budget,
         reports=[_format(format)],
         summary=summary,
@@ -234,6 +249,7 @@ def report_paths(  # noqa: PLR0913
     right_format: str | None = None,
     include: Sequence[str] = (),
     exclude: Sequence[str] = (),
+    normalize: Sequence[Normalization] = (),
     alignment_cell_budget: int | None = None,
 ) -> str:
     """
@@ -255,6 +271,7 @@ def report_paths(  # noqa: PLR0913
         right_format=right_format,
         include=list(include),
         exclude=list(exclude),
+        normalize=list(normalize),
         alignment_cell_budget=alignment_cell_budget,
         reports=[_format(format)],
         summary=summary,
@@ -324,6 +341,7 @@ def _report(
 __all__ = [
     "CompareError",
     "Comparison",
+    "Normalization",
     "Report",
     "is_equal",
     "nodes",

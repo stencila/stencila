@@ -92,6 +92,25 @@ def test_exclude_suppresses_differences():
     assert is_equal(filtered)
 
 
+def test_normalize_classifies_cosmetic_differences():
+    left = T.Paragraph(content=[T.Text(value="Auxin  signalling")])
+    right = T.Paragraph(content=[T.Text(value="Auxin signalling")])
+
+    [faithful] = nodes(left, right)["differences"]
+    assert "cosmetic" not in faithful
+
+    classified = nodes(left, right, normalize=["whitespace"])
+    assert classified["normalize"] == ["whitespace"]
+    [difference] = classified["differences"]
+    assert difference["cosmetic"] is True
+    assert not is_equal(classified)
+
+
+def test_unknown_normalizations_are_rejected():
+    with pytest.raises(ValueError, match="not a normalization"):
+        strings("One", "Two", left_format="md", right_format="md", normalize=["nope"])
+
+
 def test_unknown_selectors_are_rejected():
     with pytest.raises(ValueError, match="not a property in the Stencila Schema"):
         strings("One", "Two", left_format="md", right_format="md", exclude=["nope"])

@@ -10,14 +10,14 @@
 //! hand, because a report reads one-sided content back out of them and the Python layer
 //! never sees those nodes.
 
-use std::{path::PathBuf, str::FromStr};
+use std::{collections::BTreeSet, path::PathBuf, str::FromStr};
 
 use pyo3::prelude::*;
 use serde::Serialize;
 
 use stencila_codecs::{DecodeOptions, Format, LossesResponse};
 use stencila_node_compare::{
-    CompareOptions, Comparison, DifferenceFilter, Selector, compare_with_options,
+    CompareOptions, Comparison, DifferenceFilter, Normalization, Selector, compare_with_options,
 };
 use stencila_node_compare_report::{Snapshot, html_report, text_report};
 use stencila_schema::Node;
@@ -50,6 +50,9 @@ struct Options {
 
     /// Selectors for differences not to report
     exclude: Option<Vec<String>>,
+
+    /// Rules for classifying value differences as cosmetic
+    normalize: Option<Vec<String>>,
 
     /// The format of the left input
     left_format: Option<String>,
@@ -93,6 +96,8 @@ impl Options {
             exclude: selectors(self.exclude.as_deref())?,
         };
 
+        options.normalize = normalizations(self.normalize.as_deref())?;
+
         Ok(options)
     }
 
@@ -126,6 +131,21 @@ fn selectors(texts: Option<&[String]>) -> PyResult<Vec<Selector>> {
         .unwrap_or_default()
         .iter()
         .map(|text| Selector::from_str(text).map_err(|error| value_error(eyre::eyre!("{error}"))))
+        .collect()
+}
+
+/// Parse normalization rules
+fn normalizations(texts: Option<&[String]>) -> PyResult<BTreeSet<Normalization>> {
+    texts
+        .unwrap_or_default()
+        .iter()
+        .map(|text| {
+            Normalization::from_str(text).map_err(|_| {
+                value_error(eyre::eyre!(
+                    "`{text}` is not a normalization: expected one of `whitespace`, `typography` or `initials`"
+                ))
+            })
+        })
         .collect()
 }
 
@@ -190,7 +210,7 @@ fn run(left: &Node, right: &Node, options: &Options) -> PyResult<String> {
 /// Compare two Stencila Schema nodes
 #[pyfunction]
 #[pyo3(signature = (
-    left, right, *, include=None, exclude=None, alignment_cell_budget=None,
+    left, right, *, include=None, exclude=None, normalize=None, alignment_cell_budget=None,
     reports=None, summary=None, left_label=None, right_label=None
 ))]
 #[allow(clippy::too_many_arguments)]
@@ -200,6 +220,7 @@ fn nodes(
     right: String,
     include: Option<Vec<String>>,
     exclude: Option<Vec<String>>,
+    normalize: Option<Vec<String>>,
     alignment_cell_budget: Option<usize>,
     reports: Option<Vec<String>>,
     summary: Option<bool>,
@@ -209,6 +230,7 @@ fn nodes(
     let options = Options {
         include,
         exclude,
+        normalize,
         alignment_cell_budget,
         reports,
         summary,
@@ -229,7 +251,7 @@ fn nodes(
 #[pyfunction]
 #[pyo3(signature = (
     left, right, *, left_format=None, right_format=None, include=None, exclude=None,
-    alignment_cell_budget=None, reports=None, summary=None, left_label=None,
+    normalize=None, alignment_cell_budget=None, reports=None, summary=None, left_label=None,
     right_label=None
 ))]
 #[allow(clippy::too_many_arguments)]
@@ -241,6 +263,7 @@ fn strings(
     right_format: Option<String>,
     include: Option<Vec<String>>,
     exclude: Option<Vec<String>>,
+    normalize: Option<Vec<String>>,
     alignment_cell_budget: Option<usize>,
     reports: Option<Vec<String>>,
     summary: Option<bool>,
@@ -252,6 +275,7 @@ fn strings(
         right_format,
         include,
         exclude,
+        normalize,
         alignment_cell_budget,
         reports,
         summary,
@@ -288,7 +312,7 @@ fn strings(
 #[pyfunction]
 #[pyo3(signature = (
     left, right, *, left_format=None, right_format=None, include=None, exclude=None,
-    alignment_cell_budget=None, reports=None, summary=None, left_label=None,
+    normalize=None, alignment_cell_budget=None, reports=None, summary=None, left_label=None,
     right_label=None
 ))]
 #[allow(clippy::too_many_arguments)]
@@ -300,6 +324,7 @@ fn paths(
     right_format: Option<String>,
     include: Option<Vec<String>>,
     exclude: Option<Vec<String>>,
+    normalize: Option<Vec<String>>,
     alignment_cell_budget: Option<usize>,
     reports: Option<Vec<String>>,
     summary: Option<bool>,
@@ -311,6 +336,7 @@ fn paths(
         right_format,
         include,
         exclude,
+        normalize,
         alignment_cell_budget,
         reports,
         summary,
