@@ -77,12 +77,16 @@ def test_a_document_is_equal_to_itself():
 
 
 def test_exclude_suppresses_differences():
-    left = T.Article(id="one", content=[T.Paragraph(content=[T.Text(value="Hi")])])
-    right = T.Article(id="two", content=[T.Paragraph(content=[T.Text(value="Hi")])])
+    left = T.Article(
+        content=[T.Paragraph(content=[T.Text(value="Auxin signalling in roots")])]
+    )
+    right = T.Article(
+        content=[T.Paragraph(content=[T.Text(value="Auxin signaling in roots")])]
+    )
 
     assert nodes(left, right)["differences"] != []
 
-    filtered = nodes(left, right, exclude=["id"])
+    filtered = nodes(left, right, exclude=["Text.value"])
     assert filtered["differences"] == []
     assert filtered["suppressedDifferences"] > 0
     assert is_equal(filtered)
