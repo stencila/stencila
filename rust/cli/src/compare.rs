@@ -119,8 +119,8 @@ pub struct Cli {
     /// Classify cosmetic differences using comma-separated normalization rules
     ///
     /// Rules: whitespace, typography, initials. Whitespace collapses runs, keeping
-    /// any at the edges of Text.value as word boundaries; typography folds curly
-    /// quotes, dashes and ellipses. Both apply to Text.value and Person.givenNames.
+    /// any at the edges of Text.value as word boundaries, except beside a citation on
+    /// both sides; typography folds curly quotes, dashes and ellipses. Both apply to Text.value and Person.givenNames.
     /// Initials equates dotted or space-separated initials in Person.givenNames
     /// (S.S and [S, S]), preserving case, accents and full names.
     ///

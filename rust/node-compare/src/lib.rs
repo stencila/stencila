@@ -149,7 +149,12 @@ pub fn compare_with_options(
     )?);
 
     // Classify only completed differences, preserving their raw values and alignment
-    normalization::classify(&mut differences, &options.normalize);
+    normalization::classify(
+        &mut differences,
+        &prepared.left,
+        &prepared.right,
+        &options.normalize,
+    )?;
 
     // Filtering happens after every difference has been derived, so that what a filter
     // selects can never depend on the order differences were produced in

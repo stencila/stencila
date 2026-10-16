@@ -1,6 +1,7 @@
 use eyre::Result;
 use serde_json::{Value, json};
 use stencila_node_compare::{CompareOptions, Comparison, compare, compare_with_options};
+use stencila_node_type::NodeType;
 use stencila_schema::Node;
 
 fn assert_cosmetic(left: Value, right: Value, normalize: &[&str]) -> Result<()> {
@@ -96,6 +97,70 @@ fn whitespace_keeps_word_boundaries_between_inline_nodes() -> Result<()> {
         false,
     )?;
     assert_cosmetic(paragraph("Hello "), paragraph("Hello\n\t"), &["whitespace"])
+}
+
+#[test]
+fn whitespace_beside_a_citation_on_both_sides_is_cosmetic() -> Result<()> {
+    let citation = || json!({ "type": "Citation", "target": "b1" });
+    let group = || json!({ "type": "CitationGroup", "items": [citation()] });
+    let text = |value: &str| json!({ "type": "Text", "value": value });
+    let paragraph = |content: Vec<Value>| json!({ "type": "Paragraph", "content": content });
+
+    // Before and after a citation, and around a citation group
+    assert_cosmetic(
+        paragraph(vec![text("a wound"), citation()]),
+        paragraph(vec![text("a wound "), citation()]),
+        &["whitespace"],
+    )?;
+    assert_cosmetic(
+        paragraph(vec![citation(), text(". Auxin")]),
+        paragraph(vec![citation(), text(" . Auxin")]),
+        &["whitespace"],
+    )?;
+    assert_cosmetic(
+        paragraph(vec![group(), text(" and "), group()]),
+        paragraph(vec![group(), text("and"), group()]),
+        &["whitespace"],
+    )?;
+
+    // Only the end beside the citation is ignored, and only under the whitespace rule
+    assert_classification(
+        paragraph(vec![text("a wound"), citation()]),
+        paragraph(vec![text(" a wound"), citation()]),
+        &["whitespace"],
+        false,
+    )?;
+    assert_classification(
+        paragraph(vec![text("a wound"), citation()]),
+        paragraph(vec![text("a wound "), citation()]),
+        &["typography", "initials"],
+        false,
+    )?;
+    Ok(())
+}
+
+#[test]
+fn whitespace_beside_a_citation_on_one_side_only_is_kept() -> Result<()> {
+    let left = json!({ "type": "Paragraph", "content": [
+        { "type": "Text", "value": "a wound" },
+        { "type": "Citation", "target": "b1" }
+    ]});
+    let right = json!({ "type": "Paragraph", "content": [
+        { "type": "Text", "value": "a wound " },
+        { "type": "Emphasis", "content": [{ "type": "Text", "value": "healed" }] }
+    ]});
+    let left: Node = serde_json::from_value(left)?;
+    let right: Node = serde_json::from_value(right)?;
+    let options = serde_json::from_value(json!({ "normalize": ["whitespace"] }))?;
+    let comparison = compare_with_options(&left, &right, &options)?;
+    let text_changes: Vec<_> = comparison
+        .differences()
+        .iter()
+        .filter(|difference| difference.left().node_type == NodeType::Text)
+        .collect();
+    assert_eq!(text_changes.len(), 1, "{comparison:#?}");
+    assert!(!text_changes[0].is_cosmetic());
+    Ok(())
 }
 
 #[test]
