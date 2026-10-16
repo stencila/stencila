@@ -129,6 +129,42 @@ fn shared_email_pairs_an_unnamed_author_with_a_named_one() -> Result<()> {
 }
 
 #[test]
+fn shared_email_does_not_pair_different_names() -> Result<()> {
+    let person = |given: &str, family: &str| {
+        json!({
+            "type": "Person", "givenNames": [given], "familyNames": [family],
+            "emails": ["lab@uni.edu"]
+        })
+    };
+    let (_, pairs) = compare_authors(&[person("Alice", "Smith")], &[person("Bob", "Jones")])?;
+    assert_eq!(pairs, 0);
+    Ok(())
+}
+
+#[test]
+fn shared_email_pairs_corroborating_names() -> Result<()> {
+    let (_, pairs) = compare_authors(
+        &[json!({"type": "Person", "name": "A. Smith", "emails": ["lab@uni.edu"]})],
+        &[json!({"type": "Person", "name": "Alice Smith", "emails": ["lab@uni.edu"]})],
+    )?;
+    assert_eq!(pairs, 1);
+    Ok(())
+}
+
+#[test]
+fn different_orcids_are_different_people_despite_a_shared_email() -> Result<()> {
+    let person = |orcid: &str| {
+        json!({
+            "type": "Person", "orcid": orcid, "name": "Alice Smith",
+            "emails": ["lab@uni.edu"]
+        })
+    };
+    let (_, pairs) = compare_authors(&[person(ORCID)], &[person("0000-0001-5109-3700")])?;
+    assert_eq!(pairs, 0);
+    Ok(())
+}
+
+#[test]
 fn shared_orcid_pairs_transliterated_names() -> Result<()> {
     let (_, pairs) = compare_authors(
         &[json!({"type": "Person", "orcid": ORCID, "name": "Иван Петров"})],

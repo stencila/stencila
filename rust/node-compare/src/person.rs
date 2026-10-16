@@ -4,6 +4,8 @@
 //! own names: an author whose affiliation one source omits would be left unmatched
 //! despite identical names, and two different authors at the same institution could be
 //! paired. People are therefore matched by stable identifiers and by their own names.
+//! An ORCID iD identifies one person, but an email address may be shared, by
+//! co-authors writing from one lab address for example, so it only corroborates names.
 //! Subtree text only ranks people whose names agree, and stands in for people without
 //! names.
 //!
@@ -32,8 +34,11 @@ const SUBTREE_SHARE: i64 = 10;
 /// What identifies a person, independently of metadata such as affiliations
 #[derive(Debug, Clone, Default)]
 pub struct PersonIdentity {
-    /// Normalized stable identifiers (ORCID iDs and email addresses), sorted
-    identifiers: Vec<String>,
+    /// Normalized ORCID iDs, sorted
+    orcids: Vec<String>,
+
+    /// Normalized email addresses, sorted
+    emails: Vec<String>,
 
     /// Folded family names, split into words
     family_names: Vec<String>,
@@ -73,7 +78,7 @@ impl PersonIdentity {
             _ => return Ok(None),
         }
 
-        let mut identifiers = Vec::new();
+        let (mut orcids, mut emails) = (Vec::new(), Vec::new());
         let (mut name, mut given_names, mut family_names) = (Vec::new(), Vec::new(), Vec::new());
         for property in &occurrence.properties {
             let values = property.items.iter().filter_map(|item| match item {
@@ -81,16 +86,18 @@ impl PersonIdentity {
                 _ => None,
             });
             match property.decl.property {
-                NodeProperty::Orcid => identifiers.extend(values.filter_map(orcid)),
-                NodeProperty::Emails => identifiers.extend(values.filter_map(email)),
+                NodeProperty::Orcid => orcids.extend(values.filter_map(orcid)),
+                NodeProperty::Emails => emails.extend(values.filter_map(email)),
                 NodeProperty::Name => name.extend(values.flat_map(words)),
                 NodeProperty::GivenNames => given_names.extend(values.flat_map(words)),
                 NodeProperty::FamilyNames => family_names.extend(values.flat_map(words)),
                 _ => {}
             }
         }
-        identifiers.sort();
-        identifiers.dedup();
+        for identifiers in [&mut orcids, &mut emails] {
+            identifiers.sort();
+            identifiers.dedup();
+        }
 
         let mut own = if given_names.is_empty() && family_names.is_empty() {
             name
@@ -103,7 +110,8 @@ impl PersonIdentity {
         own.sort();
 
         Ok(Some(Self {
-            identifiers,
+            orcids,
+            emails,
             family_names,
             given_names,
             names: Grams::new(&own.join(" ")),
@@ -113,37 +121,56 @@ impl PersonIdentity {
 
 /// The similarity of two people, as a cost between zero and one
 ///
-/// - A shared identifier is the same person, whatever their names.
+/// - A shared ORCID iD is the same person, whatever their names.
+/// - Different ORCID iDs are different people, whatever else they share.
 /// - Agreeing names are the same person; the subtree similarity only ranks candidates.
 /// - Conflicting names are different people, however much metadata they share.
 /// - Otherwise names are compared as text, tolerating spelling and transcription
 ///   differences, without metadata.
 /// - When either person has no names, the subtree similarity is used.
+/// - A shared email address is the same person, unless their names are no more than
+///   half similar.
 pub fn similarity(
     left: &PersonIdentity,
     right: &PersonIdentity,
     subtree: AlignmentCost,
 ) -> AlignmentCost {
-    if left
-        .identifiers
-        .iter()
-        .any(|identifier| right.identifiers.binary_search(identifier).is_ok())
-    {
-        return AlignmentCost::ONE;
+    if !left.orcids.is_empty() && !right.orcids.is_empty() {
+        return if shares(&left.orcids, &right.orcids) {
+            AlignmentCost::ONE
+        } else {
+            AlignmentCost::ZERO
+        };
     }
 
+    let shared_email = shares(&left.emails, &right.emails);
     if left.names.is_empty() || right.names.is_empty() {
-        return subtree;
+        return if shared_email {
+            AlignmentCost::ONE
+        } else {
+            subtree
+        };
     }
 
-    match agreement(left, right) {
+    let similarity = match agreement(left, right) {
         Agreement::Compatible => {
             let scale = AlignmentCost::SCALE;
             AlignmentCost::from_units(scale - (scale - subtree.units()) / SUBTREE_SHARE)
         }
         Agreement::Conflicting => AlignmentCost::ZERO,
         Agreement::Undetermined => text::similarity(&left.names, &right.names),
+    };
+    if shared_email && similarity.units() * 2 > AlignmentCost::SCALE {
+        AlignmentCost::ONE
+    } else {
+        similarity
     }
+}
+
+/// Whether two sorted lists of identifiers have one in common
+fn shares(left: &[String], right: &[String]) -> bool {
+    left.iter()
+        .any(|identifier| right.binary_search(identifier).is_ok())
 }
 
 /// Whether two people's structured names agree
@@ -248,7 +275,7 @@ fn orcid(value: &str) -> Option<String> {
         .find_map(|prefix| value.strip_prefix(prefix))
         .unwrap_or(value)
         .to_uppercase();
-    (!value.is_empty()).then(|| format!("orcid:{value}"))
+    (!value.is_empty()).then_some(value)
 }
 
 /// A normalized email address, without any `mailto:` prefix
@@ -258,7 +285,7 @@ fn email(value: &str) -> Option<String> {
         .strip_prefix("mailto:")
         .unwrap_or(value)
         .to_lowercase();
-    (!value.is_empty()).then(|| format!("email:{value}"))
+    (!value.is_empty()).then_some(value)
 }
 
 #[cfg(test)]
@@ -286,12 +313,12 @@ mod tests {
     fn identifiers_are_normalized() {
         assert_eq!(
             orcid("https://orcid.org/0000-0002-1825-009x"),
-            Some("orcid:0000-0002-1825-009X".to_string())
+            Some("0000-0002-1825-009X".to_string())
         );
         assert_eq!(orcid("  "), None);
         assert_eq!(
             email("mailto:Alice.Smith@Example.org"),
-            Some("email:alice.smith@example.org".to_string())
+            Some("alice.smith@example.org".to_string())
         );
     }
 
