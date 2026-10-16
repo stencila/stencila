@@ -498,6 +498,42 @@ fn changed_citations_follow_the_retained_reference_ids() -> Result<()> {
     Ok(())
 }
 
+/// A reference ID shared with a node of another type still resolves for citations, as
+/// it does in comparison
+#[test]
+fn citations_resolve_references_whose_ids_other_nodes_share() -> Result<()> {
+    let article = |reference: &str, paragraph: Option<&str>, target: &str| {
+        let mut cited = json!({"type": "Paragraph", "content": [
+            {"type": "Text", "value": "As shown "},
+            {"type": "Citation", "target": target}
+        ]});
+        if let Some(id) = paragraph {
+            cited["id"] = json!(id);
+        }
+        node(json!({
+            "type": "Article",
+            "content": [cited],
+            "references": [
+                {"type": "Reference", "id": reference, "title": [{"type": "Text", "value": "Auxin signalling"}]}
+            ]
+        }))
+    };
+    let left = article("c1", None, "c0")?;
+    let right = article("b1", Some("b1"), "b1")?;
+    let options = MergeOptions {
+        comments: CommentMode::Omit,
+        metadata_changes: MetadataChanges::CommentAndSuggest,
+        ..Default::default()
+    };
+    round_trips_with_options(&left, &right, &options)?;
+
+    assert_eq!(
+        strings(&accepted(&left, &right, &options)?, "Citation", "target")?,
+        ["c1"]
+    );
+    Ok(())
+}
+
 /// New content keeps its own IDs, renamed where the left document already uses them
 #[test]
 fn inserted_ids_do_not_collide_with_retained_ones() -> Result<()> {

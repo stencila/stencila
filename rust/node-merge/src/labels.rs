@@ -16,7 +16,7 @@
 //!
 //! Resolution mirrors comparison: citations resolve against reference IDs, fragment
 //! links against any ID, IDs within a citation's cached copy of a reference are not
-//! addressable, and duplicated IDs resolve to nothing. Anything unresolved on the right
+//! addressable, and an ID duplicated within either namespace resolves to nothing in it. Anything unresolved on the right
 //! is copied unchanged, since it pointed at nothing there either.
 
 use std::collections::{BTreeMap, BTreeSet};
@@ -71,23 +71,33 @@ pub(crate) fn translate(
         })
         .collect();
 
-    // The addressable IDs of the right document, `None` where one is duplicated
+    // The addressable IDs of the right document, and separately those of its
+    // references, `None` where one is duplicated within its namespace
     let mut ids: BTreeMap<String, Option<&NodeRef>> = BTreeMap::new();
+    let mut references: BTreeMap<String, Option<&NodeRef>> = BTreeMap::new();
     for node in &right_nodes {
         if is_cached(&node.path) {
             continue;
         }
         if let Some(id) = existing_id(right, &node.path) {
+            if node.node_type == NodeType::Reference {
+                references
+                    .entry(id.clone())
+                    .and_modify(|node| *node = None)
+                    .or_insert(Some(node));
+            }
             ids.entry(id)
                 .and_modify(|node| *node = None)
                 .or_insert(Some(node));
         }
     }
+    // The namespace that a label is resolved in, by the type of the node using it
+    let namespace = |node_type: NodeType| match node_type {
+        NodeType::Citation | NodeType::Reference => &references,
+        _ => &ids,
+    };
     let resolve = |label: &str, node_type: NodeType| -> Option<&NodeRef> {
-        ids.get(label)
-            .copied()
-            .flatten()
-            .filter(|node| node_type != NodeType::Citation || node.node_type == NodeType::Reference)
+        namespace(node_type).get(label).copied().flatten()
     };
 
     let mut labels = Labels {
@@ -101,9 +111,10 @@ pub(crate) fn translate(
         .iter()
         .filter(|node| sources.iter().any(|source| starts_with(&node.path, source)))
     {
-        // The node's own ID, which a cached copy shares with its original
+        // The node's own ID, which a cached copy shares with its original. A reference
+        // is looked up as citations look it up, so that the two are translated alike.
         if let Some(id) = existing_id(right, &node.path)
-            && let Some(Some(target)) = ids.get(&id)
+            && let Some(target) = resolve(&id, node.node_type)
         {
             let label = labels.label(&id, counterpart(working, &index, target));
             if label != id {
