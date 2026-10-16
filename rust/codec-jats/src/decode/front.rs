@@ -1629,7 +1629,13 @@ fn decode_contrib_group(
     article: &mut Article,
     losses: &mut Losses,
 ) {
-    record_attrs_lost(path, node, [], losses);
+    let handled = node
+        .attribute("content-type")
+        .is_some_and(|value| {
+            value.eq_ignore_ascii_case("author") || value.eq_ignore_ascii_case("editor")
+        })
+        .then_some("content-type");
+    record_attrs_lost(path, node, handled, losses);
 
     let mut authors = Vec::new();
     let mut editors = Vec::new();
@@ -1650,7 +1656,7 @@ fn decode_contrib_group(
         // A contributor that is neither an author nor an editor has nowhere to
         // go, so is reported as one loss rather than as each of its parts
         let contrib_type = contrib_type(&child);
-        if !(contrib_type.contains("author") || contrib_type.contains("editor")) {
+        if !is_contrib_role(&contrib_type) {
             record_node_lost(path, &child, losses);
             continue;
         }
@@ -1709,10 +1715,41 @@ fn decode_contrib_group(
     }
 }
 
-/// The kind of contributor that a `<contrib>` element represents
+/// Whether a contributor type or group type is a role that can be decoded
+fn is_contrib_role(value: &str) -> bool {
+    value.contains("author") || value.contains("editor")
+}
+
+/// The role declared by a `<contrib>`'s enclosing `<contrib-group>`, if any
+///
+/// Groups with other, free-form, classifications (e.g. `section`) do not
+/// declare a role and so do not override the default authorship.
+fn contrib_group_role(node: &Node) -> Option<String> {
+    node.parent()
+        .filter(|parent| parent.has_tag_name("contrib-group"))
+        .and_then(|parent| parent.attribute("content-type"))
+        .map(str::to_lowercase)
+        .filter(|group_type| is_contrib_role(group_type))
+}
+
+/// Whether a `contrib-type` describes the kind of entity rather than a role
+fn is_contrib_entity(contrib_type: &str) -> bool {
+    matches!(contrib_type, "person" | "organization")
+}
+
+/// The role of a `<contrib>`, falling back to its group's role when omitted or
+/// when the type describes an entity (`person` or `organization`). Explicit
+/// contributor roles always take precedence over the group, and only groups
+/// that declare a role are inherited from.
 fn contrib_type(node: &Node) -> String {
-    node.attribute("contrib-type")
-        .map_or_else(|| "author".to_string(), |ct| ct.to_lowercase().to_string())
+    let contrib_type = node.attribute("contrib-type").map(str::to_lowercase);
+    if contrib_type.as_deref().is_none_or(is_contrib_entity)
+        && let Some(group_role) = contrib_group_role(node)
+    {
+        return group_role;
+    }
+
+    contrib_type.unwrap_or_else(|| "author".to_string())
 }
 
 /// Decode a `<contrib>` element
@@ -1729,10 +1766,19 @@ fn decode_contrib(
     losses: &mut Losses,
 ) -> (PersonOrOrganization, Vec<AuthorRoleName>) {
     // A contributor is either an author or an editor, so a finer distinction
-    // such as `senior_editor` is normalized away and reported
-    let contrib_type = contrib_type(node);
-    let is_author = contrib_type.contains("author");
-    let not_lost = if matches!(contrib_type.as_str(), "author" | "editor") {
+    // such as `senior_editor` is normalized away and reported. Losses are
+    // assessed against the contributor's own `contrib-type`: an entity type
+    // superseded by its group's role is redundant, and any normalization of
+    // that role is reported on the group instead.
+    let is_author = contrib_type(node).contains("author");
+    let contrib_type_handled = node
+        .attribute("contrib-type")
+        .map(str::to_lowercase)
+        .is_some_and(|value| {
+            matches!(value.as_str(), "author" | "editor")
+                || (is_contrib_entity(&value) && contrib_group_role(node).is_some())
+        });
+    let not_lost = if contrib_type_handled {
         ["contrib-type", "corresp"].as_slice()
     } else {
         ["corresp"].as_slice()

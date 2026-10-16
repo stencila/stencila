@@ -110,6 +110,174 @@ async fn contributor_correspondence_email() -> Result<()> {
     Ok(())
 }
 
+/// A contributor's entity type must not hide the authorship declared on its group.
+#[test]
+fn authors_inherit_group_role() -> Result<()> {
+    let jats = r#"
+        <article><front><article-meta>
+          <contrib-group content-type="author">
+            <contrib contrib-type="person">
+              <name><surname>Rodriguez</surname><given-names>Lesia</given-names></name>
+            </contrib>
+          </contrib-group>
+        </article-meta></front></article>
+    "#;
+
+    let (node, info) = decode(jats, None)?;
+    let Node::Article(article) = node else {
+        bail!("expected an article")
+    };
+    let Some(authors) = article.authors else {
+        bail!("expected authors from the contributor group")
+    };
+    assert_eq!(authors.len(), 1);
+    let Author::Person(person) = &authors[0] else {
+        bail!("expected a person author")
+    };
+    assert_eq!(person.family_names, Some(vec!["Rodriguez".into()]));
+    assert_eq!(person.given_names, Some(vec!["Lesia".into()]));
+    assert!(info.losses.is_empty(), "unexpected decode losses");
+
+    Ok(())
+}
+
+/// Group roles fill in missing roles and entity types, without overriding an
+/// explicit contributor role or interpreting an entity type as authorship.
+/// Groups that do not declare a role (e.g. `section`) keep the default
+/// authorship, and each normalization is reported once, on the attribute that
+/// carried it.
+#[test]
+fn contributor_group_roles() -> Result<()> {
+    const CONTRIB: &str = "//article/front/article-meta/contrib-group/contrib";
+    const CONTRIB_TYPE: &str = "//article/front/article-meta/contrib-group/contrib/@contrib-type";
+    const GROUP_TYPE: &str = "//article/front/article-meta/contrib-group/@content-type";
+
+    for (group_type, contributor_type, authors, editors, lost) in [
+        (Some("author"), None, 1, 0, [].as_slice()),
+        (Some("author"), Some("person"), 1, 0, &[]),
+        (Some("author"), Some("organization"), 1, 0, &[]),
+        (Some("editor"), None, 0, 1, &[]),
+        (Some("editor"), Some("person"), 0, 1, &[]),
+        (Some("AUTHOR"), Some("PERSON"), 1, 0, &[]),
+        (Some("author"), Some("editor"), 0, 1, &[]),
+        (Some("editor"), Some("author"), 1, 0, &[]),
+        (Some("author"), Some("translator"), 0, 0, &[CONTRIB]),
+        (None, None, 1, 0, &[]),
+        (None, Some("author"), 1, 0, &[]),
+        (None, Some("editor"), 0, 1, &[]),
+        (None, Some("person"), 0, 0, &[CONTRIB]),
+        (None, Some("organization"), 0, 0, &[CONTRIB]),
+        // Groups that do not declare a role
+        (Some("section"), None, 1, 0, &[GROUP_TYPE]),
+        (
+            Some("section"),
+            Some("person"),
+            0,
+            0,
+            &[CONTRIB, GROUP_TYPE],
+        ),
+        (Some(""), None, 1, 0, &[GROUP_TYPE]),
+        (Some("translator"), None, 1, 0, &[GROUP_TYPE]),
+        // Refined roles are normalized and reported where they were declared
+        (Some("authors"), Some("person"), 1, 0, &[GROUP_TYPE]),
+        (None, Some("senior_editor"), 0, 1, &[CONTRIB_TYPE]),
+        (Some("author"), Some("senior_editor"), 0, 1, &[CONTRIB_TYPE]),
+        (Some("senior_editor"), None, 0, 1, &[GROUP_TYPE]),
+        (Some("senior_editor"), Some("person"), 0, 1, &[GROUP_TYPE]),
+    ] {
+        let group_attr = group_type
+            .map(|value| format!(r#" content-type="{value}""#))
+            .unwrap_or_default();
+        let contributor_attr = contributor_type
+            .map(|value| format!(r#" contrib-type="{value}""#))
+            .unwrap_or_default();
+        let name = if contributor_type == Some("organization") {
+            "<collab>Example Consortium</collab>"
+        } else {
+            "<name><surname>Doe</surname><given-names>Jane</given-names></name>"
+        };
+        let jats = format!(
+            "<article><front><article-meta><contrib-group{group_attr}>\
+             <contrib{contributor_attr}>{name}</contrib>\
+             </contrib-group></article-meta></front></article>"
+        );
+        let (node, info) = decode(&jats, None)?;
+        let Node::Article(article) = node else {
+            bail!("expected an article")
+        };
+        let case = format!("group={group_type:?}, contributor={contributor_type:?}");
+        assert_eq!(
+            article.authors.as_ref().map_or(0, Vec::len),
+            authors,
+            "authors for {case}"
+        );
+        assert_eq!(
+            article.options.editors.as_ref().map_or(0, Vec::len),
+            editors,
+            "editors for {case}"
+        );
+        if contributor_type == Some("organization") && authors > 0 {
+            assert!(matches!(
+                article.authors.as_deref(),
+                Some([Author::Organization(org)]) if org.name.as_deref() == Some("Example Consortium")
+            ));
+        }
+        let mut expected_losses = lost.iter().map(|&path| (path, 1)).collect::<Vec<_>>();
+        expected_losses.sort();
+        assert_eq!(
+            info.losses.iter().collect::<Vec<_>>(),
+            expected_losses,
+            "losses for {case}"
+        );
+    }
+
+    Ok(())
+}
+
+/// Inheriting authorship must also retain CRediT roles and referenced affiliations.
+#[test]
+fn authors_with_inherited_role_retain_metadata() -> Result<()> {
+    let jats = r#"
+        <article><front><article-meta>
+          <contrib-group content-type="author">
+            <contrib contrib-type="person">
+              <name><surname>Doe</surname><given-names>Jane</given-names></name>
+              <role>Conceptualization</role>
+              <xref ref-type="aff" rid="aff0"/>
+            </contrib>
+          </contrib-group>
+          <aff id="aff0"><institution>Example University</institution></aff>
+          <aff id="aff1"><institution>Unreferenced University</institution></aff>
+        </article-meta></front></article>
+    "#;
+    let (node, info) = decode(jats, None)?;
+    let Node::Article(article) = &node else {
+        bail!("expected an article")
+    };
+    let Some([Author::AuthorRole(role)]) = article.authors.as_deref() else {
+        bail!("expected an author with a CRediT role")
+    };
+    assert_eq!(role.role_name, AuthorRoleName::Conceptualization);
+    let AuthorRoleAuthor::Person(person) = &role.author else {
+        bail!("expected a person author")
+    };
+    let Some([affiliation]) = person.affiliations.as_deref() else {
+        bail!("expected the referenced affiliation")
+    };
+    assert_eq!(affiliation.name.as_deref(), Some("Example University"));
+    assert_eq!(
+        info.losses.iter().collect::<Vec<_>>(),
+        vec![("//article/front/article-meta/aff", 1)]
+    );
+
+    let (jats, ..) = encode(&node, None)?;
+    let (roundtrip, info) = decode(&jats, None)?;
+    assert_eq!(roundtrip, node);
+    assert!(info.losses.is_empty(), "unexpected roundtrip losses");
+
+    Ok(())
+}
+
 /// Contributors, their affiliations and the notes about them should survive a
 /// round trip wherever JATS writes them
 #[tokio::test]
