@@ -35,6 +35,9 @@ jobs:
         with:
           python-version: ${{ env.PYTHON_VERSION }}
 
+      - name: Check Windows-compatible paths
+        run: python scripts/check-windows-paths.py
+
       - name: Install REUSE
         run: pip install reuse
 

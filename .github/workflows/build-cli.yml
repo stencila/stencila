@@ -1,0 +1,99 @@
+# Build release archives without creating or publishing a release.
+# Run manually on a branch/tag, or reuse from release-cli.yml.
+
+name: Build CLI
+
+on:
+  workflow_dispatch:
+    inputs:
+      platforms:
+        description: "Platforms to build (comma-separated: ubuntu,macos-arm,windows)"
+        type: string
+        default: "ubuntu,macos-arm,windows"
+  workflow_call:
+    inputs:
+      ref:
+        description: Branch, commit, or tag to build
+        type: string
+        default: ""
+      platforms:
+        type: string
+        default: "ubuntu,macos-arm,windows"
+
+permissions:
+  contents: read
+
+env:
+  RUST_VERSION: "1.95.0"
+  NODE_VERSION: "22"
+
+jobs:
+  build-cli:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          # Build with the oldest GLIBC version we support.
+          - platform: ubuntu
+            runner: ubuntu-24.04
+            target: x86_64-unknown-linux-gnu
+            ext: tar.gz
+          # Intel macOS is unsupported by the ONNX Runtime dependency.
+          - platform: macos-arm
+            runner: macos-15
+            target: aarch64-apple-darwin
+            ext: tar.gz
+          - platform: windows
+            runner: windows-latest
+            target: x86_64-pc-windows-msvc
+            ext: zip
+    runs-on: ${{ matrix.runner }}
+    steps:
+      - name: Checkout repo
+        if: ${{ contains(inputs.platforms, matrix.platform) }}
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.ref || github.ref }}
+          # archive-binary.sh uses git describe, including for untagged commits.
+          fetch-depth: 0
+
+      - name: Setup Rust
+        if: ${{ contains(inputs.platforms, matrix.platform) }}
+        uses: dtolnay/rust-toolchain@master
+        with:
+          toolchain: ${{ env.RUST_VERSION }}
+          targets: ${{ matrix.target }}
+
+      - name: Setup linker
+        if: ${{ contains(inputs.platforms, matrix.platform) }}
+        run: make -C rust setup-linker
+
+      - name: Setup Rust cache
+        if: ${{ contains(inputs.platforms, matrix.platform) }}
+        uses: Swatinem/rust-cache@v2
+
+      - name: Setup Node.js (for web build)
+        if: ${{ contains(inputs.platforms, matrix.platform) }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: Build and archive CLI
+        if: ${{ contains(inputs.platforms, matrix.platform) }}
+        run: make -C rust build archive -e TARGET=${{ matrix.target }}
+        env:
+          NODE_OPTIONS: ${{ matrix.platform == 'windows' && '--max-old-space-size=8192 --no-warnings' || '' }}
+
+      - name: Check CLI starts
+        if: ${{ contains(inputs.platforms, matrix.platform) }}
+        shell: bash
+        run: ./target/${{ matrix.target }}/release/stencila${{ runner.os == 'Windows' && '.exe' || '' }} --version
+
+      - name: Upload archive
+        if: ${{ contains(inputs.platforms, matrix.platform) }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: cli-${{ matrix.target }}
+          path: target/cli-*-${{ matrix.target }}.${{ matrix.ext }}
+          if-no-files-found: error
+          compression-level: 0

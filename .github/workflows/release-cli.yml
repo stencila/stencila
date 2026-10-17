@@ -20,9 +20,9 @@ on:
         type: boolean
         default: true
       platforms:
-        description: "Platforms to build CLI for"
+        description: "Platforms to build (comma-separated: ubuntu,macos-arm,windows)"
         type: string
-        default: "ubuntu,macos-intel,macos-arm,windows"
+        default: "ubuntu,macos-arm,windows"
       publish-docker:
         description: Build and Push Docker image
         type: boolean
@@ -40,10 +40,6 @@ on:
         type: boolean
         default: true
 
-env:
-  RUST_VERSION: "1.95.0"
-  NODE_VERSION: "22"
-
 jobs:
   # Create a draft release
   create-release:
@@ -58,79 +54,43 @@ jobs:
           ref: ${{ inputs.tag }}
 
       - name: Create release
-        # Put `if` here (and not at higher level) because all subsequent jobs `need` 
+        # Put `if` here (and not at higher level) because all subsequent jobs `need`
         # this one and so will not run if this one does not run
         if: ${{ inputs.create-release }}
         run: gh release create ${{ inputs.tag }} --title ${{ inputs.tag }} --draft
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-  # Build and upload CLI
+  # Use the same build as the manual pre-release check.
   build-cli:
     if: ${{ inputs.build-cli }}
     needs: [create-release]
-    strategy:
-      fail-fast: false
-      matrix:
-        include:
-          # Important: use the Ubuntu version with the oldest GLIBC version we wish
-          # to support. Binaries built with older GLIBC versions work on newer GLIBC
-          # versions, but not vice versa.
-          - platform: ubuntu
-            runner: ubuntu-24.04
-            target: x86_64-unknown-linux-gnu
-            ext: tar.gz
-          - platform: macos-arm
-            runner: macos-15
-            target: aarch64-apple-darwin
-            ext: tar.gz
-          - platform: windows
-            runner: windows-latest
-            target: x86_64-pc-windows-msvc
-            ext: zip
-    # Do not fail the whole release if one build target fails
-    continue-on-error: true
-    runs-on: ${{ matrix.runner }}
+    uses: ./.github/workflows/build-cli.yml
     permissions:
+      contents: read
+    with:
+      ref: ${{ inputs.tag }}
+      platforms: ${{ inputs.platforms }}
+
+  # Upload only after every requested platform has built successfully.
+  upload-cli:
+    needs: [build-cli]
+    runs-on: ubuntu-latest
+    permissions:
+      actions: read
       contents: write
     steps:
-      - name: Checkout repo
-        if: ${{ contains(inputs.platforms, matrix.platform) }}
-        uses: actions/checkout@v4
+      - name: Download archives
+        uses: actions/download-artifact@v4
         with:
-          ref: ${{ inputs.tag }}
+          pattern: cli-*
+          path: artifacts
+          merge-multiple: true
 
-      - name: Setup Rust
-        if: ${{ contains(inputs.platforms, matrix.platform) }}
-        uses: dtolnay/rust-toolchain@master
-        with:
-          toolchain: ${{ env.RUST_VERSION }}
-          targets: ${{ matrix.target }}
-
-      - name: Setup linker
-        if: ${{ contains(inputs.platforms, matrix.platform) }}
-        run: make -C rust setup-linker
-
-      - name: Setup Rust cache
-        if: ${{ contains(inputs.platforms, matrix.platform) }}
-        uses: Swatinem/rust-cache@v2
-
-      - name: Setup Node.js (for web build)
-        if: ${{ contains(inputs.platforms, matrix.platform) }}
-        uses: actions/setup-node@v4
-        with:
-          node-version: ${{ env.NODE_VERSION }}
-
-      - name: Build and archive CLI
-        if: ${{ contains(inputs.platforms, matrix.platform) }}
-        run: make -C rust build archive -e TARGET=${{ matrix.target }}
+      - name: Upload archives to release
+        run: gh release upload "$RELEASE_TAG" artifacts/cli-* --repo "$GITHUB_REPOSITORY"
         env:
-          NODE_OPTIONS: ${{ matrix.platform == 'windows' && '--max-old-space-size=8192 --no-warnings' || '' }}
-
-      - name: Upload archive
-        if: ${{ contains(inputs.platforms, matrix.platform) }}
-        run: gh release upload ${{ inputs.tag }} target/cli-${{ inputs.tag }}-${{ matrix.target }}.${{ matrix.ext }}
-        env:
+          RELEASE_TAG: ${{ inputs.tag }}
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
   # Build and push Docker image
@@ -184,7 +144,7 @@ jobs:
   # that this triggers tests this release and not a previous version
   publish-release:
     if: ${{ inputs.publish-release }}
-    needs: [build-cli]
+    needs: [upload-cli]
     runs-on: ubuntu-latest
     permissions:
       contents: write

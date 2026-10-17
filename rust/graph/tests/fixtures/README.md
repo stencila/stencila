@@ -25,7 +25,8 @@ Expected graph surface:
 
 - `Directory` and `File` nodes for workspace entries
 - root and nested `PartOf` edges
-- stable escaped ids for names containing `:`, `#`, `%`, or spaces
+- stable escaped ids for names containing `#`, `%`, or spaces (fixture filenames
+  must also be valid on Windows; colon escaping is covered by dedicated tests)
 - skipped cache/build directories, if present, should not appear in the graph
 
 ## code-polyglot-tools-io

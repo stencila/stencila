@@ -100,12 +100,12 @@ nodes:
         type: DateTime
         value: "[datetime]"
   - type: GraphNode
-    id: "file:data/raw/site%23alpha%3Asurvey.dat"
+    id: "file:data/raw/site%23alpha-survey.dat"
     node:
       type: File
-      id: "file:data/raw/site%23alpha%3Asurvey.dat"
-      name: "site#alpha:survey.dat"
-      path: "data/raw/site#alpha:survey.dat"
+      id: "file:data/raw/site%23alpha-survey.dat"
+      name: "site#alpha-survey.dat"
+      path: "data/raw/site#alpha-survey.dat"
       size: 29
       authors: "[authors]"
       dateCreated:
@@ -209,7 +209,7 @@ edges:
       - type: GraphEvidence
         kind: Observed
   - type: GraphEdge
-    source: "file:data/raw/site%23alpha%3Asurvey.dat"
+    source: "file:data/raw/site%23alpha-survey.dat"
     target: "dir:data/raw"
     kind: PartOf
     evidence:
