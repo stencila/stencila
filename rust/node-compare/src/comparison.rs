@@ -838,13 +838,10 @@ impl Comparison {
             });
         }
 
+        let groups: HashSet<_> = self.alignment.groups().collect();
         for difference in &self.differences {
             if let Difference::ParagraphBoundariesChanged { left, right } = difference {
-                if !self
-                    .alignment
-                    .groups()
-                    .any(|(l, r)| l == left && r == right)
-                {
+                if !groups.contains(&(left, right)) {
                     return Err(CompareError::Invariant {
                         message: "A paragraph boundary change requires its grouped correspondence"
                             .into(),

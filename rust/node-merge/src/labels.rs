@@ -90,14 +90,33 @@ pub(crate) fn translate<'right>(
                 })
         })
         .collect();
+    // The right paragraphs of groups, so that a node within one is found by an
+    // ancestor rather than by testing every group
+    let grouped: BTreeSet<&NodePath> = comparison
+        .alignment()
+        .groups()
+        .flat_map(|(_, right)| right.nodes())
+        .map(|node| &node.path)
+        .collect();
+    let in_group = |path: &NodePath| {
+        if grouped.is_empty() {
+            return false;
+        }
+        let mut path = path.clone();
+        while !path.is_empty() {
+            if grouped.contains(&path) {
+                return true;
+            }
+            path.pop_back();
+        }
+        false
+    };
     let counterpart = |working: &Node, node: &NodeRef| -> Counterpart {
         let Some(left) = index.left_of(&node.path) else {
             // Group detection preserves every inline ID exactly. These labels
             // survive the block replacement even though inline paths have changed.
-            if comparison.alignment().correspondences().iter().any(|item| {
-                matches!(item,
-                Correspondence::ParagraphGroup { right, .. } if right.contains(&node.path))
-            }) && let Some(id) = existing_id(right, &node.path)
+            if in_group(&node.path)
+                && let Some(id) = existing_id(right, &node.path)
             {
                 return Counterpart::Grouped(id);
             }

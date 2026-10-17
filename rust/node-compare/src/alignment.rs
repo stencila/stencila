@@ -743,10 +743,14 @@ impl Alignment {
 
     /// Validate invariants that do not require the original snapshots
     fn validate_local(&self) -> CompareResult<()> {
-        let parents: HashSet<_> = self
-            .pairs()
-            .map(|(left, right, _)| (&left.path, &right.path))
-            .collect();
+        // Only groups need the paired parents
+        let parents: HashSet<_> = if self.groups().next().is_some() {
+            self.pairs()
+                .map(|(left, right, _)| (&left.path, &right.path))
+                .collect()
+        } else {
+            HashSet::new()
+        };
         for (left, right) in self.groups() {
             left.validate()?;
             right.validate()?;
@@ -822,11 +826,16 @@ impl Alignment {
             })
             .collect();
 
-        let occurrences: std::collections::HashMap<_, _> = projection
-            .occurrences()
-            .iter()
-            .map(|node| (&node.path, node))
-            .collect();
+        // Only groups need occurrences by path
+        let occurrences: std::collections::HashMap<_, _> = if self.groups().next().is_some() {
+            projection
+                .occurrences()
+                .iter()
+                .map(|node| (&node.path, node))
+                .collect()
+        } else {
+            Default::default()
+        };
         for (left, right) in self.groups() {
             let group = match side {
                 Side::Left => left,

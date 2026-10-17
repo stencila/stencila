@@ -52,6 +52,27 @@ pub(crate) fn recognize(
     right: &Projection,
     aligned: &mut Aligned,
 ) -> CompareResult<()> {
+    let mut found = Vec::new();
+    for (index, property) in aligned.properties.iter().enumerate() {
+        if property
+            .steps
+            .iter()
+            .all(|step| matches!(step, Step::Pair { .. }))
+        {
+            continue;
+        }
+        let left_property = find_property(left, property.left_parent, property.property)?;
+        let right_property = find_property(right, property.right_parent, property.property)?;
+        let groups = find(left, right, left_property, right_property, &property.steps)?;
+        if !groups.is_empty() {
+            found.push((index, groups));
+        }
+    }
+    // Most comparisons have no candidates, so they need none of the lookups below
+    if found.is_empty() {
+        return Ok(());
+    }
+
     let mut left_covered = HashSet::new();
     let mut right_covered = HashSet::new();
     let mut records = Vec::new();
@@ -65,20 +86,7 @@ pub(crate) fn recognize(
     let left_targets = TargetIndex::new(left);
     let right_targets = TargetIndex::new(right);
 
-    for property in &mut aligned.properties {
-        if property
-            .steps
-            .iter()
-            .all(|step| matches!(step, Step::Pair { .. }))
-        {
-            continue;
-        }
-        let left_property = find_property(left, property.left_parent, property.property)?;
-        let right_property = find_property(right, property.right_parent, property.property)?;
-        let groups = find(left, right, left_property, right_property, &property.steps)?;
-        if groups.is_empty() {
-            continue;
-        }
+    for (index, groups) in found {
         let mut accepted = Vec::new();
         for group in groups {
             let left_ids = descendants(left, &group.left)?;
@@ -123,7 +131,7 @@ pub(crate) fn recognize(
             });
             accepted.push(group);
         }
-        property
+        aligned.properties[index]
             .steps
             .retain(|step| !accepted.iter().any(|group| group.covers(step)));
     }
