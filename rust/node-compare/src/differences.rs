@@ -21,7 +21,7 @@ use stencila_schema::ValueKind;
 
 use crate::{
     align::Aligned,
-    alignment::{Correspondence, NodeRef},
+    alignment::NodeRef,
     comparison::{Difference, PropertyPresence, ValueLocation, ValueState},
     error::CompareResult,
     projection::{
@@ -69,15 +69,13 @@ pub(crate) fn derive(
         differ.derive_parent(*left, *right)?;
     }
 
-    for correspondence in aligned.alignment.correspondences() {
-        if let Correspondence::ParagraphGroup { left, right } = correspondence {
-            differ
-                .differences
-                .push(Difference::ParagraphBoundariesChanged {
-                    left: left.clone(),
-                    right: right.clone(),
-                });
-        }
+    for (left, right) in aligned.alignment.groups() {
+        differ
+            .differences
+            .push(Difference::ParagraphBoundariesChanged {
+                left: left.clone(),
+                right: right.clone(),
+            });
     }
 
     Ok(differ.differences)

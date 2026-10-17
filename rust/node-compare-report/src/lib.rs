@@ -841,11 +841,8 @@ impl<'comparison> LeftAnchors<'comparison> {
             .pairs()
             .map(|(left, right, ..)| (&right.path, &left.path))
             .collect();
-        for correspondence in alignment.correspondences() {
-            if let Correspondence::ParagraphGroup { left, right } = correspondence {
-                let last = left.rest.last().unwrap_or(&left.first);
-                pairs.extend(right.nodes().map(|node| (&node.path, &last.path)));
-            }
+        for (left, right) in alignment.groups() {
+            pairs.extend(right.nodes().map(|node| (&node.path, &left.last().path)));
         }
         pairs.sort();
 

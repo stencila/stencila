@@ -819,20 +819,17 @@ impl Comparison {
             .collect();
 
         let mut hidden_groups = 0;
-        for correspondence in self.alignment.correspondences() {
-            if let Correspondence::ParagraphGroup { left, right } = correspondence {
-                let boundary = Difference::ParagraphBoundariesChanged {
-                    left: left.clone(),
-                    right: right.clone(),
-                };
-                if !self.filter.allows_difference(&boundary) {
-                    hidden_groups += 1;
-                } else if self.differences.binary_search(&boundary).is_err() {
-                    return Err(CompareError::Invariant {
-                        message: "A reported paragraph group requires its boundary difference"
-                            .into(),
-                    });
-                }
+        for (left, right) in self.alignment.groups() {
+            let boundary = Difference::ParagraphBoundariesChanged {
+                left: left.clone(),
+                right: right.clone(),
+            };
+            if !self.filter.allows_difference(&boundary) {
+                hidden_groups += 1;
+            } else if self.differences.binary_search(&boundary).is_err() {
+                return Err(CompareError::Invariant {
+                    message: "A reported paragraph group requires its boundary difference".into(),
+                });
             }
         }
         if hidden_groups > self.suppressed_differences {
@@ -843,10 +840,11 @@ impl Comparison {
 
         for difference in &self.differences {
             if let Difference::ParagraphBoundariesChanged { left, right } = difference {
-                if !self.alignment.correspondences().iter().any(|item| {
-                    matches!(item,
-                    Correspondence::ParagraphGroup { left: l, right: r } if l == left && r == right)
-                }) {
+                if !self
+                    .alignment
+                    .groups()
+                    .any(|(l, r)| l == left && r == right)
+                {
                     return Err(CompareError::Invariant {
                         message: "A paragraph boundary change requires its grouped correspondence"
                             .into(),

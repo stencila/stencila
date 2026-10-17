@@ -100,6 +100,11 @@ impl ParagraphGroup {
         std::iter::once(&self.first).chain(&self.rest)
     }
 
+    /// The last paragraph in document order.
+    pub fn last(&self) -> &NodeRef {
+        self.rest.last().unwrap_or(&self.first)
+    }
+
     pub fn count(&self) -> usize {
         1 + self.rest.len()
     }
@@ -742,46 +747,43 @@ impl Alignment {
             .pairs()
             .map(|(left, right, _)| (&left.path, &right.path))
             .collect();
-        for correspondence in &self.correspondences {
-            if let Correspondence::ParagraphGroup { left, right } = correspondence {
-                left.validate()?;
-                right.validate()?;
-                if self.format_version != AlignmentFormatVersion::V2
-                    || !((left.count() == 1 && right.count() > 1)
-                        || (right.count() == 1 && left.count() > 1))
-                {
-                    return Err(CompareError::Invariant {
-                        message:
-                            "Paragraph groups require format 2 and a one-to-many correspondence"
-                                .into(),
-                    });
-                }
-                let scope = |group: &ParagraphGroup| {
-                    let mut path = group.first.path.clone();
-                    path.pop_back();
-                    let property = path.pop_back();
-                    (path, property)
-                };
-                let (left_parent, left_property) = scope(left);
-                let (right_parent, right_property) = scope(right);
-                if left_property != right_property
-                    || !parents.contains(&(&left_parent, &right_parent))
-                {
-                    return Err(CompareError::Invariant {
-                        message:
-                            "Paragraph groups require corresponding properties of paired parents"
-                                .into(),
-                    });
-                }
+        for (left, right) in self.groups() {
+            left.validate()?;
+            right.validate()?;
+            if self.format_version != AlignmentFormatVersion::V2
+                || !((left.count() == 1 && right.count() > 1)
+                    || (right.count() == 1 && left.count() > 1))
+            {
+                return Err(CompareError::Invariant {
+                    message: "Paragraph groups require format 2 and a one-to-many correspondence"
+                        .into(),
+                });
+            }
+            let scope = |group: &ParagraphGroup| {
+                let mut path = group.first.path.clone();
+                path.pop_back();
+                let property = path.pop_back();
+                (path, property)
+            };
+            let (left_parent, left_property) = scope(left);
+            let (right_parent, right_property) = scope(right);
+            if left_property != right_property || !parents.contains(&(&left_parent, &right_parent))
+            {
+                return Err(CompareError::Invariant {
+                    message: "Paragraph groups require corresponding properties of paired parents"
+                        .into(),
+                });
             }
         }
         for side in [Side::Left, Side::Right] {
             let mut paths = HashSet::new();
             let grouped: HashSet<_> = self
-                .correspondences
-                .iter()
-                .filter(|item| matches!(item, Correspondence::ParagraphGroup { .. }))
-                .flat_map(|item| item.nodes(side).map(|node| &node.path))
+                .groups()
+                .flat_map(|(left, right)| match side {
+                    Side::Left => left.nodes(),
+                    Side::Right => right.nodes(),
+                })
+                .map(|node| &node.path)
                 .collect();
             for node in self
                 .correspondences
@@ -825,12 +827,12 @@ impl Alignment {
             .iter()
             .map(|node| (&node.path, node))
             .collect();
-        for group in self
-            .correspondences
-            .iter()
-            .filter(|item| matches!(item, Correspondence::ParagraphGroup { .. }))
-        {
-            for root in group.nodes(side) {
+        for (left, right) in self.groups() {
+            let group = match side {
+                Side::Left => left,
+                Side::Right => right,
+            };
+            for root in group.nodes() {
                 let Some(node) = occurrences
                     .get(&root.path)
                     .filter(|node| node.node_type == root.node_type)
@@ -906,6 +908,16 @@ impl Alignment {
         };
         inverted.canonicalize();
         inverted
+    }
+
+    /// The paragraph groups, as their left and right paragraphs
+    pub fn groups(&self) -> impl Iterator<Item = (&ParagraphGroup, &ParagraphGroup)> {
+        self.correspondences
+            .iter()
+            .filter_map(|correspondence| match correspondence {
+                Correspondence::ParagraphGroup { left, right } => Some((left, right)),
+                _ => None,
+            })
     }
 
     /// The paired correspondences

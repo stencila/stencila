@@ -66,9 +66,10 @@ impl<'comparison> Index<'comparison> {
                     continue;
                 }
                 Correspondence::ParagraphGroup { left, right } => {
-                    let last = left.rest.last().unwrap_or(&left.first);
                     for node in right.nodes() {
-                        index.insertion_anchors.insert(&node.path, &last.path);
+                        index
+                            .insertion_anchors
+                            .insert(&node.path, &left.last().path);
                     }
                     continue;
                 }
