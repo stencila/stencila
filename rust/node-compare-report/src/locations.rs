@@ -6,7 +6,7 @@ use eyre::Result;
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 
-use stencila_node_compare::{Comparison, NodeRef};
+use stencila_node_compare::{Comparison, NodeRef, Side};
 use stencila_node_path::{NodePath, NodeSlot};
 
 use crate::{Snapshot, elide, path};
@@ -39,8 +39,12 @@ impl ReportMetadata {
             locations: LocationLabels::describe(
                 left,
                 right,
-                correspondences.iter().filter_map(|entry| entry.left()),
-                correspondences.iter().filter_map(|entry| entry.right()),
+                correspondences
+                    .iter()
+                    .flat_map(|entry| entry.nodes(Side::Left)),
+                correspondences
+                    .iter()
+                    .flat_map(|entry| entry.nodes(Side::Right)),
             )?,
         })
     }
@@ -403,6 +407,37 @@ mod tests {
         let html = crate::html_report(&comparison, left, right, false)?;
         assert!(html.contains("“&lt;script&gt;&amp; résumé 日本語”"));
         assert!(!html.contains("<script>"));
+        Ok(())
+    }
+
+    #[test]
+    fn metadata_covers_every_paragraph_of_a_group() -> Result<()> {
+        let paragraph =
+            |text: &str| json!({"type": "Paragraph", "content": [{"type": "Text", "value": text}]});
+        let left: Node = serde_json::from_value(json!({"type": "Article", "content": [
+            paragraph("First."),
+            paragraph("Second.")
+        ]}))?;
+        let right: Node = serde_json::from_value(json!({"type": "Article", "content": [
+            paragraph("First. Second.")
+        ]}))?;
+        let comparison = compare(&left, &right)?;
+        let metadata = ReportMetadata::new(
+            &comparison,
+            Snapshot {
+                node: &left,
+                label: "left",
+            },
+            Snapshot {
+                node: &right,
+                label: "right",
+            },
+        )?;
+        assert_eq!(
+            metadata.locations.left.get("$/content/1"),
+            Some(&"Paragraph 2".to_string())
+        );
+        assert!(metadata.locations.right.contains_key("$/content/0"));
         Ok(())
     }
 

@@ -24,7 +24,9 @@ use stencila_node_path::NodePath;
 use stencila_node_type::NodeProperty;
 
 use crate::{
-    alignment::{AlgorithmInfo, Alignment, Correspondence, NodeRef},
+    alignment::{
+        AlgorithmInfo, Alignment, AlignmentFormatVersion, Correspondence, NodeRef, ParagraphGroup,
+    },
     error::{CompareError, CompareResult},
     filter::DifferenceFilter,
     normalization::Normalization,
@@ -41,6 +43,8 @@ pub enum ComparisonFormatVersion {
     #[default]
     #[serde(rename = "1")]
     V1,
+    #[serde(rename = "2")]
+    V2,
 }
 
 /// The state of a property on one side of a pair
@@ -130,6 +134,12 @@ pub enum ValueState {
     rename_all_fields = "camelCase"
 )]
 pub enum Difference {
+    /// Complete inline content is preserved across a paragraph merge or split.
+    /// The groups include their descendants, so these are not also missing nodes.
+    ParagraphBoundariesChanged {
+        left: ParagraphGroup,
+        right: ParagraphGroup,
+    },
     /// A constrained cross-type pair
     ///
     /// The shared properties whose projected shapes are compatible are still compared
@@ -221,6 +231,7 @@ impl Difference {
     /// The left occurrence this difference is about
     pub fn left(&self) -> &NodeRef {
         match self {
+            Self::ParagraphBoundariesChanged { left, .. } => &left.first,
             Self::NodeTypeChanged { left, .. }
             | Self::PropertyPresenceChanged { left, .. }
             | Self::ParentChanged { left, .. }
@@ -232,6 +243,7 @@ impl Difference {
     /// The right occurrence this difference is about
     pub fn right(&self) -> &NodeRef {
         match self {
+            Self::ParagraphBoundariesChanged { right, .. } => &right.first,
             Self::NodeTypeChanged { right, .. }
             | Self::PropertyPresenceChanged { right, .. }
             | Self::ParentChanged { right, .. }
@@ -243,6 +255,7 @@ impl Difference {
     /// The property this difference is about, if any
     pub fn property(&self) -> Option<NodeProperty> {
         match self {
+            Self::ParagraphBoundariesChanged { .. } => Some(NodeProperty::Content),
             Self::NodeTypeChanged { .. } | Self::ParentChanged { .. } => None,
             Self::PropertyPresenceChanged { property, .. } | Self::Reordered { property, .. } => {
                 Some(*property)
@@ -254,6 +267,7 @@ impl Difference {
     /// The rank of this kind of difference, used in canonical order
     fn kind_rank(&self) -> u8 {
         match self {
+            Self::ParagraphBoundariesChanged { .. } => 5,
             Self::NodeTypeChanged { .. } => 0,
             Self::PropertyPresenceChanged { .. } => 1,
             Self::ValueChanged { .. } => 2,
@@ -290,6 +304,10 @@ impl Difference {
     /// Invert this difference, for when the two inputs are swapped
     pub fn invert(self) -> Self {
         match self {
+            Self::ParagraphBoundariesChanged { left, right } => Self::ParagraphBoundariesChanged {
+                left: right,
+                right: left,
+            },
             Self::NodeTypeChanged { left, right } => Self::NodeTypeChanged {
                 left: right,
                 right: left,
@@ -367,6 +385,13 @@ impl Ord for Difference {
         self.sort_key()
             .cmp(&other.sort_key())
             .then_with(|| match (self, other) {
+                (
+                    Self::ParagraphBoundariesChanged { left, right },
+                    Self::ParagraphBoundariesChanged {
+                        left: other_left,
+                        right: other_right,
+                    },
+                ) => (left, right).cmp(&(other_left, other_right)),
                 (
                     Self::NodeTypeChanged { left, right },
                     Self::NodeTypeChanged {
@@ -578,6 +603,7 @@ impl TryFrom<ComparisonData> for Comparison {
     fn try_from(data: ComparisonData) -> Result<Self, Self::Error> {
         let format_version = match data.format_version.as_str() {
             "1" => ComparisonFormatVersion::V1,
+            "2" => ComparisonFormatVersion::V2,
             version => {
                 return Err(CompareError::UnsupportedVersion {
                     artifact: "comparison",
@@ -600,7 +626,7 @@ impl Comparison {
     /// Create an unfiltered comparison, putting its differences into canonical order
     pub(crate) fn new(alignment: Alignment, differences: Vec<Difference>) -> CompareResult<Self> {
         Self::new_with_version(
-            ComparisonFormatVersion::V1,
+            Self::version_for(&alignment),
             alignment,
             differences,
             DifferenceFilter::none(),
@@ -632,7 +658,7 @@ impl Comparison {
         let suppressed = derived - differences.len();
 
         Self::new_with_version(
-            ComparisonFormatVersion::V1,
+            Self::version_for(&alignment),
             alignment,
             differences,
             filter,
@@ -660,6 +686,13 @@ impl Comparison {
         comparison.canonicalize();
         comparison.validate_local()?;
         Ok(comparison)
+    }
+
+    fn version_for(alignment: &Alignment) -> ComparisonFormatVersion {
+        match alignment.format_version() {
+            AlignmentFormatVersion::V1 => ComparisonFormatVersion::V1,
+            AlignmentFormatVersion::V2 => ComparisonFormatVersion::V2,
+        }
     }
 
     /// The version of the comparison format
@@ -724,7 +757,7 @@ impl Comparison {
 
         for correspondence in self.alignment.correspondences() {
             let (side, node, ancestor) = match correspondence {
-                Correspondence::Paired { .. } => continue,
+                Correspondence::Paired { .. } | Correspondence::ParagraphGroup { .. } => continue,
                 Correspondence::LeftOnly {
                     left,
                     nearest_one_sided_ancestor,
@@ -774,13 +807,53 @@ impl Comparison {
     }
 
     fn validate_local(&self) -> CompareResult<()> {
+        if self.format_version != Self::version_for(&self.alignment) {
+            return Err(CompareError::Invariant {
+                message: "Comparison and alignment formats disagree".into(),
+            });
+        }
         let pairs: HashSet<_> = self
             .alignment
             .pairs()
             .map(|(left, right, ..)| (left, right))
             .collect();
 
+        let mut hidden_groups = 0;
+        for correspondence in self.alignment.correspondences() {
+            if let Correspondence::ParagraphGroup { left, right } = correspondence {
+                let boundary = Difference::ParagraphBoundariesChanged {
+                    left: left.clone(),
+                    right: right.clone(),
+                };
+                if !self.filter.allows_difference(&boundary) {
+                    hidden_groups += 1;
+                } else if self.differences.binary_search(&boundary).is_err() {
+                    return Err(CompareError::Invariant {
+                        message: "A reported paragraph group requires its boundary difference"
+                            .into(),
+                    });
+                }
+            }
+        }
+        if hidden_groups > self.suppressed_differences {
+            return Err(CompareError::Invariant {
+                message: "Suppressed paragraph boundaries must be counted".into(),
+            });
+        }
+
         for difference in &self.differences {
+            if let Difference::ParagraphBoundariesChanged { left, right } = difference {
+                if !self.alignment.correspondences().iter().any(|item| {
+                    matches!(item,
+                    Correspondence::ParagraphGroup { left: l, right: r } if l == left && r == right)
+                }) {
+                    return Err(CompareError::Invariant {
+                        message: "A paragraph boundary change requires its grouped correspondence"
+                            .into(),
+                    });
+                }
+                continue;
+            }
             // The rules are not re-applied: a classification is recorded, not derived,
             // so that changing a rule never reinterprets or rejects a saved comparison
             if difference.is_cosmetic() && self.normalize.is_empty() {

@@ -21,8 +21,8 @@ use similar::{Algorithm, ChangeTag, TextDiff};
 use stencila_codec_dom_trait::{DomCodec as _, DomEncodeContext};
 use stencila_codec_text_trait::to_text;
 use stencila_node_compare::{
-    Alignment, Comparison, Correspondence, Difference, DifferenceFilter, NodeRef, PropertyPresence,
-    ScalarValue, Side, UnmatchedReason, ValueState,
+    Alignment, Comparison, Correspondence, Difference, DifferenceFilter, NodeRef, ParagraphGroup,
+    PropertyPresence, ScalarValue, Side, UnmatchedReason, ValueState,
 };
 use stencila_node_path::NodePath;
 use stencila_node_type::NodeProperty;
@@ -82,6 +82,13 @@ pub fn text_report(
         right_roots = plural(one_sided.right.len(), "root"),
     )?;
     writeln!(report, "differences: {}", differences.len())?;
+    if counts.groups > 0 {
+        writeln!(
+            report,
+            "paragraph groups: {} ({} boundary changes reported)",
+            counts.groups, counts.boundaries
+        )?;
+    }
     writeln!(
         report,
         "  node type: {}  presence: {}  value: {}  parent: {}  reordered: {}",
@@ -249,6 +256,7 @@ fn html_report_inner(
     <li><span>value</span> {value}</li>
     <li><span>parent</span> {parent}</li>
     <li><span>reordered</span> {reordered}</li>
+    {paragraph_groups}
     {normalization}
   </ul>
   {filter}
@@ -268,6 +276,14 @@ fn html_report_inner(
         value = counts.value,
         parent = counts.parent,
         reordered = counts.reordered,
+        paragraph_groups = if counts.groups > 0 {
+            format!(
+                "<li><span>paragraph groups</span> {}</li><li><span>paragraph boundaries</span> {}</li>",
+                counts.groups, counts.boundaries
+            )
+        } else {
+            String::new()
+        },
         normalization = match normalization_description(comparison) {
             Some(rules) => format!(
                 "<li><span>cosmetic</span> {} <em>(normalize: {})</em></li>",
@@ -813,8 +829,7 @@ struct RowOrder {
 
 /// The left path that each right path belongs after
 ///
-/// Built from the paired occurrences, which are the only ones whose position is known
-/// on both sides.
+/// Built from paired occurrences and complete paragraph groups.
 struct LeftAnchors<'comparison> {
     /// The paired occurrences as (right path, left path), ordered by right path
     pairs: Vec<(&'comparison NodePath, &'comparison NodePath)>,
@@ -826,6 +841,12 @@ impl<'comparison> LeftAnchors<'comparison> {
             .pairs()
             .map(|(left, right, ..)| (&right.path, &left.path))
             .collect();
+        for correspondence in alignment.correspondences() {
+            if let Correspondence::ParagraphGroup { left, right } = correspondence {
+                let last = left.rest.last().unwrap_or(&left.first);
+                pairs.extend(right.nodes().map(|node| (&node.path, &last.path)));
+            }
+        }
         pairs.sort();
 
         Self { pairs }
@@ -1060,6 +1081,22 @@ impl ViewRow {
     /// Build a row for a difference
     fn difference(difference: &Difference, locations: &LocationLabels) -> Self {
         let (kind, marker, mut left, mut right) = match difference {
+            Difference::ParagraphBoundariesChanged { left, right } => (
+                if left.count() > right.count() {
+                    "merged"
+                } else {
+                    "split"
+                },
+                "↔",
+                ViewCell::new(
+                    paragraph_group(left),
+                    Some(plural(left.count(), "paragraph")),
+                ),
+                ViewCell::new(
+                    paragraph_group(right),
+                    Some(plural(right.count(), "paragraph")),
+                ),
+            ),
             Difference::NodeTypeChanged { left, right } => (
                 "node type",
                 "≠",
@@ -1266,6 +1303,8 @@ fn escape(text: &str) -> String {
 /// How many correspondences and differences of each kind there are
 #[derive(Default)]
 struct Counts {
+    groups: usize,
+    boundaries: usize,
     paired: usize,
     left_only: usize,
     right_only: usize,
@@ -1287,6 +1326,9 @@ impl Counts {
         let mut counts = Self::default();
 
         for correspondence in comparison.alignment().correspondences() {
+            if matches!(correspondence, Correspondence::ParagraphGroup { .. }) {
+                counts.groups += 1;
+            }
             if matches!(correspondence, Correspondence::Paired { .. }) {
                 counts.paired += 1;
             }
@@ -1301,6 +1343,7 @@ impl Counts {
                 counts.cosmetic += 1;
             }
             match difference {
+                Difference::ParagraphBoundariesChanged { .. } => counts.boundaries += 1,
                 Difference::NodeTypeChanged { .. } => counts.node_type += 1,
                 Difference::PropertyPresenceChanged { .. } => counts.presence += 1,
                 Difference::ValueChanged { .. } => counts.value += 1,
@@ -1347,7 +1390,7 @@ impl<'comparison> OneSidedRoots<'comparison> {
 
         for correspondence in alignment.correspondences() {
             let (side, node, reason, ancestor) = match correspondence {
-                Correspondence::Paired { .. } => continue,
+                Correspondence::Paired { .. } | Correspondence::ParagraphGroup { .. } => continue,
                 Correspondence::LeftOnly {
                     left,
                     reason,
@@ -1435,6 +1478,21 @@ fn write_one_sided(report: &mut String, root: &OneSidedRoot) -> Result<()> {
 /// Write a difference
 fn write_difference(report: &mut String, difference: &Difference) -> Result<()> {
     match difference {
+        Difference::ParagraphBoundariesChanged { left, right } => {
+            writeln!(
+                report,
+                "↔ {:<10} {} ↔ {} ({} → {} paragraphs)",
+                if left.count() > right.count() {
+                    "merged"
+                } else {
+                    "split"
+                },
+                paragraph_group(left),
+                paragraph_group(right),
+                left.count(),
+                right.count()
+            )?;
+        }
         Difference::NodeTypeChanged { left, right } => {
             writeln!(
                 report,
@@ -1529,6 +1587,10 @@ fn write_difference(report: &mut String, difference: &Difference) -> Result<()> 
     }
 
     Ok(())
+}
+
+fn paragraph_group(group: &ParagraphGroup) -> String {
+    group.nodes().map(occurrence).collect::<Vec<_>>().join(", ")
 }
 
 /// The longest rendering of a one-sided occurrence that is shown
@@ -1791,6 +1853,33 @@ mod tests {
         let overlay = left.clone();
         let (left, right) = snapshots(left, right);
         html_report_with_overlay(&comparison, left, right, false, &overlay, None)
+    }
+
+    #[test]
+    fn reports_paragraph_merges_and_splits_once() -> Result<()> {
+        let left = article(vec![para("First paragraph."), para("Second paragraph.")]);
+        let right = article(vec![para("First paragraph. Second paragraph.")]);
+        for (left, right, label) in [(&left, &right, "merged"), (&right, &left, "split")] {
+            let comparison = compare(left, right)?;
+            let (left, right) = snapshots(left, right);
+            let text = text_report(&comparison, left, right, false)?;
+            assert!(text.contains("differences: 1"), "{text}");
+            assert!(text.contains("paragraph groups: 1"), "{text}");
+            assert!(text.contains(&format!("↔ {label}")), "{text}");
+            assert!(text.contains("$/content/1 Paragraph"), "{text}");
+            assert!(
+                text.contains("0 left-only (0 roots), 0 right-only (0 roots)"),
+                "{text}"
+            );
+            let html = html_report(&comparison, left, right, false)?;
+            assert!(
+                html.contains(&format!("kind-label\">{label}</span>")),
+                "{html}"
+            );
+            assert!(html.contains("paragraph boundaries</span> 1"));
+            assert!(html.contains("$/content/1 Paragraph"));
+        }
+        Ok(())
     }
 
     #[test]

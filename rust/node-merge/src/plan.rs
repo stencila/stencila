@@ -241,6 +241,13 @@ impl MergePlan {
         options: &MergeOptions,
     ) {
         match difference {
+            Difference::ParagraphBoundariesChanged { left, right } => self.plan_run_replacement(
+                &left.first,
+                left.count(),
+                &right.first,
+                right.nodes().map(|node| node.path.clone()).collect(),
+                types,
+            ),
             Difference::ValueChanged {
                 location,
                 left,
@@ -375,6 +382,21 @@ impl MergePlan {
 
     /// Replace one occurrence with its right counterpart
     fn plan_replacement(&mut self, left: &NodeRef, right: &NodeRef, types: &NodeTypes) {
+        self.plan_run_replacement(left, 1, right, vec![right.path.clone()], types);
+    }
+
+    /// Replace a run of `count` left siblings, starting at `left`, with the right
+    /// occurrences at `sources`
+    ///
+    /// `right` is the occurrence reported when the run cannot be replaced.
+    fn plan_run_replacement(
+        &mut self,
+        left: &NodeRef,
+        count: usize,
+        right: &NodeRef,
+        sources: Vec<NodePath>,
+        types: &NodeTypes,
+    ) {
         let Some((container, index)) = split_container(&left.path) else {
             self.unrepresentable(
                 Some(left.clone()),
@@ -397,8 +419,8 @@ impl MergePlan {
         }
 
         self.entry(container, kind).edits.push(Edit::Replace {
-            range: index..index + 1,
-            sources: vec![right.path.clone()],
+            range: index..index + count,
+            sources,
             purpose: ReplacementPurpose::Content,
         });
     }
@@ -647,12 +669,9 @@ impl NodeTypes {
         let mut left = BTreeMap::new();
 
         for correspondence in comparison.alignment().correspondences() {
-            use stencila_node_compare::Correspondence::*;
-            let node = match correspondence {
-                Paired { left: node, .. } | LeftOnly { left: node, .. } => node,
-                RightOnly { .. } => continue,
-            };
-            left.insert(node.path.clone(), node.node_type);
+            for node in correspondence.nodes(stencila_node_compare::Side::Left) {
+                left.insert(node.path.clone(), node.node_type);
+            }
         }
 
         Self { left }

@@ -26,10 +26,12 @@ use std::{
     collections::{BTreeMap, BTreeSet},
 };
 
-use stencila_node_compare::{Comparison, Correspondence, NodeRef};
+use stencila_node_compare::{Comparison, Correspondence, NodeRef, Side};
 use stencila_node_path::{NodePath, NodeSlot};
 use stencila_node_type::{NodeProperty, NodeType};
-use stencila_schema::{Node, NodeSet, PatchContext, PatchNode, PatchOp, PatchValue, get};
+use stencila_schema::{
+    InspectNode, InspectValue, Node, NodeSet, PatchContext, PatchNode, PatchOp, PatchValue, get,
+};
 
 use crate::{
     comments::{existing_id, identifiers, identify},
@@ -90,6 +92,15 @@ pub(crate) fn translate<'right>(
         .collect();
     let counterpart = |working: &Node, node: &NodeRef| -> Counterpart {
         let Some(left) = index.left_of(&node.path) else {
+            // Group detection preserves every inline ID exactly. These labels
+            // survive the block replacement even though inline paths have changed.
+            if comparison.alignment().correspondences().iter().any(|item| {
+                matches!(item,
+                Correspondence::ParagraphGroup { right, .. } if right.contains(&node.path))
+            }) && let Some(id) = existing_id(right, &node.path)
+            {
+                return Counterpart::Grouped(id);
+            }
             return Counterpart::Unpaired;
         };
         let id = existing_id(working, left);
@@ -103,17 +114,23 @@ pub(crate) fn translate<'right>(
         }
     };
 
-    let right_nodes: Vec<&NodeRef> = comparison
-        .alignment()
-        .correspondences()
-        .iter()
-        .filter_map(|correspondence| match correspondence {
-            Correspondence::Paired { right, .. } | Correspondence::RightOnly { right, .. } => {
-                Some(right)
+    let mut right_nodes = Vec::new();
+    for correspondence in comparison.alignment().correspondences() {
+        if let Correspondence::ParagraphGroup { right: group, .. } = correspondence {
+            for root in group.nodes() {
+                let node =
+                    get(right, root.path.clone()).map_err(|_| MergeError::PathResolution {
+                        side: Side::Right,
+                        path: root.path.clone(),
+                    })?;
+                if let NodeSet::One(node) = node {
+                    collect_nodes(&node, &root.path, &mut right_nodes);
+                }
             }
-            Correspondence::LeftOnly { .. } => None,
-        })
-        .collect();
+        } else {
+            right_nodes.extend(correspondence.nodes(Side::Right).cloned());
+        }
+    }
 
     // The addressable IDs of the right document, and separately those of its
     // references, `None` where one is duplicated within its namespace
@@ -207,8 +224,33 @@ pub(crate) fn translate<'right>(
     Ok(translated)
 }
 
+/// Visit structured nodes whose coverage is implicit in a paragraph group.
+fn collect_nodes(node: &dyn InspectNode, path: &NodePath, nodes: &mut Vec<NodeRef>) {
+    let Some(node_type) = node.node_type() else {
+        return;
+    };
+    nodes.push(NodeRef::new(path.clone(), node_type));
+    for property in node.properties() {
+        let mut at = path.clone();
+        at.push_back(NodeSlot::Property(property.decl.property));
+        match property.value {
+            InspectValue::Absent => {}
+            InspectValue::One(node) => collect_nodes(node, &at, nodes),
+            InspectValue::Many(items) => {
+                for (index, node) in items.into_iter().enumerate() {
+                    let mut at = at.clone();
+                    at.push_back(NodeSlot::Index(index));
+                    collect_nodes(node, &at, nodes);
+                }
+            }
+        }
+    }
+}
+
 /// What a right node corresponds to in the left document
 enum Counterpart {
+    /// An identical inline ID retained by a paragraph group.
+    Grouped(String),
     /// A left node, with its ID if any, that the merge keeps
     Kept { path: NodePath, id: Option<String> },
 
@@ -236,7 +278,7 @@ impl Labels {
     fn own(&mut self, right: &str, counterpart: Counterpart) -> String {
         match counterpart {
             // The copy takes the place, and so the ID, of the node it replaces
-            Counterpart::Replaced(Some(left)) => left,
+            Counterpart::Replaced(Some(left)) | Counterpart::Grouped(left) => left,
             // A kept counterpart keeps its ID, so the copy needs one of its own
             _ => self.translate(right),
         }
@@ -245,7 +287,9 @@ impl Labels {
     /// The left label for a right one that copied content refers to
     fn reference(&mut self, right: &str, counterpart: Counterpart) -> String {
         match counterpart {
-            Counterpart::Kept { id: Some(left), .. } | Counterpart::Replaced(Some(left)) => left,
+            Counterpart::Kept { id: Some(left), .. }
+            | Counterpart::Replaced(Some(left))
+            | Counterpart::Grouped(left) => left,
             // A kept left node without an ID needs one for the reference to resolve,
             // distinct from that of any copy of it
             Counterpart::Kept { path, id: None } => {

@@ -13,6 +13,14 @@
 //! and *right* snapshots the caller selected. Evaluative terminology such as expected,
 //! actual, false positive, and false negative belongs in an adapter over these
 //! artifacts, not in this crate.
+//!
+//! Paragraph merges and splits are recognized conservatively within a paired sibling
+//! scope: two to eight consecutive paragraphs must have the same complete inline
+//! content as one paragraph, joined with a single space. Formatting, inline IDs and
+//! reference identity are preserved. Paragraphs with IDs or other metadata, ambiguous
+//! groups, and changes to the content retain ordinary alignment. Grouped paragraphs
+//! and their descendants are covered collectively; artifacts containing groups use
+//! format version 2, while ordinary artifacts retain format version 1.
 
 mod align;
 mod alignment;
@@ -27,6 +35,7 @@ mod increasing;
 mod moves;
 mod normalization;
 mod options;
+mod paragraphs;
 mod person;
 mod policy;
 mod references;
@@ -40,7 +49,7 @@ mod projection;
 pub use alignment::{
     AlgorithmInfo, Alignment, AlignmentCost, AlignmentFormatVersion, AlignmentSignal,
     Correspondence, EvidenceValue, MatchEvidence, MatchInfo, MatchRule, NodeRef, PairCost,
-    UnmatchedReason,
+    ParagraphGroup, UnmatchedReason,
 };
 pub use comparison::{
     Comparison, ComparisonFormatVersion, Difference, OneSidedTally, PropertyPresence,

@@ -21,7 +21,7 @@ use stencila_schema::ValueKind;
 
 use crate::{
     align::Aligned,
-    alignment::NodeRef,
+    alignment::{Correspondence, NodeRef},
     comparison::{Difference, PropertyPresence, ValueLocation, ValueState},
     error::CompareResult,
     projection::{
@@ -45,6 +45,7 @@ pub(crate) fn derive(
         left_targets: TargetIndex::new(left),
         right_targets: TargetIndex::new(right),
         pairing: aligned.pairs.iter().copied().collect(),
+        reference_pairing: aligned.reference_pairs.iter().copied().collect(),
         property_alignments: aligned
             .properties
             .iter()
@@ -68,6 +69,17 @@ pub(crate) fn derive(
         differ.derive_parent(*left, *right)?;
     }
 
+    for correspondence in aligned.alignment.correspondences() {
+        if let Correspondence::ParagraphGroup { left, right } = correspondence {
+            differ
+                .differences
+                .push(Difference::ParagraphBoundariesChanged {
+                    left: left.clone(),
+                    right: right.clone(),
+                });
+        }
+    }
+
     Ok(differ.differences)
 }
 
@@ -79,6 +91,7 @@ struct Differ<'projection> {
 
     /// The counterpart of each left occurrence
     pairing: HashMap<OccurrenceId, OccurrenceId>,
+    reference_pairing: HashMap<OccurrenceId, OccurrenceId>,
 
     /// The completed collection alignment of each repeated property of each pair
     property_alignments: HashMap<(OccurrenceId, OccurrenceId, NodeProperty), &'projection [Step]>,
@@ -324,7 +337,7 @@ impl Differ<'_> {
                     right_value
                         .and_then(|value| self.right_targets.resolve(right_ref.node_type, value)),
                 ) {
-                    (Some(left), Some(right)) => self.pairing.get(&left) == Some(&right),
+                    (Some(left), Some(right)) => self.reference_pairing.get(&left) == Some(&right),
                     (None, None) => left_value == right_value,
                     _ => false,
                 }

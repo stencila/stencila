@@ -36,6 +36,9 @@ pub(crate) struct Index<'comparison> {
     /// Paired right paths to their left counterparts
     right_to_left: BTreeMap<&'comparison NodePath, &'comparison NodePath>,
 
+    /// A right sibling anchors insertions after the complete corresponding left run.
+    insertion_anchors: BTreeMap<&'comparison NodePath, &'comparison NodePath>,
+
     /// The maximal one-sided roots of the left document
     pub left_only: Vec<OneSidedRoot<'comparison>>,
 
@@ -49,6 +52,7 @@ impl<'comparison> Index<'comparison> {
         let mut index = Self {
             left_to_right: BTreeMap::new(),
             right_to_left: BTreeMap::new(),
+            insertion_anchors: BTreeMap::new(),
             left_only: Vec::new(),
             right_only: Vec::new(),
         };
@@ -58,6 +62,14 @@ impl<'comparison> Index<'comparison> {
                 Correspondence::Paired { left, right, .. } => {
                     index.left_to_right.insert(&left.path, &right.path);
                     index.right_to_left.insert(&right.path, &left.path);
+                    index.insertion_anchors.insert(&right.path, &left.path);
+                    continue;
+                }
+                Correspondence::ParagraphGroup { left, right } => {
+                    let last = left.rest.last().unwrap_or(&left.first);
+                    for node in right.nodes() {
+                        index.insertion_anchors.insert(&node.path, &last.path);
+                    }
                     continue;
                 }
                 Correspondence::LeftOnly {
@@ -151,7 +163,7 @@ impl<'comparison> Index<'comparison> {
         for preceding in (0..index).rev() {
             let mut sibling = container.clone();
             sibling.push_back(NodeSlot::Index(preceding));
-            if let Some(left) = self.left_of(&sibling)
+            if let Some(left) = self.insertion_anchors.get(&sibling)
                 && let Some(NodeSlot::Index(left_index)) = left.back()
             {
                 return Some(Insertion {

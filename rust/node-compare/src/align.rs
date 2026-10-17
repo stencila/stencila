@@ -38,6 +38,7 @@ use crate::{
     features::FeatureSet,
     fingerprint, moves,
     options::CompareOptions,
+    paragraphs,
     policy::{
         ALGORITHM_NAME, ALGORITHM_VERSION, CandidateKind, POLICY_NAME, gap_cost, item_gap_cost,
         pair_cost,
@@ -82,6 +83,10 @@ pub(crate) struct Aligned {
     /// by path, so that difference derivation can reach the projected values without
     /// resolving paths.
     pub pairs: Vec<(OccurrenceId, OccurrenceId)>,
+
+    /// Identity pairs retained for target resolution, including identified inlines
+    /// covered collectively by paragraph groups.
+    pub reference_pairs: Vec<(OccurrenceId, OccurrenceId)>,
 
     /// How each repeated property of each paired parent was aligned
     pub properties: Vec<PropertyAlignment>,
@@ -315,11 +320,14 @@ impl<'projection> Aligner<'projection> {
         self.emit_one_sided()?;
         let (alignment, pairs) = self.builder.finish()?;
 
-        Ok(Aligned {
+        let mut aligned = Aligned {
             alignment,
+            reference_pairs: pairs.clone(),
             pairs,
             properties: self.properties,
-        })
+        };
+        paragraphs::recognize(self.left, self.right, &mut aligned)?;
+        Ok(aligned)
     }
 
     /// A reference to a structured occurrence

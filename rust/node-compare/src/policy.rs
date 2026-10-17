@@ -32,7 +32,7 @@ use crate::{
 pub const ALGORITHM_NAME: &str = "stencila-schema-native";
 
 /// The version of the alignment algorithm
-pub const ALGORITHM_VERSION: &str = "2";
+pub const ALGORITHM_VERSION: &str = "3";
 
 /// The name of the built-in policy
 pub const POLICY_NAME: &str = "schema-native";

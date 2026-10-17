@@ -40,6 +40,105 @@ fn options() -> MergeOptions {
 }
 
 #[test]
+fn paragraph_merges_and_splits_round_trip_with_neighboring_edits() -> Result<()> {
+    let left = art([
+        h1([t("Start")]),
+        p([t("First paragraph.")]),
+        p([t("Second paragraph.")]),
+        h1([t("End")]),
+    ]);
+    let right = art([
+        h1([t("Start")]),
+        p([t("First paragraph. Second paragraph.")]),
+        p([t("An entirely new observation about zebras.")]),
+        h1([t("End")]),
+    ]);
+    for (left, right) in [(&left, &right), (&right, &left)] {
+        let comparison = compare(left, right)?;
+        assert!(
+            comparison.differences().iter().any(|difference| matches!(
+                difference,
+                stencila_node_compare::Difference::ParagraphBoundariesChanged { .. }
+            )),
+            "{comparison:#?}"
+        );
+        let merged = merge_with_options(left, right, &options())?;
+        assert!(merged.report().is_complete(), "{:?}", merged.report());
+        let mut accepted = merged.node().clone();
+        accepted.resolve_suggestions(&SuggestionAction::AcceptAll);
+        assert!(same(&accepted, right)?, "{accepted:#?}");
+        let mut rejected = merged.into_node();
+        rejected.resolve_suggestions(&SuggestionAction::RejectAll);
+        assert!(same(&rejected, left)?);
+    }
+    Ok(())
+}
+
+#[test]
+fn paragraph_groups_preserve_inline_ids_and_copied_links() -> Result<()> {
+    let text = |value| json!({"type":"Text", "value": value});
+    let para = |content| json!({"type":"Paragraph", "content": content});
+    let link =
+        json!({"type":"Link", "id":"inline-link", "target":"#figure", "content":[text("figure")]});
+    let left: Node = serde_json::from_value(json!({"type":"Article", "content":[
+        {"type":"Figure", "id":"figure", "content":[], "caption":[para(vec![text("Shared caption")])]},
+        para(vec![text("See "), link.clone()]), para(vec![text("Next paragraph.")]),
+        {"type":"Heading", "level":1, "content":[{"type":"Link", "target":"#inline-link", "content":[text("Back")]}]}
+    ]}))?;
+    let right: Node = serde_json::from_value(json!({"type":"Article", "content":[
+        {"type":"Figure", "id":"figure", "content":[], "caption":[para(vec![text("Shared caption")])]},
+        para(vec![text("See "), link, text(" Next paragraph.")]),
+        {"type":"Heading", "level":1, "content":[{"type":"Link", "target":"#inline-link", "content":[text("Back")]}]}
+    ]}))?;
+    let comparison = compare(&left, &right)?;
+    assert!(comparison.differences().iter().any(|difference| matches!(
+        difference,
+        stencila_node_compare::Difference::ParagraphBoundariesChanged { .. }
+    )));
+    let merged = merge_with_options(&left, &right, &options())?;
+    assert!(merged.report().is_complete());
+    let mut accepted = merged.node().clone();
+    accepted.resolve_suggestions(&SuggestionAction::AcceptAll);
+    assert!(same(&accepted, &right)?, "{accepted:#?}");
+    let value = serde_json::to_value(&accepted)?;
+    assert_eq!(value["content"][1]["content"][1]["id"], "inline-link");
+    assert_eq!(value["content"][1]["content"][1]["target"], "#figure");
+    let mut rejected = merged.into_node();
+    rejected.resolve_suggestions(&SuggestionAction::RejectAll);
+    assert!(same(&rejected, &left)?);
+    Ok(())
+}
+
+#[test]
+fn paragraph_groups_outside_content_containers_are_unrepresentable() -> Result<()> {
+    let para = |value| json!({"type":"Paragraph", "content":[{"type":"Text", "value": value}]});
+    let chunk = |outputs| {
+        node(json!({"type":"Article", "content":[
+            {"type":"CodeChunk", "code":"x", "outputs": outputs}
+        ]}))
+    };
+    let left = chunk(json!([
+        para("First paragraph."),
+        para("Second paragraph."),
+        42
+    ]))?;
+    let right = chunk(json!([para("First paragraph. Second paragraph."), 42]))?;
+    for (left, right) in [(&left, &right), (&right, &left)] {
+        let comparison = compare(left, right)?;
+        assert!(
+            comparison.differences().iter().any(|difference| matches!(
+                difference,
+                stencila_node_compare::Difference::ParagraphBoundariesChanged { .. }
+            )),
+            "{comparison:#?}"
+        );
+        let merged = merge_with_options(left, right, &options())?;
+        assert!(!merged.report().is_complete(), "{:?}", merged.report());
+    }
+    Ok(())
+}
+
+#[test]
 fn cosmetic_changes_still_round_trip() -> Result<()> {
     use stencila_node_compare::{CompareOptions, Normalization, compare_with_options};
     use stencila_node_merge::merge_comparison_with_options;

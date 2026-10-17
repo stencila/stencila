@@ -12,7 +12,7 @@ use std::{cmp::Ordering, collections::HashSet};
 
 use serde::{Deserialize, Serialize};
 
-use stencila_node_path::NodePath;
+use stencila_node_path::{NodePath, NodeSlot};
 use stencila_node_type::NodeType;
 
 use crate::{
@@ -30,6 +30,9 @@ pub enum AlignmentFormatVersion {
     #[default]
     #[serde(rename = "1")]
     V1,
+    /// Paragraph groups cover their complete subtrees collectively.
+    #[serde(rename = "2")]
+    V2,
 }
 
 /// Which algorithm, projection and policy produced an artifact
@@ -76,6 +79,71 @@ impl NodeRef {
     /// Create a node reference
     pub fn new(path: NodePath, node_type: NodeType) -> Self {
         Self { path, node_type }
+    }
+}
+
+/// A non-empty, ordered run of consecutive sibling paragraphs.
+///
+/// A grouped correspondence covers these paragraphs and all their descendants.
+/// It makes no claim that individual inline nodes correspond one to one.
+#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct ParagraphGroup {
+    pub first: NodeRef,
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub rest: Vec<NodeRef>,
+}
+
+impl ParagraphGroup {
+    /// The paragraphs in document order.
+    pub fn nodes(&self) -> impl Iterator<Item = &NodeRef> {
+        std::iter::once(&self.first).chain(&self.rest)
+    }
+
+    pub fn count(&self) -> usize {
+        1 + self.rest.len()
+    }
+
+    /// Whether a path addresses a paragraph in the group or one of its descendants.
+    pub fn contains(&self, path: &NodePath) -> bool {
+        self.nodes().any(|node| {
+            path.len() >= node.path.len() && path.iter().zip(node.path.iter()).all(|(a, b)| a == b)
+        })
+    }
+
+    pub(crate) fn validate(&self) -> CompareResult<()> {
+        let mut previous: Option<&NodeRef> = None;
+        for node in self.nodes() {
+            if node.node_type != NodeType::Paragraph
+                || !matches!(node.path.back(), Some(NodeSlot::Index(_)))
+            {
+                return Err(CompareError::Invariant {
+                    message: "A paragraph group requires sibling paragraphs".into(),
+                });
+            }
+            if let Some(previous) = previous {
+                let adjacent = match (previous.path.back(), node.path.back()) {
+                    (Some(NodeSlot::Index(a)), Some(NodeSlot::Index(b))) => {
+                        a.checked_add(1) == Some(*b)
+                    }
+                    _ => false,
+                };
+                if !adjacent
+                    || previous.path.len() != node.path.len()
+                    || !previous
+                        .path
+                        .iter()
+                        .take(previous.path.len() - 1)
+                        .eq(node.path.iter().take(node.path.len() - 1))
+                {
+                    return Err(CompareError::Invariant {
+                        message: "A paragraph group must be consecutive and ordered".into(),
+                    });
+                }
+            }
+            previous = Some(node);
+        }
+        Ok(())
     }
 }
 
@@ -323,6 +391,12 @@ impl MatchInfo {
     rename_all_fields = "camelCase"
 )]
 pub enum Correspondence {
+    /// Complete paragraph content corresponds across a changed paragraph boundary.
+    /// Exactly one side contains one paragraph; the other contains at least two.
+    ParagraphGroup {
+        left: ParagraphGroup,
+        right: ParagraphGroup,
+    },
     /// Two occurrences correspond
     Paired {
         left: NodeRef,
@@ -354,25 +428,44 @@ pub enum Correspondence {
 }
 
 impl Correspondence {
-    /// The left occurrence, if any
+    /// The left occurrence, or the first paragraph of a group, if any.
+    /// Use [`Self::nodes`] to visit every explicit root.
     pub fn left(&self) -> Option<&NodeRef> {
         match self {
+            Self::ParagraphGroup { left, .. } => Some(&left.first),
             Self::Paired { left, .. } | Self::LeftOnly { left, .. } => Some(left),
             Self::RightOnly { .. } => None,
         }
     }
 
-    /// The right occurrence, if any
+    /// The right occurrence, or the first paragraph of a group, if any.
+    /// Use [`Self::nodes`] to visit every explicit root.
     pub fn right(&self) -> Option<&NodeRef> {
         match self {
+            Self::ParagraphGroup { right, .. } => Some(&right.first),
             Self::Paired { right, .. } | Self::RightOnly { right, .. } => Some(right),
             Self::LeftOnly { .. } => None,
         }
     }
 
+    /// All explicit roots on one side. Group descendants are covered implicitly.
+    pub fn nodes(&self, side: Side) -> impl Iterator<Item = &NodeRef> {
+        let first = match side {
+            Side::Left => self.left(),
+            Side::Right => self.right(),
+        };
+        let rest: &[NodeRef] = match (self, side) {
+            (Self::ParagraphGroup { left, .. }, Side::Left) => &left.rest,
+            (Self::ParagraphGroup { right, .. }, Side::Right) => &right.rest,
+            _ => &[],
+        };
+        first.into_iter().chain(rest)
+    }
+
     /// The rank of this kind of correspondence, used as the final canonical sort key
     fn kind_rank(&self) -> u8 {
         match self {
+            Self::ParagraphGroup { .. } => 3,
             Self::Paired { .. } => 0,
             Self::LeftOnly { .. } => 1,
             Self::RightOnly { .. } => 2,
@@ -408,6 +501,7 @@ impl Correspondence {
         Option<&NodeRef>,
     ) {
         match self {
+            Self::ParagraphGroup { .. } => (None, None, None),
             Self::Paired { match_info, .. } => (Some(match_info), None, None),
             Self::LeftOnly {
                 reason,
@@ -425,6 +519,10 @@ impl Correspondence {
     /// Invert this correspondence, for when the two inputs are swapped
     pub fn invert(self) -> Self {
         match self {
+            Self::ParagraphGroup { left, right } => Self::ParagraphGroup {
+                left: right,
+                right: left,
+            },
             Self::Paired {
                 left,
                 right,
@@ -468,6 +566,13 @@ impl Ord for Correspondence {
             .cmp(&other.sort_key())
             .then_with(|| self.tie_key().cmp(&other.tie_key()))
             .then_with(|| match (self, other) {
+                (
+                    Self::ParagraphGroup { left, right },
+                    Self::ParagraphGroup {
+                        left: other_left,
+                        right: other_right,
+                    },
+                ) => (left, right).cmp(&(other_left, other_right)),
                 (
                     Self::Paired {
                         left,
@@ -520,9 +625,8 @@ impl Ord for Correspondence {
 /// A complete, symmetric correspondence between the structured occurrences of two
 /// nodes
 ///
-/// Every structured occurrence on both sides appears exactly once: either in one
-/// paired correspondence, or in one one-sided correspondence. No occurrence is paired
-/// more than once.
+/// Every structured occurrence is covered exactly once: explicitly by a paired or
+/// one-sided record, or collectively by a paragraph group's complete subtrees.
 ///
 /// Deserialization restores canonical order and rejects duplicate paths. Call
 /// [`Alignment::validate`] with the original snapshots before trusting a deserialized
@@ -554,6 +658,7 @@ impl TryFrom<AlignmentData> for Alignment {
     fn try_from(data: AlignmentData) -> Result<Self, Self::Error> {
         let format_version = match data.format_version.as_str() {
             "1" => AlignmentFormatVersion::V1,
+            "2" => AlignmentFormatVersion::V2,
             version => {
                 return Err(CompareError::UnsupportedVersion {
                     artifact: "alignment",
@@ -579,7 +684,14 @@ impl Alignment {
         correspondences: Vec<Correspondence>,
     ) -> CompareResult<Self> {
         let mut alignment = Self {
-            format_version: AlignmentFormatVersion::V1,
+            format_version: if correspondences
+                .iter()
+                .any(|item| matches!(item, Correspondence::ParagraphGroup { .. }))
+            {
+                AlignmentFormatVersion::V2
+            } else {
+                AlignmentFormatVersion::V1
+            },
             algorithm,
             correspondences,
         };
@@ -626,24 +738,71 @@ impl Alignment {
 
     /// Validate invariants that do not require the original snapshots
     fn validate_local(&self) -> CompareResult<()> {
-        let mut left_paths = HashSet::new();
-        let mut right_paths = HashSet::new();
+        let parents: HashSet<_> = self
+            .pairs()
+            .map(|(left, right, _)| (&left.path, &right.path))
+            .collect();
         for correspondence in &self.correspondences {
-            if let Some(left) = correspondence.left()
-                && !left_paths.insert(&left.path)
-            {
-                return Err(CompareError::Uniqueness {
-                    side: Side::Left,
-                    path: left.path.clone(),
-                });
+            if let Correspondence::ParagraphGroup { left, right } = correspondence {
+                left.validate()?;
+                right.validate()?;
+                if self.format_version != AlignmentFormatVersion::V2
+                    || !((left.count() == 1 && right.count() > 1)
+                        || (right.count() == 1 && left.count() > 1))
+                {
+                    return Err(CompareError::Invariant {
+                        message:
+                            "Paragraph groups require format 2 and a one-to-many correspondence"
+                                .into(),
+                    });
+                }
+                let scope = |group: &ParagraphGroup| {
+                    let mut path = group.first.path.clone();
+                    path.pop_back();
+                    let property = path.pop_back();
+                    (path, property)
+                };
+                let (left_parent, left_property) = scope(left);
+                let (right_parent, right_property) = scope(right);
+                if left_property != right_property
+                    || !parents.contains(&(&left_parent, &right_parent))
+                {
+                    return Err(CompareError::Invariant {
+                        message:
+                            "Paragraph groups require corresponding properties of paired parents"
+                                .into(),
+                    });
+                }
             }
-            if let Some(right) = correspondence.right()
-                && !right_paths.insert(&right.path)
+        }
+        for side in [Side::Left, Side::Right] {
+            let mut paths = HashSet::new();
+            let grouped: HashSet<_> = self
+                .correspondences
+                .iter()
+                .filter(|item| matches!(item, Correspondence::ParagraphGroup { .. }))
+                .flat_map(|item| item.nodes(side).map(|node| &node.path))
+                .collect();
+            for node in self
+                .correspondences
+                .iter()
+                .flat_map(|item| item.nodes(side))
             {
-                return Err(CompareError::Uniqueness {
-                    side: Side::Right,
-                    path: right.path.clone(),
-                });
+                let mut under_group = false;
+                if !grouped.is_empty() {
+                    let mut parent = node.path.clone();
+                    parent.pop_back();
+                    while !parent.is_empty() {
+                        under_group |= grouped.contains(&parent);
+                        parent.pop_back();
+                    }
+                }
+                if under_group || !paths.insert(&node.path) {
+                    return Err(CompareError::Uniqueness {
+                        side,
+                        path: node.path.clone(),
+                    });
+                }
             }
         }
         Ok(())
@@ -651,21 +810,54 @@ impl Alignment {
 
     fn validate_projection(&self, projection: &Projection) -> CompareResult<()> {
         let side = projection.side();
-        let references: Vec<_> = self
+        let mut references: Vec<_> = self
             .correspondences
             .iter()
-            .filter_map(|correspondence| match side {
-                Side::Left => correspondence.left(),
-                Side::Right => correspondence.right(),
+            .flat_map(|correspondence| {
+                correspondence
+                    .nodes(side)
+                    .map(|node| (&node.path, node.node_type))
             })
             .collect();
+
+        let occurrences: std::collections::HashMap<_, _> = projection
+            .occurrences()
+            .iter()
+            .map(|node| (&node.path, node))
+            .collect();
+        for group in self
+            .correspondences
+            .iter()
+            .filter(|item| matches!(item, Correspondence::ParagraphGroup { .. }))
+        {
+            for root in group.nodes(side) {
+                let Some(node) = occurrences
+                    .get(&root.path)
+                    .filter(|node| node.node_type == root.node_type)
+                else {
+                    return Err(CompareError::PathResolution {
+                        side,
+                        path: root.path.clone(),
+                        expected: root.node_type,
+                    });
+                };
+                references.extend(
+                    projection
+                        .occurrences()
+                        .iter()
+                        .skip(node.id.index() + 1)
+                        .take(node.subtree_size as usize - 1)
+                        .map(|node| (&node.path, node.node_type)),
+                );
+            }
+        }
 
         // A scalar root has no projected occurrence, but still has exactly one root
         // reference in an alignment.
         if projection.occurrences().is_empty() {
             let valid = references.len() == 1
-                && references[0].path == NodePath::new()
-                && references[0].node_type == projection.root_node_type()?;
+                && references[0].0.is_empty()
+                && references[0].1 == projection.root_node_type()?;
             if valid {
                 return Ok(());
             }
@@ -684,10 +876,7 @@ impl Alignment {
             });
         }
 
-        let resolvable: HashSet<_> = references
-            .iter()
-            .map(|reference| (&reference.path, reference.node_type))
-            .collect();
+        let resolvable: HashSet<_> = references.into_iter().collect();
         for occurrence in projection.occurrences() {
             if !resolvable.contains(&(&occurrence.path, occurrence.node_type)) {
                 return Err(CompareError::PathResolution {
