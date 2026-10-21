@@ -1,8 +1,32 @@
-# Unreleased
+# [2.17.0](https://github.com/stencila/stencila/compare/v2.16.0...v2.17.0) (2026-10-22)
+
+### Bug Fixes
+
+* **Comparison and merge reliability:** Match authors more accurately using ORCID identifiers and names, and avoid confusing people who share an email address or references whose numbering has changed. Suppress spurious differences for properties absent from both documents, preserve citation and internal link targets when merging, and avoid duplicate node IDs in copied content.
+
+* **Content Credentials:** Preserve the distinction between opening an existing asset and creating a new one, including unsigned source ingredients. Avoid assigning unrelated execution timestamps to opening, placement, and watermark actions, and preserve the evidence and confidence recorded in imported credentials.
+
+* **JATS contributors:** Inherit contributor roles from the enclosing contributor group when an individual role is missing or only identifies the contributor as a person or organization, improving imports from tools such as ScienceBeam.
+
+* **Windows:** Restore Windows CLI builds by fixing a repository filename that prevented Windows checkouts.
+
+### Features
+
+* **Document comparison and review:** Generate documents containing suggestions and comments directly from `stencila compare`, including Stencila Markdown and DOCX output, with reporting for changes that cannot be represented as suggestions. HTML reports now include a merged-document view, and a single comparison can write several outputs at once. Add readable document locations in HTML and optional JSON/YAML report metadata with `--locations`, plus compact JSON output with `--compact`.
+
+* **Semantic matching and cosmetic changes:** Recognize paragraph merges and splits and reconcile content across different section nesting. Treat renamed local IDs and cross-reference labels according to the nodes they identify. Optional `--normalize whitespace,typography,initials` rules classify cosmetic differences, including spacing around citations, while preserving original values, reported differences, and exit status. Python comparison APIs expose the same classification through a `normalize` argument.
+
+* **Research objects and MIRA interchange:** Author claims, evidence, questions, protocols, and requests with typed relations in Markdown and the visual document editor. The editor adds research-object wrapping, slash-menu actions, persistent identifiers, and relation controls for local objects and external URIs. Import and export MIRA JSON-LD with rich OXA content, export `.mira.jsonld` graphs through `stencila graph`, and inspect authored relationships in a focused discourse view.
+
+* **Graphs and provenance:** Represent explicit gaps in provenance coverage, relationship roles, and evidence attached to graph nodes, preserving them when importing signed Content Credentials. New relationship kinds distinguish resources made available, outputs found, and activity ordering from observed data flow. Interactive graphs display unstated confidence explicitly instead of treating it as certain.
+
+* **Conversion service:** Add a private conversion protocol for trusted deployment workers, supporting bundled documents and media, including JATS and MECA inputs. Conversions retain source artifacts and return diagnostics and build metadata, with upload limits and deadlines covering streamed delivery.
 
 ### Breaking Changes
 
 * **Python runtime dependency tracing:** Remove `--trace` from `stencila execute`, `stencila render`, and `stencila demo`, and `--no-runtime-evidence` from `stencila graph`. The in-process Python tracer and runtime cache reader have been removed. Existing `.stencila/cache/runtime` directories are ignored and can be deleted. Runtime observation now belongs to the Stencila lab execution runner; the `RuntimeAnalysis` graph evidence kind remains available for exported observations.
+
+* **Schema defaults:** Remove the schema defaults that assumed graph evidence was `Certain` and actions had `CompletedActionStatus`. Integrations should set confidence and action status explicitly when known; generated Rust enum defaults are now `Low` and `PotentialActionStatus`, respectively.
 
 # [2.16.0](https://github.com/stencila/stencila/compare/v2.15.0...v2.16.0) (2026-08-19)
 

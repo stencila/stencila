@@ -1,5 +1,11 @@
 # Change Log
 
+## 2.17.0 2026-10-22
+
+- Based on Stencila CLI [v2.17.0](https://github.com/stencila/stencila/releases/tag/v2.17.0), which adds suggestion-based document merges, more accurate semantic comparisons with cosmetic-change classification, multiple comparison outputs, MIRA JSON-LD interchange, and research-object authoring in the visual document editor. Also improves provenance graphs and Content Credentials, fixes JATS contributor roles, and restores Windows CLI builds.
+
+- **Breaking change:** The bundled CLI removes `--trace` from `stencila execute`, `stencila render`, and `stencila demo`, and `--no-runtime-evidence` from `stencila graph`. Update tasks and scripts using these flags. Existing `.stencila/cache/runtime` directories are ignored and can be deleted; runtime observation moves to the Stencila lab execution runner.
+
 ## 2.16.0 2026-08-19
 
 - Based on Stencila CLI [v2.16.0](https://github.com/stencila/stencila/releases/tag/v2.16.0), which adds C2PA Content Credentials, interactive workspace lineage graphs and ASTRA evidence, semantic document comparison, a Tiptap-backed visual editor with native math, stronger JATS and OXA conversion, and new MIRA and reviewed software-delivery workflows.
