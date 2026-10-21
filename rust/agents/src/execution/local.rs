@@ -445,7 +445,7 @@ impl ExecutionEnvironment for LocalExecutionEnvironment {
             }
 
             // Spec: "sorted by modification time (newest first)"
-            with_mtime.sort_by(|a, b| b.1.cmp(&a.1));
+            with_mtime.sort_by_key(|entry| std::cmp::Reverse(entry.1));
 
             Ok(with_mtime.into_iter().map(|(path, _)| path).collect())
         })

@@ -526,18 +526,16 @@ pub fn add_custom_props(xml: &str, new_props: Vec<(String, String)>) -> Result<S
         .filter_map(|c| c.get(1).and_then(|m| m.as_str().parse::<u32>().ok()))
         .max()
         .unwrap_or(1);
-    let mut next_pid = max_pid + 1;
 
     // Build the block of new <property/> elements
     let mut block = String::new();
-    for (name, value) in new_props {
+    for (next_pid, (name, value)) in (max_pid + 1..).zip(new_props) {
         block.push_str(&format!(
             r#"<property pid="{}" fmtid="{{D5CDD505-2E9C-101B-9397-08002B2CF9AE}}" name="{}"><vt:lpwstr>{}</vt:lpwstr></property>"#,
             next_pid,
             escape_xml(&name),
             escape_xml(&value)
         ));
-        next_pid += 1;
     }
 
     let mut out = String::with_capacity(xml.len() + block.len());

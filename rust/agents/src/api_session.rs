@@ -1777,17 +1777,15 @@ impl ApiSession {
             self.config.compaction_trigger_percent,
             self.profile.max_output_tokens(),
         );
-        let current_pct = if context_size > 0 {
-            (approx_tokens.saturating_mul(100) / context_size) as u32
-        } else {
-            0
-        };
+        let current_pct = approx_tokens
+            .saturating_mul(100)
+            .checked_div(context_size)
+            .unwrap_or(0) as u32;
         let projected_tokens = approx_tokens.saturating_add(budget.reserve_tokens);
-        let projected_pct = if context_size > 0 {
-            (projected_tokens.saturating_mul(100) / context_size) as u32
-        } else {
-            0
-        };
+        let projected_pct = projected_tokens
+            .saturating_mul(100)
+            .checked_div(context_size)
+            .unwrap_or(0) as u32;
 
         // Always emit context usage info
         let mut usage_data = serde_json::Map::new();

@@ -845,7 +845,7 @@ fn sample_border_luminance(canvas: &RgbaImage) -> u8 {
         }
     }
 
-    if count == 0 { 128 } else { (sum / count) as u8 }
+    sum.checked_div(count).unwrap_or(128) as u8
 }
 
 fn compute_grid_values(
