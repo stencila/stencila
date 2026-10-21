@@ -43,6 +43,7 @@ The `GraphEvidence` type has these properties:
 | `recordedAt`   | When this evidence was recorded.                                                           | [`Timestamp`](./timestamp.md)                                   | -                       |
 | `details`      | Additional machine-readable details about the evidence.                                    | [`Object`](./object.md)                                         | -                       |
 | `description`  | Optional human-readable explanation of the evidence.                                       | [`String`](./string.md)                                         | -                       |
+| `gaps`         | Sourced limitations; absence means no gaps were reported, not complete coverage.           | [`GraphGap`](./graph-gap.md)*                                   | -                       |
 | `id`           | The identifier for this item.                                                              | [`String`](./string.md)                                         | [`Entity`](./entity.md) |
 
 # Related

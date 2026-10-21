@@ -16,14 +16,16 @@ reference `GraphNode.id` values.
 
 The `GraphEdge` type has these properties:
 
-| Name       | Description                                        | Type                                    | Inherited from          |
-| ---------- | -------------------------------------------------- | --------------------------------------- | ----------------------- |
-| `source`   | The id of the source graph node.                   | [`String`](./string.md)                 | -                       |
-| `target`   | The id of the target graph node.                   | [`String`](./string.md)                 | -                       |
-| `kind`     | The kind of relationship represented by this edge. | [`GraphEdgeKind`](./graph-edge-kind.md) | -                       |
-| `evidence` | Evidence supporting the edge.                      | [`GraphEvidence`](./graph-evidence.md)* | -                       |
-| `actions`  | Concrete activities associated with the edge.      | [`GraphAction`](./graph-action.md)*     | -                       |
-| `id`       | The identifier for this item.                      | [`String`](./string.md)                 | [`Entity`](./entity.md) |
+| Name       | Description                                                                      | Type                                    | Inherited from          |
+| ---------- | -------------------------------------------------------------------------------- | --------------------------------------- | ----------------------- |
+| `source`   | The id of the source graph node.                                                 | [`String`](./string.md)                 | -                       |
+| `target`   | The id of the target graph node.                                                 | [`String`](./string.md)                 | -                       |
+| `kind`     | The kind of relationship represented by this edge.                               | [`GraphEdgeKind`](./graph-edge-kind.md) | -                       |
+| `evidence` | Evidence supporting the edge.                                                    | [`GraphEvidence`](./graph-evidence.md)* | -                       |
+| `actions`  | Concrete activities associated with the edge.                                    | [`GraphAction`](./graph-action.md)*     | -                       |
+| `gaps`     | Sourced limitations; absence means no gaps were reported, not complete coverage. | [`GraphGap`](./graph-gap.md)*           | -                       |
+| `role`     | A role narrowing the relationship without weakening its kind.                    | [`String`](./string.md)                 | -                       |
+| `id`       | The identifier for this item.                                                    | [`String`](./string.md)                 | [`Entity`](./entity.md) |
 
 # Related
 

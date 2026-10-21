@@ -81,6 +81,8 @@ The `Node` type has these members:
 - [`Graph`](./graph.md)
 - [`GraphEdge`](./graph-edge.md)
 - [`GraphEvidence`](./graph-evidence.md)
+- [`GraphGap`](./graph-gap.md)
+- [`GraphGapTarget`](./graph-gap-target.md)
 - [`GraphNode`](./graph-node.md)
 - [`Heading`](./heading.md)
 - [`Icon`](./icon.md)

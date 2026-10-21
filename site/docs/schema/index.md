@@ -243,6 +243,11 @@ includes the full set of properties and constraints.
 - [`GraphEvidence`](./graph-evidence.md) - Evidence from one independent evidentiary basis for a graph edge.
 - [`GraphEvidenceConfidence`](./graph-evidence-confidence.md) - The confidence level for graph evidence.
 - [`GraphEvidenceKind`](./graph-evidence-kind.md) - The kind of evidence supporting a graph edge.
+- [`GraphGap`](./graph-gap.md) - A sourced limitation of an account, occurrence, relationship or evidentiary basis.
+- [`GraphGapDirection`](./graph-gap-direction.md) - The direction of a relationship qualified by a gap.
+- [`GraphGapState`](./graph-gap-state.md) - Distinct evidence availability and coverage limitations.
+- [`GraphGapTarget`](./graph-gap-target.md) - The structured scope of a graph limitation.
+- [`GraphGapTargetKind`](./graph-gap-target-kind.md) - The scope of a graph limitation.
 - [`GraphNode`](./graph-node.md) - A node in a graph.
 - [`IfBlock`](./if-block.md) - A block that conditionally shows and executes alternative content.
 - [`IfBlockClause`](./if-block-clause.md) - A clause within an `IfBlock` node.

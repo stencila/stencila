@@ -14,10 +14,12 @@ endpoints and embeds the represented Stencila resource or document node.
 
 The `GraphNode` type has these properties:
 
-| Name   | Description                                                                  | Type                    | Inherited from |
-| ------ | ---------------------------------------------------------------------------- | ----------------------- | -------------- |
-| `id`   | The durable graph-local id used by graph edges to reference this graph node. | [`String`](./string.md) | -              |
-| `node` | The embedded Stencila node represented by this graph node.                   | [`Node`](./node.md)     | -              |
+| Name       | Description                                                                      | Type                                    | Inherited from |
+| ---------- | -------------------------------------------------------------------------------- | --------------------------------------- | -------------- |
+| `id`       | The durable graph-local id used by graph edges to reference this graph node.     | [`String`](./string.md)                 | -              |
+| `node`     | The embedded Stencila node represented by this graph node.                       | [`Node`](./node.md)                     | -              |
+| `gaps`     | Sourced limitations; absence means no gaps were reported, not complete coverage. | [`GraphGap`](./graph-gap.md)*           | -              |
+| `evidence` | Evidence of this node's events, including events supporting no relationship.     | [`GraphEvidence`](./graph-evidence.md)* | -              |
 
 # Related
 

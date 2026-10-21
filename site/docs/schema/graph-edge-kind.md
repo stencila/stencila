@@ -34,6 +34,9 @@ The `GraphEdgeKind` type has these members:
 
 | Member          | Description                                                                                                                                                                                             |
 | --------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `SuppliedTo`    | The upstream resource was available to the downstream activity, without claiming it was consumed.                                                                                                       |
+| `Collected`     | The upstream activity found the downstream resource at a declared destination, without claiming a write.                                                                                                |
+| `Precedes`      | The upstream activity preceded the downstream activity through a recorded link, without claiming resource flow.                                                                                         |
 | `UsedBy`        | The upstream node is used by the downstream node. Related to `prov:used` with inverse direction.                                                                                                        |
 | `ReadBy`        | The upstream node is read by the downstream node. Related to `prov:used` with inverse direction.                                                                                                        |
 | `ReceivedBy`    | The upstream remote resource or data is received by the downstream node. Related to `prov:used` with inverse direction.                                                                                 |
