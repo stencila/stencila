@@ -18,7 +18,7 @@ use stencila_codec::{
 };
 use stencila_codec_jats::JatsCodec;
 use stencila_codec_utils::temp_file_for_atomic_write;
-use stencila_node_media::embed_media;
+use stencila_node_media::{embed_media, relocate_media, side_dir};
 use stencila_version::STENCILA_USER_AGENT;
 
 const RESPONSE_TIMEOUT: Duration = Duration::from_secs(30);
@@ -113,7 +113,10 @@ pub(super) async fn decode_tar(
         .ok_or_eyre("Unable to find JATS XML file in PMC OA PAckage")?;
 
     // Decode the JATS
-    let (mut node, .., info) = JatsCodec.from_path(&jats_path, options.clone()).await?;
+    let mut jats_options = options.clone().unwrap_or_default();
+    jats_options.embed_media = Some(false);
+    jats_options.embed_supplements = Some(false);
+    let (mut node, .., info) = JatsCodec.from_path(&jats_path, Some(jats_options)).await?;
 
     // Embed media by default
     if options
@@ -131,6 +134,22 @@ pub(super) async fn decode_tar(
         .unwrap_or(true)
     {
         embed_supplements(&mut node, &dir).await?;
+    }
+
+    let reference_media = options.as_ref().and_then(|opts| opts.embed_media) == Some(false);
+    let reference_supplements =
+        options.as_ref().and_then(|opts| opts.embed_supplements) == Some(false);
+    if reference_media || reference_supplements {
+        let media_dir = (reference_media && path.is_file()).then(|| side_dir(path, ".media"));
+        let supplements_dir =
+            (reference_supplements && path.is_file()).then(|| side_dir(path, ".supplements"));
+        relocate_media(
+            &mut node,
+            Some(&jats_path),
+            Some(path),
+            media_dir.as_deref(),
+            supplements_dir.as_deref(),
+        )?;
     }
 
     Ok((node, None, info))

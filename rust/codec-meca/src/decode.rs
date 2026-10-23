@@ -10,7 +10,7 @@ use stencila_codec::{
     stencila_schema::Node,
 };
 use stencila_codec_jats::JatsCodec;
-use stencila_node_media::embed_media;
+use stencila_node_media::{embed_media, relocate_media, side_dir};
 
 /// Decode a MECA file to a Stencila [`Node`]
 #[tracing::instrument]
@@ -39,11 +39,43 @@ pub(super) async fn decode_path(
         .ok_or_eyre("Unable to find JATS XML file")?;
 
     // Decode the JATS
-    let (mut node, .., info) = JatsCodec.from_path(&jats_path, options).await?;
+    let options = options.unwrap_or_default();
+    let embed_images = options.embed_media.unwrap_or(true);
+    let embed_works = options.embed_supplements.unwrap_or(true);
+    let (mut node, .., info) = JatsCodec
+        .from_path(
+            &jats_path,
+            Some(DecodeOptions {
+                // Apply archive defaults here, once, after resolving JATS hrefs.
+                embed_media: Some(false),
+                embed_supplements: Some(false),
+                ..options
+            }),
+        )
+        .await?;
 
     // Embed media and supplements
-    embed_media(&mut node, Some(&dir))?;
-    embed_supplements(&mut node, &dir).await?;
+    if embed_images {
+        embed_media(&mut node, Some(&dir))?;
+    }
+    if embed_works {
+        embed_supplements(&mut node, &dir).await?;
+    }
+
+    // References must outlive the temporary extraction directory. Retain only
+    // referenced originals in side directories beside the archive; do not
+    // embed and then extract, which would resize/transcode the originals.
+    let media_dir = (!embed_images && path.is_file()).then(|| side_dir(path, ".media"));
+    let supplements_dir = (!embed_works && path.is_file()).then(|| side_dir(path, ".supplements"));
+    if !embed_images || !embed_works {
+        relocate_media(
+            &mut node,
+            Some(&jats_path),
+            Some(path),
+            media_dir.as_deref(),
+            supplements_dir.as_deref(),
+        )?;
+    }
 
     Ok((node, None, info))
 }

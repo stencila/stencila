@@ -43,7 +43,12 @@ async fn examples() -> Result<()> {
     // Test tar.gz files
     let tar_pattern = base_dir.to_string_lossy().to_string() + "/**/*.tar.gz";
     for path in glob::glob(&tar_pattern)?.flatten() {
-        let (mut article, .., info) = PmcCodec.from_path(&path, options.clone()).await?;
+        // Decode a temporary copy because referenced supplements are retained
+        // in a side directory beside the archive
+        let temp = tempfile::tempdir()?;
+        let copy = temp.path().join(path.file_name().ok_or_eyre("no file name")?);
+        std::fs::copy(&path, &copy)?;
+        let (mut article, .., info) = PmcCodec.from_path(&copy, options.clone()).await?;
 
         structuring(&mut article, PmcCodec.structuring_options(&Format::PmcOa)).await?;
 

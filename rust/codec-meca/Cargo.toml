@@ -17,6 +17,7 @@ tracing = { workspace = true }
 zip = { workspace = true }
 
 [dev-dependencies]
+serde_json = { workspace = true }
 insta = { workspace = true }
 tokio = { workspace = true }
 

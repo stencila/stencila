@@ -6834,7 +6834,8 @@ expression: article
               "content": [
                 {
                   "type": "ImageObject",
-                  "contentUrl": "redacted"
+                  "contentUrl": "redacted",
+                  "mediaType": "image/jpeg"
                 }
               ]
             },
@@ -6990,7 +6991,8 @@ expression: article
               "content": [
                 {
                   "type": "ImageObject",
-                  "contentUrl": "redacted"
+                  "contentUrl": "redacted",
+                  "mediaType": "image/jpeg"
                 }
               ]
             },
@@ -7027,7 +7029,8 @@ expression: article
               "content": [
                 {
                   "type": "ImageObject",
-                  "contentUrl": "redacted"
+                  "contentUrl": "redacted",
+                  "mediaType": "image/jpeg"
                 }
               ]
             },
@@ -7064,7 +7067,8 @@ expression: article
               "content": [
                 {
                   "type": "ImageObject",
-                  "contentUrl": "redacted"
+                  "contentUrl": "redacted",
+                  "mediaType": "image/jpeg"
                 }
               ]
             }
@@ -9288,7 +9292,7 @@ expression: article
               ]
             }
           ],
-          "target": "pone.0332245.s001.pdf"
+          "target": "PMC12431436.tar.gz.supplements/pone.0332245.s001-62e313878bb94e9c.pdf"
         },
         {
           "type": "Supplement",
@@ -9320,7 +9324,7 @@ expression: article
               ]
             }
           ],
-          "target": "pone.0332245.s002.pdf"
+          "target": "PMC12431436.tar.gz.supplements/pone.0332245.s002-bfd20cb0433183fd.pdf"
         },
         {
           "type": "Supplement",
@@ -9352,7 +9356,7 @@ expression: article
               ]
             }
           ],
-          "target": "pone.0332245.s003.xlsx"
+          "target": "PMC12431436.tar.gz.supplements/pone.0332245.s003-9d1d3d699e6cddff.xlsx"
         }
       ]
     },

@@ -3315,7 +3315,8 @@ expression: article
           "content": [
             {
               "type": "ImageObject",
-              "contentUrl": "redacted"
+              "contentUrl": "redacted",
+              "mediaType": "image/png"
             }
           ]
         }
@@ -3576,7 +3577,8 @@ expression: article
               "content": [
                 {
                   "type": "ImageObject",
-                  "contentUrl": "redacted"
+                  "contentUrl": "redacted",
+                  "mediaType": "image/png"
                 }
               ]
             },
@@ -5115,7 +5117,8 @@ expression: article
               "content": [
                 {
                   "type": "ImageObject",
-                  "contentUrl": "redacted"
+                  "contentUrl": "redacted",
+                  "mediaType": "image/png"
                 }
               ]
             }
@@ -5223,7 +5226,8 @@ expression: article
           "images": [
             {
               "type": "ImageObject",
-              "contentUrl": "redacted"
+              "contentUrl": "redacted",
+              "mediaType": "image/png"
             }
           ]
         }

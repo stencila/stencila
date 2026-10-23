@@ -4830,7 +4830,8 @@ expression: article
               "content": [
                 {
                   "type": "ImageObject",
-                  "contentUrl": "redacted"
+                  "contentUrl": "redacted",
+                  "mediaType": "image/jpeg"
                 }
               ]
             },
@@ -8282,7 +8283,8 @@ expression: article
               "content": [
                 {
                   "type": "ImageObject",
-                  "contentUrl": "redacted"
+                  "contentUrl": "redacted",
+                  "mediaType": "image/jpeg"
                 }
               ]
             },
@@ -18423,7 +18425,7 @@ expression: article
               ]
             }
           ],
-          "target": "41598_2025_15365_MOESM1_ESM.zip"
+          "target": "PMC12354728.tar.gz.supplements/41598_2025_15365_MOESM1_ESM-98eec32abb7397d.zip"
         }
       ]
     },
