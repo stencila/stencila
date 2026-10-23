@@ -914,9 +914,13 @@ impl Document {
         let (path, poshmap) = if let Some(path) = self.path.as_ref() {
             let format = Format::from_path(path);
 
-            // Do not create PoshMap for binary formats (can't read as string) or lossless formats
-            // (do no create mappings)
-            let poshmap = if !(format.is_binary() || format.is_lossless()) {
+            // Do not create PoshMap for binary formats (can't read as string), lossless formats
+            // (do no create mappings), or formats that can not be encoded to (e.g. TEI, which
+            // may also be gzip compressed) because the PoshMap needs the generated version
+            let poshmap = if !(format.is_binary()
+                || format.is_lossless()
+                || !stencila_codecs::to_path_is_supported(path))
+            {
                 source = read_to_string(path).await?;
 
                 let (content, info) = stencila_codecs::to_string_with_info(

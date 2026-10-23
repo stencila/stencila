@@ -18,9 +18,17 @@ impl File {
 
         let format = Format::from_path(path);
 
-        let media_type = Some(format.media_type());
+        // A compressed file (e.g. `paper.tei.xml.gz`) is binary whatever the
+        // format of its content
+        let is_compressed = path.extension().is_some_and(|ext| ext == "gz");
 
-        let content = if format.is_binary() {
+        let media_type = Some(if is_compressed {
+            "application/gzip".to_string()
+        } else {
+            format.media_type()
+        });
+
+        let content = if format.is_binary() || is_compressed {
             // For binary files, read as bytes and base64 encode
             let bytes = fs::read(path)?;
             Some(STANDARD.encode(&bytes))
