@@ -7,10 +7,11 @@
 use std::{fs::read_to_string, path::Path, time::Duration};
 
 use futures::StreamExt;
-use reqwest::{Client, header::USER_AGENT};
+use reqwest::Client;
 use tl::{HTMLTag, Parser, ParserOptions, parse};
 use tokio::time::timeout;
 use tokio::{fs::File, io::AsyncWriteExt};
+use url::Url;
 
 use stencila_codec::{
     DecodeInfo, DecodeOptions,
@@ -26,28 +27,16 @@ use stencila_codec::{
 };
 use stencila_codec_biblio::decode::{text_to_author, text_to_reference};
 use stencila_codec_utils::temp_file_for_atomic_write;
-use stencila_version::STENCILA_USER_AGENT;
 
 const RESPONSE_TIMEOUT: Duration = Duration::from_secs(30);
 const DOWNLOAD_IDLE_TIMEOUT: Duration = Duration::from_secs(30);
 
 /// Download HTML for a PMCID from PMC website
-pub(super) async fn download_html(pmcid: &str, to_path: &Path) -> Result<()> {
-    // Extract numeric part from PMCID if it includes "PMC" prefix
-    let pmcid_number = pmcid.trim_start_matches("PMC");
-
-    let url = format!("https://pmc.ncbi.nlm.nih.gov/articles/PMC{pmcid_number}/");
-
+pub(super) async fn download_html(client: &Client, url: Url, to_path: &Path) -> Result<()> {
     tracing::debug!("Downloading HTML from {url}");
-    let response = timeout(
-        RESPONSE_TIMEOUT,
-        Client::new()
-            .get(&url)
-            .header(USER_AGENT, STENCILA_USER_AGENT)
-            .send(),
-    )
-    .await??
-    .error_for_status()?;
+    let response = timeout(RESPONSE_TIMEOUT, client.get(url).send())
+        .await??
+        .error_for_status()?;
 
     let parent = to_path.parent().ok_or_eyre("Download path has no parent")?;
     tokio::fs::create_dir_all(parent).await?;

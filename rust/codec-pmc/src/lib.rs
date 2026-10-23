@@ -7,14 +7,15 @@ use stencila_codec::{
     stencila_schema::Node,
 };
 
+mod bucket;
 mod decode;
 mod html;
 mod tar;
 
-/// A codec for decoding PubMed Central Open Access Packages and HTML pages
+/// A codec for decoding PubMed Central articles from AWS Open Data, cached
+/// Open Access Packages, and HTML pages
 ///
-/// See https://pmc.ncbi.nlm.nih.gov/tools/oa-service/ and
-/// https://pmc.ncbi.nlm.nih.gov/tools/openftlist/
+/// See https://pmc.ncbi.nlm.nih.gov/tools/pmcaws/
 pub struct PmcCodec;
 
 #[async_trait]

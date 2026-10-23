@@ -9,8 +9,12 @@ repository.workspace = true
 flate2 = { workspace = true }
 futures = { workspace = true }
 glob = { workspace = true }
-regex = { workspace = true }
+md-5 = "0.10"
+percent-encoding = { workspace = true }
 reqwest = { workspace = true }
+roxmltree = { workspace = true }
+serde = { workspace = true }
+serde_json = { workspace = true }
 stencila-codec = { path = "../codec" }
 stencila-codec-biblio = { path = "../codec-biblio" }
 stencila-codec-jats = { path = "../codec-jats" }
@@ -30,6 +34,7 @@ url = { workspace = true }
 glob = { workspace = true }
 insta = { workspace = true }
 stencila-node-structuring = { path = "../node-structuring" }
+tracing-subscriber = { workspace = true }
 
 [lints]
 workspace = true

@@ -1,0 +1,21 @@
+{
+  "pmcid": "PMC5697743",
+  "version": 1,
+  "pmid": 29019976,
+  "doi": "10.1038/nature24046",
+  "mid": "EMS73944",
+  "title": "Nucleosome-Chd1 structure and implications for chromatin remodelling",
+  "citation": "Nature. Author manuscript; Available in PMC 2018 Apr 11.",
+  "is_pmc_openaccess": true,
+  "is_manuscript": true,
+  "is_historical_ocr": false,
+  "is_retracted": true,
+  "license_code": "TDM",
+  "text_url": "s3://pmc-oa-opendata/PMC5697743.1/PMC5697743.1.txt?md5=3972615f089ba35e38d506066f024d77",
+  "xml_url": "s3://pmc-oa-opendata/PMC5697743.1/PMC5697743.1.xml?md5=d4482bc7e9b647037252588767fcd95e",
+  "pdf_url": "s3://pmc-oa-opendata/PMC5697743.1/PMC5697743.1.pdf?md5=81d02a97a7048f0a06eb6057e369b198",
+  "media_urls": [
+    "s3://pmc-oa-opendata/PMC5697743.1/emss-73944-f001.jpg?md5=68ead1f5981ea03d6fe800e675717782",
+    "s3://pmc-oa-opendata/PMC5697743.1/data.csv?md5=344fd2323dd33d5c058b7cf27de029e8"
+  ]
+}

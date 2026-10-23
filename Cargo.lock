@@ -11018,8 +11018,12 @@ dependencies = [
  "futures",
  "glob",
  "insta",
- "regex",
+ "md-5",
+ "percent-encoding",
  "reqwest 0.13.3",
+ "roxmltree 0.21.1",
+ "serde",
+ "serde_json",
  "stencila-codec",
  "stencila-codec-biblio",
  "stencila-codec-jats",
@@ -11034,6 +11038,7 @@ dependencies = [
  "tl",
  "tokio",
  "tracing",
+ "tracing-subscriber",
  "url",
 ]
 
