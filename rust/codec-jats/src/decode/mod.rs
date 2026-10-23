@@ -1,7 +1,9 @@
+use std::path::Path;
+
 use roxmltree::{Document, ParsingOptions};
 
 use stencila_codec::{
-    DecodeInfo, DecodeOptions, Losses,
+    DecodeInfo, DecodeOptions,
     eyre::{OptionExt, Result},
     stencila_schema::{Article, Block, CreativeWorkVariant, Node, Section},
 };
@@ -9,7 +11,10 @@ use stencila_codec::{
 mod back;
 mod body;
 mod front;
+mod media;
 mod utilities;
+
+use media::DecodeContext;
 
 use back::decode_back;
 use body::decode_blocks;
@@ -23,7 +28,14 @@ use self::utilities::{extend_path, record_attrs_lost, record_node_lost};
 /// XML DOM, building an [`Article`] from it (JATS is always treated as an article, not any other
 /// type of `CreativeWork`).
 pub fn decode(jats: &str, _options: Option<DecodeOptions>) -> Result<(Node, DecodeInfo)> {
-    let mut losses = Losses::none();
+    decode_with_directory(jats, None)
+}
+
+pub(super) fn decode_with_directory(
+    jats: &str,
+    directory: Option<&Path>,
+) -> Result<(Node, DecodeInfo)> {
+    let mut losses = DecodeContext::new(directory);
 
     let dom = Document::parse_with_options(
         jats,
@@ -50,7 +62,7 @@ pub fn decode(jats: &str, _options: Option<DecodeOptions>) -> Result<(Node, Deco
     let node = Node::Article(article);
 
     let info = DecodeInfo {
-        losses,
+        losses: losses.losses,
         ..Default::default()
     };
 
@@ -61,7 +73,7 @@ pub fn decode(jats: &str, _options: Option<DecodeOptions>) -> Result<(Node, Deco
 ///
 /// Used for both so that a sub-article gets the same front matter, body, back
 /// matter and nesting treatment as the article containing it.
-fn decode_article(path: &str, root: &roxmltree::Node, losses: &mut Losses) -> Article {
+fn decode_article(path: &str, root: &roxmltree::Node, losses: &mut DecodeContext) -> Article {
     let mut article = Article {
         id: root.attribute("id").map(String::from),
         ..Default::default()
@@ -87,6 +99,9 @@ fn decode_article(path: &str, root: &roxmltree::Node, losses: &mut Losses) -> Ar
             }
             "body" => {
                 content = decode_blocks(&child_path, child.children(), losses, 0);
+            }
+            "floats-group" | "floats-wrap" => {
+                content.extend(decode_blocks(&child_path, child.children(), losses, 0));
             }
             "back" => {
                 decode_back(&child_path, &child, &mut article, losses);
@@ -140,7 +155,7 @@ fn decode_article(path: &str, root: &roxmltree::Node, losses: &mut Losses) -> Ar
 /// because the Stencila Schema has no equivalent property and the type (e.g.
 /// `referee-report`, `author-comment`) is needed to encode the sub-article
 /// again.
-fn decode_sub_article(path: &str, node: &roxmltree::Node, losses: &mut Losses) -> Article {
+fn decode_sub_article(path: &str, node: &roxmltree::Node, losses: &mut DecodeContext) -> Article {
     record_attrs_lost(path, node, ["id", "article-type"], losses);
 
     let mut article = decode_article(path, node, losses);

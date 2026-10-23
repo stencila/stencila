@@ -1,18 +1,17 @@
+use super::DecodeContext;
+
 use std::collections::{BTreeMap, BTreeSet};
 
 use roxmltree::Node;
 use stencila_codec_text_trait::to_text;
 
-use stencila_codec::{
-    Losses,
-    stencila_schema::{
-        Array, Article, ArticleOptions, Author, AuthorRole, AuthorRoleName, Block,
-        CreativeWorkVariant, CreativeWorkVariantOrString, DateTime, GrantOrMonetaryGrant, Heading,
-        IntegerOrString, MonetaryGrant, Object, Organization, OrganizationOptions, Periodical,
-        Person, PersonOptions, PersonOrOrganization, PostalAddressOrString, Primitive,
-        PropertyValue, PropertyValueOptions, PropertyValueOrString, PublicationIssue,
-        PublicationVolume, Section, SectionType, StringOrNumber, ThingVariant,
-    },
+use stencila_codec::stencila_schema::{
+    Array, Article, ArticleOptions, Author, AuthorRole, AuthorRoleName, Block, CreativeWorkVariant,
+    CreativeWorkVariantOrString, DateTime, GrantOrMonetaryGrant, Heading, IntegerOrString,
+    MonetaryGrant, Object, Organization, OrganizationOptions, Periodical, Person, PersonOptions,
+    PersonOrOrganization, PostalAddressOrString, Primitive, PropertyValue, PropertyValueOptions,
+    PropertyValueOrString, PublicationIssue, PublicationVolume, Section, SectionType,
+    StringOrNumber, ThingVariant,
 };
 
 use super::{
@@ -27,7 +26,12 @@ use super::{
 /// (https://github.com/stencila/encoda/blob/7dd7b143d0edcafa67cab96bf21dc3c077613fcc/src/codecs/jats/index.ts#L377)
 /// However, the approach used here has the advantage of allowing us to enumerate tags
 /// and attributes that are not handled (via `losses`).
-pub(super) fn decode_front(path: &str, node: &Node, article: &mut Article, losses: &mut Losses) {
+pub(super) fn decode_front(
+    path: &str,
+    node: &Node,
+    article: &mut Article,
+    losses: &mut DecodeContext,
+) {
     for child in node.children() {
         let tag = child.tag_name().name();
         let child_path = extend_path(path, tag);
@@ -121,7 +125,7 @@ pub(super) fn push_identifier(
 /// All of the journal's own metadata is collected into a single [`Periodical`]
 /// so that identifiers and ISSNs are not overwritten by whichever element
 /// happens to come last.
-fn decode_journal_meta(path: &str, node: &Node, article: &mut Article, losses: &mut Losses) {
+fn decode_journal_meta(path: &str, node: &Node, article: &mut Article, losses: &mut DecodeContext) {
     record_attrs_lost(path, node, [], losses);
 
     let mut periodical = Periodical::default();
@@ -162,7 +166,7 @@ fn decode_journal_title_group(
     path: &str,
     node: &Node,
     periodical: &mut Periodical,
-    losses: &mut Losses,
+    losses: &mut DecodeContext,
 ) -> bool {
     record_attrs_lost(path, node, [], losses);
 
@@ -189,7 +193,7 @@ fn decode_journal_title(
     path: &str,
     node: &Node,
     periodical: &mut Periodical,
-    losses: &mut Losses,
+    losses: &mut DecodeContext,
 ) -> bool {
     record_attrs_lost(path, node, [], losses);
 
@@ -210,7 +214,7 @@ fn decode_abbrev_journal_title(
     path: &str,
     node: &Node,
     periodical: &mut Periodical,
-    losses: &mut Losses,
+    losses: &mut DecodeContext,
 ) -> bool {
     record_attrs_lost(path, node, ["abbrev-type"], losses);
 
@@ -235,7 +239,7 @@ fn decode_journal_id(
     path: &str,
     node: &Node,
     periodical: &mut Periodical,
-    losses: &mut Losses,
+    losses: &mut DecodeContext,
 ) -> bool {
     let id_type = node.attribute("journal-id-type").map(String::from);
 
@@ -265,7 +269,12 @@ fn decode_journal_id(
 /// electronic. So that the distinction survives, an ISSN with a publication
 /// format also gets a typed identifier, and a linking ISSN is only an
 /// identifier.
-fn decode_issn(path: &str, node: &Node, periodical: &mut Periodical, losses: &mut Losses) -> bool {
+fn decode_issn(
+    path: &str,
+    node: &Node,
+    periodical: &mut Periodical,
+    losses: &mut DecodeContext,
+) -> bool {
     let format = publication_format(node);
 
     record_attrs_lost(path, node, ["pub-type", "publication-format"], losses);
@@ -302,7 +311,7 @@ fn decode_issn(path: &str, node: &Node, periodical: &mut Periodical, losses: &mu
 }
 
 /// Decode a `<publisher>` element
-fn decode_publisher(path: &str, node: &Node, article: &mut Article, losses: &mut Losses) {
+fn decode_publisher(path: &str, node: &Node, article: &mut Article, losses: &mut DecodeContext) {
     record_attrs_lost(path, node, [], losses);
 
     let name = node
@@ -498,7 +507,7 @@ pub(super) fn decode_article_meta(
     path: &str,
     node: &Node,
     article: &mut Article,
-    losses: &mut Losses,
+    losses: &mut DecodeContext,
 ) {
     let correspondence_emails = correspondence_emails(node);
     let affiliations = affiliations(node);
@@ -641,7 +650,12 @@ fn affiliations(node: &Node) -> Affiliations {
 /// a structured value in `Article.extra` so that its id, type, label and text
 /// survive and are emitted in the same place again. Correspondence addresses are
 /// not retained here because they are decoded onto the people they belong to.
-fn decode_author_notes(path: &str, node: &Node, extra: &mut ArticleMetaExtra, losses: &mut Losses) {
+fn decode_author_notes(
+    path: &str,
+    node: &Node,
+    extra: &mut ArticleMetaExtra,
+    losses: &mut DecodeContext,
+) {
     record_attrs_lost(path, node, [], losses);
 
     for child in node.children().filter(Node::is_element) {
@@ -703,7 +717,7 @@ fn decode_author_notes(path: &str, node: &Node, extra: &mut ArticleMetaExtra, lo
 /// graphical, plain language or translated abstract. The untyped abstract is the
 /// article's `abstract`; the others are kept in `parts` as nested works that
 /// carry only an `abstract`, along with their `abstract-type` as a genre.
-fn decode_abstract(path: &str, node: &Node, article: &mut Article, losses: &mut Losses) {
+fn decode_abstract(path: &str, node: &Node, article: &mut Article, losses: &mut DecodeContext) {
     let abstract_type = node.attribute("abstract-type").map(String::from);
 
     record_attrs_lost(path, node, ["abstract-type", "id"], losses);
@@ -741,7 +755,12 @@ fn decode_abstract(path: &str, node: &Node, article: &mut Article, losses: &mut 
 }
 
 /// Decode an `<article-categories>` element
-fn decode_article_categories(path: &str, node: &Node, article: &mut Article, losses: &mut Losses) {
+fn decode_article_categories(
+    path: &str,
+    node: &Node,
+    article: &mut Article,
+    losses: &mut DecodeContext,
+) {
     record_attrs_lost(path, node, [], losses);
 
     for child in node.children() {
@@ -761,7 +780,7 @@ fn decode_article_categories(path: &str, node: &Node, article: &mut Article, los
 /// the one above it. Each path through the hierarchy becomes one
 /// [`PropertyValue`], whose value is the whole path rather than only the
 /// broadest or narrowest subject in it.
-fn decode_subj_group(path: &str, node: &Node, article: &mut Article, losses: &mut Losses) {
+fn decode_subj_group(path: &str, node: &Node, article: &mut Article, losses: &mut DecodeContext) {
     let subject_type = node.attribute("subj-group-type").map(String::from);
 
     record_attrs_lost(path, node, ["subj-group-type"], losses);
@@ -792,7 +811,7 @@ fn collect_subjects(
     node: &Node,
     prefix: &[String],
     subjects: &mut Vec<Vec<String>>,
-    losses: &mut Losses,
+    losses: &mut DecodeContext,
 ) {
     let mut here = Vec::new();
     let mut groups = Vec::new();
@@ -836,7 +855,7 @@ fn collect_subjects(
 /// A publisher may emit several identifiers of the same type, distinguished
 /// only by a qualifier such as `specific-use` or a source-system subtype. The
 /// qualifier is kept as the identifier's name so that they remain distinct.
-fn decode_article_id(path: &str, node: &Node, article: &mut Article, losses: &mut Losses) {
+fn decode_article_id(path: &str, node: &Node, article: &mut Article, losses: &mut DecodeContext) {
     let property_id = node.attribute("pub-id-type").map(String::from);
     let name = node
         .attribute("specific-use")
@@ -872,7 +891,7 @@ fn decode_article_id(path: &str, node: &Node, article: &mut Article, losses: &mu
 ///
 /// An electronic location identifier stands in for a page range but is an
 /// identifier, not a page, so is kept as one rather than as `pageStart`.
-fn decode_elocation_id(path: &str, node: &Node, article: &mut Article, losses: &mut Losses) {
+fn decode_elocation_id(path: &str, node: &Node, article: &mut Article, losses: &mut DecodeContext) {
     record_attrs_lost(path, node, [], losses);
 
     let Some(value) = non_empty_text(node) else {
@@ -888,7 +907,7 @@ fn decode_elocation_id(path: &str, node: &Node, article: &mut Article, losses: &
 }
 
 /// Decode a `<title-group>` element
-fn decode_title_group(path: &str, node: &Node, article: &mut Article, losses: &mut Losses) {
+fn decode_title_group(path: &str, node: &Node, article: &mut Article, losses: &mut DecodeContext) {
     record_attrs_lost(path, node, [], losses);
 
     for child in node.children() {
@@ -899,7 +918,12 @@ fn decode_title_group(path: &str, node: &Node, article: &mut Article, losses: &m
 }
 
 /// Decode an `<article-version>` element
-fn decode_article_version(path: &str, node: &Node, article: &mut Article, losses: &mut Losses) {
+fn decode_article_version(
+    path: &str,
+    node: &Node,
+    article: &mut Article,
+    losses: &mut DecodeContext,
+) {
     record_attrs_lost(path, node, [], losses);
 
     if let Some(version) = node.text() {
@@ -912,7 +936,12 @@ fn decode_article_version(path: &str, node: &Node, article: &mut Article, losses
 /// An article commonly has several publication dates. They are all retained so
 /// that the most specific one can be chosen once they have all been seen,
 /// rather than the last one overwriting the others.
-fn decode_pub_date(path: &str, node: &Node, extra: &mut ArticleMetaExtra, losses: &mut Losses) {
+fn decode_pub_date(
+    path: &str,
+    node: &Node,
+    extra: &mut ArticleMetaExtra,
+    losses: &mut DecodeContext,
+) {
     let pub_type = node
         .attribute("pub-type")
         .map(String::from)
@@ -942,7 +971,7 @@ fn decode_history(
     node: &Node,
     article: &mut Article,
     extra: &mut ArticleMetaExtra,
-    losses: &mut Losses,
+    losses: &mut DecodeContext,
 ) {
     record_attrs_lost(path, node, [], losses);
 
@@ -962,7 +991,7 @@ fn decode_date(
     node: &Node,
     article: &mut Article,
     extra: &mut ArticleMetaExtra,
-    losses: &mut Losses,
+    losses: &mut DecodeContext,
 ) {
     let date_type = node.attribute("date-type").map(String::from);
 
@@ -986,7 +1015,12 @@ fn decode_date(
 /// Publication history events, such as the posting of a preprint or of a
 /// reviewed preprint, are a different kind of milestone from the received and
 /// accepted dates of a `<history>`, so are kept apart from them.
-fn decode_pub_history(path: &str, node: &Node, extra: &mut ArticleMetaExtra, losses: &mut Losses) {
+fn decode_pub_history(
+    path: &str,
+    node: &Node,
+    extra: &mut ArticleMetaExtra,
+    losses: &mut DecodeContext,
+) {
     record_attrs_lost(path, node, [], losses);
 
     for child in node.children() {
@@ -1121,7 +1155,7 @@ fn is_iso_date(date: &str) -> bool {
 }
 
 /// Decode a `<volume>` element
-fn decode_volume(path: &str, node: &Node, article: &mut Article, losses: &mut Losses) {
+fn decode_volume(path: &str, node: &Node, article: &mut Article, losses: &mut DecodeContext) {
     record_attrs_lost(path, node, [], losses);
 
     let Some(volume_number) = node.text() else {
@@ -1160,7 +1194,7 @@ fn decode_volume(path: &str, node: &Node, article: &mut Article, losses: &mut Lo
 }
 
 /// Decode an `<issue>` element
-fn decode_issue(path: &str, node: &Node, article: &mut Article, losses: &mut Losses) {
+fn decode_issue(path: &str, node: &Node, article: &mut Article, losses: &mut DecodeContext) {
     record_attrs_lost(path, node, [], losses);
 
     let Some(issue_number) = node.text() else {
@@ -1173,21 +1207,21 @@ fn decode_issue(path: &str, node: &Node, article: &mut Article, losses: &mut Los
 }
 
 /// Decode an `<fpage>` element
-fn decode_fpage(path: &str, node: &Node, article: &mut Article, losses: &mut Losses) {
+fn decode_fpage(path: &str, node: &Node, article: &mut Article, losses: &mut DecodeContext) {
     record_attrs_lost(path, node, [], losses);
 
     article.options.page_start = node.text().map(IntegerOrString::from)
 }
 
 /// Decode an `<lpage>` element
-fn decode_lpage(path: &str, node: &Node, article: &mut Article, losses: &mut Losses) {
+fn decode_lpage(path: &str, node: &Node, article: &mut Article, losses: &mut DecodeContext) {
     record_attrs_lost(path, node, [], losses);
 
     article.options.page_end = node.text().map(IntegerOrString::from)
 }
 
 /// Decode a `<page-range>` element
-fn decode_page_range(path: &str, node: &Node, article: &mut Article, losses: &mut Losses) {
+fn decode_page_range(path: &str, node: &Node, article: &mut Article, losses: &mut DecodeContext) {
     record_attrs_lost(path, node, [], losses);
 
     article.options.pagination = non_empty_text(node)
@@ -1216,7 +1250,7 @@ fn article_issue(article: &mut Article) -> &mut PublicationIssue {
 }
 
 /// Decode an `<issue-id>` element
-fn decode_issue_id(path: &str, node: &Node, article: &mut Article, losses: &mut Losses) {
+fn decode_issue_id(path: &str, node: &Node, article: &mut Article, losses: &mut DecodeContext) {
     let property_id = node.attribute("pub-id-type").map(String::from);
 
     record_attrs_lost(path, node, ["pub-id-type"], losses);
@@ -1234,7 +1268,7 @@ fn decode_issue_id(path: &str, node: &Node, article: &mut Article, losses: &mut 
 }
 
 /// Decode an `<issue-title>` element
-fn decode_issue_title(path: &str, node: &Node, article: &mut Article, losses: &mut Losses) {
+fn decode_issue_title(path: &str, node: &Node, article: &mut Article, losses: &mut DecodeContext) {
     record_attrs_lost(path, node, [], losses);
 
     let title = decode_inlines(path, node.children(), losses);
@@ -1255,7 +1289,7 @@ fn decode_permissions(
     node: &Node,
     article: &mut Article,
     extra: &mut ArticleMetaExtra,
-    losses: &mut Losses,
+    losses: &mut DecodeContext,
 ) {
     record_attrs_lost(path, node, [], losses);
 
@@ -1292,7 +1326,7 @@ fn decode_license(
     node: &Node,
     article: &mut Article,
     extra: &mut ArticleMetaExtra,
-    losses: &mut Losses,
+    losses: &mut DecodeContext,
 ) {
     record_attrs_lost(path, node, ["href", "license-type"], losses);
 
@@ -1354,7 +1388,12 @@ fn decode_license(
 /// Links to the article's own PDF, source and other representations are useful,
 /// but publishing systems also emit absolute paths within their own file
 /// systems. Those are not portable so are filtered out, with a loss.
-fn decode_self_uri(path: &str, node: &Node, extra: &mut ArticleMetaExtra, losses: &mut Losses) {
+fn decode_self_uri(
+    path: &str,
+    node: &Node,
+    extra: &mut ArticleMetaExtra,
+    losses: &mut DecodeContext,
+) {
     let content_type = node.attribute("content-type").map(String::from);
     let role = node.attribute((XLINK, "role")).map(String::from);
     let href = node.attribute((XLINK, "href")).map(str::trim);
@@ -1390,7 +1429,7 @@ fn decode_self_uri(path: &str, node: &Node, extra: &mut ArticleMetaExtra, losses
 /// Figure, table, page and word counts are all derivable from, or specific to,
 /// the publisher's own rendering of the article. Each is reported as a distinct
 /// loss rather than dropping the group as a whole.
-fn decode_counts(path: &str, node: &Node, losses: &mut Losses) {
+fn decode_counts(path: &str, node: &Node, losses: &mut DecodeContext) {
     record_attrs_lost(path, node, [], losses);
 
     for child in node.children() {
@@ -1403,7 +1442,7 @@ fn decode_counts(path: &str, node: &Node, losses: &mut Losses) {
 /// Custom metadata is by definition outside the JATS vocabulary, and in the
 /// examples seen is source-system state. Each entry is reported by name so that
 /// the loss says which metadata was dropped.
-fn decode_custom_meta_group(path: &str, node: &Node, losses: &mut Losses) {
+fn decode_custom_meta_group(path: &str, node: &Node, losses: &mut DecodeContext) {
     record_attrs_lost(path, node, [], losses);
 
     for child in node.children() {
@@ -1442,7 +1481,12 @@ fn non_empty_text_deep(node: &Node) -> Option<String> {
 /// keeps its identifier, its funding source and its recipients. A recipient is
 /// held as a `fundedItem` of the grant, which is what the schema has for the
 /// thing that a grant supports.
-fn decode_funding_group(path: &str, node: &Node, article: &mut Article, losses: &mut Losses) {
+fn decode_funding_group(
+    path: &str,
+    node: &Node,
+    article: &mut Article,
+    losses: &mut DecodeContext,
+) {
     record_attrs_lost(path, node, [], losses);
 
     let mut funders: Vec<PersonOrOrganization> = Vec::new();
@@ -1569,7 +1613,7 @@ fn decode_name(node: &Node) -> Person {
 fn decode_funding_source(
     path: &str,
     node: &Node,
-    losses: &mut Losses,
+    losses: &mut DecodeContext,
 ) -> Option<PersonOrOrganization> {
     record_attrs_lost(path, node, [], losses);
 
@@ -1627,7 +1671,7 @@ fn decode_contrib_group(
     correspondence_emails: &BTreeMap<String, Vec<String>>,
     affiliations: &Affiliations,
     article: &mut Article,
-    losses: &mut Losses,
+    losses: &mut DecodeContext,
 ) {
     let handled = node
         .attribute("content-type")
@@ -1763,7 +1807,7 @@ fn decode_contrib(
     node: &Node,
     correspondence_emails: &BTreeMap<String, Vec<String>>,
     article_affiliations: &Affiliations,
-    losses: &mut Losses,
+    losses: &mut DecodeContext,
 ) -> (PersonOrOrganization, Vec<AuthorRoleName>) {
     // A contributor is either an author or an editor, so a finer distinction
     // such as `senior_editor` is normalized away and reported. Losses are
@@ -2126,7 +2170,7 @@ fn decode_aff(node: &Node) -> Organization {
 }
 
 /// Decode a `<kwd-group>` element
-fn decode_kwd_group(path: &str, node: &Node, article: &mut Article, losses: &mut Losses) {
+fn decode_kwd_group(path: &str, node: &Node, article: &mut Article, losses: &mut DecodeContext) {
     record_attrs_lost(path, node, [], losses);
 
     let mut keywords = node
@@ -2143,7 +2187,7 @@ fn decode_kwd_group(path: &str, node: &Node, article: &mut Article, losses: &mut
 }
 
 /// Decode a `<kwd>` element
-fn decode_kwd(path: &str, node: &Node, losses: &mut Losses) -> String {
+fn decode_kwd(path: &str, node: &Node, losses: &mut DecodeContext) -> String {
     record_attrs_lost(path, node, [], losses);
 
     let mut keyword = String::new();
@@ -2168,7 +2212,7 @@ fn decode_kwd(path: &str, node: &Node, losses: &mut Losses) -> String {
 /// `<notes>`, or around footnote groups, and have no `notes-type` or `<title>`
 /// child. Such a wrapper is transparent: its supported descendants are decoded
 /// in place rather than the whole wrapper being discarded.
-pub fn decode_notes(path: &str, node: &Node, article: &mut Article, losses: &mut Losses) {
+pub fn decode_notes(path: &str, node: &Node, article: &mut Article, losses: &mut DecodeContext) {
     let section_type = node
         .attribute("notes-type")
         .and_then(|value| SectionType::from_text(value).ok())

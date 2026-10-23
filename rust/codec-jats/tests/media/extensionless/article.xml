@@ -1,0 +1,9 @@
+<article xmlns:xlink="http://www.w3.org/1999/xlink"><body>
+<fig><graphic xlink:href="figure"/></fig>
+<p><inline-graphic xlink:href="small"/><media xlink:href="audio"/></p>
+<media xlink:href="movie"/>
+<supplementary-material xlink:href="data"><label>Supplementary dataset</label></supplementary-material>
+<supplementary-material><media xlink:href="attachment"/></supplementary-material>
+<fig><graphic xlink:href="absent"/></fig>
+<p><inline-graphic xlink:href="absent"/><inline-media xlink:href="https://example.org/video.mp4" mimetype="video" mime-subtype="mp4"/></p>
+</body></article>

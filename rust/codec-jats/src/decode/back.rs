@@ -1,13 +1,12 @@
+use super::DecodeContext;
+
 use itertools::Itertools;
 use roxmltree::Node;
 
-use stencila_codec::{
-    Losses,
-    stencila_schema::{
-        Article, Author, Block, CreativeWorkType, Date, Inline, IntegerOrString, Organization,
-        OrganizationOptions, Person, PersonOrOrganization, PostalAddressOrString,
-        PropertyValueOrString, Reference, ReferenceOptions, Section, SectionType, StringOrNumber,
-    },
+use stencila_codec::stencila_schema::{
+    Article, Author, Block, CreativeWorkType, Date, Inline, IntegerOrString, Organization,
+    OrganizationOptions, Person, PersonOrOrganization, PostalAddressOrString,
+    PropertyValueOrString, Reference, ReferenceOptions, Section, SectionType, StringOrNumber,
 };
 use stencila_codec_biblio::decode::text_to_reference;
 
@@ -22,7 +21,12 @@ use super::{
 };
 
 /// Decode the `<back>` of an `<article>`
-pub(super) fn decode_back(path: &str, node: &Node, article: &mut Article, losses: &mut Losses) {
+pub(super) fn decode_back(
+    path: &str,
+    node: &Node,
+    article: &mut Article,
+    losses: &mut DecodeContext,
+) {
     for child in node.children() {
         let tag = child.tag_name().name();
         let child_path = extend_path(path, tag);
@@ -51,7 +55,7 @@ pub(super) fn decode_back(path: &str, node: &Node, article: &mut Article, losses
 }
 
 /// Decode an `<ack>` (acknowledgements section)
-fn decode_ack(path: &str, node: &Node, losses: &mut Losses) -> Block {
+fn decode_ack(path: &str, node: &Node, losses: &mut DecodeContext) -> Block {
     let id = node.attribute("id").map(String::from);
 
     record_attrs_lost(path, node, ["id"], losses);
@@ -67,7 +71,7 @@ fn decode_ack(path: &str, node: &Node, losses: &mut Losses) -> Block {
 }
 
 /// Decode an `<app-group>` (appendix group)
-fn decode_app_group(path: &str, node: &Node, losses: &mut Losses) -> Vec<Block> {
+fn decode_app_group(path: &str, node: &Node, losses: &mut DecodeContext) -> Vec<Block> {
     record_attrs_lost(path, node, [], losses);
 
     let mut secs = Vec::new();
@@ -88,7 +92,7 @@ fn decode_app_group(path: &str, node: &Node, losses: &mut Losses) -> Vec<Block> 
 }
 
 /// Decode an `<app>` (appendix) or a `<sec>` in  an `<app-group>`
-fn decode_app(path: &str, node: &Node, losses: &mut Losses) -> Block {
+fn decode_app(path: &str, node: &Node, losses: &mut DecodeContext) -> Block {
     let id = node.attribute("id").map(String::from);
 
     record_attrs_lost(path, node, ["id"], losses);
@@ -131,7 +135,7 @@ fn decode_app(path: &str, node: &Node, losses: &mut Losses) -> Block {
 /// Fields decoded from elements are authoritative. Parsing the text of a
 /// citation only fills in fields that no element supplied, and the text itself
 /// is kept only when the reference can not be rendered without it.
-fn decode_ref_list(path: &str, ref_list: &Node, article: &mut Article, losses: &mut Losses) {
+fn decode_ref_list(path: &str, ref_list: &Node, article: &mut Article, losses: &mut DecodeContext) {
     record_attrs_lost(path, ref_list, [], losses);
 
     let mut references = Vec::new();
@@ -293,7 +297,7 @@ fn decode_citation(
     id: &str,
     node: &Node,
     text_node: &Node,
-    losses: &mut Losses,
+    losses: &mut DecodeContext,
 ) -> Reference {
     record_attrs_lost(path, node, ["publication-type"], losses);
 
@@ -357,7 +361,7 @@ fn decode_citation_child(
     path: &str,
     child: &Node,
     fields: &mut CitationFields,
-    losses: &mut Losses,
+    losses: &mut DecodeContext,
 ) {
     let tag = child.tag_name().name();
     let child_path = &extend_path(path, tag);
@@ -682,7 +686,7 @@ fn fill_missing(reference: &mut Reference, parsed: Reference) {
 }
 
 /// Decode a `<name>` or `<string-name>`
-fn decode_person(path: &str, node: &Node, losses: &mut Losses) -> Person {
+fn decode_person(path: &str, node: &Node, losses: &mut DecodeContext) -> Person {
     record_attrs_lost(path, node, [], losses);
 
     let mut family_names = Vec::new();

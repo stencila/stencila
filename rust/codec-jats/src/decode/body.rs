@@ -1,10 +1,11 @@
+use super::DecodeContext;
+
 use std::{iter::once, str::FromStr};
 
 use itertools::Itertools;
 use roxmltree::Node;
 
 use stencila_codec::{
-    Losses,
     stencila_format::Format,
     stencila_schema::{
         Admonition, AudioObject, AudioObjectOptions, Block, Citation, CitationOptions, Claim,
@@ -67,7 +68,7 @@ fn splits_paragraph(tag: &str) -> bool {
 pub(super) fn decode_blocks<'a, 'input: 'a, I: Iterator<Item = Node<'a, 'input>>>(
     path: &str,
     nodes: I,
-    losses: &mut Losses,
+    losses: &mut DecodeContext,
     depth: u8,
 ) -> Vec<Block> {
     let mut blocks = Vec::new();
@@ -100,6 +101,10 @@ pub(super) fn decode_blocks<'a, 'input: 'a, I: Iterator<Item = Node<'a, 'input>>
                 )));
                 continue;
             }
+            "media" | "inline-media" => {
+                blocks.push(p(vec![decode_inline_media(&child_path, &child, losses)]));
+                continue;
+            }
             "hr" => decode_hr(&child_path, &child, losses),
             "list" => decode_list(&child_path, &child, losses, depth),
             "p" => {
@@ -127,7 +132,7 @@ pub(super) fn decode_blocks<'a, 'input: 'a, I: Iterator<Item = Node<'a, 'input>>
 }
 
 /// Decode a `<boxed-text>` to a [`Block::Admonition`]
-fn decode_boxed_text(path: &str, node: &Node, losses: &mut Losses, depth: u8) -> Block {
+fn decode_boxed_text(path: &str, node: &Node, losses: &mut DecodeContext, depth: u8) -> Block {
     let typ = node
         .attribute("content-type")
         .and_then(|typ| typ.parse().ok())
@@ -163,7 +168,7 @@ fn decode_boxed_text(path: &str, node: &Node, losses: &mut Losses, depth: u8) ->
 }
 
 /// Decode a `<hr>` to a [`Block::ThematicBreak`]
-fn decode_hr(path: &str, node: &Node, losses: &mut Losses) -> Block {
+fn decode_hr(path: &str, node: &Node, losses: &mut DecodeContext) -> Block {
     record_attrs_lost(path, node, [], losses);
 
     Block::ThematicBreak(ThematicBreak::new())
@@ -178,11 +183,11 @@ fn decode_hr(path: &str, node: &Node, losses: &mut Losses) -> Block {
 /// follows it. Note that `<fn>` is deliberately not treated as a block child
 /// here: within a paragraph it is a footnote anchored at that point and is
 /// decoded as an inline [`Note`].
-fn decode_p(path: &str, node: &Node, losses: &mut Losses) -> Vec<Block> {
+fn decode_p(path: &str, node: &Node, losses: &mut DecodeContext) -> Vec<Block> {
     record_attrs_lost(path, node, [], losses);
 
     /// Create a paragraph using collected nodes
-    fn para(path: &str, children: Vec<Node>, losses: &mut Losses) -> Option<Block> {
+    fn para(path: &str, children: Vec<Node>, losses: &mut DecodeContext) -> Option<Block> {
         let inlines = decode_inlines(path, children.into_iter(), losses);
 
         if !(inlines.is_empty()
@@ -221,7 +226,7 @@ fn decode_p(path: &str, node: &Node, losses: &mut Losses) -> Vec<Block> {
 }
 
 /// Decode a `<disp-quote>` to a [`Block::QuoteBlock`]
-fn decode_disp_quote(path: &str, node: &Node, losses: &mut Losses, depth: u8) -> Block {
+fn decode_disp_quote(path: &str, node: &Node, losses: &mut DecodeContext, depth: u8) -> Block {
     record_attrs_lost(path, node, [], losses);
 
     qb(decode_blocks(path, node.children(), losses, depth))
@@ -233,7 +238,7 @@ fn decode_disp_quote(path: &str, node: &Node, losses: &mut Losses, depth: u8) ->
 /// `sec-type` or `<title>` child. These are ignored to avoid unnecessary
 /// sections and their content returned instead. A wrapper that has an `id` is
 /// kept because cross references elsewhere in the document may address it.
-pub fn decode_sec(path: &str, node: &Node, losses: &mut Losses, depth: u8) -> Vec<Block> {
+pub fn decode_sec(path: &str, node: &Node, losses: &mut DecodeContext, depth: u8) -> Vec<Block> {
     let id = node.attribute("id").map(String::from);
 
     let section_type = node
@@ -268,7 +273,7 @@ pub fn decode_sec(path: &str, node: &Node, losses: &mut Losses, depth: u8) -> Ve
 }
 
 /// Decode a `<title>` to a [`Block::Heading`]
-fn decode_title(path: &str, node: &Node, losses: &mut Losses, depth: u8) -> Block {
+fn decode_title(path: &str, node: &Node, losses: &mut DecodeContext, depth: u8) -> Block {
     let level = node
         .attribute("level")
         .and_then(|level| level.parse::<i64>().ok())
@@ -285,7 +290,7 @@ fn decode_title(path: &str, node: &Node, losses: &mut Losses, depth: u8) -> Bloc
 /// Decode a `<statement>` to a Stencila [`Block::Claim`]
 ///
 /// see https://jats.nlm.nih.gov/archiving/tag-library/1.2/element/statement.html
-fn decode_statement(path: &str, node: &Node, losses: &mut Losses, depth: u8) -> Block {
+fn decode_statement(path: &str, node: &Node, losses: &mut DecodeContext, depth: u8) -> Block {
     let claim_type = node
         .attribute("content-type")
         .and_then(|statement| ClaimType::from_str(statement).ok());
@@ -318,10 +323,20 @@ fn decode_statement(path: &str, node: &Node, losses: &mut Losses, depth: u8) -> 
 /// Decode a `<supplementary-material>` element to a Stencila [`Block::Supplement`]
 ///
 /// See https://jats.nlm.nih.gov/archiving/tag-library/1.2/element/supplementary-material.html
-fn decode_supplementary_material(path: &str, node: &Node, losses: &mut Losses, depth: u8) -> Block {
+fn decode_supplementary_material(
+    path: &str,
+    node: &Node,
+    losses: &mut DecodeContext,
+    depth: u8,
+) -> Block {
     let id = node.attribute("id").map(String::from);
 
-    record_attrs_lost(path, node, ["id"], losses);
+    record_attrs_lost(
+        path,
+        node,
+        ["id", "href", "mimetype", "mime-subtype"],
+        losses,
+    );
 
     let mut work_type = None;
 
@@ -339,9 +354,14 @@ fn decode_supplementary_material(path: &str, node: &Node, losses: &mut Losses, d
         );
     }
 
-    let target = resource
-        .and_then(|node| node.attribute((XLINK, "href")))
-        .map(String::from);
+    let target_node = resource
+        .as_ref()
+        .or_else(|| node.attribute((XLINK, "href")).map(|_| node));
+    let resolved = target_node.map(|node| losses.media(node));
+    let target = resolved
+        .as_ref()
+        .map(|(url, _)| url.clone())
+        .filter(|url| !url.is_empty());
 
     let format = target
         .as_ref()
@@ -446,9 +466,14 @@ fn decode_supplementary_material(path: &str, node: &Node, losses: &mut Losses, d
     }
 
     // If work type is still none, attempt to infer from the media type stated
-    // by the resource itself, and then from the format of the target
+    // by the resource, or by the element itself, or of the file resolved,
+    // and then from the format of the target
     if work_type.is_none()
-        && let Some(media_type) = resource.as_ref().and_then(media_type)
+        && let Some(media_type) = resource
+            .as_ref()
+            .and_then(media_type)
+            .or_else(|| media_type(node))
+            .or_else(|| resolved.and_then(|(_, media_type)| media_type))
     {
         work_type = match media_type.split('/').next() {
             Some("audio") => Some(CreativeWorkType::AudioObject),
@@ -479,7 +504,7 @@ fn decode_supplementary_material(path: &str, node: &Node, losses: &mut Losses, d
 }
 
 /// Decode a `<fig-group>` element to a vector of Stencila [`Block::Figure`]s
-fn decode_fig_group(path: &str, node: &Node, losses: &mut Losses, depth: u8) -> Vec<Block> {
+fn decode_fig_group(path: &str, node: &Node, losses: &mut DecodeContext, depth: u8) -> Vec<Block> {
     record_attrs_lost(path, node, [], losses);
 
     decode_blocks(path, node.children(), losses, depth)
@@ -491,7 +516,7 @@ fn decode_fig_group(path: &str, node: &Node, losses: &mut Losses, depth: u8) -> 
 /// only identifier of the object that is addressable outside the article. Other
 /// kinds of `<object-id>` are source-system slugs which duplicate the element's
 /// `id`, so they are recorded as lost rather than retained.
-fn decode_object_id(path: &str, node: &Node, losses: &mut Losses) -> Option<String> {
+fn decode_object_id(path: &str, node: &Node, losses: &mut DecodeContext) -> Option<String> {
     let mut doi = None;
     for child in node
         .children()
@@ -519,7 +544,7 @@ fn decode_object_id(path: &str, node: &Node, losses: &mut Losses) -> Option<Stri
 /// Decode a `<fig>` element to a Stencila [`Block::Figure`]
 ///
 /// see https://jats.nlm.nih.gov/archiving/tag-library/1.2/element/fig.html
-fn decode_fig(path: &str, node: &Node, losses: &mut Losses, depth: u8) -> Block {
+fn decode_fig(path: &str, node: &Node, losses: &mut DecodeContext, depth: u8) -> Block {
     let id = node.attribute("id").map(String::from);
 
     record_attrs_lost(path, node, ["id"], losses);
@@ -568,7 +593,7 @@ fn decode_fig(path: &str, node: &Node, losses: &mut Losses, depth: u8) -> Block 
 /// note is wrapped in a paragraph. Encoding that paragraph emits `<p><fn>…</fn></p>`
 /// which decodes back to the same node, keeping the note addressable by its id
 /// and keeping its type and content intact.
-fn decode_fn(path: &str, node: &Node, losses: &mut Losses, depth: u8) -> Vec<Block> {
+fn decode_fn(path: &str, node: &Node, losses: &mut DecodeContext, depth: u8) -> Vec<Block> {
     let id = node.attribute("id").map(String::from);
     let note_type = note_type(node);
 
@@ -591,7 +616,7 @@ fn decode_fn(path: &str, node: &Node, losses: &mut Losses, depth: u8) -> Vec<Blo
 ///
 /// A footnote label is a marker (e.g. `1`, `*`) that is regenerated on display,
 /// and there is no property for it on [`Note`], so it is recorded as lost.
-fn decode_fn_content(path: &str, node: &Node, losses: &mut Losses, depth: u8) -> Vec<Block> {
+fn decode_fn_content(path: &str, node: &Node, losses: &mut DecodeContext, depth: u8) -> Vec<Block> {
     let mut children = Vec::new();
     for child in node.children() {
         if child.tag_name().name() == "label" {
@@ -627,7 +652,7 @@ fn note_type(node: &Node) -> NoteType {
 /// Those become a typed [`Section`] holding the statements directly. Any other
 /// group is a transparent wrapper around its footnotes, which are preserved as
 /// [`Note`] nodes.
-fn decode_fn_group(path: &str, node: &Node, losses: &mut Losses, depth: u8) -> Vec<Block> {
+fn decode_fn_group(path: &str, node: &Node, losses: &mut DecodeContext, depth: u8) -> Vec<Block> {
     let section_type = node
         .attribute("content-type")
         .and_then(|value| SectionType::from_text(value).ok())
@@ -666,17 +691,14 @@ fn decode_fn_group(path: &str, node: &Node, losses: &mut Losses, depth: u8) -> V
 }
 
 /// Decode a `<graphic>` element to an [`ImageObject`]
-fn decode_graphic(path: &str, node: &Node, losses: &mut Losses) -> ImageObject {
-    let url = node
-        .attribute((XLINK, "href"))
-        .map(String::from)
-        .unwrap_or_default();
+fn decode_graphic(path: &str, node: &Node, losses: &mut DecodeContext) -> ImageObject {
+    let (url, inferred_type) = losses.media(node);
 
     record_attrs_lost(path, node, ["href", "mimetype", "mime-subtype"], losses);
 
     ImageObject {
         content_url: url,
-        media_type: media_type(node),
+        media_type: media_type(node).or(inferred_type),
         caption: alt_text(node),
         ..Default::default()
     }
@@ -710,7 +732,7 @@ fn alt_text(node: &Node) -> Option<Vec<Inline>> {
 /// Decode a `<code>` to a Stencila [`Block::CodeBlock`] or Stencila [`Block::CodeChunk`]
 ///
 /// see https://jats.nlm.nih.gov/archiving/tag-library/1.2/element/code.html
-fn decode_code(path: &str, node: &Node, losses: &mut Losses, depth: u8) -> Block {
+fn decode_code(path: &str, node: &Node, losses: &mut DecodeContext, depth: u8) -> Block {
     let code = node.text().map(Cord::from).unwrap_or_default();
 
     let programming_language = node.attribute("language").map(String::from);
@@ -762,7 +784,7 @@ fn decode_code(path: &str, node: &Node, losses: &mut Losses, depth: u8) -> Block
 /// Decode a `<disp-formula>` to a Stencila [`Block::MathBlock`]
 ///
 /// see https://jats.nlm.nih.gov/archiving/tag-library/1.2/element/disp-formula.html
-fn decode_disp_formula(path: &str, node: &Node, losses: &mut Losses, _depth: u8) -> Block {
+fn decode_disp_formula(path: &str, node: &Node, losses: &mut DecodeContext, _depth: u8) -> Block {
     let id = node.attribute("id").map(String::from);
 
     let FormulaMath {
@@ -869,7 +891,7 @@ fn decode_formula_math(node: &Node) -> FormulaMath {
 /// Decode a `<list>` to a Stencila [`Block::List`]
 ///
 /// See https://jats.nlm.nih.gov/archiving/tag-library/1.2/element/list.html
-fn decode_list(path: &str, node: &Node, losses: &mut Losses, depth: u8) -> Block {
+fn decode_list(path: &str, node: &Node, losses: &mut DecodeContext, depth: u8) -> Block {
     let order = match node.attribute("list-type") {
         // TODO: Encode using valid JATS `list-type`
         // See https://jats.nlm.nih.gov/archiving/tag-library/1.2/attribute/list-type.html
@@ -908,7 +930,7 @@ fn decode_list(path: &str, node: &Node, losses: &mut Losses, depth: u8) -> Block
 /// Decode a `<list-item>` to a Stencila [`ListItem`]
 ///
 /// See https://jats.nlm.nih.gov/archiving/tag-library/1.2/element/list-item.html
-fn decode_list_item(path: &str, node: &Node, losses: &mut Losses, depth: u8) -> ListItem {
+fn decode_list_item(path: &str, node: &Node, losses: &mut DecodeContext, depth: u8) -> ListItem {
     let is_checked = node
         .attribute("is-checked")
         .and_then(|value| bool::from_str(value).ok());
@@ -925,7 +947,7 @@ fn decode_list_item(path: &str, node: &Node, losses: &mut Losses, depth: u8) -> 
 /// Decode a `<table-wrap>` to a Stencila [`Block::Table`]
 ///
 /// See https://jats.nlm.nih.gov/archiving/tag-library/1.2/element/table-wrap.html
-fn decode_table_wrap(path: &str, node: &Node, losses: &mut Losses, depth: u8) -> Block {
+fn decode_table_wrap(path: &str, node: &Node, losses: &mut DecodeContext, depth: u8) -> Block {
     let id = node.attribute("id").map(String::from);
 
     record_attrs_lost(path, node, ["id"], losses);
@@ -1030,7 +1052,7 @@ fn decode_table_wrap(path: &str, node: &Node, losses: &mut Losses, depth: u8) ->
 fn decode_table_section(
     path: &str,
     node: &Node,
-    losses: &mut Losses,
+    losses: &mut DecodeContext,
     depth: u8,
     row_type: Option<TableRowType>,
 ) -> Vec<TableRow> {
@@ -1046,7 +1068,7 @@ fn decode_table_section(
 fn decode_table_row(
     path: &str,
     node: &Node,
-    losses: &mut Losses,
+    losses: &mut DecodeContext,
     depth: u8,
     row_type: Option<TableRowType>,
 ) -> TableRow {
@@ -1084,7 +1106,7 @@ fn decode_table_row(
 ///
 /// See https://jats.nlm.nih.gov/archiving/tag-library/1.2/element/td.html
 /// and https://jats.nlm.nih.gov/archiving/tag-library/1.2/element/th.html
-fn decode_table_cell(path: &str, node: &Node, losses: &mut Losses, depth: u8) -> TableCell {
+fn decode_table_cell(path: &str, node: &Node, losses: &mut DecodeContext, depth: u8) -> TableCell {
     let cell_type = if node.tag_name().name() == "th" {
         Some(TableCellType::HeaderCell)
     } else {
@@ -1209,7 +1231,7 @@ fn vertical_alignment(value: &str) -> Option<VerticalAlignment> {
 pub fn decode_inlines<'a, 'input: 'a, I: Iterator<Item = Node<'a, 'input>>>(
     path: &str,
     nodes: I,
-    losses: &mut Losses,
+    losses: &mut DecodeContext,
 ) -> Vec<Inline> {
     let mut inlines = Vec::new();
     for child in nodes {
@@ -1225,8 +1247,9 @@ pub fn decode_inlines<'a, 'input: 'a, I: Iterator<Item = Node<'a, 'input>>>(
                 "duration" => decode_duration(&child_path, &child, losses),
                 "ext-link" => decode_link(&child_path, &child, losses),
                 "fn" => decode_footnote(&child_path, &child, losses),
+                "graphic" => Inline::ImageObject(decode_graphic(&child_path, &child, losses)),
                 "inline-formula" => decode_inline_formula(&child_path, &child, losses),
-                "inline-graphic" | "inline-media" => {
+                "inline-graphic" | "inline-media" | "media" => {
                     decode_inline_media(&child_path, &child, losses)
                 }
                 "math" => decode_inline_math(&child),
@@ -1276,7 +1299,7 @@ pub fn decode_inlines<'a, 'input: 'a, I: Iterator<Item = Node<'a, 'input>>>(
                             // The parts of a citation are bibliographic fields
                             // rather than prose, so what is lost is the
                             // citation as a whole rather than each of them
-                            let mut discarded = Losses::default();
+                            let mut discarded = DecodeContext::default();
                             let inner = if is_citation_element(tag) {
                                 &mut discarded
                             } else {
@@ -1299,19 +1322,12 @@ pub fn decode_inlines<'a, 'input: 'a, I: Iterator<Item = Node<'a, 'input>>>(
 /// or [`Inline::VideoObject`]
 ///
 /// Resolves the destination type based on the `mimetype` attribute of the element.
-fn decode_inline_media(path: &str, node: &Node, losses: &mut Losses) -> Inline {
-    let content_url = node
-        .attribute((XLINK, "href"))
-        .map(String::from)
-        .unwrap_or_default();
-
-    let mime_type = node.attribute("mimetype").map(String::from);
-    let mime_subtype = node.attribute("mime-subtype").map(String::from);
-    let media_type = match (&mime_type, &mime_subtype) {
-        (Some(r#type), Some(subtype)) => Some(format!("{type}/{subtype}")),
-        (Some(r#type), None) => Some(r#type.clone()),
-        _ => None,
-    };
+fn decode_inline_media(path: &str, node: &Node, losses: &mut DecodeContext) -> Inline {
+    let (content_url, inferred_type) = losses.media(node);
+    let media_type = media_type(node).or(inferred_type);
+    let mime_type = media_type
+        .as_deref()
+        .and_then(|value| value.split('/').next());
 
     record_attrs_lost(path, node, ["href", "mimetype", "mime-subtype"], losses);
 
@@ -1326,7 +1342,7 @@ fn decode_inline_media(path: &str, node: &Node, losses: &mut Losses) -> Inline {
         }
     }
 
-    if node.tag_name().name() == "inline-graphic" {
+    if node.tag_name().name() == "inline-graphic" || mime_type == Some("image") {
         return Inline::ImageObject(ImageObject {
             content_url,
             media_type: if media_type.as_deref() == Some("image") {
@@ -1343,7 +1359,7 @@ fn decode_inline_media(path: &str, node: &Node, losses: &mut Losses) -> Inline {
         });
     }
 
-    match mime_type.as_deref() {
+    match mime_type {
         Some("audio") => Inline::AudioObject(AudioObject {
             content_url,
             media_type: if media_type.as_deref() == Some("audio") {
@@ -1385,7 +1401,7 @@ fn decode_inline_media(path: &str, node: &Node, losses: &mut Losses) -> Inline {
 }
 
 /// Decode a `<code>` to a [`Inline::CodeInline`] or [`Inline::CodeExpression`]
-fn decode_inline_code(path: &str, node: &Node, losses: &mut Losses) -> Inline {
+fn decode_inline_code(path: &str, node: &Node, losses: &mut DecodeContext) -> Inline {
     let executable = node.attribute("executable").map(String::from);
     let programming_language = node.attribute("language").map(String::from);
     let code = node.text().map(Cord::from).unwrap_or_default();
@@ -1408,7 +1424,7 @@ fn decode_inline_code(path: &str, node: &Node, losses: &mut Losses) -> Inline {
 }
 
 /// Decode a `<date>` to a [`Inline::Date`]
-fn decode_date(path: &str, node: &Node, losses: &mut Losses) -> Inline {
+fn decode_date(path: &str, node: &Node, losses: &mut DecodeContext) -> Inline {
     let value = node
         .attribute("iso-8601-date")
         .map(String::from)
@@ -1423,7 +1439,7 @@ fn decode_date(path: &str, node: &Node, losses: &mut Losses) -> Inline {
 }
 
 /// Decode a `<date-time>` to a [`Inline::DateTime`]
-fn decode_date_time(path: &str, node: &Node, losses: &mut Losses) -> Inline {
+fn decode_date_time(path: &str, node: &Node, losses: &mut DecodeContext) -> Inline {
     let value = node
         .attribute("iso-8601-date-time")
         .map(String::from)
@@ -1438,7 +1454,7 @@ fn decode_date_time(path: &str, node: &Node, losses: &mut Losses) -> Inline {
 }
 
 /// Decode a `<duration>` to a [`Inline::Duration`]
-fn decode_duration(path: &str, node: &Node, losses: &mut Losses) -> Inline {
+fn decode_duration(path: &str, node: &Node, losses: &mut DecodeContext) -> Inline {
     let value = node
         .attribute("value")
         .and_then(|value| value.parse::<i64>().ok())
@@ -1456,7 +1472,7 @@ fn decode_duration(path: &str, node: &Node, losses: &mut Losses) -> Inline {
 ///
 /// The JATS-specific `ext-link-type` is retained separately from HTML `rel`
 /// semantics so that both can round-trip independently.
-fn decode_link(path: &str, node: &Node, losses: &mut Losses) -> Inline {
+fn decode_link(path: &str, node: &Node, losses: &mut DecodeContext) -> Inline {
     let target = node
         .attribute((XLINK, "href"))
         .map(String::from)
@@ -1485,7 +1501,7 @@ fn decode_link(path: &str, node: &Node, losses: &mut Losses) -> Inline {
 }
 
 /// Decode a `<fn>` to a [`Inline::Footnote`]
-fn decode_footnote(path: &str, node: &Node, losses: &mut Losses) -> Inline {
+fn decode_footnote(path: &str, node: &Node, losses: &mut DecodeContext) -> Inline {
     let id = node.attribute("id").map(String::from);
     let note_type = note_type(node);
 
@@ -1502,7 +1518,7 @@ fn decode_footnote(path: &str, node: &Node, losses: &mut Losses) -> Inline {
 }
 
 /// Decode a `<inline-formula>` to a [`Inline::MathInline`]
-fn decode_inline_formula(path: &str, node: &Node, losses: &mut Losses) -> Inline {
+fn decode_inline_formula(path: &str, node: &Node, losses: &mut DecodeContext) -> Inline {
     let id = node.attribute("id").map(String::from);
     let FormulaMath {
         code,
@@ -1545,7 +1561,7 @@ fn decode_inline_math(node: &Node) -> Inline {
 }
 
 /// Decode a `<parameter>` to a [`Inline::Parameter`]
-fn decode_parameter(path: &str, node: &Node, losses: &mut Losses) -> Inline {
+fn decode_parameter(path: &str, node: &Node, losses: &mut DecodeContext) -> Inline {
     let name = node.attribute("name").map(String::from).unwrap_or_default();
 
     record_attrs_lost(path, node, ["name"], losses);
@@ -1557,7 +1573,7 @@ fn decode_parameter(path: &str, node: &Node, losses: &mut Losses) -> Inline {
 }
 
 /// Decode a `<styled-content>` to a [`Inline::StyledInline`]
-fn decode_styled_content(path: &str, node: &Node, losses: &mut Losses) -> Inline {
+fn decode_styled_content(path: &str, node: &Node, losses: &mut DecodeContext) -> Inline {
     let code = node.attribute("style").map(Cord::from).unwrap_or_default();
 
     let style_language = node.attribute("style-detail").map(String::from);
@@ -1589,7 +1605,7 @@ fn is_citation_element(tag: &str) -> bool {
 }
 
 /// Decode an `<email>` to a [`Inline::Link`] that addresses the email address
-fn decode_email(path: &str, node: &Node, losses: &mut Losses) -> Inline {
+fn decode_email(path: &str, node: &Node, losses: &mut DecodeContext) -> Inline {
     record_attrs_lost(path, node, [], losses);
 
     let content = decode_inlines(path, node.children(), losses);
@@ -1603,7 +1619,7 @@ fn decode_email(path: &str, node: &Node, losses: &mut Losses) -> Inline {
 }
 
 /// Decode a `<time>` to a [`Inline::Time`]
-fn decode_time(path: &str, node: &Node, losses: &mut Losses) -> Inline {
+fn decode_time(path: &str, node: &Node, losses: &mut DecodeContext) -> Inline {
     let value = node
         .attribute("iso-8601-time")
         .map(String::from)
@@ -1618,7 +1634,7 @@ fn decode_time(path: &str, node: &Node, losses: &mut Losses) -> Inline {
 }
 
 /// Decode a `<timestamp>` to a [`Inline::Timestamp`]
-fn decode_timestamp(path: &str, node: &Node, losses: &mut Losses) -> Inline {
+fn decode_timestamp(path: &str, node: &Node, losses: &mut DecodeContext) -> Inline {
     let value = node
         .attribute("value")
         .and_then(|value| value.parse::<i64>().ok())
@@ -1637,7 +1653,7 @@ fn decode_timestamp(path: &str, node: &Node, losses: &mut Losses) -> Inline {
 /// There is no builtin way to differentiate between narrative and parenthetical
 /// citations in JATS (it needs to be inferred from surrounding punctuation
 /// during structuring). So in this function, do not assume one or other.
-fn decode_xref_citation(path: &str, node: &Node, losses: &mut Losses) -> Inline {
+fn decode_xref_citation(path: &str, node: &Node, losses: &mut DecodeContext) -> Inline {
     let target = node.attribute("rid").map(String::from).unwrap_or_default();
 
     record_attrs_lost(path, node, ["ref-type", "rid"], losses);
@@ -1661,7 +1677,7 @@ fn decode_xref_citation(path: &str, node: &Node, losses: &mut Losses) -> Inline 
 /// a range of figures, so each of them becomes a fragment of the link target.
 /// The `ref-type` is retained as JATS-specific metadata so that a type which
 /// says more than the kind of the target node, such as `table-fn`, is not lost.
-fn decode_xref_block(path: &str, node: &Node, losses: &mut Losses) -> Inline {
+fn decode_xref_block(path: &str, node: &Node, losses: &mut DecodeContext) -> Inline {
     let target = node
         .attribute("rid")
         .map(|rid| {

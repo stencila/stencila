@@ -1,0 +1,56 @@
+<?xml version='1.0' encoding='utf-8'?>
+<article xmlns:ns0="http://www.niso.org/schemas/ali/1.0/" xmlns:xlink="http://www.w3.org/1999/xlink">
+  <front>
+    <article-meta>
+      <article-id pub-id-type="pmcid">PMC5754353</article-id>
+      <article-id pub-id-type="pmcid-ver">PMC5754353.1</article-id>
+      <article-id pub-id-type="pmcaid">5754353</article-id>
+      <article-id pub-id-type="pmcaiid">5754353</article-id>
+      <article-id pub-id-type="pmid">29302035</article-id>
+      <article-id pub-id-type="doi">10.1038/s41467-017-02484-2</article-id>
+      <article-id pub-id-type="publisher-id">2484</article-id>
+      <title-group>
+        <article-title>Sleeping sickness is a circadian disorder</article-title>
+      </title-group>
+      <permissions>
+        <copyright-statement>© The Author(s) 2017</copyright-statement>
+        <license license-type="OpenAccess">
+          <ns0:license_ref specific-use="textmining" content-type="ccbylicense">https://creativecommons.org/licenses/by/4.0/</ns0:license_ref>
+          <license-p>
+            <bold>Open Access</bold> This article is licensed under a Creative Commons Attribution 4.0 International License, which permits use, sharing, adaptation, distribution and reproduction in any medium or format, as long as you give appropriate credit to the original author(s) and the source, provide a link to the Creative Commons license, and indicate if changes were made. The images or other third party material in this article are included in the article’s Creative Commons license, unless indicated otherwise in a credit line to the material. If material is not included in the article’s Creative Commons license and your intended use is not permitted by statutory regulation or exceeds the permitted use, you will need to obtain permission directly from the copyright holder. To view a copy of this license, visit <ext-link ext-link-type="uri" xlink:href="http://creativecommons.org/licenses/by/4.0/">http://creativecommons.org/licenses/by/4.0/</ext-link>.</license-p>
+        </license>
+      </permissions>
+    </article-meta>
+  </front>
+  <body>
+    <fig id="Fig1" position="float" orientation="portrait">
+      <label>Fig. 1</label>
+      <caption>
+        <p>
+          <italic toggle="yes">T. brucei</italic> infection disrupts circadian activity and body temperature. <bold>a</bold>, <bold>b</bold> Schematic representation of infection progression when animals are (<bold>a</bold>) infected or (<bold>b</bold>) infected and treated with the anti-trypanosome drug suramin. <bold>c</bold> Representative actograms of daily wheel-running activity of control and infected mice in light–dark cycles. The record is double-plotted so that 48 h are shown for each horizontal trace. Black daily histograms represent locomotor activity. For the first seven days, the animals were housed in an LD12:12 h cycle, denoted by the bar above the record. The animals were transferred to DD conditions for 10 days, as indicated by the horizontal line to the right of the record and shaded gray. After these LD and DD intervals, animals were transferred back into LD and either infected or injected with vehicle. The red and orange lines near the actogram refers to the infection progression represented in panel <bold>a</bold>. <bold>d</bold> Total daily activity levels of control (<italic toggle="yes">n</italic> = 6) and infected (<italic toggle="yes">n</italic> = 14) mice. <bold>e</bold> Representative actograms of daily wheel-running activity of animals treated with suramin. The red and orange lines near the actogram refers to the infection progression represented in panel <bold>b</bold>. <bold>f</bold> Total daily and <bold>g</bold> relative rest-period activity levels of control (<italic toggle="yes">n</italic> = 6) and infected (<italic toggle="yes">n</italic> = 14) mice considering the whole infection time and only after day 50 post-infection. Error bars show mean ± s.e.m; *<italic toggle="yes">p</italic> &lt; 0.05, **<italic toggle="yes">p</italic> &lt; 0.01, ***<italic toggle="yes">p</italic> &lt; 0.001 tested with Mann–Whitney test in panels <bold>d</bold>, <bold>f</bold>, and <bold>g</bold>. <bold>h</bold> Representative plots of core body temperature of control and infected mice (suramin-treated) in light–dark cycles. <bold>i</bold> Zoom-in temperature plots showing the fever-like period after infection and the later period of temperature shift to daytime. <bold>j</bold> Amplitude of circadian temperature oscillation in control (<italic toggle="yes">n</italic> = 5) and infected (<italic toggle="yes">n</italic> = 7) mice. Error bars show mean ± s.e.m.; *adjusted <italic toggle="yes">p</italic> &lt; 0.05, **<italic toggle="yes">p</italic> &lt; 0.01, ***<italic toggle="yes">p</italic> &lt; 0.001, FDR method Benjamini–Hochberg. <bold>k</bold> Absolute temperature measurement for a representative control and an infected mouse. <italic toggle="yes">T.b.</italic> orange dotted line represents infection with trypanosomes and S, blue dotted line represents suramin treatment</p>
+      </caption>
+      <graphic id="d29e566" position="float" orientation="portrait" xlink:href="41467_2017_2484_Fig1_HTML.jpg" />
+    </fig>
+    <fig id="Fig2" position="float" orientation="portrait">
+      <label>Fig. 2</label>
+      <caption>
+        <p>Trypanosoma-infected mice show shorter circadian period. <bold>a</bold> Representative actograms of daily wheel-running activity of control and infected mice in constant darkness (DD). All running-wheel experiments involve seven days on LD12:12 followed by 10 days in DD to confirm that all animals have a normal circadian rhythm, after which animals are either infected or injected with vehicle in the dark. Horizontal black and white bars at the top of each actogram represent lights off and on for the initial acclimatization period, respectively. <bold>b</bold> Period of running-wheel activity of control (<italic toggle="yes">n</italic> = 6) and infected (<italic toggle="yes">n</italic> = 14) mice. <bold>c</bold> Representative actograms of daily wheel-running activity of control and infected mice in constant dark. Animals were treated with suramin (20 mg/kg) i.p. on day 21 post-infection (blue line). <bold>d</bold> Period of control (<italic toggle="yes">n</italic> = 8) and infected (<italic toggle="yes">n</italic> = 27) mice; *adjusted <italic toggle="yes">p</italic> &lt; 0.05, **<italic toggle="yes">p</italic> &lt; 0.01, ***<italic toggle="yes">p</italic> &lt; 0.001, FDR method Benjamini–Hochberg, for panels <bold>b</bold> and <bold>d</bold>. <bold>e</bold> Representative actograms of daily wheel-running activity of a control and three infected animals when challenged with consecutive dark to light period transitions. DD-1 first period in DD started on day 60 post-infection, LD-1 when mice were transferred to LD, and DD-2 when transferred to a new DD period. <bold>f</bold> Circular phase plots of activity onset for the dark periods represented on the top panel. A circle represents a 24-h clock, and activity onset phases of individual mice were calculated as angles and plotted as colored symbols outside the circle. The direction of the vector indicates mean phase angle. Phase data are replotted on bottom panel as Circadian Time (CT). Shaded area represents subjective night; **adjusted <italic toggle="yes">p</italic> &lt; 0.01, FDR method Benjamini–Hochberg. <bold>g</bold> Relative daytime activity in the light period after the dark period 1; **<italic toggle="yes">p</italic> &lt; 0.01, tested with Mann–Whitney test. Orange dotted line represents <italic toggle="yes">T. brucei</italic> infection start and blue dotted line the suramin treatment</p>
+      </caption>
+      <graphic id="d29e775" position="float" orientation="portrait" xlink:href="41467_2017_2484_Fig2_HTML.jpg" />
+    </fig>
+    <supplementary-material content-type="local-data" id="MOESM1" position="float" orientation="portrait">
+      <media xlink:href="41467_2017_2484_MOESM1_ESM.pdf" position="float" orientation="portrait">
+        <caption>
+          <p>Supplementary Information</p>
+        </caption>
+      </media>
+    </supplementary-material>
+    <supplementary-material content-type="local-data" id="MOESM2" position="float" orientation="portrait">
+      <media xlink:href="41467_2017_2484_MOESM2_ESM.pdf" position="float" orientation="portrait">
+        <caption>
+          <p>Peer Review File</p>
+        </caption>
+      </media>
+    </supplementary-material>
+  </body>
+</article>
