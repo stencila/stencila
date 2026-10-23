@@ -415,8 +415,14 @@ impl Bucket {
         let staging = Builder::new()
             .prefix(&format!("{identity}."))
             .tempdir_in(directory)?;
-        stream::iter(&objects)
+        // The futures are collected before being streamed, rather than created
+        // by mapping the stream, because a closure over borrowed objects within
+        // the stream is not general enough for it to be `Send` where awaited
+        let downloads = objects
+            .iter()
             .map(|object| self.download_object(object, staging.path().join(&object.filename)))
+            .collect::<Vec<_>>();
+        stream::iter(downloads)
             .buffer_unordered(CONCURRENT_DOWNLOADS)
             .try_collect::<()>()
             .await?;
