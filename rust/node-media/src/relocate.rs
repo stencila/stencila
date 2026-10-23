@@ -1,6 +1,6 @@
 use std::path::{Path, PathBuf};
 
-use eyre::Result;
+use eyre::{Result, WrapErr};
 use pathdiff::diff_paths;
 use stencila_schema::{
     Block, CreativeWorkVariant, ImageObject, Inline, Node, VisitorMut, WalkControl, WalkNode,
@@ -160,16 +160,24 @@ impl Relocator {
         };
         let target = if let Some(directory) = directory {
             let bytes = std::fs::read(&source)?;
-            self.namer.write_bytes(
-                directory,
-                source.file_stem().and_then(|stem| stem.to_str()),
-                source
-                    .extension()
-                    .and_then(|ext| ext.to_str())
-                    .unwrap_or("bin"),
-                hash_bytes(&bytes),
-                &bytes,
-            )?
+            self.namer
+                .write_bytes(
+                    directory,
+                    source.file_stem().and_then(|stem| stem.to_str()),
+                    source
+                        .extension()
+                        .and_then(|ext| ext.to_str())
+                        .unwrap_or("bin"),
+                    hash_bytes(&bytes),
+                    &bytes,
+                )
+                .wrap_err_with(|| {
+                    format!(
+                        "Could not copy `{}` into `{}`",
+                        source.display(),
+                        directory.display()
+                    )
+                })?
         } else {
             source
         };

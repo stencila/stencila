@@ -6,7 +6,7 @@ use zip::ZipArchive;
 
 use stencila_codec::{
     Codec, DecodeInfo, DecodeOptions,
-    eyre::{OptionExt, Result},
+    eyre::{OptionExt, Result, WrapErr},
     stencila_schema::Node,
 };
 use stencila_codec_jats::JatsCodec;
@@ -74,8 +74,19 @@ pub(super) async fn decode_path(
             Some(path),
             media_dir.as_deref(),
             supplements_dir.as_deref(),
-        )?;
+        )
+        .wrap_err_with(|| retain_error(path))?;
     }
 
     Ok((node, None, info))
+}
+
+/// Error context when originals can not be retained beside an archive
+fn retain_error(path: &Path) -> String {
+    format!(
+        "Could not retain original media and supplements beside `{}`; is its directory writable? \
+         Decode with embedding enabled (e.g. `--embed-media --embed-supplements`) or decode a \
+         writable copy of the archive",
+        path.display()
+    )
 }

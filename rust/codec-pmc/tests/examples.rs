@@ -46,7 +46,9 @@ async fn examples() -> Result<()> {
         // Decode a temporary copy because referenced supplements are retained
         // in a side directory beside the archive
         let temp = tempfile::tempdir()?;
-        let copy = temp.path().join(path.file_name().ok_or_eyre("no file name")?);
+        let copy = temp
+            .path()
+            .join(path.file_name().ok_or_eyre("no file name")?);
         std::fs::copy(&path, &copy)?;
         let (mut article, .., info) = PmcCodec.from_path(&copy, options.clone()).await?;
 

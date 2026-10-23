@@ -89,3 +89,37 @@ async fn default_and_explicit_embedding_are_independent() -> Result<()> {
     }
     Ok(())
 }
+
+#[cfg(unix)]
+#[tokio::test]
+async fn read_only_archive_directory_is_a_clear_error() -> Result<()> {
+    use std::os::unix::fs::PermissionsExt;
+
+    let dir = tempfile::tempdir()?;
+    let archive = dir.path().join("article.meca");
+    std::fs::write(&archive, include_bytes!("fixtures/originals.meca"))?;
+    std::fs::set_permissions(dir.path(), std::fs::Permissions::from_mode(0o555))?;
+
+    // Skip where permissions are not enforced (e.g. running as root)
+    if std::fs::create_dir(dir.path().join("probe")).is_ok() {
+        return Ok(());
+    }
+
+    let result = MecaCodec
+        .from_path(
+            &archive,
+            Some(DecodeOptions {
+                embed_media: Some(false),
+                embed_supplements: Some(false),
+                reproducible: Some(false),
+                ..Default::default()
+            }),
+        )
+        .await;
+    std::fs::set_permissions(dir.path(), std::fs::Permissions::from_mode(0o755))?;
+
+    let error = format!("{:#}", result.err().ok_or_eyre("expected an error")?);
+    assert!(error.contains("is its directory writable?"), "{error}");
+    assert!(error.contains("--embed-media"), "{error}");
+    Ok(())
+}
