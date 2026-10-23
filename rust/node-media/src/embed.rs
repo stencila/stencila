@@ -323,6 +323,12 @@ impl Embedder {
             format!("data:{mime_type};base64,{encoded}")
         };
 
+        if image.media_type.is_some() {
+            image.media_type = data_uri
+                .strip_prefix("data:")
+                .and_then(|uri| uri.split_once(';'))
+                .map(|(mime, _)| mime.to_string());
+        }
         image.content_url = data_uri;
     }
 
@@ -356,6 +362,9 @@ impl Embedder {
                             let encoded = STANDARD.encode(&jpeg_bytes);
                             let data_uri = format!("data:image/jpeg;base64,{encoded}");
                             image.content_url = data_uri;
+                            if image.media_type.is_some() {
+                                image.media_type = Some("image/jpeg".into());
+                            }
                         }
                         Err(error) => {
                             tracing::error!("Failed to read converted JPEG file: {error}");
@@ -431,6 +440,9 @@ impl Embedder {
                             let encoded = STANDARD.encode(&audio_bytes);
                             let data_uri = format!("data:audio/mpeg;base64,{encoded}");
                             audio.content_url = data_uri;
+                            if audio.media_type.is_some() {
+                                audio.media_type = Some("audio/mpeg".into());
+                            }
                         }
                         Err(error) => {
                             tracing::error!("Failed to read optimized audio file: {error}");
@@ -519,6 +531,9 @@ impl Embedder {
                             let encoded = STANDARD.encode(&video_bytes);
                             let data_uri = format!("data:video/mp4;base64,{}", encoded);
                             video.content_url = data_uri;
+                            if video.media_type.is_some() {
+                                video.media_type = Some("video/mp4".into());
+                            }
                         }
                         Err(error) => {
                             tracing::error!("Failed to read optimized video file: {error}");

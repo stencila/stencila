@@ -3,6 +3,7 @@ mod embed;
 mod extract;
 mod naming;
 mod reference;
+mod relocate;
 
 pub use collect::{collect_media, collect_media_with_paths};
 pub use embed::{
@@ -10,4 +11,5 @@ pub use embed::{
 };
 pub use extract::{extract_media, extract_media_with_paths};
 pub use reference::reference_media_with_paths;
+pub use relocate::{relocate_media, side_dir};
 pub use stencila_images::ImageResizeOptions;

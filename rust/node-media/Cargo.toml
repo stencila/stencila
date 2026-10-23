@@ -22,5 +22,8 @@ stencila-tools = { path = "../tools" }
 tempfile = { workspace = true }
 tracing = { workspace = true }
 
+[dev-dependencies]
+serde_json = { workspace = true }
+
 [lints]
 workspace = true

@@ -74,6 +74,11 @@ impl Embedder {
     /// using codecs to decode structured documents (CSV, DOCX, etc.). Handles errors gracefully
     /// by recording compilation messages and maps the result to the correct work type and variant.
     async fn embed(&self, supplement: &mut Supplement) {
+        // Already embedded (e.g. when decoding with `embed_supplements`)
+        if supplement.options.work.is_some() {
+            return;
+        }
+
         let Some(target) = &supplement.target else {
             supplement.options.compilation_messages = Some(vec![CompilationMessage::new(
                 MessageLevel::Warning,

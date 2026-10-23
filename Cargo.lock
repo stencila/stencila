@@ -10656,16 +10656,24 @@ dependencies = [
 name = "stencila-codec-jats"
 version = "0.0.0"
 dependencies = [
+ "derive_more 2.1.1",
  "glob",
+ "image",
  "insta",
  "itertools 0.14.0",
+ "mime_guess",
  "pretty_assertions",
  "quick-xml 0.37.5",
  "roxmltree 0.21.1",
+ "serde_json",
  "stencila-codec",
  "stencila-codec-biblio",
  "stencila-codec-jats-trait",
  "stencila-codec-text-trait",
+ "stencila-codec-utils",
+ "stencila-node-media",
+ "stencila-node-supplements",
+ "tempfile",
  "tokio",
 ]
 
@@ -10697,7 +10705,9 @@ dependencies = [
  "serde",
  "serde_json",
  "stencila-codec",
+ "stencila-node-media",
  "stencila-version",
+ "tempfile",
  "tokio",
  "zip 8.6.0",
 ]
@@ -10874,6 +10884,7 @@ version = "0.0.0"
 dependencies = [
  "glob",
  "insta",
+ "serde_json",
  "stencila-codec",
  "stencila-codec-jats",
  "stencila-dirs",
@@ -12281,6 +12292,7 @@ dependencies = [
  "percent-encoding",
  "regex",
  "seahash",
+ "serde_json",
  "stencila-codec-info",
  "stencila-codec-text-trait",
  "stencila-format",
