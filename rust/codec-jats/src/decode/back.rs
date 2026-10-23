@@ -9,6 +9,7 @@ use stencila_codec::stencila_schema::{
     PropertyValueOrString, Reference, ReferenceOptions, Section, SectionType, StringOrNumber,
 };
 use stencila_codec_biblio::decode::text_to_reference;
+use stencila_codec_utils::split_given_names;
 
 use crate::decode::{
     body::{decode_blocks, decode_sec},
@@ -17,7 +18,7 @@ use crate::decode::{
 
 use super::{
     body::decode_inlines,
-    utilities::{XLINK, extend_path, record_attrs_lost, record_node_lost, split_given_names},
+    utilities::{XLINK, extend_path, record_attrs_lost, record_node_lost},
 };
 
 /// Decode the `<back>` of an `<article>`

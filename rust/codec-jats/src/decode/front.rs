@@ -16,8 +16,9 @@ use stencila_codec::stencila_schema::{
 
 use super::{
     body::{decode_blocks, decode_inlines},
-    utilities::{XLINK, extend_path, record_attrs_lost, record_node_lost, split_given_names},
+    utilities::{XLINK, extend_path, record_attrs_lost, record_node_lost},
 };
+use stencila_codec_utils::{split_given_names, strip_doi_prefix, strip_ror_prefix};
 
 /// Decode the `<front>` of an `<article>`
 ///
@@ -53,25 +54,6 @@ fn non_empty_text(node: &Node) -> Option<String> {
         .collect::<String>();
     let text = text.trim();
     (!text.is_empty()).then(|| text.to_string())
-}
-
-/// Remove any resolver prefix from a ROR id
-fn strip_ror_prefix(ror: &str) -> String {
-    ror.trim()
-        .trim_start_matches("https://ror.org/")
-        .trim_start_matches("http://ror.org/")
-        .trim_end_matches('/')
-        .to_string()
-}
-
-/// Remove any resolver prefix from a DOI
-fn strip_doi_prefix(doi: &str) -> String {
-    doi.trim()
-        .trim_start_matches("https://doi.org/")
-        .trim_start_matches("http://doi.org/")
-        .trim_start_matches("https://dx.doi.org/")
-        .trim_start_matches("http://dx.doi.org/")
-        .to_string()
 }
 
 /// Get the normalized publication format of an element
