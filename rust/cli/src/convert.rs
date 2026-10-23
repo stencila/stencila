@@ -123,9 +123,34 @@ impl Cli {
 
         let input = input.as_deref().unwrap_or("-");
 
-        let decode_options = decode_options
+        let mut decode_options = decode_options
             .build(input_path.as_deref(), strip_options.clone())
             .with_tool(from_tool, Vec::new());
+        // Archive codecs default to self-contained documents. Retain original
+        // media by reference, unless embedding was requested, only where
+        // the encoder can rebase references to each output: a file input
+        // encoded to JSON. Other inputs and formats keep the codec defaults.
+        let json_only = outputs
+            .iter()
+            .map(|output| (output != Path::new("-")).then_some(output.as_path()))
+            .chain(outputs.is_empty().then_some(None))
+            .all(|output| {
+                matches!(
+                    encode_options.format(output, Format::Json),
+                    Format::Json | Format::JsonZip
+                )
+            });
+        if json_only && input_path.as_deref().is_some_and(Path::is_file) {
+            let media_options = encode_options.build(
+                input_path.as_deref(),
+                None,
+                Format::Json,
+                strip_options.clone(),
+            );
+            decode_options.embed_media = Some(media_options.embed_media.unwrap_or_default());
+            decode_options.embed_supplements =
+                Some(media_options.embed_supplements.unwrap_or_default());
+        }
         let mut node = stencila_codecs::from_identifier(input, Some(decode_options)).await?;
 
         // Resolve suggestions if requested

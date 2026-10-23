@@ -70,7 +70,7 @@ stencila merge edited.docx --original document.md --workdir ./merge-work
 | `--theme`                       | The CSS theme to use when encoding to HTML and HTML-derived formats.                                            |
 | `--view`                        | The document view to use when encoding to HTML and HTML-derived formats.                                        |
 | `--embed-media`                 | Embed media files as data URIs. Possible values: `true`, `false`.                                               |
-| `--extract-media`               | Extract embedded media to a folder.                                                                             |
+| `--extract-media`               | Extract embedded media or copy original media to a folder.                                                      |
 | `--embed-supplements`           | Embed supplemental files directly into the document. Possible values: `true`, `false`.                          |
 | `--extract-supplements`         | Extract embedded supplemental content to separate files.                                                        |
 | `--recursive`                   | Recursively encode the content of `IncludeBlock`s to their source file. Possible values: `true`, `false`.       |

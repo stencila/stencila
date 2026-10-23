@@ -351,7 +351,7 @@ pub struct EncodeOptions {
     /// When enabled, external media files (images, audio, video) referenced in
     /// the document will be converted to data URIs and embedded directly in the
     /// output. This creates a self-contained document but may increase file
-    /// size significantly. Currently respected for Markdown-flavors, LaTeX,
+    /// size significantly. Supported for JSON, Markdown-flavors, LaTeX,
     /// HTML, and CBOR. Should not be used with `--extract-media`.
     #[arg(
         long,
@@ -360,13 +360,14 @@ pub struct EncodeOptions {
     )]
     embed_media: bool,
 
-    /// Extract embedded media to a folder
+    /// Extract embedded media or copy original media to a folder
     ///
     /// Depending on the format, this is often the default when encoding to
     /// files. When provided, any data URIs in the document will be extracted to
     /// files in the specified directory, and the references will be updated to
     /// point to these external files. This reduces document size but creates
-    /// external dependencies. Currently respected for Markdown-flavors, LaTeX,
+    /// external dependencies. JSON also copies referenced local originals
+    /// without resizing or transcoding. Supported for JSON, Markdown-flavors, LaTeX,
     /// HTML, and CBOR. Should not be used with `--embed-media`.
     #[arg(
         long,
@@ -439,6 +440,16 @@ pub struct EncodeOptions {
 }
 
 impl EncodeOptions {
+    /// The format to encode an output to: the `--to` option, else the
+    /// format of the output path, else the default
+    pub(crate) fn format(&self, output: Option<&Path>, default_format: Format) -> Format {
+        match (&self.to, output) {
+            (Some(name), _) => Format::from_name(name),
+            (None, Some(output)) => Format::from_path(output),
+            (None, None) => default_format,
+        }
+    }
+
     /// Build a set of [`codecs::EncodeOptions`] from command line arguments
     #[allow(clippy::too_many_arguments)]
     pub(crate) fn build(
@@ -450,14 +461,7 @@ impl EncodeOptions {
     ) -> stencila_codecs::EncodeOptions {
         let codec = self.to.clone();
 
-        let format = self
-            .to
-            .as_ref()
-            .map_or_else(
-                || output.map(Format::from_path),
-                |name| Some(Format::from_name(name)),
-            )
-            .or(Some(default_format));
+        let format = Some(self.format(output, default_format));
 
         let compact = self
             .compact
@@ -531,6 +535,8 @@ impl EncodeOptions {
             view: self.view.clone(),
             embed_media,
             extract_media,
+            // CLI outputs are exports, so references follow the output
+            relocate_media: Some(true),
             embed_supplements,
             extract_supplements,
             recurse,
