@@ -366,8 +366,9 @@ pub struct EncodeOptions {
     /// files. When provided, any data URIs in the document will be extracted to
     /// files in the specified directory, and the references will be updated to
     /// point to these external files. This reduces document size but creates
-    /// external dependencies. JSON also copies referenced local originals
-    /// without resizing or transcoding. Supported for JSON, Markdown-flavors, LaTeX,
+    /// external dependencies. Formats that keep references (e.g. JSON,
+    /// Markdown-flavors, HTML) also copy referenced local originals without
+    /// resizing or transcoding. Supported for JSON, Markdown-flavors, LaTeX,
     /// HTML, and CBOR. Should not be used with `--embed-media`.
     #[arg(
         long,

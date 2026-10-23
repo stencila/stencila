@@ -11242,6 +11242,7 @@ dependencies = [
  "stencila-codec-yaml",
  "stencila-codec-zenodo",
  "stencila-content-credentials",
+ "stencila-node-media",
  "stencila-node-stabilize",
  "stencila-node-strip",
  "stencila-node-structuring",

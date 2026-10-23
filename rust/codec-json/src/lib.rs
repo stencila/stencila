@@ -184,22 +184,12 @@ pub fn to_path(node: &Node, path: &Path, options: Option<EncodeOptions>) -> Resu
 pub fn to_string(node: &Node, options: Option<EncodeOptions>) -> Result<(String, EncodeInfo)> {
     let options = options.unwrap_or_default();
     let embed = options.embed_media.unwrap_or_default();
-    let relocate = options.relocate_media.unwrap_or_default();
 
     // Only clone and walk the node when media options require it
-    let node = if embed || relocate || options.extract_media.is_some() {
+    let node = if embed || options.extract_media.is_some() {
         let mut prepared = node.clone();
         if embed {
             stencila_node_media::embed_media(&mut prepared, options.from_path.as_deref())?;
-        }
-        if relocate {
-            stencila_node_media::relocate_media(
-                &mut prepared,
-                options.from_path.as_deref(),
-                options.to_path.as_deref(),
-                options.extract_media.as_deref(),
-                options.extract_supplements.as_deref(),
-            )?;
         }
         if let Some(directory) = &options.extract_media {
             stencila_node_media::extract_media(

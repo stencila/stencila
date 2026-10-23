@@ -1,6 +1,7 @@
 #![recursion_limit = "256"]
 
 use std::{
+    borrow::Cow,
     path::{Path, PathBuf},
     process::{Command, Stdio},
 };
@@ -618,6 +619,9 @@ pub async fn to_string_with_info(
         );
     }
 
+    let node = relocate_for_export(node, options.as_ref(), None)?;
+    let node = node.as_ref();
+
     if let Some(EncodeOptions {
         strip_scopes,
         strip_types,
@@ -632,6 +636,66 @@ pub async fn to_string_with_info(
     }
 
     codec.to_string(node, options).await
+}
+
+/// Whether a format keeps media and supplement references in its output
+///
+/// Documents in these formats refer to media files rather than bundling them,
+/// so local references can be rebased to the output (see
+/// [`EncodeOptions::relocate_media`]). Bundling formats (e.g. DOCX, PDF) need
+/// references that resolve when encoding instead.
+pub fn keeps_media_references(format: &Format) -> bool {
+    matches!(
+        format,
+        Format::Cbor
+            | Format::CborZstd
+            | Format::Dom
+            | Format::Html
+            | Format::Json
+            | Format::Json5
+            | Format::JsonLd
+            | Format::JsonZip
+            | Format::Latex
+            | Format::Llmd
+            | Format::Markdown
+            | Format::Myst
+            | Format::Qmd
+            | Format::Smd
+            | Format::Tex
+            | Format::Yaml
+    )
+}
+
+/// Rebase local media and supplement references for an export
+///
+/// Only done when requested, for formats that keep references, and when not
+/// collecting media (which resolves references relative to `from_path`
+/// itself). Media are embedded first, if requested, for the same reason.
+fn relocate_for_export<'node>(
+    node: &'node Node,
+    options: Option<&EncodeOptions>,
+    to_path: Option<&Path>,
+) -> Result<Cow<'node, Node>> {
+    let Some(options) = options.filter(|options| {
+        options.relocate_media.unwrap_or_default()
+            && options.collect_media.is_none()
+            && options.format.as_ref().is_some_and(keeps_media_references)
+    }) else {
+        return Ok(Cow::Borrowed(node));
+    };
+
+    let mut node = node.clone();
+    if options.embed_media.unwrap_or_default() {
+        stencila_node_media::embed_media(&mut node, options.from_path.as_deref())?;
+    }
+    stencila_node_media::relocate_media(
+        &mut node,
+        options.from_path.as_deref(),
+        to_path,
+        options.extract_media.as_deref(),
+        options.extract_supplements.as_deref(),
+    )?;
+    Ok(Cow::Owned(node))
 }
 
 /// Encode a Stencila Schema node to a file system path
@@ -695,6 +759,8 @@ pub async fn to_path_with_info(
         ..options.unwrap_or_default()
     };
     clean_default_media_dir(path, &format, &options).await?;
+    let relocated = relocate_for_export(node, Some(&options), Some(path))?;
+    let node = relocated.as_ref();
     let options = Some(options);
 
     let codec_name = codec.name().to_string();

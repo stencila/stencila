@@ -2,86 +2,28 @@ use std::path::Path;
 use stencila_codec::{
     Codec, EncodeOptions,
     eyre::Result,
-    stencila_schema::{Article, Block, ImageObject, Node, Supplement},
+    stencila_schema::{Article, Block, ImageObject, Node},
 };
 use stencila_codec_json::JsonCodec;
 
 #[tokio::test]
-async fn json_references_follow_output_and_copies_preserve_original_bytes() -> Result<()> {
+async fn embedding_converts_media_and_leaves_the_node_unchanged() -> Result<()> {
     let dir = tempfile::tempdir()?;
-    let source = dir.path().join("source");
-    std::fs::create_dir(&source)?;
-    std::fs::write(source.join("article.xml"), "<article/>")?;
     let bytes = include_bytes!("../../codec-jats/tests/media/extensionless/figure.tif");
-    std::fs::write(source.join("figure.tif"), bytes)?;
-    std::fs::write(source.join("data.csv"), "x,y\n1,2\n")?;
-    let node = Node::Article(Article::new(vec![
-        Block::ImageObject(ImageObject {
-            content_url: "figure.tif".into(),
-            media_type: Some("image/tiff".into()),
-            ..Default::default()
-        }),
-        Block::Supplement(Supplement {
-            target: Some("data.csv".into()),
-            ..Default::default()
-        }),
-    ]));
-    let output = dir.path().join("elsewhere/out.json");
-    let opts = EncodeOptions {
-        from_path: Some(source.join("article.xml")),
-        relocate_media: Some(true),
+    std::fs::write(dir.path().join("figure.tif"), bytes)?;
+    std::fs::write(dir.path().join("article.xml"), "<article/>")?;
+    let node = Node::Article(Article::new(vec![Block::ImageObject(ImageObject {
+        content_url: "figure.tif".into(),
+        media_type: Some("image/tiff".into()),
         ..Default::default()
-    };
-    JsonCodec
-        .to_path(&node, &output, Some(opts.clone()))
-        .await?;
-    let json = std::fs::read_to_string(&output)?;
-    assert!(json.contains("../source/figure.tif"));
-    assert!(json.contains("../source/data.csv"));
-    assert!(!json.contains("data:image"));
-
-    JsonCodec
-        .to_path(
-            &node,
-            &output,
-            Some(EncodeOptions {
-                extract_media: Some(dir.path().join("originals")),
-                extract_supplements: Some(dir.path().join("supplements")),
-                ..opts.clone()
-            }),
-        )
-        .await?;
-    let json = std::fs::read_to_string(&output)?;
-    let (copied, _) = JsonCodec.from_str(&json, None).await?;
-    let Node::Article(article) = copied else {
-        stencila_codec::eyre::bail!("expected article")
-    };
-    let Block::ImageObject(image) = &article.content[0] else {
-        stencila_codec::eyre::bail!("expected image")
-    };
-    let copied_path = output
-        .parent()
-        .unwrap_or(Path::new("."))
-        .join(&image.content_url);
-    assert_eq!(std::fs::read(copied_path)?, bytes);
-    let Block::Supplement(supplement) = &article.content[1] else {
-        stencila_codec::eyre::bail!("expected supplement")
-    };
-    let target = supplement
-        .target
-        .as_deref()
-        .ok_or_else(|| stencila_codec::eyre::eyre!("target missing"))?;
-    assert_eq!(
-        std::fs::read(output.parent().unwrap_or(Path::new(".")).join(target))?,
-        b"x,y\n1,2\n"
-    );
-
+    })]));
     let (embedded, _) = JsonCodec
         .to_string(
             &node,
             Some(EncodeOptions {
+                from_path: Some(dir.path().join("article.xml")),
                 embed_media: Some(true),
-                ..opts
+                ..Default::default()
             }),
         )
         .await?;

@@ -572,12 +572,13 @@ pub struct EncodeOptions {
 
     /// Whether to rebase local media and supplement references for export
     ///
-    /// When enabled, codecs that support it (currently JSON) rewrite references
-    /// that resolve relative to `from_path` so that they resolve relative to
-    /// `to_path` (or the current directory if there is no `to_path`). If
-    /// `extract_media` or `extract_supplements` is also set, the referenced
-    /// originals are copied there byte-for-byte. This is opt-in so that
-    /// serialization for other purposes (e.g. caching) preserves references.
+    /// When enabled, the encoding dispatcher rewrites references that resolve
+    /// relative to `from_path` so that they resolve relative to the output path
+    /// (or the current directory when encoding to a string), for formats that
+    /// keep references rather than bundling media. If `extract_media` or
+    /// `extract_supplements` is also set, the referenced originals are copied
+    /// there byte-for-byte. This is opt-in so that serialization for other
+    /// purposes (e.g. caching) preserves references.
     pub relocate_media: Option<bool>,
 
     /// Whether to embed supplement files as embedded supplemental works

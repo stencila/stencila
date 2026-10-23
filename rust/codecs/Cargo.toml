@@ -67,6 +67,7 @@ stencila-codec-xlsx = { path = "../codec-xlsx" }
 stencila-codec-yaml = { path = "../codec-yaml" }
 stencila-codec-zenodo = { path = "../codec-zenodo" }
 stencila-content-credentials = { path = "../content-credentials", features = ["export"] }
+stencila-node-media = { path = "../node-media" }
 stencila-node-stabilize = { path = "../node-stabilize" }
 stencila-node-strip = { path = "../node-strip" }
 stencila-node-structuring = { path = "../node-structuring" }

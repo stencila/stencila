@@ -164,7 +164,7 @@ fn meca_cli_defaults_to_original_files_and_honors_embedding() -> Result<()> {
 }
 
 #[test]
-fn meca_to_markdown_links_resolve_beside_and_away_from_input() -> Result<()> {
+fn meca_to_markdown_media_and_supplement_links_resolve() -> Result<()> {
     let dir = tempfile::tempdir()?;
     std::fs::write(
         dir.path().join("article.meca"),
@@ -174,14 +174,16 @@ fn meca_to_markdown_links_resolve_beside_and_away_from_input() -> Result<()> {
         convert(dir.path(), &["article.meca", out])?;
         let path = dir.path().join(out);
         let markdown = std::fs::read_to_string(&path)?;
-        // Image links only: an embedded supplement's target still names the
-        // file in the archive (a known, separate limitation)
         let links = markdown
-            .split("![")
+            .split("](")
             .skip(1)
-            .filter_map(|rest| rest.split_once("]("))
-            .filter_map(|(_, rest)| rest.split(')').next())
+            .filter_map(|rest| rest.split(')').next())
+            .filter(|link| !link.starts_with("http"))
             .collect::<Vec<_>>();
+        assert!(
+            links.iter().any(|link| link.ends_with(".csv")),
+            "no supplement link in {out}: {markdown}"
+        );
         assert!(!links.is_empty(), "no links in {out}: {markdown}");
         for link in links {
             assert!(

@@ -128,19 +128,19 @@ impl Cli {
             .with_tool(from_tool, Vec::new());
         // Archive codecs default to self-contained documents. Retain original
         // media by reference, unless embedding was requested, only where
-        // the encoder can rebase references to each output: a file input
-        // encoded to JSON. Other inputs and formats keep the codec defaults.
-        let json_only = outputs
+        // references can be rebased to each output: a file input encoded to
+        // formats that keep references. Identifier inputs (whose downloads are
+        // temporary) and bundling formats (e.g. DOCX) keep the codec defaults.
+        let keeps_references = outputs
             .iter()
             .map(|output| (output != Path::new("-")).then_some(output.as_path()))
             .chain(outputs.is_empty().then_some(None))
             .all(|output| {
-                matches!(
-                    encode_options.format(output, Format::Json),
-                    Format::Json | Format::JsonZip
+                stencila_codecs::keeps_media_references(
+                    &encode_options.format(output, Format::Json),
                 )
             });
-        if json_only && input_path.as_deref().is_some_and(Path::is_file) {
+        if keeps_references && input_path.as_deref().is_some_and(Path::is_file) {
             let media_options = encode_options.build(
                 input_path.as_deref(),
                 None,

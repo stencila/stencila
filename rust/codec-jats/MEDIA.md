@@ -8,20 +8,31 @@ that its hrefs refer to the current working directory.
 
 ## Reference and extraction policy
 
-CLI conversion of a file to JSON keeps media as file references unless
-`--embed-media` is passed. JSON references are relative to each output document,
-including when several outputs are requested. String/stdout output uses the
-current working directory as the reference base. Relocation is opt-in at the
-library level (`EncodeOptions::relocate_media`), which the CLI sets for its
-outputs; other JSON serialization (e.g. the document cache) preserves references
-unchanged. Relative references are resolved from the symlink-resolved directory
-of the input, matching the JATS decoder, and include media in nested works such
-as sub-articles and graphical abstracts. `--extract-media DIR` extracts data URIs and copies local
-originals into DIR; both operations preserve bytes and do not resize images.
-Copied names include a content hash to avoid collisions. Original files are
-never modified. `--extract-supplements DIR` also copies original supplement
-files for JSON exports; already embedded supplemental works retain the existing
-CLI extraction to CBOR behaviour.
+CLI conversion of a file keeps media and supplements as file references, unless
+`--embed-media` or `--embed-supplements` is passed, when every output is in a
+format that keeps references: JSON, JSON5, JSON-LD, YAML, CBOR, Markdown
+flavours, HTML and LaTeX (`stencila_codecs::keeps_media_references`).
+References are relative to each output document, including when several outputs
+are requested. String/stdout output uses the current working directory as the
+reference base.
+
+Relocation is opt-in (`EncodeOptions::relocate_media`), which the CLI sets for
+its outputs, and is done by the `codecs` dispatcher so that it applies to every
+format that keeps references. Other serialization (e.g. the document cache)
+preserves references unchanged. Bundling formats (e.g. DOCX, PDF) are not
+relocated, because their encoders need references that resolve when encoding,
+and the CLI keeps the library defaults (embedding) for archives converted to
+them. Relocation is also skipped when collecting media (e.g. for Sites), which
+resolves references itself. Relative references are resolved from the
+symlink-resolved directory of the input, matching the JATS decoder, and include
+media in nested works such as sub-articles and graphical abstracts.
+
+`--extract-media DIR` extracts data URIs and copies local originals into DIR;
+both operations preserve bytes and do not resize images. Copied names include a
+content hash to avoid collisions. Original files are never modified.
+`--extract-supplements DIR` also copies original supplement files; already
+embedded supplemental works retain the existing CLI extraction to CBOR
+behaviour.
 
 Explicit embedding still uses the existing web optimization settings (1200px
 image width, TIFF converted to PNG, audio/video optimized when the relevant
@@ -35,7 +46,9 @@ whole file name so that they never coincide with the default `<output>.media`
 directory of an output beside the input (e.g. `article.md`), which is removed
 before encoding. An unpacked MECA bundle references its existing files.
 These retained originals can subsequently be collected into another directory
-using the JSON extraction flags. Side directories are not automatically cleaned.
+using the extraction flags. Side directories are not automatically cleaned. If
+the archive's directory is not writable, decoding fails with an error naming it
+and suggesting embedding or a writable copy.
 
 ## Href matching
 
@@ -63,11 +76,13 @@ document and are reported as decode losses rather than causing decode errors.
 The library default remains embedding both media and supplements, matching PMC
 and preserving existing callers. MECA now honors explicit `Some(false)` and
 `Some(true)` independently. The `convert` command explicitly selects references
-by default for file inputs when every output is JSON (or JSON+zip); this is the
-intentional CLI behaviour change. Callers needing the previous CLI output can
-pass `--embed-media --embed-supplements`. Identifier inputs (e.g. PMC ids) and
-other output formats keep the library defaults, because only the JSON encoder
-rebases references to the output and downloaded archives are temporary.
+by default for file inputs when every output keeps references (see above); this
+is the intentional CLI behaviour change. For example, a MECA archive converted to
+Markdown now links to the original files (e.g. TIFF) rather than to resized PNGs
+extracted to `<output>.media`. Callers needing the previous CLI output can pass
+`--embed-media --embed-supplements`. Identifier inputs (e.g. PMC ids) and
+bundling output formats keep the library defaults, because downloaded archives
+are temporary and bundling encoders do not use rebased references.
 Supplements already embedded during decoding are not embedded again by the
 CLI's `--embed-supplements` pass.
 
