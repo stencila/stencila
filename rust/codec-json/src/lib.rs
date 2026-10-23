@@ -1,4 +1,5 @@
 use std::{
+    borrow::Cow,
     fs::{self, File},
     io::{Cursor, Read, Write},
     path::Path,
@@ -148,6 +149,7 @@ pub fn to_path(node: &Node, path: &Path, options: Option<EncodeOptions>) -> Resu
 
     let mut options = options.unwrap_or_default();
     options.standalone = Some(true);
+    options.to_path = Some(path.into());
     let options = Some(options);
 
     let (string, ..) = to_string(node, options.clone())?;
@@ -180,11 +182,42 @@ pub fn to_path(node: &Node, path: &Path, options: Option<EncodeOptions>) -> Resu
 
 /// Encode a node to a JSON string
 pub fn to_string(node: &Node, options: Option<EncodeOptions>) -> Result<(String, EncodeInfo)> {
+    let options = options.unwrap_or_default();
+    let embed = options.embed_media.unwrap_or_default();
+    let relocate = options.relocate_media.unwrap_or_default();
+
+    // Only clone and walk the node when media options require it
+    let node = if embed || relocate || options.extract_media.is_some() {
+        let mut prepared = node.clone();
+        if embed {
+            stencila_node_media::embed_media(&mut prepared, options.from_path.as_deref())?;
+        }
+        if relocate {
+            stencila_node_media::relocate_media(
+                &mut prepared,
+                options.from_path.as_deref(),
+                options.to_path.as_deref(),
+                options.extract_media.as_deref(),
+                options.extract_supplements.as_deref(),
+            )?;
+        }
+        if let Some(directory) = &options.extract_media {
+            stencila_node_media::extract_media(
+                &mut prepared,
+                options.to_path.as_deref(),
+                directory,
+            )?;
+        }
+        Cow::Owned(prepared)
+    } else {
+        Cow::Borrowed(node)
+    };
+    let node = node.as_ref();
     let EncodeOptions {
         standalone,
         compact,
         ..
-    } = options.unwrap_or_default();
+    } = options;
 
     if !standalone.unwrap_or_default() {
         return Ok((
