@@ -121,26 +121,12 @@ impl Relocator {
         }
     }
 
-    /// Relocate the parts of a work (e.g. graphical abstracts, sub-articles)
+    /// Walk the parts of a work (e.g. graphical abstracts, sub-articles)
     ///
-    /// `parts` is not walked by `WalkNode`, and `visit_work` is not called for
-    /// [`CreativeWorkVariant`]s, so each part is handled and walked explicitly.
+    /// `parts` is not walked by `WalkNode`, so it is walked explicitly.
     fn parts(&mut self, parts: &mut Option<Vec<CreativeWorkVariant>>) {
         for part in parts.iter_mut().flatten() {
-            self.work(part);
             self.walk(part);
-        }
-    }
-
-    fn work(&mut self, work: &mut CreativeWorkVariant) {
-        relocate_variants!(self, work, CreativeWorkVariant);
-        match work {
-            CreativeWorkVariant::MediaObject(media) => {
-                self.relocate(&mut media.content_url, Resource::Media)
-            }
-            CreativeWorkVariant::Table(table) => self.images(&mut table.options.images),
-            CreativeWorkVariant::Article(article) => self.parts(&mut article.options.parts),
-            _ => {}
         }
     }
 
@@ -228,6 +214,19 @@ impl VisitorMut for Relocator {
                     self.relocate(target, Resource::Supplement);
                 }
             }
+            _ => {}
+        }
+        WalkControl::Continue
+    }
+
+    fn visit_work(&mut self, work: &mut CreativeWorkVariant) -> WalkControl {
+        relocate_variants!(self, work, CreativeWorkVariant);
+        match work {
+            CreativeWorkVariant::MediaObject(media) => {
+                self.relocate(&mut media.content_url, Resource::Media)
+            }
+            CreativeWorkVariant::Table(table) => self.images(&mut table.options.images),
+            CreativeWorkVariant::Article(article) => self.parts(&mut article.options.parts),
             _ => {}
         }
         WalkControl::Continue

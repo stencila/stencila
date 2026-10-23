@@ -215,7 +215,7 @@ fn derive_enum(type_attr: TypeAttr, data: &DataEnum) -> TokenStream {
     let (visit, visit_mut, visit_async) = {
         let method = match enum_name.to_string().as_str() {
             "Node" => Some(quote!(visit_node)),
-            "CreativeWorkType" => Some(quote!(visit_work)),
+            "CreativeWorkVariant" => Some(quote!(visit_work)),
             "Block" => Some(quote!(visit_block)),
             "Inline" => Some(quote!(visit_inline)),
             _ => None,
