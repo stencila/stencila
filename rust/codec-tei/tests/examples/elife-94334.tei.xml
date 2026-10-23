@@ -1,0 +1,2346 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<TEI xml:space="preserve" xmlns="http://www.tei-c.org/ns/1.0" 
+xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+xsi:schemaLocation="http://www.tei-c.org/ns/1.0 https://raw.githubusercontent.com/kermitt2/grobid/master/grobid-home/schemas/xsd/Grobid.xsd"
+ xmlns:xlink="http://www.w3.org/1999/xlink">
+	<teiHeader xml:lang="en">
+		<fileDesc>
+			<titleStmt>
+				<title level="a" type="main">Prolonged cell cycle arrest in response to DNA damage in yeast requires the maintenance of DNA damage signaling and the spindle assembly checkpoint</title>
+				<funder ref="#_n3UBHVp">
+					<orgName type="full">unknown</orgName>
+				</funder>
+			</titleStmt>
+			<publicationStmt>
+				<publisher/>
+				<availability  status="unknown">
+					<licence/>
+				</availability>
+				<date type="published" when="2024-12-10">10 December 2024</date>
+			</publicationStmt>
+			<sourceDesc>
+				<biblStruct status="extracted">
+					<analytic>
+						<author>
+							<persName><forename type="first">Felix</forename><forename type="middle">Y</forename><surname>Zhou</surname></persName>
+							<affiliation key="aff0">
+								<orgName type="department">Department of Biology and Rosenstiel Basic Medical Sciences Research Center</orgName>
+								<orgName type="institution">Brandeis University</orgName>
+								<address>
+									<settlement>Waltham</settlement>
+									<country>United States;</country>
+								</address>
+							</affiliation>
+						</author>
+						<author>
+							<persName><forename type="first">David</forename><forename type="middle">P</forename><surname>Waterman</surname></persName>
+							<affiliation key="aff0">
+								<orgName type="department">Department of Biology and Rosenstiel Basic Medical Sciences Research Center</orgName>
+								<orgName type="institution">Brandeis University</orgName>
+								<address>
+									<settlement>Waltham</settlement>
+									<country>United States;</country>
+								</address>
+							</affiliation>
+						</author>
+						<author>
+							<persName><forename type="first">Marissa</forename><surname>Ashton</surname></persName>
+							<affiliation key="aff0">
+								<orgName type="department">Department of Biology and Rosenstiel Basic Medical Sciences Research Center</orgName>
+								<orgName type="institution">Brandeis University</orgName>
+								<address>
+									<settlement>Waltham</settlement>
+									<country>United States;</country>
+								</address>
+							</affiliation>
+						</author>
+						<author>
+							<persName><forename type="first">Suhaily</forename><surname>Caban-Penix</surname></persName>
+							<affiliation key="aff0">
+								<orgName type="department">Department of Biology and Rosenstiel Basic Medical Sciences Research Center</orgName>
+								<orgName type="institution">Brandeis University</orgName>
+								<address>
+									<settlement>Waltham</settlement>
+									<country>United States;</country>
+								</address>
+							</affiliation>
+						</author>
+						<author>
+							<persName><forename type="first">Gonen</forename><surname>Memisoglu</surname></persName>
+							<affiliation key="aff0">
+								<orgName type="department">Department of Biology and Rosenstiel Basic Medical Sciences Research Center</orgName>
+								<orgName type="institution">Brandeis University</orgName>
+								<address>
+									<settlement>Waltham</settlement>
+									<country>United States;</country>
+								</address>
+							</affiliation>
+							<affiliation key="aff1">
+								<orgName type="department">Department of Molecular Genetics &amp; Cell Biology</orgName>
+								<orgName type="institution">University of Chicago</orgName>
+								<address>
+									<settlement>Chicago</settlement>
+									<country key="US">United States</country>
+								</address>
+							</affiliation>
+						</author>
+						<author>
+							<persName><forename type="first">Vinay</forename><forename type="middle">V</forename><surname>Eapen</surname></persName>
+							<affiliation key="aff0">
+								<orgName type="department">Department of Biology and Rosenstiel Basic Medical Sciences Research Center</orgName>
+								<orgName type="institution">Brandeis University</orgName>
+								<address>
+									<settlement>Waltham</settlement>
+									<country>United States;</country>
+								</address>
+							</affiliation>
+							<affiliation key="aff2">
+								<orgName type="department">Flagship Pioneering</orgName>
+								<address>
+									<settlement>Cambridge</settlement>
+									<country key="US">United States</country>
+								</address>
+							</affiliation>
+						</author>
+						<author role="corresp">
+							<persName><forename type="first">James</forename><forename type="middle">E</forename><surname>Haber</surname></persName>
+							<email>haber@brandeis.edu</email>
+							<affiliation key="aff0">
+								<orgName type="department">Department of Biology and Rosenstiel Basic Medical Sciences Research Center</orgName>
+								<orgName type="institution">Brandeis University</orgName>
+								<address>
+									<settlement>Waltham</settlement>
+									<country>United States;</country>
+								</address>
+							</affiliation>
+						</author>
+						<title level="a" type="main">Prolonged cell cycle arrest in response to DNA damage in yeast requires the maintenance of DNA damage signaling and the spindle assembly checkpoint</title>
+					</analytic>
+					<monogr>
+						<imprint>
+							<date type="published" when="2024-12-10">10 December 2024</date>
+						</imprint>
+					</monogr>
+					<idno type="MD5">07AA0FDDB2A6AD2D0E7BC60112CB8DC8</idno>
+					<idno type="DOI">10.7554/eLife.94334</idno>
+					<note type="submission">Reviewed preprint posted 30 January 2024 Reviewed preprint revised</note>
+				</biblStruct>
+			</sourceDesc>
+		</fileDesc>
+		<encodingDesc>
+			<appInfo>
+				<application version="0.9.1" ident="GROBID" when="2026-10-23T04:45+0000">
+					<desc>GROBID - A machine learning software for extracting information from scholarly documents</desc>
+					<label type="revision">0.9.1</label>
+					<label type="parameters">startPage=-1, endPage=-1, consolidateCitations=0, consolidateHeader=0, consolidateFunders=0, includeRawAffiliations=false, includeRawCitations=false, includeRawCopyrights=false, generateTeiIds=false, generateTeiCoordinates=[figure, formula], flavor=null, debugLabelingCollector=disabled</label>
+					<ref target="https://github.com/kermitt2/grobid"/>
+				</application>
+			</appInfo>
+		</encodingDesc>
+		<profileDesc>
+			<abstract>
+<div xmlns="http://www.tei-c.org/ns/1.0"><p>This is an important study on the damage-induced checkpoint maintenance and termination in budding yeast that provides novel and convincing evidence for a role of the spindle assembly checkpoint and mitotic exit network in halting the cell cycle after prolonged arrest in response to irreparable DNA double-strand breaks (DSBs). The study identifies particular components from these checkpoints that are specifically required for the establishment and/or the maintenance of a cell cycle block triggered by such DSBs. The authors propose an interesting model for how these different checkpoints intersect and crosstalk for timely resumption of cell cycling even without repairing DNA damage that has been revised by addressing the bulk of the reviewers' comments to the first version of the manuscript.</p></div>
+			</abstract>
+		</profileDesc>
+	</teiHeader>
+	<facsimile>
+		<surface n="1" ulx="0.0" uly="0.0" lrx="612.0" lry="792.0"/>
+		<surface n="2" ulx="0.0" uly="0.0" lrx="612.0" lry="792.0"/>
+		<surface n="3" ulx="0.0" uly="0.0" lrx="612.0" lry="792.0"/>
+		<surface n="4" ulx="0.0" uly="0.0" lrx="612.0" lry="792.0"/>
+		<surface n="5" ulx="0.0" uly="0.0" lrx="612.0" lry="792.0"/>
+		<surface n="6" ulx="0.0" uly="0.0" lrx="612.0" lry="792.0"/>
+		<surface n="7" ulx="0.0" uly="0.0" lrx="612.0" lry="792.0"/>
+		<surface n="8" ulx="0.0" uly="0.0" lrx="612.0" lry="792.0"/>
+		<surface n="9" ulx="0.0" uly="0.0" lrx="612.0" lry="792.0"/>
+		<surface n="10" ulx="0.0" uly="0.0" lrx="612.0" lry="792.0"/>
+		<surface n="11" ulx="0.0" uly="0.0" lrx="612.0" lry="792.0"/>
+		<surface n="12" ulx="0.0" uly="0.0" lrx="612.0" lry="792.0"/>
+		<surface n="13" ulx="0.0" uly="0.0" lrx="612.0" lry="792.0"/>
+		<surface n="14" ulx="0.0" uly="0.0" lrx="612.0" lry="792.0"/>
+		<surface n="15" ulx="0.0" uly="0.0" lrx="612.0" lry="792.0"/>
+		<surface n="16" ulx="0.0" uly="0.0" lrx="612.0" lry="792.0"/>
+		<surface n="17" ulx="0.0" uly="0.0" lrx="612.0" lry="792.0"/>
+		<surface n="18" ulx="0.0" uly="0.0" lrx="612.0" lry="792.0"/>
+		<surface n="19" ulx="0.0" uly="0.0" lrx="612.0" lry="792.0"/>
+		<surface n="20" ulx="0.0" uly="0.0" lrx="612.0" lry="792.0"/>
+		<surface n="21" ulx="0.0" uly="0.0" lrx="612.0" lry="792.0"/>
+		<surface n="22" ulx="0.0" uly="0.0" lrx="612.0" lry="792.0"/>
+		<surface n="23" ulx="0.0" uly="0.0" lrx="612.0" lry="792.0"/>
+		<surface n="24" ulx="0.0" uly="0.0" lrx="612.0" lry="792.0"/>
+		<surface n="25" ulx="0.0" uly="0.0" lrx="612.0" lry="792.0"/>
+		<surface n="26" ulx="0.0" uly="0.0" lrx="612.0" lry="792.0"/>
+		<surface n="27" ulx="0.0" uly="0.0" lrx="612.0" lry="792.0"/>
+		<surface n="28" ulx="0.0" uly="0.0" lrx="612.0" lry="792.0"/>
+		<surface n="29" ulx="0.0" uly="0.0" lrx="612.0" lry="792.0"/>
+		<surface n="30" ulx="0.0" uly="0.0" lrx="612.0" lry="792.0"/>
+	</facsimile>
+	<text xml:lang="en">
+		<body>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>Introduction</head><p>DNA double-strand breaks (DSBs) are one of the most deleterious forms of DNA damage <ref type="bibr" target="#b34">(Mehta and Haber, 2014)</ref>. In response to DSBs, cells evoke the DNA damage checkpoint (DDC) to halt the metaphase to anaphase transition (known as the G 2 /M checkpoint). Activation of DDC gives cells an extended opportunity to repair DSBs and, therefore, prevents the inheritance of broken chromosomes, which can lead to aneuploidy, chromosome aberrations, and genome instability <ref type="bibr" target="#b61">(Waterman et al., 2020)</ref>.</p><p>In budding yeast, a single irreparable DSB is sufficient to trigger the DDC through the activation of Mec1, a PI3K-like kinase and homolog of the mammalian ATR <ref type="bibr" target="#b29">(Mantiero et al., 2007;</ref><ref type="bibr" target="#b46">Pellicioli et al., 2001)</ref>. Mec1 activation depends on 5' to 3' resection of the DSB ends that exposes single-stranded DNA (ssDNA), which is rapidly coated by the ssDNA binding protein, RPA (reviewed by <ref type="bibr" target="#b31">Maréchal and Zou, 2015)</ref>. As resection proceeds, the PCNA-related 9-1-1 clamp, made up of Ddc1, Rad17, and Mec3, is loaded at the resected ss/dsDNA junction by the Rad24-Rfc2-5 clamp loader <ref type="bibr" target="#b14">(Ellison and Stillman, 2003;</ref><ref type="bibr" target="#b28">Majka et al., 2006)</ref>. Mec1 is recruited to DSB sites via its obligate binding partner, Ddc2 ATRIP interacting with RPA-bound ssDNA <ref type="bibr" target="#b11">(Dubrana et al., 2007;</ref><ref type="bibr" target="#b67">Zou and Elledge, 2003)</ref>. Following its localization to DSBs, Mec1's kinase activity is stimulated by Dbp11, Dna2, and the Ddc1 subunit of the 9-1-1 clamp <ref type="bibr" target="#b41">(Navadgi-Patil and Burgers, 2009;</ref><ref type="bibr" target="#b35">Melo et al., 2001)</ref>. Impairing Mec1's kinase activity by the PI3K-like kinase inhibitor caffeine, by using temperature-sensitive Mec1 mutants or by degradation of Mec1's binding partner Ddc2, rapidly extinguishes checkpoint signaling <ref type="bibr" target="#b46">(Pellicioli et al., 2001;</ref><ref type="bibr" target="#b56">Tsabar et al., 2015;</ref><ref type="bibr" target="#b59">Vaze et al., 2002)</ref>, illustrating that continual Mec1 activity is needed to activate and sustain DDC. In contrast to Mec1, yeast's other PI3K-like kinase, Tel1, the homolog of mammalian ATM, is dispensable for DDC activation and maintenance, as TEL1 deletion only shortens damage-induced cell cycle arrest by a few hours <ref type="bibr" target="#b11">(Dubrana et al., 2007)</ref>.</p><p>Following the induction of a DSB, numerous proteins are phosphorylated either directly by Mec1 or by the downstream effector kinases Rad53 and Chk1 (human CHK2 and CHK1), which are themselves Mec1 substrates <ref type="bibr" target="#b22">(Lanz et al., 2019;</ref><ref type="bibr" target="#b54">Smolka et al., 2007)</ref>. Mec1 and Tel1 substrates also include histone H2A-S129, called γ-H2AX, which spreads on both sides of the DSB via two distinct mechanisms <ref type="bibr" target="#b48">(Rogakou et al., 1998;</ref><ref type="bibr" target="#b53">Shroff et al., 2004)</ref>. γ-H2AX then recruits the scaffold protein Rad9, which brings the effector kinase Rad53 in close proximity to Mec1 for activation <ref type="bibr" target="#b12">(Durocher et al., 1999;</ref><ref type="bibr" target="#b15">Emili, 1998;</ref><ref type="bibr" target="#b51">Schwartz et al., 2002)</ref>. Activated Rad53 then amplifies the DDC signal through autophosphorylation in trans, also stimulating the transcription regulator Dun1 kinase, while restraining the degradation of Pds1 (securin) to inhibit mitosis <ref type="bibr" target="#b5">(Chen et al., 2007;</ref><ref type="bibr" target="#b16">Fiorani et al., 2008;</ref><ref type="bibr" target="#b45">Pellicioli et al., 1999;</ref><ref type="bibr" target="#b57">Usui and Petrini, 2007;</ref><ref type="bibr" target="#b62">Yam et al., 2020)</ref>.</p><p>In addition to the DDC, unattached kinetochores can induce cell cycle arrest through the activation of spindle assembly checkpoint (SAC) (reviewed by <ref type="bibr" target="#b40">Musacchio, 2015)</ref>. Several studies have suggested a crosstalk between the SAC and the DDC. For example, deletion of SAC components MAD1 or MAD2 shortens the cell cycle arrest in response to DNA-damaging agents in the absence of DDC genes RAD9 and RAD24 <ref type="bibr" target="#b17">(Garber and Rine, 2002;</ref><ref type="bibr" target="#b21">Kim and Burke, 2008)</ref>. Furthermore, MAD1, MAD2, or BUB1 mutants arrest for less time than wild-type cells following the induction of a single persistent DSB <ref type="bibr" target="#b10">(Dotiwala et al., 2010)</ref>. In mouse oocytes, inhibition of the SAC overrides the activation of DDC-mediated metaphase arrest during the first meiotic division <ref type="bibr" target="#b30">(Marangos et al., 2015)</ref>. The mitotic exit network (MEN) is another signaling cascade activated during anaphase to promote cell cycle re-entry Matellán and Monje-Casas, 2020; therefore, defects in MEN lead to mitotic arrest in late anaphase <ref type="bibr" target="#b18">(Geymonat et al., 2002;</ref><ref type="bibr" target="#b3">Bardin et al., 2000;</ref><ref type="bibr" target="#b52">Shirayama et al., 1994)</ref>. In addition to SAC, MEN also communicates with the DDC in response to DNA damage. For instance, a key regulator of MEN, the heterodimer Bub2/Bfa1 complex, is modified in a Rad53 and Dun1-dependent manner following damage <ref type="bibr" target="#b19">(Hu et al., 2001)</ref>. Supporting the idea of crosstalk between MEN and DDC, our lab had shown that deletion of BUB2 shortened the duration of the arrest in response to a single unrepaired DSB <ref type="bibr" target="#b10">(Dotiwala et al., 2010)</ref>.</p><p>Here, we present new mechanistic insights into the maintenance of the cell cycle arrest following DNA damage by employing the auxin-inducible degron (AID) strategy to conditionally deplete DDC and SAC proteins. An advantage of the AID system, compared to null or temperature-sensitive mutants, is that AID-tagged proteins retain wild-type function until the addition of the plant hormone auxin (indole-3-acetic acid [IAA]), which triggers rapid degradation of AID-tagged proteins in the presence of the TIR1 E3 ubiquitin ligase <ref type="bibr" target="#b39">(Morawska and Ulrich, 2013;</ref><ref type="bibr" target="#b42">Nishimura et al., 2009)</ref>. To investigate how conditional depletion of DDC or SAC proteins alters the maintenance of cell cycle arrest, we engineered a yeast strain that permanently arrests due to the presence of two persistent DNA breaks. We find that the maintenance of the cell cycle arrest requires constant presence of some, but not all, checkpoint activation proteins. Surprisingly, we find that the DDC proteins that are essential to induce the cell cycle arrest and sustain it at the early stages of the arrest become dispensable nearly 15 hr after DNA damage induction. Conversely, SAC proteins are dispensable for the establishment and the initial steps of the cell cycle arrest but become essential at later stages of the DNA damage-dependent cell cycle arrest. Based on these findings, we posit that prolonged cell cycle arrest in response to DNA damage is sustained by both SAC and DDC; however, each checkpoint sustains the arrest at different stages.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>Results</head></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>Measuring DNA damage checkpoint arrest and maintenance</head><p>To study the role of DDC initiation proteins in the maintenance of the cell cycle arrest, we utilized the well-characterized strain JKM179 <ref type="bibr" target="#b24">(Lee et al., 1998)</ref>, in which the site-specific HO endonuclease is expressed from a GAL1-10 promoter (GAL-HO) to induce a single DSB within the MAT locus on chromosome III (referred to as the 1-DSB strain). In this 1-DSB strain, we inserted an additional HO cleavage site 52 kb from the centromere on chromosome IV to induce another DSB (referred to as the 2-DSB strain) <ref type="bibr" target="#b20">(Kim et al., 2007;</ref><ref type="bibr" target="#b24">Lee et al., 1998)</ref>. At both loci, HO-mediated cleavage after galactose induction is nearly complete within 30-45 min <ref type="bibr" target="#b25">(Lee et al., 2014)</ref>. In both strains, we also deleted the HML and HMR donors to prevent repair by homologous recombination. With continuous HO expression, nonhomologous end-joining occurs in only 0.2% of these cells <ref type="bibr" target="#b38">(Moore and Haber, 1996)</ref>, thus both DSBs are essentially irreparable.</p><p>Following the induction of 2 DSBs, we monitored cell cycle arrest in four ways: (1) with an adaptation time-course assay where we micromanipulated individual G 1 cells on agar plates and scored the percentage of cells that are able to re-enter mitosis <ref type="bibr" target="#b24">(Lee et al., 1998)</ref>, (2) by monitoring the percentage of G 2 /M-arrested cells in liquid culture based on cell morphology (Figure <ref type="figure" target="#fig_50">1A</ref>), (3) by monitoring nuclear division by DAPI staining of nuclei, and (4) by assaying Rad53 phosphorylation by western blot <ref type="bibr" target="#b46">(Pellicioli et al., 2001)</ref>.</p><p>In both 1-DSB and 2-DSB strains, 4 hr after the induction of DNA damage, &gt;90% of cells arrested at G 2 /M as determined by an adaptation assay (Figure <ref type="figure" target="#fig_50">1B</ref> and <ref type="figure">E</ref>) and DAPI staining (Figure <ref type="figure" target="#fig_50">1D</ref> and <ref type="figure">G</ref>). In agreement, western blot analysis showed that Rad53 was hyperphosphorylated (Figure <ref type="figure" target="#fig_50">1C</ref> and F), demonstrating that DDC was fully activated in both these strains after DNA damage. By 12-15 hr after the induction of a single persistent DSB, most 1-DSB cells adapted; that is, they escaped the G 2 /M arrest and re-entered mitosis (Figure <ref type="figure" target="#fig_50">1B</ref>). The timing of Rad53 dephosphorylation following the induction of a single irreparable DSB correlated with the timing of adaptation and escape from the G 2 /M arrest (Figure <ref type="figure" target="#fig_50">1C</ref>), as previously shown <ref type="bibr" target="#b46">(Pellicioli et al., 2001)</ref> In contrast, in the 2-DSB strain, over 90% of cells remained permanently arrested in G 2 /M with persistently hyper-phosphorylated Rad53 throughout the 24 hr time course (Figure <ref type="figure" target="#fig_50">1E-G</ref>). We leveraged this permanent cell cycle arrest observed in the 2-DSB strain to study how the DNA damage-induced cell cycle arrest is maintained once it had been established.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>Analysis of checkpoint factors required for checkpoint maintenance</head><p>We used the AID system <ref type="bibr" target="#b42">(Nishimura et al., 2009)</ref> to conditionally deplete DDC proteins after G 2 /M arrest had been established to study the maintenance of cell cycle arrest. To this end, we appended an AID tag with nine copies of the c-MYC epitope tag to the C-terminus of Ddc2, Rad9, Rad24, and Rad53, which are all components of the Mec1 signaling cascade <ref type="bibr" target="#b36">(Memisoglu et al., 2019;</ref><ref type="bibr" target="#b55">Sweeney et al., 2005;</ref><ref type="bibr" target="#b7">de la Torre-Ruiz et al., 1998)</ref>. Hereafter, all AID-tagged proteins will be designated simply as -AID, for example, Ddc2-9xMyc-AID as Ddc2-AID.</p><p>AID tagging of DDC proteins did not alter the establishment of G 2 /M arrest; however, RAD9-AID, RAD24-AID, and RAD53-AID strains are hypomorphic and adapted 24 hr after DNA damage in the absence of IAA, while 2-DSB wild-type counterpart cells remained fully arrested (Figure <ref type="figure" target="#fig_2">2</ref>  in amino acid biosynthesis <ref type="bibr" target="#b47">(Rao et al., 2010)</ref>. IAA treatment prior to the induction of 2 DSBs in a control strain, which does not contain any AID-tagged proteins, did not alter the prolonged cell cycle arrest following DNA damage (Figure <ref type="figure" target="#fig_2">2</ref>-figure supplement 2A), illustrating that IAA treatment by itself does not alter response to DNA damage. However, rapid degradation of Ddc2-AID, Rad9-AID, Rad24-AID, and Rad53-AID by IAA treatment 2 hr prior to the induction of DSBs largely prevented cell cycle arrest as well as DDC signaling, evident from the absence of detectible Rad53 hyperphosphorylation (Figure <ref type="figure" target="#fig_2">2</ref></p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>-figure supplement 2B-E).</head><p>These results underline the importance of Ddc2, Rad9, Rad24, and Rad53 in initiating DDC signaling and cell cycle arrest in response to DNA damage, agreeing with previous reports <ref type="bibr" target="#b46">(Pellicioli et al., 2001;</ref><ref type="bibr" target="#b44">Paciotti et al., 2000;</ref><ref type="bibr" target="#b15">Emili, 1998;</ref><ref type="bibr" target="#b7">de la Torre-Ruiz et al., 1998)</ref>.</p><p>To test whether the DDC proteins are required for the maintenance of the cell cycle arrest following DNA damage, we employed the AID-tagged strains with 2 DSBs and depleted the AID proteins 4 hr after inducing DSBs. In the absence of IAA, DDC2-AID, RAD9-AID, or RAD24-AID strains all activated the DDC signaling 4 hr after DSB induction, with 89-99% of cells arrested in G 2 /M (Figure <ref type="figure" target="#fig_39">2A-C</ref>), demonstrating that AID tagging of these proteins did not impair their function. Within 1 hr after IAA treatment, Ddc2-AID, Rad9-AID, or Rad24-AID were all rapidly depleted, which caused a gradual Rad53 dephosphorylation, as detected by western blotting (Figure <ref type="figure" target="#fig_39">2A-C</ref>). Moreover, agreeing with the loss of Rad53 phosphorylation, IAA treatment of DDC-AID strains triggered release from G 2 /M arrest, while the untreated control cells remained fully arrested. DAPI staining of DDC2-AID cells after IAA treatment revealed the accumulation of large-budded cells with two distinct DAPI signals, indicating that cells started to progress into anaphase following Ddc2 depletion (Figure <ref type="figure" target="#fig_2">2</ref>-figure supplement 3A). These findings illustrate that the upstream DDC factors Ddc2, Rad9, and Rad24 are essential for initiating and sustaining the cell cycle arrest in response to DNA damage.</p><p>Compared to DDC2-AID, RAD9-AID, or RAD24-AID, we found that RAD53-AID cells maintained G 2 /M arrest for an additional 4 hr after complete depletion of Rad53 (Figure <ref type="figure" target="#fig_39">2D</ref>). In contrast to Ddc2-AID depletion, cell cycle analysis by DAPI staining showed that Rad53 depletion led to a more gradual transition into late anaphase (Figure <ref type="figure" target="#fig_2">2</ref>-figure supplement 3B). This delay after the conditional depletion of Rad53 could be due to continued signaling from downstream targets activated by Rad53 kinase, such as Dun1, or from other targets of the Mec1 kinase, downstream of Ddc2, Rad9, and Rad24.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>Chk1 sustains checkpoint signaling in the absence of Ddc2, Rad9, Rad24, or Rad53</head><p>Rad53 and Chk1 kinases both contribute to the maintenance of the cell cycle arrest after DNA damage <ref type="bibr" target="#b9">(Dotiwala et al., 2007;</ref><ref type="bibr" target="#b46">Pellicioli et al., 2001)</ref>. Agreeing with previously published reports <ref type="bibr" target="#b50">(Sanchez et al., 1999)</ref>, we find that Chk1 is involved in maintaining the permanent arrest following the induction of 2 DSBs. Deletion of CHK1 did not impair the induction of cell cycle arrest (Figure <ref type="figure" target="#fig_43">3A</ref>); however, it inhibited the permanent cell cycle arrest as &gt;95% of chk1∆ cells adapted by 24 hr (Figure <ref type="figure" target="#fig_43">3B</ref>). We then asked whether the delay in cell cycle re-entry observed when Rad53 was degraded was due to Chk1's independent role in maintaining arrest. To test this, we induced 2 DSBs in RAD53-AID chk1∆ cells for 4 hr and then added IAA to deplete Rad53. Compared to the depletion of Rad53-AID alone (Figure <ref type="figure" target="#fig_39">2D</ref>), the depletion of Rad53-AID in the absence of CHK1 led to a significant decrease in the number of G 2 /M-arrested cells within 1 hr of IAA treatment (Figure <ref type="figure" target="#fig_43">3C</ref>). These results suggest that Chk1 functions in conjunction with Rad53 to sustain cell cycle arrest in response to DNA damage.</p><p>To explore further how Chk1 signaling contributes to the maintenance of DDC-dependent cell cycle arrest, we depleted DDC factors Ddc2-AID, Rad9-AID, or Rad24-AID in chk1∆ cells 4 hr after the induction of DSBs. Depletion of these upstream factors in the absence of CHK1 led to a more rapid release from the cell cycle arrest (Figure <ref type="figure" target="#fig_43">3D-F</ref>) compared to the depletion of DDC factors alone (Figure <ref type="figure" target="#fig_39">2A-C</ref>). Collectively, these findings demonstrate that Chk1 plays a key role in maintaining cell cycle arrest in response to DNA damage.</p><p>Tel1 is thought to play a minor role in response to DSBs as the establishment of DSB-induced cell cycle arrest normally depends entirely on Mec1 <ref type="bibr" target="#b10">(Dotiwala et al., 2010)</ref>. However, previous studies have shown that, in addition to Mec1, Tel1 can also target Chk1 for phosphorylation <ref type="bibr" target="#b27">(Limbo et al., 2011;</ref><ref type="bibr" target="#b50">Sanchez et al., 1999)</ref>. Additionally, when the initial 5' to 3' end resection of DSB ends is impaired, Tel1 alone can activate the DDC <ref type="bibr" target="#b57">(Usui and Petrini, 2007)</ref>. To study how Tel1 contributes to   the maintenance of the permanent cell cycle arrest, we deleted TEL1 in 2-DSB strain. Unlike chk1∆ with 2 DSBs, a TEL1 deletion did not affect either the establishment of the DDC or the maintenance of checkpoint arrest up to 24 hr (Figure <ref type="figure" target="#fig_16">3</ref>-figure supplement 1), agreeing with previously published results <ref type="bibr" target="#b11">(Dubrana et al., 2007)</ref>. Taken together, these data illustrate that DNA damage-dependent cell cycle arrest is initiated by Mec1 branch of the DDC via Ddc2, Rad9 and Rad24, and the cell cycle arrest is largely sustained by the downstream kinases Rad53 and Chk1, with minor contributions from other downstream targets of DDC.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>Dun1 is required for the initiation but not for the maintenance of cell cycle arrest</head><p>Our findings show that a small number of cells remain arrested in the absence of CHK1 when Rad53 is depleted. We posited that Rad53 could modulate the expression of other DDC factors, which, in turn, sustain the cell cycle arrest in the absence of Rad53 and Chk1. One candidate protein is Dun1, a Rad53-activated protein kinase that regulates transcription in response to DNA damage <ref type="bibr" target="#b5">(Chen et al., 2007;</ref><ref type="bibr" target="#b62">Yam et al., 2020;</ref><ref type="bibr" target="#b65">Zhou and Elledge, 1993)</ref>. Deleting DUN1 significantly impaired checkpoint activation: compared to the wild-type control strain, only 60% of DUN1 cells arrested in G 2 /M 4 hr after the DSB induction, and only 25% remained in G 2 /M arrest at 7 hr (Figure <ref type="figure" target="#fig_23">4A</ref>). Additionally, depletion of Dun1-AID 4 hr after damage induction did not cause a significant change in the proportion of G 2 /M arrested in these otherwise wild-type cells, nor did it affect Rad53 phosphorylation (Figure <ref type="figure" target="#fig_23">4B</ref>); however, deleting CHK1 triggered an exit from checkpoint arrest following the depletion of Dun1-AID 4 hr after DSB induction (Figure <ref type="figure" target="#fig_23">4C</ref>), further demonstrating the role of Chk1 in checkpoint maintenance. These results suggest that Dun1 is required for the initiation of DDC and concomitant cell cycle arrest but is dispensable for maintenance.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>Ddc2 and Rad53's role in maintaining arrest become dispensable in extended G 2 /M arrest</head><p>Previously, we reported that Ddc2 protein abundance initially increases over time as after the induction of a single DNA break, which is followed by near-complete depletion of Ddc2 around the time that cells adapt <ref type="bibr" target="#b36">(Memisoglu et al., 2019)</ref>. Given that Ddc2 overexpression leads to permanent cell cycle arrest following DNA damage <ref type="bibr" target="#b6">(Clerici et al., 2001)</ref>, we concluded that Ddc2 abundance is intimately tied to the duration of the arrest. Here, we asked whether the presence of 2 DSBs instead of a single DSB would lead to an increase in Ddc2 protein abundance and, therefore, the permanent cell cycle arrest. We examined the levels of Ddc2 in both 1-and 2-DSB strains following DNA damage but did not detect a difference in the changes of abundance of Ddc2 protein (Figure <ref type="figure" target="#fig_24">5</ref>-figure supplement 1), even though cells adapt to 1 DSBs and remained terminally arrested after 2 DSBs (Figure <ref type="figure" target="#fig_50">1A-D</ref></p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>).</head><p>If Ddc2 activity is essential to maintain the cell cycle arrest in the 2-DSB strain, then degradation of Ddc2-AID around the time wild-type cells adapt to a single DNA break should interrupt the permanent cell cycle arrest and trigger cell cycle re-entry. We find that complete depletion of Ddc2-AID 15 hr             Figure 3. Chk1 is dispensable for activation of the cell cycle arrest, but essential for its maintenance. (A) Percentage of G 2 /M cells in a 2-DSB chk1∆ strain following DNA damage. Data are shown from three independent experiments, with error bars representing the standard error of the mean (SEM). Western blot probed with α-Rad53 to determine the status of DDC and α-Myc to determine TIR1-Myc protein abundance. (B) Adaptation assay with 2-DSB chk1∆ strain. (C) Percentage of G 2 /M-arrested cells a 2-DSB chk1∆ RAD53-AID strain after DNA damage. Cultures were split 4 hr after DSB induction and treated with 1 mM auxin (+IAA) or with ethanol (Ctrl). Data are shown from three independent experiments, with error bars representing the standard error of the mean (SEM). Western blot probed with α-Myc for Rad53-AID and TIR1-Myc as a loading control. (D) Same as (C) for 2-DSB chk1∆ DDC2-AID. Western blot probed with α-Rad53 and α-Myc. α-Rad53 shows both an unphosphorylated protein and multiple phosphorylated species. α-Myc shows Ddc2-AID degradation and TIR1-Myc as a loading control. The asterisk shows when the percentage of large-budded cells returned to pre-damage levels. (E) Same as (D) for 2-DSB chk1∆ RAD9-AID. (F) Same as (D) for 2-DSB chk1∆ RAD24-AID. The online version of this article includes the following source data and figure supplement(s) for figure 3: Source data 1. Original membranes corresponding to Figure 3A. Source data 2. Original files corresponding to Figure 3A. after the induction of 2 DSBs leads to diminished Rad53 hyperphosphorylation (Figure <ref type="figure" target="#fig_31">5A</ref>). However, surprisingly, Ddc2-AID degradation did not alter the percentage of G 2 /M-arrested cells even 9 hr after Ddc2 depletion (Figure <ref type="figure" target="#fig_31">5A</ref>). Furthermore, despite the diminished Rad53 phosphorylation, Ddc2-AID cells mostly remained arrested in G 2 /M after the depletion of Ddc2-AID at 15 hr as illustrated by DAPI staining (Figure <ref type="figure" target="#fig_31">5B</ref>), in contrast to Ddc2-AID depletion soon after induction of 2 DSBs, which causes cells to rapidly resume mitosis (Figure <ref type="figure" target="#fig_39">2A</ref>). These results hint that the maintenance of the permanent cell cycle arrest in response to 2 DSBs at later stages could be independent of the DDC signaling.</p><p>We then asked whether other DDC factors such as Rad9, Rad24, and Rad53 are dispensable for the prolonged arrest following the induction of 2 DSBs. However, as noted above, AID-tagged DDC activation proteins were unable to maintain this prolonged arrest in a 2-DSB strain even in the absence of IAA, which precludes their use in this analysis. To be able to study the contribution of these DDC factors in prolonged cell cycle arrest, we turned to the AID version 2 (AID2) system <ref type="bibr" target="#b63">(Yesbolatova et al., 2020)</ref>. To this end, we integrated a TIR1-F74G point mutation and used 5-phenyl-IAA (5-Ph-IAA) instead of IAA to lower the basal degradation of AID-tagged proteins. Switching to the AID2 system did not fully restore function to RAD9-AID2 and RAD24-AID2 strains as they mostly adapted after 24 hr after the exposure to DNA damage, but 87% of RAD53-AID2 cells remained in G 2 /M arrest at 24 hr (Figure <ref type="figure" target="#fig_2">2</ref>-figure supplement 1C). Using Rad53-AID2, we then asked whether Rad53 is required for extended G 2 /M arrest in response to 2 DSBs. Rapid depletion of Rad53-AID2 with 5-Ph-IAA 4 hr after DSB induction led cells to escape G 2 /M arrest, but as with the RAD53-AID strain, we detected a 4 hr delay in cell cycle re-entry, confirming our previous results (Figures <ref type="figure" target="#fig_39">2D</ref> and <ref type="figure" target="#fig_31">5C</ref>). However, degradation of Rad53-AID2 15 hr after DSB induction did not prompt cell cycle re-entry even 9 hr after complete depletion of Rad53 (Figure <ref type="figure" target="#fig_31">5D</ref>, Table <ref type="table">1</ref>), akin to what we observe following the depletion of Ddc2-AID (Figure <ref type="figure" target="#fig_31">5A</ref> and <ref type="figure">B</ref>).</p><p>Because TIR1-mediated degradation of Rad9-AID even without auxin caused most cells to adapt 24 hr after inducing DNA damage, we asked whether overexpression of RAD9-AID could overcome this effect. We added a TRP1 centromere-containing plasmid copy of RAD9-AID with its endogenous promoter (pRAD9-AID) to our 2-DSB RAD9-AID strain. Degradation of Rad9-AID by IAA 15 hr after DSB induction did not trigger release of cells from G 2 /M arrest (Figure <ref type="figure" target="#fig_31">5E</ref>, Table <ref type="table">1</ref>). However, unlike degradation of Ddc2-AID or Rad53-AID2 in this same situation, Rad53 remained hyperphosphorylated up to 9 hr after adding IAA (Figure <ref type="figure" target="#fig_31">5E</ref>). Therefore, while the DDC proteins Ddc2, Rad9, and Rad53 are required for the maintenance of checkpoint arrest at early stages, surprisingly, they are dispensable for prolonged arrest following induction of 2 DSBs. These results suggest that prolonged cell cycle arrest is maintained by signaling proteins other than the Mec1 branch of the DDC.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>Spindle assembly checkpoint proteins Mad1 and Mad2 are required for prolonged arrest</head><p>In addition to the DDC, the SAC maintains genomic integrity by halting mitosis at the metaphase/ anaphase transition in response to unattached kinetochores, to ensure accurate chromosome segregation (reviewed by McAinsh and Kops, 2023). We have previously shown that inactivation of the SAC by a MAD1, MAD2, or MAD3 deletion shortened the duration of the cell cycle arrest induced    by a single DSB <ref type="bibr" target="#b10">(Dotiwala et al., 2010)</ref>. To test whether SAC is involved in enforcing and sustaining permanent cell cycle arrest in response to 2 DSBs, we deleted MAD2 in the 2-DSB strain. Adaptation assay results illustrate that nearly all mad2∆ cells arrested at 4 hr but began to adapt between 12 and 15 hr after DNA damage (Figure <ref type="figure" target="#fig_33">6</ref>-figure supplement 1A). To explore whether deletion of MAD2 can antagonize the permanent cell cycle arrest due to hyperactive DDC signaling, we overexpressed Ddc2 in mad2∆ 2-DSB cells and assayed mitotic progression. We find that both in 1-DSB and 2-DSB strains, MAD2 deletion leads to cell cycle re-entry even when Ddc2 is overexpressed (Figure <ref type="figure" target="#fig_33">6</ref>figure supplement 1B). Based on these data, we concluded that mitotic inhibition is enforced by the SAC proteins as DDC factors become dispensable 12-15 hr after the induction of damage.  If SAC proteins are only required at later stages of cell cycle arrest when DDC proteins are dispensable, then the depletion of SAC protein Mad2 or its binding partner Mad1 soon after the induction of DNA damage should not affect DDC or cell cycle arrest up to 12-15 hr. In agreement with this idea, after Mad1-AID or Mad2-AID depletion at 4 hr, cells remained arrested up to 15 hr following DSB induction, with persistent Rad53 hyperphosphorylation (Figure <ref type="figure" target="#fig_33">6</ref>-figure supplement 2). Strikingly, these cells eventually re-entered the cell cycle by 24 hr (20 hr after depletion of Mad1 and Mad2). It is notable that cells resumed cell cycle progression despite persistent Rad53 hyperphosphorylation. This result reinforces our conclusion that Mad1 and Mad2 are not required for the activation and initial maintenance of arrest but are essential for prolonged cell cycle arrest in response to 2 DSBs. These data also suggest that in the absence of Mad1 or Mad2 cells become insensitive to the arrest normally imposed by DDC.</p><p>To monitor the effect of SAC proteins Mad1 and Mad2 at late stages of prolonged cell cycle arrest when DDC signaling becomes dispensable, we depleted Mad1-AID or Mad2-AID 15 hr after DSB induction. Following the depletion of Mad1-AID and Mad2-AID, we observed an immediate reduction in the percentage of G 2 /M-arrested cells (Figure <ref type="figure" target="#fig_44">6A-C</ref>). DAPI staining confirmed that Mad1-AID or Mad2-AID-deplete cells re-entered the cell cycle, evident from an increase in the G1 cell population as well as an increase in percentage of large-budded cells with 2 DAPI foci (Figure <ref type="figure" target="#fig_44">6B</ref> and <ref type="figure">D</ref>). Similar to what we observe following Mad1-AID and Mad2-AID depletion 4 hr after damage, this cell cycle re-entry occurred despite persistent Rad53 hyperphosphorylation (Figure <ref type="figure" target="#fig_44">6A</ref> and <ref type="figure">C</ref>).</p><p>To show that the late stages of the permanent cell cycle arrest in response to 2 DSBs is independent of DDC and dependent on SAC, we inactivated DDC by depleting Ddc2-AID together with Mad2-AID. Although the simultaneous depletion of Ddc2-AID and Mad2-AID led to Rad53 dephosphorylation as detected by western blotting, we found no statistically significant difference in the percentage of cells escaping G 2 /M arrest in response to DDC2-AID MAD2-AID double depletion strain compared to Mad2-AID alone (Figure <ref type="figure" target="#fig_33">6</ref>-figure supplement 3 and Table <ref type="table">1</ref>). Collectively, our findings indicate that DDC initiates and sustains the cell cycle arrest approximately for 15 hr following DNA damage, but after that DDC becomes dispensable and the permanent arrest is sustained by SAC.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>Mitotic exit network proteins Bfa1 and Bub2 have different roles in the DDR</head><p>To investigate the possible contribution of the MEN to the maintenance of the extended cell cycle arrest in response to 2 DSBs, we appended AID tags to upstream MEN proteins Bub2 and Bfa1. Degradation of Bub2-AID both 4 hr and 15 hr after induction of 2 DSBs suppressed G 2 /M arrest       Table 1. Comparison of the percentage of large-budded cells back to baseline levels. Timepoint comparison* p-Value Significance Post hoc test † Figure 2A DDC2-AID 0 vs 5 + IAA &lt;0.0001 **** Sidak 0 vs 6 + IAA &lt;0.0001 **** Sidak 0 vs 7 + IAA &lt;0.0001 **** Sidak 0 vs 8 + IAA 0.0009 *** Sidak 0 vs 9 + IAA 0.054 ns Sidak Figure 3D DDC2-AID CHK1∆ 0 vs 5 + IAA &lt;0.0001 **** Sidak 0 vs 6 + IAA &lt;0.0001 **** Sidak 0 vs 7 + IAA 0.10 ns Sidak 0 vs 8 + IAA 0.25 ns Sidak 0 vs 9 + IAA 0.072 ns Sidak Figure 2B RAD9-AID 0 vs 5 + IAA &lt;0.0001 **** Sidak 0 vs 6 + IAA &lt;0.0001 **** Sidak 0 vs 7 + IAA &lt;0.0001 **** Sidak 0 vs 8 + IAA 0.0055 ** Sidak 0 vs 9 + IAA 1.00 ns Sidak Figure 3E RAD9-AID CHK1∆ 0 vs 5 + IAA 0.00050 *** Sidak 0 vs 6 + IAA 0.0052 ** Sidak 0 vs 7 + IAA 0.21 ns Sidak Figure 2C RAD24-AID 0 vs 5 + IAA &lt;0.0001 **** Sidak 0 vs 6 + IAA &lt;0.0001 **** Sidak 0 vs 7 + IAA 0.00 *** Sidak 0 vs 8 + IAA 0.36 ns Sidak 0 vs 9 + IAA 0.90 ns Sidak Figure 3F RAD24-AID CHK1∆ 0 vs 5 + IAA 0.00010 *** Sidak 0 vs 6 + IAA 0.00020 *** Sidak 0 vs 7 + IAA 0.10 ns Sidak</p><note type="other">Figure 5D RAD53</note><p>-AID TIR1(F74G) 18 vs 18 + IAA 0.35 ns Sidak 21 vs 21 + IAA 0.96 ns Sidak 24 vs 24 + IAA 0.42 ns Sidak Figure 5E RAD9-AID pRAD9-AID 18 vs 18 + IAA 0.80 ns Sidak 21 vs 21 + IAA 0.99 ns Sidak 24 vs 24 + IAA 0.84 ns Sidak Figure 6-figure supplement 3A DDC2-AID MAD2-AID AND MAD2-AID 18 + IAA vs 18 + IAA 0.95 ns Sidak 21 + IAA vs 21 + IAA 0.64 ns Sidak 24 + IAA vs 24 + IAA 0.97 ns Sidak *Timepoints are relative to when galactose was added. † A one-way ANOVA was used to test for significant differences.         (Figure 7A, Figure 7-figure supplement 1A and B), akin to what we observe following Mad1-AID or Mad2-AID depletion (Figure 6A and B). In contrast to Bub2-AID, we see that Bfa1-AID degradation did not trigger a significant release from G 2 /M arrest and did not alter the phosphorylation of Rad53 (Figure 7B, Figure 7-figure supplement 1C-E). Analysis of cell cycle distribution with DAPI staining showed that neither the inactivation of Bub2 nor Bfa1 led to the accumulation of a significant number of cells with two separate DAPI-staining nuclei, which is indicative of mitotic exit defects (Figure 7B and D, Figure 7-figure supplement 1B, D, and F).</p><p>These results imply that although Bub2 and Bfa1 have interdependent functions for MEN signaling, they carry out independent roles in response to DNA damage.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>The location of the second DSB site relative to the centromere affects prolonged arrest</head><p>In contrast to the permanent cell cycle arrest we observe in response to 2 DSBs, a recent study using two HO-mediated persistent DSBs showed that cells in fact adapt <ref type="bibr" target="#b49">(Sadeghi et al., 2022)</ref>. One difference between these two 2-DSB systems is the relative position of the DSBs, which might affect how SAC components become engaged, and thus might determine the extent of mitotic arrest. Supporting this, we previously showed that deleting CEN3 in a strain with a DSB at MAT on chromosome III eliminated the Mad2-dependent delay in adaptation, but deleting CEN3 when the DSB was on chromosome VI had no effect <ref type="bibr" target="#b10">(Dotiwala et al., 2010)</ref>. In our adaptation-defective 2-DSB strain, the DSBs are located at MAT (86 kb from CEN3) and near FAB1 (42 kb from CEN6). Sadeghi et al. employed two strains, both of which escape prolonged G 2 /M arrest, with at least one DSB site far from its centromere; at URA3 (36 kb from its centromere) and ADH1 (170 kb) or at MIC2 (32 kb) and DLD2 (316 kb).</p><p>To investigate whether the distance between the second DSB site and the centromere would affect whether cells will remain permanently arrested, we created several strains that contain a second cut site at various distances from the centromere, in addition to the cut site at MAT on chromosome III (Figure <ref type="figure" target="#fig_51">8</ref>). Strain YSL53, which has a second DSB at chromosome V, 86 kb away from CEN5 <ref type="bibr" target="#b24">(Lee et al., 1998)</ref>, and strain DW417, which has a second DSB 52 kb away from CEN6 <ref type="bibr" target="#b25">(Lee et al., 2014)</ref>, mostly remained in G 2 /M arrest 24 hr after the induction of DNA breaks. However, in GEM188, which had a second cut site 230 kb away from the CEN2, only 37% of cells remained in G 2 /M arrest by 24 hr. Thus, the increased distance of the second DSB site to the centromere in GEM188 appears to have led to a less robust triggering of the SAC compared with YSL53 and DW417.</p><p>Our previous data have suggested that the involvement of the SAC in prolonging DSB-induced arrest was dependent on centromere sequences on the broken chromosome and involved posttranslational modification of chromatin by the Mec1-and Tel1-dependent phosphorylation of the histone H2A <ref type="bibr" target="#b10">(Dotiwala et al., 2010)</ref>. In budding yeast, histone H2B is also targeted by DDC kinases upon DNA damage <ref type="bibr" target="#b25">(Lee et al., 2014)</ref>. To test whether the presence of these chromatin modifications around centromeres would be sufficient to elicit a SAC response, we examined cell cycle progression in strains in which both histone H2A and/or histone H2B genes were mutated to their putative phosphomimetic forms (H2A-S129E and H2B-T129E). We note that although histone H2A-S129E is recognized by an antibody specific for the phosphorylation of histone H2A-S129 <ref type="bibr" target="#b13">(Eapen et al., 2012)</ref>, the mutation to S129E may not be fully phosphomimetic. As shown in Figure <ref type="figure" target="#fig_52">9</ref>, there was no effect on the growth rate of either the single or the double mutants, suggesting that cells did not experience a SAC-dependent delay in entering mitosis because of these modifications.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>Discussion</head><p>Here, we studied how cells maintain cell cycle arrest following DNA damage by using a yeast strain that permanently halts cell cycle with two persistent DNA breaks. We find that most of the DDC signaling proteins must remain active to maintain G 2 /M arrest, highlighting the importance of   continuous checkpoint signaling in preventing premature mitotic entry and therefore, genome instability (Figure 10).</p><p>Phosphorylation of Rad53 by Mec1 is tightly linked to cell cycle arrest following DNA damage <ref type="bibr" target="#b46">(Pellicioli et al., 2001)</ref>. While Rad53 is also shown to be targeted by Tel1, deleting TEL1 did not      affect the prolonged checkpoint arrest in a 2-DSB strain. This finding supports the previous reports showing that cell cycle arrest in response to enzymatic DNA breaks is largely orchestrated by Mec1, with a minor contribution from Tel1 <ref type="bibr" target="#b46">(Pellicioli et al., 2001;</ref><ref type="bibr" target="#b59">Vaze et al., 2002)</ref>. Here, we add that Mec1 inactivation via Ddc2 depletion, 4 hr after DSB induction, results in rapid resumption of the cell cycle, most likely through Ptc2, Ptc3, Pph3, and Glc7-dependent dephosphorylation and inactivation of the The percentage of G 2 /M-arrested cells was shown 4 hr and 24 hr after placement of YEP-Gal plates. JKM179 is a 1-DSB strain with an HO-cut site in the MAT locus on chromosome III 86 kb away from the centromere. DW417 is a 2-DSB strain derived from JKM179 with an additional HO-cut site on chromosome VI 52 kb away from the centromere. YSL53 is a 2-DSB strain derived from JKM179 with an additional HO-cut site at the URA3 locus on chromosome V 36 kb away from the centromere <ref type="bibr" target="#b24">(Lee et al., 1998)</ref>. GEM188 is a 2-DSB strain derived from JKM179 with an additional HO-cut site at LYS2 on chromosome II 230 kb away from the centromere. (B) Cartoon representations of strains showing the location of the HO-cut sites relative to their respective centromeres.</p><p>DDC signaling protein Rad53 <ref type="bibr" target="#b4">(Bazzi et al., 2010;</ref><ref type="bibr" target="#b26">Leroy et al., 2003;</ref><ref type="bibr" target="#b43">O'Neill et al., 2007)</ref>. However, the regulation and consequences of Rad53 phosphorylation are apparently more complex, given that cells can re-enter mitosis in the presence of persistent Rad53 phosphorylation when SAC proteins Mad1 and Mad2 are depleted (see below).</p><p>Mec1 activation in the S and G 2 cell cycle phases is achieved by at least two converging mechanisms; first, through Ddc2 binding to RPA-coated ssDNA created the 5' to 3' resection of the DSB ends, and second, through binding of the 9-1-1 clamp subunit Ddc1 <ref type="bibr" target="#b11">(Dubrana et al., 2007;</ref><ref type="bibr" target="#b41">Navadgi-Patil and Burgers, 2009;</ref><ref type="bibr" target="#b67">Zou and Elledge, 2003;</ref><ref type="bibr" target="#b35">Melo et al., 2001)</ref>. Before Ddc1 can activate Mec1, the 9-1-1 checkpoint clamp must be loaded by the clamp loader, which consists of Rad24-Rfc2-5 <ref type="bibr" target="#b35">(Melo et al., 2001)</ref>. DDC activation largely depends on a functional clamp loader as cells lacking RAD24 proceed directly into mitosis in response to a single DSB, with only a brief delay <ref type="bibr" target="#b2">(Aylon and Kupiec, 2003)</ref>. If the clamp loader acts just once to load the 9-1-1 clamp and the clamp then slides away from the DSB as DNA is resected, then removal of Rad24 after the checkpoint had been robustly activated should not perturb arrest. However, we find that Rad24 depletion leads to rapid cell cycle resumption in response to 2 DSBs, suggesting that multiple 9-1-1 clamp loading events are required to sustain extended cell cycle arrest. We posit that 9-1-1 clamp may require continuous reloading as the 5' end is being continuously resected by Exo1 and Sgs1-Rmi1-Top3-Dna2 exonucleases <ref type="bibr" target="#b66">(Zhu et al., 2008)</ref>.</p><p>The adaptor kinase Rad9, downstream of Mec1 and Tel1, is responsible for scaffolding and activating the effector DDC kinases Rad53 and Chk1 <ref type="bibr" target="#b15">(Emili, 1998;</ref><ref type="bibr" target="#b51">Schwartz et al., 2002;</ref><ref type="bibr" target="#b55">Sweeney et al., 2005)</ref>. Here, we show that conditional depletion of Rad9 shortly after the induction of 2 DSBs prompts mitotic re-entry and terminates the DDC, evident from rapid Rad53 dephosphorylation. Thus, Rad9 is required for continued maintenance of Rad53 phosphorylation.</p><p>Depletion of Rad53-AID 4 hr after inducing 2 DSBs triggers release of cells from G 2 /M arrest, albeit resumption of mitosis is delayed by 4 hr compared to resumption of mitosis seen when upstream DDC factors Ddc2, Rad9, or Rad24 are depleted. We discovered that this residual delay in mitotic re-entry is dependent on Chk1 signaling. We postulate that Chk1 may delay cell cycle re-entry in the absence of Rad53 by phosphorylating and stabilizing Pds1 <ref type="bibr" target="#b0">(Agarwal et al., 2003)</ref>.</p><p>Agreeing with previously published work <ref type="bibr" target="#b62">(Yam et al., 2020)</ref>, we find that deleting DUN1 resulted in a less robust DDC activation and a shortened G 2 /M arrest. However, unlike the depletion of other DDC proteins examined in this study, depletion of Dun1-AID 4 hr after DSB induction was not sufficient to promote cell cycle re-entry. It is possible that the transcripts upregulated by Dun1 after DNA damage <ref type="bibr" target="#b64">(Zhao and Rothstein, 2002;</ref><ref type="bibr" target="#b65">Zhou and Elledge, 1993)</ref> are stable for several hours and are sufficient to sustain the arrest even in the absence of Dun1. We also find that cell cycle arrest upon depletion of Dun1 is Chk1-dependent. These results are in consistent with Dun1's role in stabilizing Pds1 through a Chk1-independent mechanism <ref type="bibr" target="#b62">(Yam et al., 2020)</ref>. Here, we show that prolonged cell cycle arrest following induction of 2 DSBs becomes independent of DDC proteins Ddc2, Rad9, and Rad53, but dependent on SAC proteins Mad1 and Mad2. Depletion of Mad1 or Mad2 4 hr after DSB induction did not immediately result in cell cycle re-entry, but around 15 hr cells began to resume cell cycle. The timing of cell cycle re-entry for Mad1/2depleted cells following the induction of 2 DSB is about the same as the timing of cell cycle re-entry in response to a single DNA break in wild-type cells. Even when DDC signaling is artificially upregulated via Ddc2 overexpression, cells re-enter mitosis if Mad2 is depleted. Surprisingly, in the absence of Mad1 or Mad2 cells escaped arrest despite persistent Rad53 hyperphosphorylation, suggesting that cells become 'deaf' to the DDC signal once SAC takes over.</p><p>Previous work indicates that SAC proteins contribute to the DNA damage response <ref type="bibr" target="#b10">(Dotiwala et al., 2010;</ref><ref type="bibr" target="#b17">Garber and Rine, 2002;</ref><ref type="bibr" target="#b21">Kim and Burke, 2008)</ref>. Work from our lab has suggested that γ-H2AX spreading from a DSB to the centromere of the same chromosome might impair kinetochore attachment and thus trigger a SAC response <ref type="bibr" target="#b10">(Dotiwala et al., 2010)</ref>. SAC signaling is not sufficient to elicit a permanent cell cycle arrest in response to a single DSB; however, we find that inducing 2 DSBs, each within 100 kb of its centromere, elicits a SAC-dependent permanent arrest. As strength of Figure <ref type="figure" target="#fig_50">10</ref>. Activation and maintenance of checkpoint arrest in response to a DSB. The Mre11-Rad50-Xrs2 (MRX) complex is one of the first complexes recruited to DSBs and initiates the resection of dsDNA to ssDNA. ssDNA is then coated with RPA which recruits Ddc2. Mec1 is the primary kinase responsible for checkpoint arrest in budding yeast and is activated by Ddc2 and Ddc1 from the 9-1-1 clamp. Proteins in green (Ddc2, Rad9, Rad24, and Rad53) were required for the activation and maintenance of checkpoint arrest. While Chk1 was not required for establishment of G 2 /M arrest, it contributed to the maintenance of arrest. In contrast, Dun1 was required for checkpoint activation but was dispensable 4 hr after DSB induction. Prolonged arrest &gt;24 hr in a 2-DSB strain was dependent on the SAC proteins Mad2, Mad1, and Bub2 as well as the distance between the second HOcut site and the centromere.</p><p>the SAC has a direct relation to the number of unattached kinetochores <ref type="bibr" target="#b8">(Dick and Gerlich, 2013)</ref>, the addition of a second DSB on another chromosome might trigger a stronger SAC response and result in a permanent cell cycle arrest.</p><p>The fact that not all combinations of 2 DSBs produce permanent arrest <ref type="bibr" target="#b49">(Sadeghi et al., 2022)</ref> can be explained by the idea that the distance between the DSB site and its corresponding centromere is an important determinant of the extent of cell cycle arrest. We previously observed that a strain with a single DSB 200 kb away from the centromere had shorter cell cycle arrest compared to a strain with a DSB 86 kb away from the centromere <ref type="bibr" target="#b10">(Dotiwala et al., 2010)</ref>. Here, we provide further evidence suggesting that the distances between DSBs and their corresponding centromeres determine whether SAC will be fully activated to prolong the arrest. Our previous results showed that when MAD2 was deleted, the length of cell cycle arrest was the same in strains with a single DSB, irrespective of the DSB's distance to its centromere <ref type="bibr" target="#b10">(Dotiwala et al., 2010)</ref>. We suggest that the strains used by Sadeghi et al., 2022 do not remain permanently arrested because one of the two DSBs in their strains is sufficiently far from its centromere to fully trigger SAC.</p><p>In addition to blocking the metaphase to anaphase transition, components of the SAC also block mitotic exit (reviewed by Matellán and Monje-Casas, 2020). We examined the role of Bub2/Bfa1 heterodimer, the most upstream components of the MEN pathway (Matellán and Monje-Casas, 2020). Much like Mad1 and Mad2, we found that neither Bub2 nor Bfa1 was required for the establishment of cell cycle arrest in response to DNA damage; but our study revealed a surprising result: Bub2, but not its partner Bfa1, is essential to prolong cell cycle arrest, indicating that Bub2 has a Bfa1independent role.</p><p>By using conditional depletion of various proteins that contribute to cell cycle arrest, we show that the establishment, maintenance, and inactivation stages of DNA damage-provoked cell cycle arrest involve different sets of factors following DNA damage. After the DNA damage checkpoint is established, its maintenance proves to be divided into two distinct phases. Arrest up to about 15 hr requires the constant presence of most of the identified DDC proteins, including Ddc2, Rad9, Rad24, and Rad53, with Dun1 playing an important but nonessential role. Although Chk1 was not required either to establish or initially to maintain cell cycle arrest, its absence shortened arrest, most notably when Rad53 was depleted. Surprisingly, neither Ddc2, Rad9, nor Rad53 (and we suggest likely Rad24) are necessary for the prolongation of cell cycle arrest lasting longer than 15-24 hr. Instead, this prolonged arrest is enforced by SAC proteins Mad1, Mad2, and Bub2.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>Materials and methods</head></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>Yeast strain and plasmid construction</head><p>All AID-tagged mutant strains were derived from a modified version of strains JKM179. To create the strain with two HO cleavage sites (DW417), an HO-cut site, designated HOcse6, with an adjacent HPH marker was integrated into chromosome VI, 52 kb from the centromere. To create AID strains, we first integrated osTIR1 at URA3 after digesting plasmid pNHK53 <ref type="bibr" target="#b42">(Nishimura et al., 2009)</ref> with StuI. To integrate osTIR1-F74G at URA3, the plasmid pMK420 <ref type="bibr" target="#b63">(Yesbolatova et al., 2020)</ref> was digested with StuI. For degron-tagging of DDC proteins, AID-9xMyc (AID) PCR products were generated with mixed oligos with homology to the C-terminal end of the corresponding open-reading frames by using plasmids pKan-AID-9xMyc (pJH2892) or pNat-AID-9xMyc (pJH2899) as templates <ref type="bibr" target="#b39">(Morawska and Ulrich, 2013)</ref>. Deletion of ORFs and insertion of AID tags were introduced with the one-step PCR homology cassette amplification and the standard yeast transformation method <ref type="bibr" target="#b60">(Wach et al., 1994)</ref>. Cas9 editing was done by inserting a gRNA into plasmid bRA90 <ref type="bibr" target="#b1">(Anand et al., 2017)</ref> and co-transformed into our strain of interest with a donor sequence. Transformants were verified by PCR, western blotting, and sequencing. To create strain GEM188 with 2-DSBs, we inserted a second HO-cut site into JKM179 at LYS2 locus by CRISPR/Cas9 <ref type="bibr" target="#b1">(Anand et al., 2017)</ref> using a synthetic DNA template with 117 bp consensus HO recognition site. Non-phosphorylatable and phosphomimetic mutants of H2A were generated in a JKM179 background using CRISPR/Cas9 to target HTA1 and HTA2 genes at serine 129 and 80 nt templates to mutate serine to either alanine (non-phosphorylatable) or glutamic acid (phosphomimetic). H2B mutants were generated in a JKM179 background using CRISPR/Cas9 to target HTB1 and HTB2 genes at threonine 129 with 80 nt repair templates to mutate threonine to either alanine or glutamic acid.</p><p>The CEN/ARS plasmid pFZ052-pRAD9-AID-*9Myc::Trp1 (pRAD9-AID) was obtained by digesting the plasmid pFL36.1 <ref type="bibr" target="#b23">(Lazzaro et al., 2008)</ref> with SmaI and AscI to excise the 3 HA tag on the C-terminal end of Rad9. A 9xMyc-AID PCR product generated from the plasmid pJH2892 (pKan-9xMyc-AID) was cut with AscI and sticky/blunt end cloned into the SmaI-AscI-digested pFL36.1 to add the 9xMyc-AID tag to the C-terminal end of Rad9. pRad9-AID was retained by growing cells in a Trp-media with 2% raffinose. The primers used for strain and plasmid creation are listed in the Key Resources</p><p>Table, Supplementary file 1a, and Supplementary file 1b. Plasmids are listed in the Key Resources Table.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>Culturing conditions, HO expression, and auxin treatment</head><p>Strains containing degron fusions and galactose-inducible HO were cultured using standard procedures. Briefly, a single colony grown on a YEPD plate (1% yeast extract, 2% peptone, 2% dextrose, 2.5% agar) was inoculated in 5 ml YEP-lactate (YEP containing 3% lactic acid) and was grown for ~15 hr at 30°C with agitation. Next day, the overnight culture was used to inoculate a 500-100 ml of YEPlactate culture such that the cell density reached an OD 600 of 0.5 the following day. After harvesting 15 ml liquid culture before treatment, HO expression was induced by galactose treatment with a 2% final concentration. Then, cultures were split either at 4 hr or 15 hr following induction with galactose. The split cultures were treated either with IAA or 5-Ph-IAA or an equivalent volume of 200 proof ethanol. IAA (Sigma-Aldrich, I3750) was resuspended in ethanol for a 500 mM stock and used at a 1 mM final concentration both for liquid media and for agar plates. 5-Ph-IAA was dissolved in ethanol for a 1 mM stock and used at a final concentration of 1 µM. 15 ml of liquid culture were harvested at various timepoints and prepared for microscopy or western blot analysis as described below.</p><p>To measure growth rate, strains were grown in 5 ml of YEPD with 2% dextrose at 30°C with an initial OD 600 of 0.1. The OD was measured 3, 5, 7, and 10 hr after the initial OD measurement using a Thermo Scientific NanoDrop 2000c Spectrophotometer. To measure the OD, 50 µl of culture was added to 950 µl of fresh YPD in a cuvette at a dilution of 1:20.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>TCA protein extraction</head><p>Protein extracts were prepared for western blot analysis by TCA extraction protocol as previously explained <ref type="bibr" target="#b37">(Miller-Fleming et al., 2014)</ref>. Briefly, 15 ml of liquid culture was spun down and the media was discarded. Harvested cells were incubated on ice in 1.5 ml microcentrifuge tubes with 20% TCA for 20 min. Cells were washed with acetone and the pellet was air-dried. 200 µl of MURBs buffer (50 mM sodium phosphate, 25 mM MES, 3 M urea, 0.5% 2-mercaptoethanol, 1 mM sodium azide, and 1% SDS) was added to each sample with acid-washed glass beads. Cells were lysed by mechanical shearing with glass beads for 2 min. Crude cell lysates were harvested by poking a hole in the bottom of the 1.5 ml microcentrifuge tube and spinning the tubes on a 15 ml conical tube. Samples were boiled at 95°C for 10 min prior to loading on SDS-PAGE.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>Western blotting</head><p>8-20 µl of denatured protein samples prepared by TCA extraction were loaded onto a 10% or 8% SDS-PAGE gels. Proteins were separated by applying constant voltage at 90 V until the 37 kDa protein standard band reached the bottom of the gel. Gels were transferred to an Immun-Blot PVDF membrane (Bio-Rad) using a wet transfer apparatus set to 100 V constant voltage for 1 hr at 4°C. Membranes were then blocked with OneBlock blocking buffer (Genesee Scientific, Cat# 20-313) for 1 hr at room temperature, After three 10 min washes with 1× TBS-T, blots were incubated with either anti-Myc [9E11] (Abcam, ab56) to detect TIR1 and AID fusions, anti-Rad53 [EL7. E1] (Abcam, ab166859), anti-Pgk1 (Abcam, ab30359), or anti-Rad9 <ref type="bibr" target="#b58">(Usui et al., 2009)</ref> for 1 hr at room temperature or at 4°C overnight. Blots were washed three times with 1× TBS-T and incubated with anti-mouse HRP (GE Healthcare, Cat# NXA931) or anti-rabbit HRP secondary antibody (Sigma-Aldrich, Cat# A6154) for 1 hr at room temperature. After washing the membranes three times with 1× TBS-T, Amersham ECL Prime Western Blotting Detection Reagent was added to fully coat the blots and left to incubate for 5 min at room temperature with gentle agitation. Blots were imaged using a Bio-Rad ChemiDoc XR+ imager and prepared for publication using ImageLab 6.1 software (Bio-Rad) and Adobe Photoshop CC 2017. The reagents used are listed in the Key Resources Table.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>Microscopy, DAPI staining, and cell morphology determination</head><p>Aliquots from YEP-Lac cultures were taken either 4 hr or 15 hr after adding galactose, diluted 20-fold in sterile water, and plated on a YEP-Agar with 2% galactose with or without 1 mM IAA or 1 µM 5-Ph-IAA. Cells were counted on a light microscope with a ×10 objective, examined, and binned into three categories: unbudded, small buds, and G 2 /M-arrested cells with large buds. For each timepoint, &gt;250 cells were analyzed. For DAPI staining, 450 µl of culture was added to 50 µl of 37% formaldehyde and incubated in the chemical hood at room temperature for 20 min. Samples were spun down at 8000 rpm for 5 min and washed with 1× PBS three times. Cells were resuspended in 50 µl of DAPI mounting media (VECTASHIELD Antifade Mounting Medium with DAPI H-1200-10) and incubated at room temperature for 10 min, away from direct light. The samples were imaged by using a Nikon Ni-E upright microscope equipped with a Yokogawa CSU-W1 spinning-disk head, an Andor iXon 897U EMCCD camera, Nikon Elements AR software, a ×60 oil immersion objective, and a 358 nm laser. Fifteen z-stacks with a thickness of 0.3 µm were collected per image. In the morphology assays, at least three biological replicates were used for each strain.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>Adaptation and auxin plating assays</head><p>We performed adaptation assays as previously described <ref type="bibr" target="#b13">(Eapen et al., 2012;</ref><ref type="bibr" target="#b24">Lee et al., 1998)</ref>. Cells grown in YEP-Lac overnight were diluted 20-fold in sterile water and plated on a YEP-agar plate containing 2% galactose. Using micromanipulation, 50 G 1 cells were isolated and positioned in a grid followed by incubation at 30°C. To quantify the percentage of adapted cells, the number of cells that re-entered cell cycle and grew to a microcolony (3+ cells) after 24 hr was divided by the total number of cells. For auxin plating assays, damage was induced in a YEP-Lac liquid culture by adding galactose at a final concentration of 2%, as described above. Cells were then transferred onto YEP-agar plates containing 2% galactose and 1 mM IAA or 1 µM 5-Ph-IAA 4 hr or 15 hr after adding galactose. For each timepoint, &gt;250 cells were scored and categorized as described above for the adaptation assay from at least three biological replicates.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>Quantification and data analysis</head><p>Graphs were prepared using GraphPad Prism 10 (Dotmatics). Statistical analysis for differences in the percentage of large budded (G 2 /M-arrested) cells at different timepoints listed in Table <ref type="table">1</ref> was done using a one-way ANOVA in GraphPad Prism 10. Protein quantification of Ddc2-myc blots was done using ImageLab 6.1 (Bio-Rad). To categorize DAPI-stained cells based on their morphology and number of DAPI signals, images were captured as described above and viewed using ImageJ with the Fiji addon.</p><p>Appendix 1 Appendix 1-key resources table Reagent type (species) or resource Designation Source or reference Identifiers Additional information Antibody Anti-Rad53; (mouse monoclonal) Abcam Cat# ab166859; RRID<ref type="url" target="https://identifiers.org/RRID/RRID:AB_2801547">:AB_2801547</ref> WB (1:1000) Antibody Anti-Rad53; (rabbit polyclonal) Abcam ab104232 WB (1:1000) Antibody Anti-Myc; (mouse monoclonal) Abcam Cat# ab16918; RRID<ref type="url" target="https://identifiers.org/RRID/RRID:AB_30256">:AB_30256</ref> WB (1:1000) Antibody Anti-Pgk1; (mouse monoclonal) Abcam Cat# ab32; RRID<ref type="url" target="https://identifiers.org/RRID/RRID:AB_30359">:AB_30359</ref> WB (1:5000) Antibody Anti-Rad9; (rabbit polyclonal) Usui et al., 2009 N/A WB (1:4000) Antibody ECL TH Anti-mouse IgG horseradish peroxidase from sheep GE Healthcare NXA931V Lot 16937010 WB (1:10,000) Antibody ECL TH Anti-rabbit IgG horseradish peroxidase from donkey GE Healthcare NA934V lot 6969611 WB (1:10,000) Chemical compound, drug Indole-3-acetic acid Sigma-Aldrich I3750-25G-A 1 mM Chemical compound, drug 5-Ph-IAA Sigma-Aldrich SML3574-25MG 1 µM Chemical compound, drug Formaldehyde Sigma-Aldrich 47608 4% Chemical compound, drug VECTASHIELD Antifade Mounting Medium with DAPI Vector Laboratories Cat# H-1200 1 μg/ml Chemical compound, drug Prometheus Protein Biology Products 20-313 OneBlock Western-CL Blocking Buffer, For Chemiluminescent Blots Genesee Scientific Cat# 20-313 Blocking buffer for western blots Commercial assay or kit ECL Prime Western Blotting System MilliporeSigma GERPN2232 Strain, strain background (Saccharomyces cerevisiae) cerevisiae: strain background S228c See Supplementary file 1a for full strain list N/A Strains used in this study Strain, strain background (S. cerevisiae) JKM179 Lee et al., 1998 Yeast strain MATα ade1 leu2-3 lys5 trp1 ::hisG ura3-52 ho∆ hml∆::ADE1 hmr ∆::ADE1 ade3:: GAL::HO Strain, strain background (S. cerevisiae) DW184 This study Yeast strain TIR1-myc6::URA3 Strain, strain background (S. cerevisiae) DW417 This study Yeast strain HOcse6::HPH TIR1 -myc6::URA3 Strain, strain background (S. cerevisiae) DW418 This study Yeast strain Ddc2-AID*-9xMyc::KAN Strain, strain background (S. cerevisiae) DW419 This study Yeast strain Rad9-AID*-9xMyc::KAN Strain, strain background (S. cerevisiae) DW420 This study Yeast strain Rad24-AID*-9xMyc::KAN Strain, strain background (S. cerevisiae) DW421 This study Yeast strain Rad53-AID*-9xMyc::KAN Strain, strain background (S. cerevisiae) DW426 This study Yeast strain chk1∆::NAT Strain, strain background (S. cerevisiae) DW647 This study Yeast strain Ddc2-AID*-9xMyc::KAN chk1∆::NAT Strain, strain background (S. cerevisiae) DW427 This study Yeast strain Rad9-AID*-9xMyc::KAN chk1∆::NAT Strain, strain background (S. cerevisiae) DW428 This study Yeast strain Rad24-AID*-9xMyc::KAN chk1∆::NAT Reagent type (species) or resource Designation Source or reference Identifiers Additional information Strain, strain background (S. cerevisiae) DW429 This study Yeast strain Rad53-AID*-9xMyc::KAN chk1∆::NAT Strain, strain background (S. cerevisiae) DW625 This study Yeast strain dun1∆::KAN Strain, strain background (S. cerevisiae) DW626 This study Yeast strain Dun1-AID*-9xMyc::KAN Strain, strain background (S. cerevisiae) DW641 This study Yeast strain Dun1-AID*-9xMyc::KAN chk1∆::NAT Strain, strain background (S. cerevisiae) FZ009 This study Yeast strain Mad2*-9xMyc-AID::NAT Strain, strain background (S. cerevisiae) FZ010 This study Yeast strain Ddc2-AID*-9xMyc ::KAN Mad2*-9xMyc -AID::NAT Strain, strain background (S. cerevisiae) DW455 This study Yeast strain mad2∆::KAN Strain, strain background (S. cerevisiae) GM180 Memisoglu et al., 2019 Yeast strain pGal::Ddc2::LEU2 Strain, strain background (S. cerevisiae) DW648 This study Yeast strain HOcse6::HPH pGal:: Ddc2::LEU2 Strain, strain background (S. cerevisiae) DW649 This study Yeast strain HOcse6::HPH pGal:: Ddc2::LEU2 mad2∆::NAT Strain, strain background (S. cerevisiae) DW642 This study Yeast strain HOcse6::HPH Ddc2-AID*-9xMyc::KAN Strain, strain background (S. cerevisiae) DW643 This study Yeast strain HOcse6::HPH Rad9-AID*-9xMyc::KAN Strain, strain background (S. cerevisiae) DW644 This study Yeast strain HOcse6::HPH Rad24-AID*-9xMyc::KAN Strain, strain background (S. cerevisiae) DW645 This study Yeast strain HOcse6::HPH Rad53-AID*-9xMyc::KAN Strain, strain background (S. cerevisiae) DW650 This study Yeast strain pGal::Ddc2::LEU2 mad2∆::NAT Strain, strain background (S. cerevisiae) GM539 Memisoglu et al., 2019 Yeast strain Ddc2-9xMyc::KAN Strain, strain background (S. cerevisiae) FZ001 This study Yeast strain MATα HOcse6::HPH Strain, strain background (S. cerevisiae) JY542 This study Yeast strain HOcse6::HPH tel1∆::KAN Strain, strain background (S. cerevisiae) FZ024 This study Yeast strain HOcse6::HPH Rad9-AID*-9xMyc::KAN Strain, strain background (S. cerevisiae) FZ025 This study Yeast strain HOcse6::HPH Rad24-AID*-9xMyc::KAN Strain, strain background (S. cerevisiae) FZ026 This study Yeast strain HOcse6::HPH Rad53-AID*-9xMyc::KAN Strain, strain background (S. cerevisiae) FZ173 This study Yeast strain HOcse6::HPH Rad24-AID*-9xMyc::KAN TIR1(F74G)::URA3 Strain, strain background (S. cerevisiae) FZ174 This study Yeast strain HOcse6::HPH Rad9-AID*-9xMyc::KAN TIR1(F74G)::URA3 Strain, strain background (S. cerevisiae) FZ175 This study Yeast strain HOcse6::HPH Rad53-AID*-9xMyc::KAN TIR1(F74G):: URA3 Strain, strain background (S. cerevisiae) YSL53 Lee et al., 1998 Yeast strain HOcse5::URA3 Strain, strain background (S. cerevisiae) GEM188 This study Yeast strain HOcse2::LYS2 Reagent type (species) or resource Designation Source or reference Identifiers Additional information Strain, strain background (S. cerevisiae) FZ201 This study Yeast strain Rad9-AID*-9xMyc::KAN pRAD9-AID*-9xMyc Strain, strain background (S. cerevisiae) FZ155 This study Yeast strain bfa1∆::KAN Strain, strain background (S. cerevisiae) yMA11 This study Yeast strain H2A-S129A H2B-T129A Strain, strain background (S. cerevisiae) yMA12 This study Yeast strain H2AS129E H2B-T129E Strain, strain background (S. cerevisiae) yMA13 This study Yeast strain H2B-T129A Strain, strain background (S. cerevisiae) yMA14 This study Yeast strain H2B-T129E Strain, strain background (S. cerevisiae) yBL257 This study Yeast strain H2A-S129E Strain, strain background (S. cerevisiae) yBL259 This study Yeast strain H2A-S129A Strain, strain background (S. cerevisiae) FZ062 This study Yeast strain Mad1*-9xMyc-AID::NAT Strain, strain background (S. cerevisiae) FZ165 This study Yeast strain Bfa1*-9xMyc-AID::NAT Strain, strain background (S. cerevisiae) FZ167 This study Yeast strain Bub2*-9xMyc-AID::NAT Sequence-based reagent GAT1p1B This paper PCR primers GCTC AGTG TGCG TTAT GCTT Sequence-based reagent GAT1p2B This paper PCR primers TTCA GGTC TCGG TTGC TCTT Sequence-based reagent VE162 Ddc2-AID For This paper PCR primers ATCT AACC ACAC TAGA GG AGGC CGAT TCAT TATA TAT CTCA ATGG GACT GCCT AA AGAT CCAG CCAA ACCT CC Sequence-based reagent VE163 Ddc2-AID Rev This paper PCR primers ATTA CAAG GTTT CTAT AAA GCGT TGAC ATTT TCCC CTTT T GATT GTTG CCCA GTAT AGC GACC AGCA TTCA CATA C Sequence-based reagent DW217 Rad9-AID 1 F This paper PCR primers GGTT TTCA CGAT GATA TTAC G GACA ATGA TATA TACA A CACT ATTT CTGA GGTT AGAC CTAA AGAT CCAG CCAA ACCT CC Sequence-based reagent DW218 Rad9-AID 1 R This paper PCR primers CTAA ATTT TTTT TTAT TT AATC GTCC CTTT CTAT CA ATTATGA GTTT ATAT ATTT TTAT AATT CAGT ATAG CG ACCA GCAT TCAC ATAC Sequence-based reagent DW208 Rad24-AID 1 F This paper PCR primers CAGA TTCA GATC TGGA A ATAC TCCC TAAA GATC CAGCCA AACC TCC Sequence-based reagent DW209 Rad24-AID 1 R This paper PCR primers GTGG AATA TTTC CTGG GGTT TTCT CGTC AAAT TT AAAGAGT AAAA AGCC TA AAGA TCCA GCCA AACC TCC Sequence-based reagent DW199 Rad53AID 1 F This paper PCR primers GGTT AAAA GGGC AAAA TT GGAC CAAA CCTC AAAA GG CCCC GAGA ATTT GCAA TTTT CGCC TAAA GATC CA GCCA AACC TCC Sequence-based reagent DW200 Rad53AID 1 R This paper PCR primers CCAT CTTC TCTC TTAA A AAGG GGCA GCAT TTT CTAT GGGTA TTTG TCCT T GGCA GTAT AGCG ACCA G CATT CACA TAC Recombinant DNA reagent pKan-9xMyc-AID Morawska and Ulrich, 2013 pJH2892 Backbone: pSM409</p></div><figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_0" coords="3,540.42,689.11,34.56,8.85;3,168.52,701.10,406.46,8.85;3,168.52,713.10,406.52,8.85"><figDesc>-figure supplement 1A). This premature escape from the cell cycle arrest was dependent on the presence of TIR1 (Figure 2-figure supplement 1B) and is likely due to low levels of IAA as a natural intermediate</figDesc></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_1" coords="4,36.50,531.48,523.89,7.66;4,36.50,542.48,526.57,8.11;4,36.50,553.48,529.58,8.11;4,36.50,564.48,524.02,7.66;4,36.50,575.48,536.84,7.66;4,36.50,586.48,527.63,7.66;4,36.50,597.48,534.25,8.01;4,36.50,608.48,526.33,8.01;4,36.51,619.48,80.94,7.66;4,36.51,633.48,278.23,7.66;4,36.51,647.48,233.82,7.86;4,36.51,661.48,205.66,7.86;4,36.51,675.48,233.09,7.86;4,36.51,689.48,204.93,7.86;4,42.63,60.13,414.72,456.89"><head>Figure 1 .</head><label>1</label><figDesc>Figure 1. Measuring checkpoint arrest in 1-DSB and 2-DSB strains. (A) Morphological categories of budding yeast cells using brightfield microscopy and DAPI staining were used to determine G 2 /M arrest. Cells that arrest at G2/M shift toward a large bud state. G 2 /M-arrested cells that progress into anaphase. (B) Adaptation assay with 1-DSB strain on a YEP-Gal plate. G 2 /M arrest was determined based on cell morphology as shown in (A). Data are shown from three independent experiments, error bars represent standard error of the mean (SEM). (C) Profile of DAPI-stained cells in a 1-DSB strain after DNA damage induction in liquid culture. Cells were grouped based on cell morphology and DAPI staining profiles, as explained below the graphs. (D) Rad53 phosphorylation kinetics in 1-DSB strain by western blotting. Samples collected after the induction of DNA damage during the time-course experiment and blotted with α-Rad53 to monitor DDC signaling. α-Rad53 can both detect unphosphorylated and hyperphosphorylated Rad53 species. TIR1-Myc was detected with α-Myc and serves as a loading control. (E) Same as (B) for a 2-DSB strain. (F) Same as (C) with a 2-DSB strain. (G) Same as (D) with a 2-DSB strain. The online version of this article includes the following source data for figure 1: Source data 1. Original membranes corresponding to Figure 1C. Source data 2. Original files corresponding to Figure 1C. Source data 3. Original membranes corresponding to Figure 1F. Source data 4. Original files corresponding to Figure 1F.</figDesc><graphic coords="4,42.63,60.13,414.72,456.89" type="bitmap" /></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_2" coords="6,36.50,490.54,521.70,8.11;6,36.51,501.54,511.32,7.88;6,36.51,512.54,521.48,7.66;6,36.51,523.54,525.35,8.11;6,36.50,534.54,522.94,8.01;6,36.50,545.54,535.80,8.01;6,36.51,556.54,203.90,7.88;6,36.51,570.54,368.36,7.66;6,36.51,584.54,234.27,7.86;6,36.51,598.54,206.11,7.86;6,36.51,612.54,233.53,7.86;6,36.51,626.54,205.37,7.86;6,36.51,640.54,233.82,7.86;6,36.51,654.54,205.66,7.86;6,36.51,668.54,234.41,7.86;6,36.51,682.54,206.26,7.86;6,42.63,60.13,428.09,415.95"><head>Figure 2 .</head><label>2</label><figDesc>Figure 2. Checkpoint maintenance requires Ddc2, Rad9, Rad24, and Rad53 activity. (A) Above: percentage of G 2 /M-arrested cells in a 2-DSB DDC2-AID strain after DNA damage induction in a liquid culture. Cultures were split 4 hr after galactose treatment to induce DNA damage by GAL::HO and treated either with auxin (+IAA) (1 mM) or with ethanol (Ctrl). Data are shown from three independent experiments, with error bars representing standard error of the mean (SEM). The asterisk marks the timepoint when the percentage of large-budded G 2 /M cells returned to pre-damage levels. Below: western blots ran with samples collected at various timepoints during the same time course, probed with α-Rad53, to determine DDC status, and α-Myc, to determine Ddc2-AID-Myc protein abundance and TIR1-Myc as a loading control. (B) Same as (A) for 2-DSB RAD9-AID. (C) Same as (A) for 2-DSB RAD24-AID. (D) Same as (A) for 2-DSB RAD53-AID. The online version of this article includes the following source data and figure supplement(s) for figure 2: Source data 1. Original membranes corresponding to Figure 2A. Source data 2. Original files corresponding to Figure 2A. Source data 3. Original membranes corresponding to Figure 2B. Source data 4. Original files corresponding to Figure 2B. Source data 5. Original membranes corresponding to Figure 2C. Source data 6. Original files corresponding to Figure 2C. Source data 7. Original membranes corresponding to Figure 2D. Source data 8. Original files corresponding to Figure 2D.</figDesc><graphic coords="6,42.63,60.13,428.09,415.95" type="bitmap" /></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_3" coords="6,36.51,696.54,307.79,7.66"><head>Figure supplement 1 .</head><label>1</label><figDesc>Figure supplement 1. Adaptation assay of AID-tagged checkpoint activation proteins.</figDesc></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_4" coords="6,36.51,710.59,117.06,7.97"><head>Figure 2</head><label>2</label><figDesc>Figure 2 continued on next page</figDesc></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_5" coords="7,36.50,68.43,295.02,7.66"><head>Figure supplement 2 .</head><label>2</label><figDesc>Figure supplement 2. AID-tagged checkpoint proteins readily degrade with auxin.</figDesc></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_6" coords="7,36.50,82.43,403.76,7.86"><head>Figure supplement 2 -</head><label>2</label><figDesc>Figure supplement 2-source data 1. Original membranes corresponding to Figure 2-figure supplement 2A.</figDesc></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_7" coords="7,36.50,96.43,375.60,7.86"><head>Figure supplement 2 -</head><label>2</label><figDesc>Figure supplement 2-source data 2. Original files corresponding to Figure 2-figure supplement 2A.</figDesc></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_8" coords="7,36.50,110.43,403.01,7.86"><head>Figure supplement 2 -</head><label>2</label><figDesc>Figure supplement 2-source data 3. Original membranes corresponding to Figure 2-figure supplement 2B.</figDesc></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_9" coords="7,36.50,124.43,374.85,7.86"><head>Figure supplement 2 -</head><label>2</label><figDesc>Figure supplement 2-source data 4. Original files corresponding to Figure 2-figure supplement 2B.</figDesc></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_10" coords="7,36.50,138.43,403.31,7.86"><head>Figure supplement 2 -</head><label>2</label><figDesc>Figure supplement 2-source data 5. Original membranes corresponding to Figure 2-figure supplement 2C.</figDesc></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_11" coords="7,36.50,152.43,375.15,7.86"><head>Figure supplement 2 -</head><label>2</label><figDesc>Figure supplement 2-source data 6. Original files corresponding to Figure 2-figure supplement 2C.</figDesc></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_12" coords="7,36.50,166.43,403.90,7.86"><head>Figure supplement 2 -</head><label>2</label><figDesc>Figure supplement 2-source data 7. Original membranes corresponding to Figure 2-figure supplement 2D.</figDesc></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_13" coords="7,36.50,180.43,375.74,7.86"><head>Figure supplement 2 -</head><label>2</label><figDesc>Figure supplement 2-source data 8. Original files corresponding to Figure 2-figure supplement 2D.</figDesc></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_14" coords="7,36.50,194.43,402.87,7.86"><head>Figure supplement 2 -</head><label>2</label><figDesc>Figure supplement 2-source data 9. Original membranes corresponding to Figure 2-figure supplement 2E.</figDesc></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_15" coords="7,36.50,208.43,379.44,7.86"><head>Figure supplement 2 -</head><label>2</label><figDesc>Figure supplement 2-source data 10. Original files corresponding to Figure 2-figure supplement 2E.</figDesc></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_16" coords="7,36.50,222.43,528.20,7.66"><head>Figure supplement 3 .</head><label>3</label><figDesc>Figure supplement 3. Cell cycle profile as determined by budding and DAPI staining in Ddc2-AID and Rad53-AID mutants ±IAA 4 hr after galactose.</figDesc></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_17" coords="7,36.50,54.38,67.42,7.97"><head>Figure 2 continuedFigure 3 .</head><label>23</label><figDesc>Figure2 continued</figDesc></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_18" coords="8,36.52,713.38,117.06,7.97"><head>Figure 3</head><label>3</label><figDesc>Figure 3 continued on next page</figDesc></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_19" coords="9,36.50,180.43,313.94,7.66"><head>Figure supplement 1 .</head><label>1</label><figDesc>Figure supplement 1. Tel1 is not required for DDC activation or Rad53 phosphorylation.</figDesc></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_20" coords="9,36.50,194.43,403.01,7.86"><head>Figure supplement 1</head><label>1</label><figDesc>Figure supplement 1-source data 1. Original membranes corresponding to Figure 3-figure supplement 1B.</figDesc></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_21" coords="9,36.50,208.43,374.85,7.86"><head>Figure supplement 1</head><label>1</label><figDesc>Figure supplement 1-source data 2. Original files corresponding to Figure 3-figure supplement 1B.</figDesc></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_22" coords="9,36.50,54.38,67.42,7.97"><figDesc>Figure3 continued</figDesc></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_23" coords="10,36.50,415.45,529.11,8.11;10,36.50,426.45,516.32,7.86;10,36.50,437.45,534.90,8.11;10,36.50,448.45,527.30,7.66;10,36.50,459.45,517.68,8.01;10,36.50,470.45,529.61,7.88;10,36.51,481.45,127.60,7.66;10,36.51,495.45,278.23,7.66;10,36.51,509.45,234.27,7.86;10,36.51,523.45,206.11,7.86;10,36.51,537.45,233.53,7.86;10,36.51,551.45,205.37,7.86;10,36.51,565.45,233.82,7.86;10,36.51,579.45,205.66,7.86;10,42.63,60.13,432.62,340.87"><head>Figure 4 .</head><label>4</label><figDesc>Figure 4. Dun1 is not required for checkpoint maintenance. (A) Adaptation assay of 50 G 1 cells on a YEP-Gal plate with 2-DSB dun1∆. G 2 /M arrest was determined based on cell morphology as shown in Figure 1A. Data is shown from three trials with standard error of the mean (SEM). Western blot probed with α-Rad53 and α-Myc for TIR1-Myc as a loading control. (B) Percentage of G 2 /M-arrested cells for 2-DSB DUN1-AID after HO induction. Data are shown from three trials with standard error of the mean (SEM). Cultures were split 4 hr after DSB induction; with auxin (1 mM) (+IAA). Western blot probed with α-Rad53 and α-Myc. α-Rad53 shows both an unphosphorylated protein and multiple phosphorylated species. α-Myc shows Dun1-AID degradation and TIR1-Myc as a loading control. (C) Same as (B) for 2-DSB chk1∆ DUN1-AID. The asterisk marks when the percentage of large-budded cells returned to pre-damage levels. The online version of this article includes the following source data for figure 4: Source data 1. Original membranes corresponding to Figure 4A. Source data 2. Original files corresponding to Figure 4A. Source data 3. Original membranes corresponding to Figure 4B. Source data 4. Original files corresponding to Figure 4B. Source data 5. Original membranes corresponding to Figure 4C. Source data 6. Original files corresponding to Figure 4C.</figDesc><graphic coords="10,42.63,60.13,432.62,340.87" type="bitmap" /></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_24" coords="11,36.50,619.32,497.66,8.11;11,36.51,630.32,505.70,8.01;11,36.51,641.32,513.18,8.01;11,36.52,652.32,512.28,7.88;11,36.52,663.32,530.30,8.11;11,36.50,674.32,518.48,8.01;11,36.50,685.32,504.89,8.01;11,36.50,696.32,530.75,8.11;11,36.51,710.37,117.06,7.97;11,42.63,60.13,429.74,544.73"><head>Figure 5 .</head><label>5</label><figDesc>Figure 5. Ddc2 and Rad53 are dispensable for &gt;24 hr checkpoint arrest. (A) Percentage of G 2 /M-arrested cells for 2-DSB DDC2-AID after HO induction. Data is shown from three trials with standard error of the mean (SEM). Western blot probed with α-Rad53 and α-Myc. α-Rad53 shows both an unphosphorylated protein and multiple phosphorylated species. α-Myc shows Ddc2-AID degradation and TIR1-Myc as a loading control. (B) Profile of DAPI-stained cells in a 2-DSB DDC2-AID strain after HO induction. Cells were categorized based on cell morphology and number of DAPI signals. (C) Percentage of G 2 /M-arrested cells for 2-DSB RAD53-AID TIR1(F74G) after HO induction. 5-Ph-IAA was added 4 hr after HO induction. Data is shown from three trials with standard error of the mean (SEM). Western blot probed with α-Rad53, α-Myc, and α-Pgk1. α-Rad53 shows both an unphosphorylated protein and multiple phosphorylated species. α-Myc shows Rad53-AID degradation. α-Pgk1 probed as a loading control. (D) Same as (C) where 5-Ph-IAA was added 15 hr after HO induction. (E) Percentage G 2 /M-arrested cells for 2-DSB RAD9-AID plus pRad9-AID after HO Figure 5 continued on next page</figDesc><graphic coords="11,42.63,60.13,429.74,544.73" type="bitmap" /></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_25" coords="12,36.50,68.59,527.80,8.01;12,36.50,79.59,538.50,8.01;12,36.50,90.59,71.90,7.66;12,36.50,104.59,368.36,7.66;12,36.50,118.59,234.27,7.86;12,36.50,132.59,206.11,7.86;12,36.50,146.59,233.82,7.86;12,36.50,160.59,205.66,7.86;12,36.50,174.59,234.42,7.86;12,36.50,188.59,206.26,7.86;12,36.50,202.59,233.38,7.86;12,36.50,216.59,205.22,7.86"><figDesc>induction. Data shown from three trials with standard error of the mean (SEM). Western blot probed with α-Rad53 and α-Myc. α-Rad53 shows both an unphosphorylated protein and multiple phosphorylated species. α-Myc shows Rad9-AID degradation and TIR1-Myc as a loading control. α-Pgk1 probed as a loading control. The online version of this article includes the following source data and figure supplement(s) for figure 5: Source data 1. Original membranes corresponding to Figure 5A. Source data 2. Original files corresponding to Figure 5A. Source data 3. Original membranes corresponding to Figure 3C. Source data 4. Original files corresponding to Figure 3C. Source data 5. Original membranes corresponding to Figure 3D. Source data 6. Original files corresponding to Figure 3D. Source data 7. Original membranes corresponding to Figure 3E. Source data 8. Original files corresponding to Figure 3E.</figDesc></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_26" coords="12,36.50,230.59,270.46,7.66"><head>Figure supplement 1 .</head><label>1</label><figDesc>Figure supplement 1. Relative levels of Ddc2 decrease after DSB induction.</figDesc></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_27" coords="12,36.50,244.59,403.76,7.86"><head>Figure supplement 1 -</head><label>1</label><figDesc>Figure supplement 1-source data 1. Original membranes corresponding to Figure 5-figure supplement 1A.</figDesc></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_28" coords="12,36.50,258.59,375.60,7.86"><head>Figure supplement 1 -</head><label>1</label><figDesc>Figure supplement 1-source data 2. Original files corresponding to Figure 5-figure supplement 1A.</figDesc></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_29" coords="12,36.50,272.59,403.01,7.86"><head>Figure supplement 1</head><label>1</label><figDesc>Figure supplement 1-source data 3. Original membranes corresponding to Figure 5-figure supplement 1B.</figDesc></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_30" coords="12,36.50,286.59,374.85,7.86"><head>Figure supplement 1</head><label>1</label><figDesc>Figure supplement 1-source data 4. Original files corresponding to Figure 5-figure supplement 1B.</figDesc></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_31" coords="12,36.50,54.39,67.42,7.97"><head>Figure 5 continued</head><label>5</label><figDesc>Figure5 continued</figDesc></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_32" coords="13,168.53,78.31,24.16,7.66;13,244.53,78.31,22.07,7.66"><figDesc>Figure Strain</figDesc></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_33" coords="14,36.50,465.03,534.57,8.11;14,36.51,476.03,520.23,8.01;14,36.51,487.03,514.66,8.01;14,36.52,498.03,519.05,7.88;14,36.52,509.03,517.11,7.88;14,36.52,520.03,88.52,7.88;14,36.52,534.03,368.36,7.66;14,36.52,548.03,234.27,7.86;14,36.52,562.03,206.11,7.86;14,36.52,576.03,233.82,7.86;14,36.52,590.03,205.66,7.86;14,42.63,60.13,430.15,390.45"><head>Figure 6 .</head><label>6</label><figDesc>Figure 6. Degradation of Mad2 or Mad1 at 15 hr releases cells from checkpoint arrest. (A) Percentage of G 2 /M-arrested cells for 2-DSB MAD2-AID after HO induction. Data is shown from three trials with standard error of the mean (SEM). Western blot probed with α-Rad53 and α-Myc. α-Rad53 shows both an unphosphorylated protein and multiple phosphorylated species. α-Myc shows Mad2-AID degradation and TIR1-Myc as a loading control. (B) Profile of DAPI-stained cells in a 2-DSB MAD2-AID strain after HO induction. Liquid cultures were split 15 hr after HO induction and treated with either IAA or ethanol. Cells were scored based on cell morphology and number of DAPI signals. (C) Same as (A) for 2-DSB MAD1-AID. (D) Same as (B) for 2-DSB MAD1-AID. The online version of this article includes the following source data and figure supplement(s) for figure 6: Source data 1. Original membranes corresponding to Figure 6A. Source data 2. Original files corresponding to Figure 6A. Source data 3. Original membranes corresponding to Figure 6C. Source data 4. Original files corresponding to Figure 6C.</figDesc><graphic coords="14,42.63,60.13,430.15,390.45" type="bitmap" /></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_34" coords="14,36.52,604.03,279.97,7.66"><head>Figure supplement 1 .</head><label>1</label><figDesc>Figure supplement 1. Mad2 is required for permanent arrest in a 2-DSB strain.</figDesc></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_35" coords="14,36.52,618.03,323.72,7.66"><head>Figure supplement 2 .</head><label>2</label><figDesc>Figure supplement 2. Mad1 and Mad2 are required for permanent arrest in a 2-DSB strain.</figDesc></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_36" coords="14,36.52,632.03,403.01,7.86"><head>Figure supplement 2-source data 1 .</head><label>1</label><figDesc>Figure supplement 2-source data 1. Original membranes corresponding to Figure 6-figure supplement 2B.</figDesc></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_37" coords="14,36.52,646.03,374.85,7.86"><head>Figure supplement 2-source data 2 .</head><label>2</label><figDesc>Figure supplement 2-source data 2. Original files corresponding to Figure 6-figure supplement 2B.</figDesc></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_38" coords="14,36.52,660.03,403.31,7.86"><head>Figure supplement 2 -</head><label>2</label><figDesc>Figure supplement 2-source data 3. Original membranes corresponding to Figure 6-figure supplement 2C.</figDesc></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_39" coords="14,36.52,674.03,375.15,7.86"><head>Figure supplement 2 -</head><label>2</label><figDesc>Figure supplement 2-source data 4. Original files corresponding to Figure 6-figure supplement 2C.</figDesc></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_40" coords="14,36.52,688.03,356.47,7.66"><head>Figure supplement 3 .</head><label>3</label><figDesc>Figure supplement 3. Degradation of Ddc2 and Mad2 at 15 hr releases cells from checkpoint arrest.</figDesc></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_41" coords="14,36.52,702.08,117.06,7.97"><head>Figure 6</head><label>6</label><figDesc>Figure 6 continued on next page</figDesc></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_42" coords="15,36.50,68.43,403.76,7.86"><head>Figure supplement 3 -</head><label>3</label><figDesc>Figure supplement 3-source data 1. Original membranes corresponding to Figure 6-figure supplement 3A.</figDesc></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_43" coords="15,36.50,82.43,375.60,7.86"><head>Figure supplement 3 -</head><label>3</label><figDesc>Figure supplement 3-source data 2. Original files corresponding to Figure 6-figure supplement 3A.</figDesc></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_44" coords="15,36.50,54.38,67.42,7.97"><head>Figure 6</head><label>6</label><figDesc>Figure6 continued</figDesc></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_45" coords="16,36.50,452.07,525.39,8.11;16,36.51,463.07,514.88,8.01;16,36.51,474.07,536.62,8.01;16,36.52,485.07,516.08,7.88;16,36.52,496.07,536.41,7.88;16,36.52,507.07,61.24,7.88;16,36.52,521.07,368.36,7.66;16,36.52,535.07,234.27,7.86;16,36.52,549.07,206.11,7.86;16,36.52,563.07,233.82,7.86;16,36.52,577.07,205.66,7.86;16,42.63,60.13,430.15,377.49"><head>Figure 7 .</head><label>7</label><figDesc>Figure 7. Degradation of Bub2 but not Bfa1 at 15 hr releases cells from checkpoint arrest. (A) Percentage of G 2 /M-arrested cells for 2-DSB BUB2-AID after HO induction. Data is shown from three trials with standard error of the mean (SEM). Western blot probed with α-Rad53 and α-Myc. α-Rad53 shows both an unphosphorylated protein and multiple phosphorylated species. α-Myc shows Bub2-AID degradation and TIR1-Myc as a loading control. (B) Profile of DAPI-stained cells in a 2-DSB BUB2-AID strain after HO induction. Liquid cultures were split 15 hr after HO induction and treated with either IAA or ethanol. Cells were scored based on cell morphology and number of DAPI signals. (C) Same as (A) for 2-DSB BFA1-AID. (D) Same as (B) for 2-DSB BFA1-AID. The online version of this article includes the following source data and figure supplement(s) for figure 7: Source data 1. Original membranes corresponding to Figure 7A. Source data 2. Original files corresponding to Figure 7A. Source data 3. Original membranes corresponding to Figure 7C. Source data 4. Original files corresponding to Figure 7C.</figDesc><graphic coords="16,42.63,60.13,430.15,377.49" type="bitmap" /></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_46" coords="16,36.52,591.07,262.21,7.66"><head>Figure supplement 1 .</head><label>1</label><figDesc>Figure supplement 1. Bub2 but not Bfa1 is required for prolonged arrest.</figDesc></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_47" coords="16,36.52,605.07,403.76,7.86"><head>Figure supplement 1 -</head><label>1</label><figDesc>Figure supplement 1-source data 1. Original membranes corresponding to Figure 7-figure supplement 1A.</figDesc></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_48" coords="16,36.52,619.07,375.60,7.86"><head>Figure supplement 1 -</head><label>1</label><figDesc>Figure supplement 1-source data 2. Original files corresponding to Figure 7-figure supplement 1A.</figDesc></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_49" coords="16,36.52,633.07,403.31,7.86"><head>Figure supplement 1 -</head><label>1</label><figDesc>Figure supplement 1-source data 3. Original membranes corresponding to Figure 7-figure supplement 1C.</figDesc></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_50" coords="16,36.52,647.07,375.15,7.86"><head>Figure supplement 1 -</head><label>1</label><figDesc>Figure supplement 1-source data 4. Original files corresponding to Figure 7-figure supplement 1C.</figDesc></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_51" coords="17,36.50,562.13,536.37,8.11;17,36.51,573.13,532.22,8.11;17,36.51,584.13,533.34,7.88;17,36.52,595.13,529.74,7.88;17,36.53,606.13,523.00,7.86;17,36.54,617.13,520.56,7.88;17,36.54,628.13,103.00,7.66;17,42.63,60.13,425.83,487.54"><head>Figure 8 .</head><label>8</label><figDesc>Figure 8. Adaptation assay of different 2-DSB strains. (A) Adaptation assay of 1-DSB and 2-DSB strains tracking the morphology of 50 G 1 cells on a YEP-Gal plate.The percentage of G 2 /M-arrested cells was shown 4 hr and 24 hr after placement of YEP-Gal plates. JKM179 is a 1-DSB strain with an HO-cut site in the MAT locus on chromosome III 86 kb away from the centromere. DW417 is a 2-DSB strain derived from JKM179 with an additional HO-cut site on chromosome VI 52 kb away from the centromere. YSL53 is a 2-DSB strain derived from JKM179 with an additional HO-cut site at the URA3 locus on chromosome V 36 kb away from the centromere<ref type="bibr" target="#b24">(Lee et al., 1998)</ref>. GEM188 is a 2-DSB strain derived from JKM179 with an additional HO-cut site at LYS2 on chromosome II 230 kb away from the centromere. (B) Cartoon representations of strains showing the location of the HO-cut sites relative to their respective centromeres.</figDesc><graphic coords="17,42.63,60.13,425.83,487.54" type="bitmap" /></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_52" coords="18,36.50,243.48,521.20,7.66;18,36.50,254.48,534.98,8.11;18,36.50,265.48,179.16,7.66;18,42.63,60.12,453.60,168.89"><head>Figure 9 .</head><label>9</label><figDesc>Figure 9. Phosphomimetic and non-phosphorylatable mutants of histone H2A and H2B do not affect the growth rate of cells. Growth rate of strains were measured in YPD (2% dextrose) in H2A and H2B mutants for up to 10 hr. Cultures were grown in YPD until they reached an OD 600 of 0.1. The OD of each strain was then measured at 3, 5, 7, and 10 hr.</figDesc><graphic coords="18,42.63,60.12,453.60,168.89" type="bitmap" /></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_53" coords="19,42.63,60.13,453.60,369.67"><graphic coords="19,42.63,60.13,453.60,369.67" type="bitmap" /></figure>
+			<note xmlns="http://www.tei-c.org/ns/1.0" place="foot" xml:id="foot_0"><p>Zhou, Waterman et al. eLife 2024;13:RP94334. DOI: https:// doi. org/ 10. 7554/ eLife. 94334</p></note>
+		</body>
+		<back>
+
+			<div type="acknowledgement">
+<div><head>Acknowledgements</head><p>We thank <rs type="person">Helle Ulrich</rs> for the <rs type="institution">AID</rs> and <rs type="grantNumber">TIR1</rs> plasmid and <rs type="person">Masato Kanemaki</rs> for the TIR1(F74G) plasmid. We also thank <rs type="person">Nikita Alimov</rs>, <rs type="person">Jessie Ang</rs>, and <rs type="person">Astré Bouchier</rs> for their assistance.</p></div>
+			</div>
+			<listOrg type="funding">
+				<org type="funding" xml:id="_n3UBHVp">
+					<idno type="grant-number">TIR1</idno>
+				</org>
+			</listOrg>
+
+			<div type="availability">
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>Data availability</head><p>Data is available on Dryad: <ref type="url" target="https://doi.org/10.5061/dryad.sj3tx96dv">https://doi.org/10.5061/dryad.sj3tx96dv</ref>. The following dataset was generated: Author(s) Year Dataset title Dataset URL Database and Identifier Zhou FY, Waterman DP, Caban-Penix S, Eapen VV, Haber JE 2024 Prolonged Cell Cycle Arrest in Response to DNA damage in Yeast Requires the Maintenance of DNA Damage Signaling and the Spindle Assembly Checkpoint <ref type="url" target="http://dx.doi.org/10.5061/dryad.sj3tx96dv">http:// dx. doi. org/ 10.  5061/ dryad. sj3tx96dv</ref> Dryad Digital Repository, 10.5061/dryad.sj3tx96dv</p></div>
+			</div>
+
+
+			<div type="conflict">
+<div xmlns="http://www.tei-c.org/ns/1.0"><p>The authors declare that no competing interests exist.</p></div>
+			</div>
+
+
+			<div type="contribution">
+<div xmlns="http://www.tei-c.org/ns/1.0"><p>Source data 3. Original membranes corresponding to Figure 3C. Source data 4. Original files corresponding to Figure 3C. Source data 5. Original membranes corresponding to Figure 3D. Source data 6. Original files corresponding to Figure 3D. Source data 7. Original membranes corresponding to Figure 3E. Source data 8. Original files corresponding to Figure 3E. Source data 9. Original membranes corresponding to Figure 3F. Source data 10. Original files corresponding to Figure 3F. Author contributions Felix Y Zhou, Resources, Data curation, Formal analysis, Validation, Investigation, Visualization, Methodology, Writing -original draft, Writing -review and editing; David P Waterman, Conceptualization, Resources, Data curation, Formal analysis, Investigation, Methodology, Writing -original draft, Writing -review and editing; Marissa Ashton, Resources, Data curation, Formal analysis, Investigation; Suhaily Caban-Penix, Resources, Data curation, Investigation; Gonen Memisoglu, Resources, Data curation, Investigation, Writing -review and editing; Vinay V Eapen, Conceptualization, Data curation, Formal analysis, Investigation, Methodology; James E Haber, Conceptualization, Supervision, Writing -original draft, Project administration, Writing -review and editing</p></div>
+			</div>
+
+			<div type="annex">
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>Additional information</head><p>Funding Funder Grant reference number Author National Institutes of Health R35 GM127029 Felix Y Zhou David P Waterman Marissa Ashton Vinay V Eapen James E Haber National Institutes of Health TM32GM007122 Felix Y Zhou David P Waterman Suhaily Caban-Penix Howard Hughes Medical Institute Vinay V Eapen Funder Grant reference number Author National Institutes of Health F32-GM145156 Gonen Memisoglu National Institute of General Medical Sciences</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>5T32GM139798 Marissa Ashton</head><p>The funders had no role in study design, data collection and interpretation, or the decision to submit the work for publication.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>Additional files</head></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>Supplementary files</head><p>• Supplementary file 1. Strains and Primers used in this study. (a) Strains used in this study. (b) Primers used in this study.</p><p>• MDAR checklist</p><p>Appendix 1 Continued on next page Research article Chromosomes and Gene Expression Zhou, Waterman et al. eLife 2024;13:RP94334. DOI: <ref type="url" target="https://doi.org/10.7554/eLife.94334">https:// doi. org/ 10. 7554/ eLife. 94334</ref> 30 of 30 Reagent type (species) or resource Designation Source or reference Identifiers Additional information Recombinant DNA reagent pNAT-9xMyc-AID Morawska and Ulrich, 2013 pJH2899 Backbone: pSM409 Recombinant DNA reagent sTIR1::URA3 Nishimura et al., 2009 pNHK53 Recombinant DNA reagent GAL-DDC2 Paciotti et al., 2000 pML100 Backbone: pML95 Recombinant DNA reagent ADH1-OsTIR1(F74G) Yesbolatova et al., 2020 pMK420 Recombinant DNA reagent bRA90 Anand et al., 2017 bRA90 Recombinant DNA reagent bG059 This study bG059 Backbone: bRA90 Recombinant DNA reagent bG060 This study bG060 Backbone: bRA90 Recombinant DNA reagent pRad9-3HA Lazzaro et al., 2008 pFL36.1 Backbone: pRS306 Recombinant DNA reagent pRad9-9xMyc-AID This study pFZ052 Backbone: pRS306 Recombinant DNA reagent pBL15 -HTA1 gRNA1 This study pBL15 Backbone: BRA89 Recombinant DNA reagent pBL16 -HTA2 gRNA2 This study pBL16 Backbone: BRA89 Recombinant DNA reagent pKL004 -HTB1 gRNA1 This study pKL004 Backbone: BRA89 Recombinant DNA reagent pKL005 -HTB2 gRNA1 This study pKL005 Backbone: BRA89 Software, algorithm Prism 7.00 GraphPad Software, Inc. N/A Software, algorithm Image Lab Bio-Rad N/A Software, algorithm FiJi ImageJ N/A Gene (S. cerevisiae) Ddc2 Saccharomyces Genome Database Systematic name YDR499W Gene (S. cerevisiae) Rad9 Saccharomyces Genome Database Systematic name YDR217C Gene (S. cerevisiae) Rad24 Saccharomyces Genome Database Systematic name YER173W Gene (S. cerevisiae) Rad53 Saccharomyces Genome Database Systematic name YPL153C Gene (S. cerevisiae) Chk1 Saccharomyces Genome Database Systematic name YBR274W Gene (S. cerevisiae) Dun1 Saccharomyces Genome Database Systematic name YDL101C Gene (S. cerevisiae) Tel1 Saccharomyces Genome Database Systematic name YBL088C Gene (S. cerevisiae) Mad2 Saccharomyces Genome Database Systematic name YJL030W Gene (S. cerevisiae) Mad1 Saccharomyces Genome Database Systematic name YGL086W Gene (S. cerevisiae) Bub2 Saccharomyces Genome Database Systematic name YMR055C Gene (S. cerevisiae) Bfa1 Saccharomyces Genome Database Systematic name YJR053W</p></div>			</div>
+			<div type="references">
+
+				<listBibl>
+
+<biblStruct status="extracted" xml:id="b0">
+	<analytic>
+		<title level="a" type="main">Two distinct pathways for inhibiting pds1 ubiquitination in response to DNA damage</title>
+		<author>
+			<persName><forename type="first">R</forename><surname>Agarwal</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Z</forename><surname>Tang</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">H</forename><surname>Yu</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">O</forename><surname>Cohen-Fix</surname></persName>
+		</author>
+		<idno type="DOI">10.1074/jbc.M306783200</idno>
+		<idno type="PMID">12947083</idno>
+		<ptr target="https://doi.org/10.1074/jbc.M306783200" />
+	</analytic>
+	<monogr>
+		<title level="j">The Journal of Biological Chemistry</title>
+		<imprint>
+			<biblScope unit="volume">278</biblScope>
+			<biblScope unit="page" from="45027" to="45033" />
+			<date type="published" when="2003">2003</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct status="extracted" xml:id="b1">
+	<analytic>
+		<title level="a" type="main">Rad51-mediated double-strand break repair and mismatch correction of divergent substrates</title>
+		<author>
+			<persName><forename type="first">R</forename><surname>Anand</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><surname>Beach</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">K</forename><surname>Li</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><surname>Haber</surname></persName>
+		</author>
+		<idno type="DOI">10.1038/nature22046</idno>
+		<idno type="PMID">28405019</idno>
+		<ptr target="https://doi.org/10.1038/nature22046" />
+	</analytic>
+	<monogr>
+		<title level="j">Nature</title>
+		<imprint>
+			<biblScope unit="volume">544</biblScope>
+			<biblScope unit="page" from="377" to="380" />
+			<date type="published" when="2017">2017</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct status="extracted" xml:id="b2">
+	<analytic>
+		<title level="a" type="main">The checkpoint protein Rad24 of Saccharomyces cerevisiae is involved in processing double-strand break ends and in recombination partner choice</title>
+		<author>
+			<persName><forename type="first">Y</forename><surname>Aylon</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><surname>Kupiec</surname></persName>
+		</author>
+		<idno type="DOI">10.1128/MCB.23.18.6585-6596.2003</idno>
+		<ptr target="https://doi.org/10.1128/MCB.23.18.6585-6596.2003" />
+	</analytic>
+	<monogr>
+		<title level="j">Molecular and Cellular Biology</title>
+		<imprint>
+			<biblScope unit="volume">23</biblScope>
+			<biblScope unit="page" from="6585" to="6596" />
+			<date type="published" when="2003">2003</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct status="extracted" xml:id="b3">
+	<analytic>
+		<title level="a" type="main">A mechanism for coupling exit from mitosis to partitioning of the nucleus</title>
+		<author>
+			<persName><forename type="first">A</forename><forename type="middle">J</forename><surname>Bardin</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">R</forename><surname>Visintin</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><surname>Amon</surname></persName>
+		</author>
+		<idno type="DOI">10.1016/s0092-8674(00)00007-6</idno>
+		<idno type="PMID">10929710</idno>
+		<ptr target="https://doi.org/10.1016/s0092-8674(00)00007-6" />
+	</analytic>
+	<monogr>
+		<title level="j">Cell</title>
+		<imprint>
+			<biblScope unit="volume">102</biblScope>
+			<biblScope unit="page" from="21" to="31" />
+			<date type="published" when="2000">2000</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct status="extracted" xml:id="b4">
+	<analytic>
+		<title level="a" type="main">Dephosphorylation of gamma H2A by Glc7/ protein phosphatase 1 promotes recovery from inhibition of DNA replication</title>
+		<author>
+			<persName><forename type="first">M</forename><surname>Bazzi</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">D</forename><surname>Mantiero</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">C</forename><surname>Trovesi</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">G</forename><surname>Lucchini</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><forename type="middle">P</forename><surname>Longhese</surname></persName>
+		</author>
+		<idno type="DOI">10.1128/MCB.01000-09</idno>
+		<idno type="PMID">19884341</idno>
+		<ptr target="https://doi.org/10.1128/MCB.01000-09" />
+	</analytic>
+	<monogr>
+		<title level="j">Molecular and Cellular Biology</title>
+		<imprint>
+			<biblScope unit="volume">30</biblScope>
+			<biblScope unit="page" from="131" to="145" />
+			<date type="published" when="2010">2010</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct status="extracted" xml:id="b5">
+	<analytic>
+		<title level="a" type="main">Mechanism of Dun1 activation by Rad53 phosphorylation in Saccharomyces cerevisiae</title>
+		<author>
+			<persName><forename type="first">S</forename><surname>Chen</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><forename type="middle">B</forename><surname>Smolka</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">H</forename><surname>Zhou</surname></persName>
+		</author>
+		<idno type="DOI">10.1074/jbc.M609322200</idno>
+		<idno type="PMID">17114794</idno>
+		<ptr target="https://doi.org/10.1074/jbc.M609322200" />
+	</analytic>
+	<monogr>
+		<title level="j">The Journal of Biological Chemistry</title>
+		<imprint>
+			<biblScope unit="volume">282</biblScope>
+			<biblScope unit="page" from="986" to="995" />
+			<date type="published" when="2007">2007</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct status="extracted" xml:id="b6">
+	<analytic>
+		<title level="a" type="main">Hyperactivation of the yeast DNA damage checkpoint by TEL1 and DDC2 overexpression</title>
+		<author>
+			<persName><forename type="first">M</forename><surname>Clerici</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">V</forename><surname>Paciotti</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">V</forename><surname>Baldo</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><surname>Romano</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">G</forename><surname>Lucchini</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><forename type="middle">P</forename><surname>Longhese</surname></persName>
+		</author>
+		<idno type="DOI">10.1093/emboj/20.22.6485</idno>
+		<idno type="PMID">11707419</idno>
+		<ptr target="https://doi.org/10.1093/emboj/20.22.6485" />
+	</analytic>
+	<monogr>
+		<title level="j">The EMBO Journal</title>
+		<imprint>
+			<biblScope unit="volume">20</biblScope>
+			<biblScope unit="page" from="6485" to="6498" />
+			<date type="published" when="2001">2001</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct status="extracted" xml:id="b7">
+	<analytic>
+		<title level="a" type="main">RAD9 and RAD24 define two additive, interacting branches of the DNA damage checkpoint pathway in budding yeast normally required for Rad53 modification and activation</title>
+		<author>
+			<persName><forename type="first">Torre</forename><forename type="middle">-</forename><surname>De La</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><forename type="middle">A</forename><surname>Ruiz</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">C</forename><forename type="middle">M</forename><surname>Green</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">N</forename><forename type="middle">F</forename><surname>Lowndes</surname></persName>
+		</author>
+		<idno type="DOI">10.1093/emboj/17.9.2687</idno>
+		<idno type="PMID">9564050</idno>
+		<ptr target="https://doi.org/10.1093/emboj/17.9.2687" />
+	</analytic>
+	<monogr>
+		<title level="j">The EMBO Journal</title>
+		<imprint>
+			<biblScope unit="volume">17</biblScope>
+			<biblScope unit="page" from="2687" to="2698" />
+			<date type="published" when="1998">1998</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct status="extracted" xml:id="b8">
+	<analytic>
+		<title level="a" type="main">Kinetic framework of spindle assembly checkpoint signalling</title>
+		<author>
+			<persName><forename type="first">A</forename><forename type="middle">E</forename><surname>Dick</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">D</forename><forename type="middle">W</forename><surname>Gerlich</surname></persName>
+		</author>
+		<idno type="DOI">10.1038/ncb2842</idno>
+		<idno type="PMID">24096243</idno>
+		<ptr target="https://doi.org/10.1038/ncb2842" />
+	</analytic>
+	<monogr>
+		<title level="j">Nature Cell Biology</title>
+		<imprint>
+			<biblScope unit="volume">15</biblScope>
+			<biblScope unit="page" from="1370" to="1377" />
+			<date type="published" when="2013">2013</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct status="extracted" xml:id="b9">
+	<analytic>
+		<title level="a" type="main">The yeast DNA damage checkpoint proteins control a cytoplasmic response to DNA damage</title>
+		<author>
+			<persName><forename type="first">F</forename><surname>Dotiwala</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><surname>Haase</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><surname>Arbel-Eden</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">K</forename><surname>Bloom</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><forename type="middle">E</forename><surname>Haber</surname></persName>
+		</author>
+		<idno type="DOI">10.1073/pnas.0609636104</idno>
+		<idno type="PMID">17586685</idno>
+		<ptr target="https://doi.org/10.1073/pnas.0609636104" />
+	</analytic>
+	<monogr>
+		<title level="j">PNAS</title>
+		<imprint>
+			<biblScope unit="volume">104</biblScope>
+			<biblScope unit="page" from="11358" to="11363" />
+			<date type="published" when="2007">2007</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct status="extracted" xml:id="b10">
+	<analytic>
+		<title level="a" type="main">Mad2 prolongs DNA damage checkpoint arrest caused by a double-strand break via a centromere-dependent mechanism</title>
+		<author>
+			<persName><forename type="first">F</forename><surname>Dotiwala</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><forename type="middle">C</forename><surname>Harrison</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">S</forename><surname>Jain</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">N</forename><surname>Sugawara</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><forename type="middle">E</forename><surname>Haber</surname></persName>
+		</author>
+		<idno type="DOI">10.1016/j.cub.2009.12.033</idno>
+		<idno type="PMID">20096585</idno>
+		<ptr target="https://doi.org/10.1016/j.cub.2009.12.033" />
+	</analytic>
+	<monogr>
+		<title level="j">Current Biology</title>
+		<imprint>
+			<biblScope unit="volume">20</biblScope>
+			<biblScope unit="page" from="328" to="332" />
+			<date type="published" when="2010">2010</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct status="extracted" xml:id="b11">
+	<analytic>
+		<title level="a" type="main">The processing of double-strand breaks and binding of single-strand-binding proteins RPA and Rad51 modulate the formation of ATR-kinase foci in yeast</title>
+		<author>
+			<persName><forename type="first">K</forename><surname>Dubrana</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">H</forename><surname>Van Attikum</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">F</forename><surname>Hediger</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">S</forename><forename type="middle">M</forename><surname>Gasser</surname></persName>
+		</author>
+		<idno type="DOI">10.1242/jcs.018366</idno>
+		<idno type="PMID">18003698</idno>
+		<ptr target="https://doi.org/10.1242/jcs.018366" />
+	</analytic>
+	<monogr>
+		<title level="j">Journal of Cell Science</title>
+		<imprint>
+			<biblScope unit="volume">120</biblScope>
+			<biblScope unit="page" from="4209" to="4220" />
+			<date type="published" when="2007">2007</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct status="extracted" xml:id="b12">
+	<analytic>
+		<title level="a" type="main">The FHA domain is a modular phosphopeptide recognition motif</title>
+		<author>
+			<persName><forename type="first">D</forename><surname>Durocher</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><surname>Henckel</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><forename type="middle">R</forename><surname>Fersht</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">S</forename><forename type="middle">P</forename><surname>Jackson</surname></persName>
+		</author>
+		<idno type="DOI">10.1016/s1097-2765(00)80340-8</idno>
+		<idno type="PMID">10518219</idno>
+		<ptr target="https://doi.org/10.1016/s1097-2765(00)80340-8" />
+	</analytic>
+	<monogr>
+		<title level="j">Molecular Cell</title>
+		<imprint>
+			<biblScope unit="volume">4</biblScope>
+			<biblScope unit="page" from="387" to="394" />
+			<date type="published" when="1999">1999</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct status="extracted" xml:id="b13">
+	<analytic>
+		<title level="a" type="main">The Saccharomyces cerevisiae chromatin remodeler Fun30 regulates DNA end resection and checkpoint deactivation</title>
+		<author>
+			<persName><forename type="first">V</forename><forename type="middle">V</forename><surname>Eapen</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">N</forename><surname>Sugawara</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><surname>Tsabar</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">W</forename><forename type="middle">H</forename><surname>Wu</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><forename type="middle">E</forename><surname>Haber</surname></persName>
+		</author>
+		<idno type="DOI">10.1128/MCB.00566-12</idno>
+		<idno type="PMID">23007155</idno>
+		<ptr target="https://doi.org/10.1128/MCB.00566-12" />
+	</analytic>
+	<monogr>
+		<title level="j">Molecular and Cellular Biology</title>
+		<imprint>
+			<biblScope unit="volume">32</biblScope>
+			<biblScope unit="page" from="4727" to="4740" />
+			<date type="published" when="2012">2012</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct status="extracted" xml:id="b14">
+	<analytic>
+		<title level="a" type="main">Biochemical characterization of DNA damage checkpoint complexes: clamp loader and clamp complexes with specificity for 5&apos; recessed DNA</title>
+		<author>
+			<persName><forename type="first">V</forename><surname>Ellison</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">B</forename><surname>Stillman</surname></persName>
+		</author>
+		<idno type="DOI">10.1371/journal.pbio.0000033</idno>
+		<idno type="PMID">14624239</idno>
+		<ptr target="https://doi.org/10.1371/journal.pbio.0000033" />
+	</analytic>
+	<monogr>
+		<title level="j">PLOS Biology</title>
+		<imprint>
+			<biblScope unit="volume">1</biblScope>
+			<biblScope unit="page">33</biblScope>
+			<date type="published" when="2003">2003</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct status="extracted" xml:id="b15">
+	<analytic>
+		<title level="a" type="main">MEC1-dependent phosphorylation of Rad9p in response to DNA damage</title>
+		<author>
+			<persName><forename type="first">A</forename><surname>Emili</surname></persName>
+		</author>
+		<idno type="DOI">10.1016/s1097-2765(00)80128-8</idno>
+		<idno type="PMID">9734355</idno>
+		<ptr target="https://doi.org/10.1016/s1097-2765(00)80128-8" />
+	</analytic>
+	<monogr>
+		<title level="j">Molecular Cell</title>
+		<imprint>
+			<biblScope unit="volume">2</biblScope>
+			<biblScope unit="page" from="183" to="189" />
+			<date type="published" when="1998">1998</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct status="extracted" xml:id="b16">
+	<analytic>
+		<title level="a" type="main">Characterization of the activation domain of the Rad53 checkpoint kinase</title>
+		<author>
+			<persName><forename type="first">S</forename><surname>Fiorani</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">G</forename><surname>Mimun</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">L</forename><surname>Caleca</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">D</forename><surname>Piccini</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><surname>Pellicioli</surname></persName>
+		</author>
+		<idno type="DOI">10.4161/cc.7.4.5323</idno>
+		<idno type="PMID">18287812</idno>
+		<ptr target="https://doi.org/10.4161/cc.7.4.5323" />
+	</analytic>
+	<monogr>
+		<title level="j">Cell Cycle</title>
+		<imprint>
+			<biblScope unit="volume">7</biblScope>
+			<biblScope unit="page" from="493" to="499" />
+			<date type="published" when="2008">2008</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct status="extracted" xml:id="b17">
+	<analytic>
+		<title level="a" type="main">Overlapping roles of the spindle assembly and DNA damage checkpoints in the cell-cycle response to altered chromosomes in Saccharomyces cerevisiae</title>
+		<author>
+			<persName><forename type="first">P</forename><forename type="middle">M</forename><surname>Garber</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><surname>Rine</surname></persName>
+		</author>
+		<idno type="DOI">10.1093/genetics/161.2.521</idno>
+		<idno type="PMID">12072451</idno>
+		<ptr target="https://doi.org/10.1093/genetics/161.2.521" />
+	</analytic>
+	<monogr>
+		<title level="j">Genetics</title>
+		<imprint>
+			<biblScope unit="volume">161</biblScope>
+			<biblScope unit="page" from="521" to="534" />
+			<date type="published" when="2002">2002</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct status="extracted" xml:id="b18">
+	<analytic>
+		<title level="a" type="main">Control of mitotic exit in budding yeast. In vitro regulation of Tem1 GTPase by Bub2 and Bfa1</title>
+		<author>
+			<persName><forename type="first">M</forename><surname>Geymonat</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><surname>Spanos</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Sjm</forename><surname>Smith</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">E</forename><surname>Wheatley</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">K</forename><surname>Rittinger</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">L</forename><forename type="middle">H</forename><surname>Johnston</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">S</forename><forename type="middle">G</forename><surname>Sedgwick</surname></persName>
+		</author>
+		<idno type="DOI">10.1074/jbc.M202540200</idno>
+		<idno type="PMID">12048186</idno>
+		<ptr target="https://doi.org/10.1074/jbc.M202540200" />
+	</analytic>
+	<monogr>
+		<title level="j">The Journal of Biological Chemistry</title>
+		<imprint>
+			<biblScope unit="volume">277</biblScope>
+			<biblScope unit="page" from="28439" to="28445" />
+			<date type="published" when="2002">2002</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct status="extracted" xml:id="b19">
+	<analytic>
+		<title level="a" type="main">Regulation of the Bub2/Bfa1 GAP complex by Cdc5 and cell cycle checkpoints</title>
+		<author>
+			<persName><forename type="first">F</forename><surname>Hu</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Y</forename><surname>Wang</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">D</forename><surname>Liu</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Y</forename><surname>Li</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><surname>Qin</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">S</forename><forename type="middle">J</forename><surname>Elledge</surname></persName>
+		</author>
+		<idno type="DOI">10.1016/s0092-8674(01)00580-3</idno>
+		<idno type="PMID">11733064</idno>
+		<ptr target="https://doi.org/10.1016/s0092-8674(01)00580-3" />
+	</analytic>
+	<monogr>
+		<title level="j">Cell</title>
+		<imprint>
+			<biblScope unit="volume">107</biblScope>
+			<biblScope unit="page" from="655" to="665" />
+			<date type="published" when="2001">2001</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct status="extracted" xml:id="b20">
+	<analytic>
+		<title level="a" type="main">Heterochromatin is refractory to gamma-H2AX modification in yeast and mammals</title>
+		<author>
+			<persName><forename type="first">J</forename><forename type="middle">A</forename><surname>Kim</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><surname>Kruhlak</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">F</forename><surname>Dotiwala</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><surname>Nussenzweig</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><forename type="middle">E</forename><surname>Haber</surname></persName>
+		</author>
+		<idno type="DOI">10.1083/jcb.200612031</idno>
+		<idno type="PMID">17635934</idno>
+		<ptr target="https://doi.org/10.1083/jcb.200612031" />
+	</analytic>
+	<monogr>
+		<title level="j">The Journal of Cell Biology</title>
+		<imprint>
+			<biblScope unit="volume">178</biblScope>
+			<biblScope unit="page" from="209" to="218" />
+			<date type="published" when="2007">2007</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct status="extracted" xml:id="b21">
+	<analytic>
+		<title level="a" type="main">DNA damage activates the SAC in an ATM/ATR-dependent manner, independently of the kinetochore</title>
+		<author>
+			<persName><forename type="first">E</forename><forename type="middle">M</forename><surname>Kim</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">D</forename><forename type="middle">J</forename><surname>Burke</surname></persName>
+		</author>
+		<idno type="DOI">10.1371/journal.pgen.1000015</idno>
+		<idno type="PMID">18454191</idno>
+		<ptr target="https://doi.org/10.1371/journal.pgen.1000015" />
+	</analytic>
+	<monogr>
+		<title level="j">PLOS Genetics</title>
+		<imprint>
+			<biblScope unit="volume">4</biblScope>
+			<biblScope unit="page">1000015</biblScope>
+			<date type="published" when="2008">2008</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct status="extracted" xml:id="b22">
+	<analytic>
+		<title level="a" type="main">DNA damage kinase signaling: checkpoint and repair at 30 years</title>
+		<author>
+			<persName><forename type="first">M</forename><forename type="middle">C</forename><surname>Lanz</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">D</forename><surname>Dibitetto</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><forename type="middle">B</forename><surname>Smolka</surname></persName>
+		</author>
+		<idno type="DOI">10.15252/embj.2019101801</idno>
+		<idno type="PMID">31393028</idno>
+		<ptr target="https://doi.org/10.15252/embj.2019101801" />
+	</analytic>
+	<monogr>
+		<title level="j">The EMBO Journal</title>
+		<imprint>
+			<biblScope unit="volume">38</biblScope>
+			<biblScope unit="page">101801</biblScope>
+			<date type="published" when="2019">2019</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct status="extracted" xml:id="b23">
+	<analytic>
+		<title level="a" type="main">Histone methyltransferase Dot1 and Rad9 inhibit single-stranded DNA accumulation at DSBs and uncapped telomeres</title>
+		<author>
+			<persName><forename type="first">F</forename><surname>Lazzaro</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">V</forename><surname>Sapountzi</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><surname>Granata</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><surname>Pellicioli</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><surname>Vaze</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><forename type="middle">E</forename><surname>Haber</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">P</forename><surname>Plevani</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">D</forename><surname>Lydall</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><surname>Muzi-Falconi</surname></persName>
+		</author>
+		<idno type="DOI">10.1038/emboj.2008.81</idno>
+		<idno type="PMID">18418382</idno>
+		<ptr target="https://doi.org/10.1038/emboj.2008.81" />
+	</analytic>
+	<monogr>
+		<title level="j">The EMBO Journal</title>
+		<imprint>
+			<biblScope unit="volume">27</biblScope>
+			<biblScope unit="page" from="1502" to="1512" />
+			<date type="published" when="2008">2008</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct status="extracted" xml:id="b24">
+	<analytic>
+		<title level="a" type="main">Saccharomyces Ku70, mre11/rad50 and RPA proteins regulate adaptation to G2/M arrest after DNA damage</title>
+		<author>
+			<persName><forename type="first">S</forename><forename type="middle">E</forename><surname>Lee</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><forename type="middle">K</forename><surname>Moore</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><surname>Holmes</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">K</forename><surname>Umezu</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">R</forename><forename type="middle">D</forename><surname>Kolodner</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><forename type="middle">E</forename><surname>Haber</surname></persName>
+		</author>
+		<idno type="DOI">10.1016/s0092-8674(00)81482-8</idno>
+		<idno type="PMID">9708741</idno>
+		<ptr target="https://doi.org/10" />
+	</analytic>
+	<monogr>
+		<title level="j">Cell</title>
+		<imprint>
+			<biblScope unit="volume">94</biblScope>
+			<biblScope unit="page" from="399" to="409" />
+			<date type="published" when="1998">1998</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct status="extracted" xml:id="b25">
+	<analytic>
+		<title level="a" type="main">Dynamics of yeast histone H2A and H2B phosphorylation in response to a double-strand break</title>
+		<author>
+			<persName><forename type="first">C</forename><forename type="middle">S</forename><surname>Lee</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">K</forename><surname>Lee</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">G</forename><surname>Legube</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><forename type="middle">E</forename><surname>Haber</surname></persName>
+		</author>
+		<idno type="DOI">10.1038/nsmb.2737</idno>
+		<idno type="PMID">24336221</idno>
+		<ptr target="https://doi.org/10.1038/nsmb.2737" />
+	</analytic>
+	<monogr>
+		<title level="j">Nature Structural &amp; Molecular Biology</title>
+		<imprint>
+			<biblScope unit="volume">21</biblScope>
+			<biblScope unit="page" from="103" to="109" />
+			<date type="published" when="2014">2014</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct status="extracted" xml:id="b26">
+	<analytic>
+		<title level="a" type="main">PP2C phosphatases Ptc2 and Ptc3 are required for DNA checkpoint inactivation after a double-strand break</title>
+		<author>
+			<persName><forename type="first">C</forename><surname>Leroy</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">S</forename><forename type="middle">E</forename><surname>Lee</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><forename type="middle">B</forename><surname>Vaze</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">F</forename><surname>Ochsenbein</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">R</forename><surname>Guerois</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><forename type="middle">E</forename><surname>Haber</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Marsolier-Kergoat</forename><surname>Mc</surname></persName>
+		</author>
+		<idno type="DOI">10.1016/s1097-2765(03)00058-3</idno>
+		<idno type="PMID">12667463</idno>
+		<ptr target="https://doi.org/10.1016/s1097-2765(03)00058-3" />
+	</analytic>
+	<monogr>
+		<title level="j">Molecular Cell</title>
+		<imprint>
+			<biblScope unit="volume">11</biblScope>
+			<biblScope unit="page" from="827" to="835" />
+			<date type="published" when="2003">2003</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct status="extracted" xml:id="b27">
+	<analytic>
+		<title level="a" type="main">Mre11 nuclease activity and Ctp1 regulate Chk1 activation by Rad3ATR and Tel1ATM checkpoint kinases at double-strand breaks</title>
+		<author>
+			<persName><forename type="first">O</forename><surname>Limbo</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><forename type="middle">E</forename><surname>Porter-Goff</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">N</forename><surname>Rhind</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">P</forename><surname>Russell</surname></persName>
+		</author>
+		<idno type="DOI">10.1128/MCB.00994-10</idno>
+		<idno type="PMID">21098122</idno>
+		<ptr target="https://doi.org/10.1128/MCB.00994-10" />
+	</analytic>
+	<monogr>
+		<title level="j">Molecular and Cellular Biology</title>
+		<imprint>
+			<biblScope unit="volume">31</biblScope>
+			<biblScope unit="page" from="573" to="583" />
+			<date type="published" when="2011">2011</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct status="extracted" xml:id="b28">
+	<analytic>
+		<title level="a" type="main">Replication protein A directs loading of the DNA damage checkpoint clamp to 5&apos;-DNA junctions</title>
+		<author>
+			<persName><forename type="first">J</forename><surname>Majka</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">S</forename><forename type="middle">K</forename><surname>Binz</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><forename type="middle">S</forename><surname>Wold</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Pmj</forename><surname>Burgers</surname></persName>
+		</author>
+		<idno type="DOI">10.1074/jbc.M605176200</idno>
+		<idno type="PMID">16864589</idno>
+		<ptr target="https://doi.org/10.1074/jbc.M605176200" />
+	</analytic>
+	<monogr>
+		<title level="j">The Journal of Biological Chemistry</title>
+		<imprint>
+			<biblScope unit="volume">281</biblScope>
+			<biblScope unit="page" from="27855" to="27861" />
+			<date type="published" when="2006">2006</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct status="extracted" xml:id="b29">
+	<analytic>
+		<title level="a" type="main">Dual role for Saccharomyces cerevisiae Tel1 in the checkpoint response to double-strand breaks</title>
+		<author>
+			<persName><forename type="first">D</forename><surname>Mantiero</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><surname>Clerici</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">G</forename><surname>Lucchini</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><forename type="middle">P</forename><surname>Longhese</surname></persName>
+		</author>
+		<idno type="DOI">10.1038/sj.embor.7400911</idno>
+		<idno type="PMID">17347674</idno>
+		<ptr target="https://doi.org/10.1038/sj.embor.7400911" />
+	</analytic>
+	<monogr>
+		<title level="j">EMBO Reports</title>
+		<imprint>
+			<biblScope unit="volume">8</biblScope>
+			<biblScope unit="page" from="380" to="387" />
+			<date type="published" when="2007">2007</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct status="extracted" xml:id="b30">
+	<analytic>
+		<title level="a" type="main">DNA damage-induced metaphase I arrest is mediated by the spindle assembly checkpoint and maternal age</title>
+		<author>
+			<persName><forename type="first">P</forename><surname>Marangos</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><surname>Stevense</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">K</forename><surname>Niaka</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><surname>Lagoudaki</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">I</forename><surname>Nabti</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">R</forename><surname>Jessberger</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><surname>Carroll</surname></persName>
+		</author>
+		<idno type="DOI">10.1038/ncomms9706</idno>
+		<idno type="PMID">26522734</idno>
+		<ptr target="https://doi.org/10.1038/ncomms9706" />
+	</analytic>
+	<monogr>
+		<title level="j">Nature Communications</title>
+		<imprint>
+			<biblScope unit="volume">6</biblScope>
+			<biblScope unit="page">8706</biblScope>
+			<date type="published" when="2015">2015</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct status="extracted" xml:id="b31">
+	<analytic>
+		<title level="a" type="main">RPA-coated single-stranded DNA as a platform for post-translational modifications in the DNA damage response</title>
+		<author>
+			<persName><forename type="first">A</forename><surname>Maréchal</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">L</forename><surname>Zou</surname></persName>
+		</author>
+		<idno type="DOI">10.1038/cr.2014.147</idno>
+		<idno type="PMID">25403473</idno>
+		<ptr target="https://doi.org/10.1038/cr.2014.147" />
+	</analytic>
+	<monogr>
+		<title level="j">Cell Research</title>
+		<imprint>
+			<biblScope unit="volume">25</biblScope>
+			<biblScope unit="page" from="9" to="23" />
+			<date type="published" when="2015">2015</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct status="extracted" xml:id="b32">
+	<analytic>
+		<title level="a" type="main">Regulation of mitotic exit by cell cycle checkpoints: lessons from Saccharomyces cerevisiae</title>
+		<author>
+			<persName><forename type="first">L</forename><surname>Matellán</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">F</forename><surname>Monje-Casas</surname></persName>
+		</author>
+		<idno type="DOI">10.3390/genes11020195</idno>
+		<idno type="PMID">32059558</idno>
+		<ptr target="https://doi.org/10.3390/genes11020195" />
+	</analytic>
+	<monogr>
+		<title level="j">Genes</title>
+		<imprint>
+			<biblScope unit="volume">11</biblScope>
+			<biblScope unit="page">195</biblScope>
+			<date type="published" when="2020">2020</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct status="extracted" xml:id="b33">
+	<analytic>
+		<title level="a" type="main">Principles and dynamics of spindle assembly checkpoint signalling</title>
+		<author>
+			<persName><forename type="first">A</forename><forename type="middle">D</forename><surname>Mcainsh</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Gjpl</forename><surname>Kops</surname></persName>
+		</author>
+		<idno type="DOI">10.1038/s41580-023-00593-z</idno>
+		<idno type="PMID">36964313</idno>
+		<ptr target="https://doi.org/10.1038/s41580-023-00593-z" />
+	</analytic>
+	<monogr>
+		<title level="j">Nature Reviews. Molecular Cell Biology</title>
+		<imprint>
+			<biblScope unit="volume">24</biblScope>
+			<biblScope unit="page" from="543" to="559" />
+			<date type="published" when="2023">2023</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct status="extracted" xml:id="b34">
+	<analytic>
+		<title level="a" type="main">Sources of DNA double-strand breaks and models of recombinational DNA repair</title>
+		<author>
+			<persName><forename type="first">A</forename><surname>Mehta</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><forename type="middle">E</forename><surname>Haber</surname></persName>
+		</author>
+		<idno type="DOI">10.1101/cshperspect.a016428</idno>
+		<idno type="PMID">25104768</idno>
+		<ptr target="https://doi.org/10.1101/cshperspect.a016428" />
+	</analytic>
+	<monogr>
+		<title level="j">Cold Spring Harbor Perspectives in Biology</title>
+		<imprint>
+			<biblScope unit="volume">6</biblScope>
+			<biblScope unit="page">16428</biblScope>
+			<date type="published" when="2014">2014</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct status="extracted" xml:id="b35">
+	<analytic>
+		<title level="a" type="main">Two checkpoint complexes are independently recruited to sites of DNA damage in vivo</title>
+		<author>
+			<persName><forename type="first">J</forename><forename type="middle">A</forename><surname>Melo</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><surname>Cohen</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">D</forename><forename type="middle">P</forename><surname>Toczyski</surname></persName>
+		</author>
+		<idno type="DOI">10.1101/gad.903501</idno>
+		<idno type="PMID">11691833</idno>
+		<ptr target="https://doi.org/10.1101/gad.903501" />
+	</analytic>
+	<monogr>
+		<title level="j">Genes &amp; Development</title>
+		<imprint>
+			<biblScope unit="volume">15</biblScope>
+			<biblScope unit="page" from="2809" to="2821" />
+			<date type="published" when="2001">2001</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct status="extracted" xml:id="b36">
+	<analytic>
+		<title level="a" type="main">Mec1ATR Autophosphorylation and Ddc2ATRIP Phosphorylation Regulates DNA Damage Checkpoint Signaling</title>
+		<author>
+			<persName><forename type="first">G</forename><surname>Memisoglu</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><forename type="middle">C</forename><surname>Lanz</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">V</forename><forename type="middle">V</forename><surname>Eapen</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><forename type="middle">M</forename><surname>Jordan</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">K</forename><surname>Lee</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><forename type="middle">B</forename><surname>Smolka</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><forename type="middle">E</forename><surname>Haber</surname></persName>
+		</author>
+		<idno type="DOI">10.1016/j.celrep.2019.06.068</idno>
+		<ptr target="https://doi.org/10.1016/j.celrep.2019.06.068" />
+	</analytic>
+	<monogr>
+		<title level="j">Cell Reports</title>
+		<imprint>
+			<biblScope unit="volume">28</biblScope>
+			<biblScope unit="page" from="1090" to="1102" />
+			<date type="published" when="2019">2019</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct status="extracted" xml:id="b37">
+	<analytic>
+		<title level="a" type="main">Detection of Saccharomyces cerevisiae Atg13 by western blot</title>
+		<author>
+			<persName><forename type="first">L</forename><surname>Miller-Fleming</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">H</forename><surname>Cheong</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">P</forename><surname>Antas</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">D</forename><forename type="middle">J</forename><surname>Klionsky</surname></persName>
+		</author>
+		<idno type="DOI">10.4161/auto.27707</idno>
+		<idno type="PMID">24430166</idno>
+		<ptr target="https://doi.org/10.4161/auto.27707" />
+	</analytic>
+	<monogr>
+		<title level="j">Autophagy</title>
+		<imprint>
+			<biblScope unit="volume">10</biblScope>
+			<biblScope unit="page" from="514" to="517" />
+			<date type="published" when="2014">2014</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct status="extracted" xml:id="b38">
+	<analytic>
+		<title level="a" type="main">Cell cycle and genetic requirements of two pathways of nonhomologous end-joining repair of double-strand breaks in Saccharomyces cerevisiae</title>
+		<author>
+			<persName><forename type="first">J</forename><forename type="middle">K</forename><surname>Moore</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><forename type="middle">E</forename><surname>Haber</surname></persName>
+		</author>
+		<idno type="DOI">10.1128/MCB.16.5.2164</idno>
+		<idno type="PMID">8628283</idno>
+		<ptr target="https://doi.org/10.1128/MCB.16.5.2164" />
+	</analytic>
+	<monogr>
+		<title level="j">Molecular and Cellular Biology</title>
+		<imprint>
+			<biblScope unit="volume">16</biblScope>
+			<biblScope unit="page" from="2164" to="2173" />
+			<date type="published" when="1996">1996</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct status="extracted" xml:id="b39">
+	<analytic>
+		<title level="a" type="main">An expanded tool kit for the auxin-inducible degron system in budding yeast</title>
+		<author>
+			<persName><forename type="first">M</forename><surname>Morawska</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">H</forename><forename type="middle">D</forename><surname>Ulrich</surname></persName>
+		</author>
+		<idno type="DOI">10.1002/yea.2967</idno>
+		<idno type="PMID">23836714</idno>
+		<ptr target="https://doi.org/10.1002/yea.2967" />
+	</analytic>
+	<monogr>
+		<title level="j">Yeast</title>
+		<imprint>
+			<biblScope unit="volume">30</biblScope>
+			<biblScope unit="page" from="341" to="351" />
+			<date type="published" when="2013">2013</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct status="extracted" xml:id="b40">
+	<analytic>
+		<title level="a" type="main">The molecular biology of spindle assembly checkpoint signaling dynamics</title>
+		<author>
+			<persName><forename type="first">A</forename><surname>Musacchio</surname></persName>
+		</author>
+		<idno type="DOI">10.1016/j.cub.2015.08.051</idno>
+		<idno type="PMID">26485365</idno>
+		<ptr target="https://doi.org/10.1016/j.cub.2015.08.051" />
+	</analytic>
+	<monogr>
+		<title level="j">Current Biology</title>
+		<imprint>
+			<biblScope unit="volume">25</biblScope>
+			<biblScope unit="page" from="1002" to="R1018" />
+			<date type="published" when="2015">2015</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct status="extracted" xml:id="b41">
+	<analytic>
+		<title level="a" type="main">The unstructured C-terminal tail of the 9-1-1 clamp subunit Ddc1 activates Mec1/ATR via two distinct mechanisms</title>
+		<author>
+			<persName><forename type="first">V</forename><forename type="middle">M</forename><surname>Navadgi-Patil</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">P</forename><forename type="middle">M</forename><surname>Burgers</surname></persName>
+		</author>
+		<idno type="DOI">10.1016/j.molcel.2009.10.014</idno>
+		<idno type="PMID">20005839</idno>
+		<ptr target="https://doi.org/10.1016/j.molcel.2009.10.014" />
+	</analytic>
+	<monogr>
+		<title level="j">Molecular Cell</title>
+		<imprint>
+			<biblScope unit="volume">36</biblScope>
+			<biblScope unit="page" from="743" to="753" />
+			<date type="published" when="2009">2009</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct status="extracted" xml:id="b42">
+	<analytic>
+		<title level="a" type="main">An auxin-based degron system for the rapid depletion of proteins in nonplant cells</title>
+		<author>
+			<persName><forename type="first">K</forename><surname>Nishimura</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">T</forename><surname>Fukagawa</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">H</forename><surname>Takisawa</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">T</forename><surname>Kakimoto</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><surname>Kanemaki</surname></persName>
+		</author>
+		<idno type="DOI">10.1038/nmeth.1401</idno>
+		<idno type="PMID">19915560</idno>
+		<ptr target="https://doi.org/10.1038/nmeth.1401" />
+	</analytic>
+	<monogr>
+		<title level="j">Nature Methods</title>
+		<imprint>
+			<biblScope unit="volume">6</biblScope>
+			<biblScope unit="page" from="917" to="922" />
+			<date type="published" when="2009">2009</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct status="extracted" xml:id="b43">
+	<analytic>
+		<title level="a" type="main">Pph3-Psy2 is a phosphatase complex required for Rad53 dephosphorylation and replication fork restart during recovery from DNA damage</title>
+		<author>
+			<persName><forename type="first">B</forename><forename type="middle">M</forename><surname>O'neill</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">S</forename><forename type="middle">J</forename><surname>Szyjka</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">E</forename><forename type="middle">T</forename><surname>Lis</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><forename type="middle">O</forename><surname>Bailey</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><forename type="middle">R</forename><surname>Yates</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">O</forename><forename type="middle">M</forename><surname>Aparicio</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">F</forename><forename type="middle">E</forename><surname>Romesberg</surname></persName>
+		</author>
+		<idno type="DOI">10.1073/pnas.0703252104</idno>
+		<idno type="PMID">17517611</idno>
+		<ptr target="https://doi.org/10.1073/pnas.0703252104" />
+	</analytic>
+	<monogr>
+		<title level="j">PNAS</title>
+		<imprint>
+			<biblScope unit="volume">104</biblScope>
+			<biblScope unit="page" from="9290" to="9295" />
+			<date type="published" when="2007">2007</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct status="extracted" xml:id="b44">
+	<analytic>
+		<title level="a" type="main">The checkpoint protein Ddc2, functionally related to S. pombe Rad26, interacts with Mec1 and is regulated by Mec1-dependent phosphorylation in budding yeast</title>
+		<author>
+			<persName><forename type="first">V</forename><surname>Paciotti</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><surname>Clerici</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">G</forename><surname>Lucchini</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><forename type="middle">P</forename><surname>Longhese</surname></persName>
+		</author>
+		<idno type="PMID">10950868</idno>
+	</analytic>
+	<monogr>
+		<title level="j">Genes &amp; Development</title>
+		<imprint>
+			<biblScope unit="volume">14</biblScope>
+			<biblScope unit="page" from="2046" to="2059" />
+			<date type="published" when="2000">2000</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct status="extracted" xml:id="b45">
+	<analytic>
+		<title level="a" type="main">Activation of Rad53 kinase in response to DNA damage and its effect in modulating phosphorylation of the lagging strand DNA polymerase</title>
+		<author>
+			<persName><forename type="first">A</forename><surname>Pellicioli</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">C</forename><surname>Lucca</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">G</forename><surname>Liberi</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">F</forename><surname>Marini</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><surname>Lopes</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">P</forename><surname>Plevani</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><surname>Romano</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Di</forename><surname>Fiore</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">P</forename><forename type="middle">P</forename><surname>Foiani</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename></persName>
+		</author>
+		<idno type="DOI">10.1093/emboj/18.22.6561</idno>
+		<idno type="PMID">10562568</idno>
+		<ptr target="https://doi.org/10.1093/emboj/18.22.6561" />
+	</analytic>
+	<monogr>
+		<title level="j">The EMBO Journal</title>
+		<imprint>
+			<biblScope unit="volume">18</biblScope>
+			<biblScope unit="page" from="6561" to="6572" />
+			<date type="published" when="1999">1999</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct status="extracted" xml:id="b46">
+	<analytic>
+		<title level="a" type="main">Regulation of Saccharomyces Rad53 checkpoint kinase during adaptation from DNA damage-induced G2/M arrest</title>
+		<author>
+			<persName><forename type="first">A</forename><surname>Pellicioli</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">S</forename><forename type="middle">E</forename><surname>Lee</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">C</forename><surname>Lucca</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><surname>Foiani</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><forename type="middle">E</forename><surname>Haber</surname></persName>
+		</author>
+		<idno type="DOI">10.1016/s1097-2765(01)00177-0</idno>
+		<idno type="PMID">11239458</idno>
+		<ptr target="https://doi.org/10.1016/s" />
+	</analytic>
+	<monogr>
+		<title level="j">Molecular Cell</title>
+		<imprint>
+			<biblScope unit="volume">7</biblScope>
+			<biblScope unit="page" from="293" to="300" />
+			<date type="published" when="2001">2001</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct status="extracted" xml:id="b47">
+	<analytic>
+		<title level="a" type="main">Aberrant synthesis of indole-3-acetic acid in Saccharomyces cerevisiae triggers morphogenic transition, a virulence trait of pathogenic fungi</title>
+		<author>
+			<persName><forename type="first">R</forename><forename type="middle">P</forename><surname>Rao</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><surname>Hunter</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">O</forename><surname>Kashpur</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><surname>Normanly</surname></persName>
+		</author>
+		<idno type="DOI">10.1534/genetics.109.112854</idno>
+		<idno type="PMID">20233857</idno>
+		<ptr target="https://doi.org/10.1534/genetics.109.112854" />
+	</analytic>
+	<monogr>
+		<title level="j">Genetics</title>
+		<imprint>
+			<biblScope unit="volume">185</biblScope>
+			<biblScope unit="page" from="211" to="220" />
+			<date type="published" when="2010">2010</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct status="extracted" xml:id="b48">
+	<analytic>
+		<title level="a" type="main">DNA double-stranded breaks induce histone H2AX phosphorylation on serine 139</title>
+		<author>
+			<persName><forename type="first">E</forename><forename type="middle">P</forename><surname>Rogakou</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">D</forename><forename type="middle">R</forename><surname>Pilch</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><forename type="middle">H</forename><surname>Orr</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">V</forename><forename type="middle">S</forename><surname>Ivanova</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">W</forename><forename type="middle">M</forename><surname>Bonner</surname></persName>
+		</author>
+		<idno type="DOI">10.1074/jbc.273.10.5858</idno>
+		<idno type="PMID">9488723</idno>
+		<ptr target="https://doi.org/10.1074/jbc.273.10.5858" />
+	</analytic>
+	<monogr>
+		<title level="j">The Journal of Biological Chemistry</title>
+		<imprint>
+			<biblScope unit="volume">273</biblScope>
+			<biblScope unit="page" from="5858" to="5868" />
+			<date type="published" when="1998">1998</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct status="extracted" xml:id="b49">
+	<analytic>
+		<title level="a" type="main">The optimal strategy balancing risk and speed predicts DNA damage checkpoint override times</title>
+		<author>
+			<persName><forename type="first">A</forename><surname>Sadeghi</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">R</forename><surname>Dervey</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">V</forename><surname>Gligorovski</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><surname>Labagnara</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">S</forename><forename type="middle">J</forename><surname>Rahi</surname></persName>
+		</author>
+		<idno type="DOI">10.1038/s41567-022-01601-3</idno>
+		<idno type="PMID">36281344</idno>
+		<ptr target="https://doi.org/10.1038/s" />
+	</analytic>
+	<monogr>
+		<title level="j">Nature Physics</title>
+		<imprint>
+			<biblScope unit="volume">18</biblScope>
+			<biblScope unit="page" from="832" to="839" />
+			<date type="published" when="2022">2022</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct status="extracted" xml:id="b50">
+	<analytic>
+		<title level="a" type="main">Control of the DNA damage checkpoint by chk1 and rad53 protein kinases through distinct mechanisms</title>
+		<author>
+			<persName><forename type="first">Y</forename><surname>Sanchez</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><surname>Bachant</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">H</forename><surname>Wang</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">F</forename><surname>Hu</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">D</forename><surname>Liu</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><surname>Tetzlaff</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">S</forename><forename type="middle">J</forename><surname>Elledge</surname></persName>
+		</author>
+		<idno type="DOI">10.1126/science.286.5442.1166</idno>
+		<idno type="PMID">10550056</idno>
+		<ptr target="https://doi.org/10.1126/science.286.5442.1166" />
+	</analytic>
+	<monogr>
+		<title level="j">Science</title>
+		<imprint>
+			<biblScope unit="volume">286</biblScope>
+			<biblScope unit="page" from="1166" to="1171" />
+			<date type="published" when="1999">1999</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct status="extracted" xml:id="b51">
+	<analytic>
+		<title level="a" type="main">Rad9 phosphorylation sites couple Rad53 to the Saccharomyces cerevisiae DNA damage checkpoint</title>
+		<author>
+			<persName><forename type="first">M</forename><forename type="middle">F</forename><surname>Schwartz</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><forename type="middle">K</forename><surname>Duong</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Z</forename><surname>Sun</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><forename type="middle">S</forename><surname>Morrow</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">D</forename><surname>Pradhan</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">D</forename><forename type="middle">F</forename><surname>Stern</surname></persName>
+		</author>
+		<idno type="DOI">10.1016/s1097-2765(02)00532-4</idno>
+		<idno type="PMID">12049741</idno>
+		<ptr target="https://doi.org/10.1016/s1097-2765(02)00532-4" />
+	</analytic>
+	<monogr>
+		<title level="j">Molecular Cell</title>
+		<imprint>
+			<biblScope unit="volume">9</biblScope>
+			<biblScope unit="page" from="1055" to="1065" />
+			<date type="published" when="2002">2002</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct status="extracted" xml:id="b52">
+	<analytic>
+		<title level="a" type="main">The yeast TEM1 gene, which encodes a GTP-binding protein, is involved in termination of M phase</title>
+		<author>
+			<persName><forename type="first">M</forename><surname>Shirayama</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Y</forename><surname>Matsui</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">-E A</forename><surname>Toh</surname></persName>
+		</author>
+		<idno type="DOI">10.1128/mcb.14.11.7476-7482.1994</idno>
+		<idno type="PMID">7935462</idno>
+		<ptr target="https://doi.org/10.1128/mcb" />
+	</analytic>
+	<monogr>
+		<title level="j">Molecular and Cellular Biology</title>
+		<imprint>
+			<biblScope unit="volume">14</biblScope>
+			<biblScope unit="page" from="7476" to="7482" />
+			<date type="published" when="1994">1994</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct status="extracted" xml:id="b53">
+	<analytic>
+		<title level="a" type="main">Distribution and dynamics of chromatin modification induced by a defined DNA double-strand break</title>
+		<author>
+			<persName><forename type="first">R</forename><surname>Shroff</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><surname>Arbel-Eden</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">D</forename><surname>Pilch</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">G</forename><surname>Ira</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">W</forename><forename type="middle">M</forename><surname>Bonner</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><forename type="middle">H</forename><surname>Petrini</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><forename type="middle">E</forename><surname>Haber</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><surname>Lichten</surname></persName>
+		</author>
+		<idno type="DOI">10.1016/j.cub.2004.09.047</idno>
+		<idno type="PMID">15458641</idno>
+		<ptr target="https://doi.org/10.1016/j.cub.2004.09.047" />
+	</analytic>
+	<monogr>
+		<title level="j">Current Biology</title>
+		<imprint>
+			<biblScope unit="volume">14</biblScope>
+			<biblScope unit="page" from="1703" to="1711" />
+			<date type="published" when="2004">2004</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct status="extracted" xml:id="b54">
+	<analytic>
+		<title level="a" type="main">Proteome-wide identification of in vivo targets of DNA damage checkpoint kinases</title>
+		<author>
+			<persName><forename type="first">M</forename><forename type="middle">B</forename><surname>Smolka</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">C</forename><forename type="middle">P</forename><surname>Albuquerque</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">S</forename><surname>Chen</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">H</forename><surname>Zhou</surname></persName>
+		</author>
+		<idno type="DOI">10.1073/pnas.0701622104</idno>
+		<idno type="PMID">17563356</idno>
+		<ptr target="https://doi.org/10.1073/pnas.0701622104" />
+	</analytic>
+	<monogr>
+		<title level="j">PNAS</title>
+		<imprint>
+			<biblScope unit="volume">104</biblScope>
+			<biblScope unit="page" from="10364" to="10369" />
+			<date type="published" when="2007">2007</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct status="extracted" xml:id="b55">
+	<analytic>
+		<title level="a" type="main">Saccharomyces cerevisiae Rad9 acts as a Mec1 adaptor to allow Rad53 activation</title>
+		<author>
+			<persName><forename type="first">F</forename><forename type="middle">D</forename><surname>Sweeney</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">F</forename><surname>Yang</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Chi</forename><forename type="middle">A</forename><surname>Shabanowitz</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><surname>Hunt</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">D</forename><forename type="middle">F</forename><surname>Durocher</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">D</forename></persName>
+		</author>
+		<idno type="DOI">10.1016/j.cub.2005.06.063</idno>
+		<idno type="PMID">16085488</idno>
+		<ptr target="https://doi.org/10.1016/j.cub.2005.06.063" />
+	</analytic>
+	<monogr>
+		<title level="j">Current Biology</title>
+		<imprint>
+			<biblScope unit="volume">15</biblScope>
+			<biblScope unit="page" from="1364" to="1375" />
+			<date type="published" when="2005">2005</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct status="extracted" xml:id="b56">
+	<analytic>
+		<title level="a" type="main">Caffeine impairs resection during DNA break repair by reducing the levels of nucleases Sae2 and Dna2</title>
+		<author>
+			<persName><forename type="first">M</forename><surname>Tsabar</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">V</forename><forename type="middle">V</forename><surname>Eapen</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><forename type="middle">M</forename><surname>Mason</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">G</forename><surname>Memisoglu</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">D</forename><forename type="middle">P</forename><surname>Waterman</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><forename type="middle">J</forename><surname>Long</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">D</forename><forename type="middle">K</forename><surname>Bishop</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><forename type="middle">E</forename><surname>Haber</surname></persName>
+		</author>
+		<idno type="DOI">10.1093/nar/gkv520</idno>
+		<idno type="PMID">26019182</idno>
+		<ptr target="https://doi.org/10.1093/nar/gkv520" />
+	</analytic>
+	<monogr>
+		<title level="j">Nucleic Acids Research</title>
+		<imprint>
+			<biblScope unit="volume">43</biblScope>
+			<biblScope unit="page" from="6889" to="6901" />
+			<date type="published" when="2015">2015</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct status="extracted" xml:id="b57">
+	<analytic>
+		<title level="a" type="main">The Saccharomyces cerevisiae 14-3-3 proteins Bmh1 and Bmh2 directly influence the DNA damage-dependent functions of Rad53</title>
+		<author>
+			<persName><forename type="first">T</forename><surname>Usui</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Jhj</forename><surname>Petrini</surname></persName>
+		</author>
+		<idno type="DOI">10.1073/pnas.0611259104</idno>
+		<idno type="PMID">17299042</idno>
+		<ptr target="https://doi.org/10.1073/pnas.0611259104" />
+	</analytic>
+	<monogr>
+		<title level="j">PNAS</title>
+		<imprint>
+			<biblScope unit="volume">104</biblScope>
+			<biblScope unit="page" from="2797" to="2802" />
+			<date type="published" when="2007">2007</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct status="extracted" xml:id="b58">
+	<analytic>
+		<title level="a" type="main">Maintenance of the DNA-damage checkpoint requires DNA-damageinduced mediator protein oligomerization</title>
+		<author>
+			<persName><forename type="first">T</forename><surname>Usui</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">S</forename><forename type="middle">S</forename><surname>Foster</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Jhj</forename><surname>Petrini</surname></persName>
+		</author>
+		<idno type="DOI">10.1016/j.molcel.2008.12.022</idno>
+		<idno type="PMID">19187758</idno>
+		<ptr target="https://doi.org/10.1016/j.molcel.2008.12.022" />
+	</analytic>
+	<monogr>
+		<title level="j">Molecular Cell</title>
+		<imprint>
+			<biblScope unit="volume">33</biblScope>
+			<biblScope unit="page" from="147" to="159" />
+			<date type="published" when="2009">2009</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct status="extracted" xml:id="b59">
+	<analytic>
+		<title level="a" type="main">Recovery from checkpoint-mediated arrest after repair of a double-strand break requires Srs2 helicase</title>
+		<author>
+			<persName><forename type="first">M</forename><forename type="middle">B</forename><surname>Vaze</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><surname>Pellicioli</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">S</forename><forename type="middle">E</forename><surname>Lee</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">G</forename><surname>Ira</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">G</forename><surname>Liberi</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><surname>Arbel-Eden</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><surname>Foiani</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><forename type="middle">E</forename><surname>Haber</surname></persName>
+		</author>
+		<idno type="DOI">10.1016/s1097-2765(02)00593-2</idno>
+		<idno type="PMID">12191482</idno>
+		<ptr target="https://doi.org/10.1016/s1097-2765(02)00593-2" />
+	</analytic>
+	<monogr>
+		<title level="j">Molecular Cell</title>
+		<imprint>
+			<biblScope unit="volume">10</biblScope>
+			<biblScope unit="page" from="373" to="385" />
+			<date type="published" when="2002">2002</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct status="extracted" xml:id="b60">
+	<analytic>
+		<title level="a" type="main">New heterologous modules for classical or PCR-based gene disruptions in Saccharomyces cerevisiae</title>
+		<author>
+			<persName><forename type="first">A</forename><surname>Wach</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><surname>Brachat</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">R</forename><surname>Pöhlmann</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">P</forename><surname>Philippsen</surname></persName>
+		</author>
+		<idno type="DOI">10.1002/yea.320101310</idno>
+		<idno type="PMID">7747518</idno>
+		<ptr target="https://doi.org/10.1002/yea.320101310" />
+	</analytic>
+	<monogr>
+		<title level="j">Yeast</title>
+		<imprint>
+			<biblScope unit="volume">10</biblScope>
+			<biblScope unit="page" from="1793" to="1808" />
+			<date type="published" when="1994">1994</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct status="extracted" xml:id="b61">
+	<analytic>
+		<title level="a" type="main">Checkpoint Responses to DNA Double-Strand Breaks</title>
+		<author>
+			<persName><forename type="first">D</forename><forename type="middle">P</forename><surname>Waterman</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><forename type="middle">E</forename><surname>Haber</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><forename type="middle">B</forename><surname>Smolka</surname></persName>
+		</author>
+		<idno type="DOI">10.1146/annurev-biochem-011520-104722</idno>
+		<idno type="PMID">32176524</idno>
+		<ptr target="https://doi.org/10.1146/annurev-biochem-011520-104722" />
+	</analytic>
+	<monogr>
+		<title level="j">Annual Review of Biochemistry</title>
+		<imprint>
+			<biblScope unit="volume">89</biblScope>
+			<biblScope unit="page" from="103" to="133" />
+			<date type="published" when="2020">2020</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct status="extracted" xml:id="b62">
+	<analytic>
+		<title level="a" type="main">Dun1, a Chk2-related kinase, is the central regulator of securin-separase dynamics during DNA damage signaling</title>
+		<author>
+			<persName><forename type="first">Cqx</forename><surname>Yam</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">D</forename><forename type="middle">B</forename><surname>Chia</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">I</forename><surname>Shi</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">H</forename><forename type="middle">H</forename><surname>Lim</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">U</forename><surname>Surana</surname></persName>
+		</author>
+		<idno type="DOI">10.1093/nar/gkaa355</idno>
+		<idno type="PMID">32402080</idno>
+		<ptr target="https://doi.org/10.1093/nar/gkaa355" />
+	</analytic>
+	<monogr>
+		<title level="j">Nucleic Acids Research</title>
+		<imprint>
+			<biblScope unit="volume">48</biblScope>
+			<biblScope unit="page" from="6092" to="6107" />
+			<date type="published" when="2020">2020</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct status="extracted" xml:id="b63">
+	<analytic>
+		<title level="a" type="main">The auxin-inducible degron 2 technology provides sharp degradation control in yeast, mammalian cells, and mice</title>
+		<author>
+			<persName><forename type="first">A</forename><surname>Yesbolatova</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Y</forename><surname>Saito</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">N</forename><surname>Kitamoto</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">H</forename><surname>Makino-Itou</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">R</forename><surname>Ajima</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">R</forename><surname>Nakano</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">H</forename><surname>Nakaoka</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">K</forename><surname>Fukui</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">K</forename><surname>Gamo</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Y</forename><surname>Tominari</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">H</forename><surname>Takeuchi</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Y</forename><surname>Saga</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">K</forename><forename type="middle">I</forename><surname>Hayashi</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><forename type="middle">T</forename><surname>Kanemaki</surname></persName>
+		</author>
+		<idno type="DOI">10.1038/s41467-020-19532-z</idno>
+		<idno type="PMID">33177522</idno>
+		<ptr target="https://doi.org/10.1038/s41467-020-19532-z" />
+	</analytic>
+	<monogr>
+		<title level="j">Nature Communications</title>
+		<imprint>
+			<biblScope unit="volume">11</biblScope>
+			<biblScope unit="page">5701</biblScope>
+			<date type="published" when="2020">2020</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct status="extracted" xml:id="b64">
+	<analytic>
+		<title level="a" type="main">The Dun1 checkpoint kinase phosphorylates and regulates the ribonucleotide reductase inhibitor Sml1</title>
+		<author>
+			<persName><forename type="first">X</forename><surname>Zhao</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">R</forename><surname>Rothstein</surname></persName>
+		</author>
+		<idno type="DOI">10.1073/pnas.062502299</idno>
+		<idno type="PMID">11904430</idno>
+		<ptr target="https://doi.org/10.1073/pnas.062502299" />
+	</analytic>
+	<monogr>
+		<title level="j">PNAS</title>
+		<imprint>
+			<biblScope unit="volume">99</biblScope>
+			<biblScope unit="page" from="3746" to="3751" />
+			<date type="published" when="2002">2002</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct status="extracted" xml:id="b65">
+	<analytic>
+		<title level="a" type="main">DUN1 encodes a protein kinase that controls the DNA damage response in yeast</title>
+		<author>
+			<persName><forename type="first">Z</forename><surname>Zhou</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">S</forename><forename type="middle">J</forename><surname>Elledge</surname></persName>
+		</author>
+		<idno type="DOI">10.1016/0092-8674(93)90321-g</idno>
+		<idno type="PMID">8261511</idno>
+		<ptr target="https://doi.org/10.1016/0092-8674(93)90321-g" />
+	</analytic>
+	<monogr>
+		<title level="j">Cell</title>
+		<imprint>
+			<biblScope unit="volume">75</biblScope>
+			<biblScope unit="page" from="1119" to="1127" />
+			<date type="published" when="1993">1993</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct status="extracted" xml:id="b66">
+	<analytic>
+		<title level="a" type="main">Sgs1 helicase and two nucleases Dna2 and Exo1 resect DNA double-strand break ends</title>
+		<author>
+			<persName><forename type="first">Z</forename><surname>Zhu</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">W</forename><forename type="middle">H</forename><surname>Chung</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">E</forename><forename type="middle">Y</forename><surname>Shim</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">S</forename><forename type="middle">E</forename><surname>Lee</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">G</forename><surname>Ira</surname></persName>
+		</author>
+		<idno type="DOI">10.1016/j.cell.2008.08.037</idno>
+		<idno type="PMID">18805091</idno>
+		<ptr target="https://doi.org/10.1016/j.cell.2008.08.037" />
+	</analytic>
+	<monogr>
+		<title level="j">Cell</title>
+		<imprint>
+			<biblScope unit="volume">134</biblScope>
+			<biblScope unit="page" from="981" to="994" />
+			<date type="published" when="2008">2008</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct status="extracted" xml:id="b67">
+	<analytic>
+		<title level="a" type="main">Sensing DNA damage through ATRIP recognition of RPA-ssDNA complexes</title>
+		<author>
+			<persName><forename type="first">L</forename><surname>Zou</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">S</forename><forename type="middle">J</forename><surname>Elledge</surname></persName>
+		</author>
+		<idno type="DOI">10.1126/science.1083430</idno>
+		<idno type="PMID">12791985</idno>
+		<ptr target="https://doi.org/10.1126/science.1083430" />
+	</analytic>
+	<monogr>
+		<title level="j">Science</title>
+		<imprint>
+			<biblScope unit="volume">300</biblScope>
+			<biblScope unit="page" from="1542" to="1548" />
+			<date type="published" when="2003">2003</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+				</listBibl>
+			</div>
+		</back>
+	</text>
+</TEI>

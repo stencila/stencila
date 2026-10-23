@@ -1,0 +1,48 @@
+---
+source: rust/codec-tei/tests/examples.rs
+expression: "Summary::of(&article)?"
+---
+title: Phenotypic memory in quorum sensing
+authors:
+  - Ghazaleh Ostovar (2 affiliations)
+  - James Q Boedicker (2 affiliations)
+abstract_paragraphs: 1
+headings:
+  - Introduction
+  - Methods
+  - Results
+  - A model for quorum sensing activation and deactivation
+  - Carry-over of biomolecules during the deactivation of quorum sensing
+  - Phenotypic memory effect in quorum sensing
+  - Cellular parameters controlling the strength of phenotypic memory in quorum sensing
+  - Eq 12
+  - Eq 20
+  - Eq 21
+  - Reactivation of quorum sensing in cells with quorum sensing memory
+  - "Activity state ¼ uðRðtÞ:AðtÞ À ðR:AÞ Thresh Þ"
+  - Eq 25
+  - Discussion
+  - Conclusion
+  - Author Contributions
+  - "Data curation: Ghazaleh Ostovar."
+  - "Formal analysis: Ghazaleh Ostovar."
+  - "Methodology: Ghazaleh Ostovar."
+  - "Visualization: Ghazaleh Ostovar."
+  - "Writing -review & editing:"
+  - Supporting information
+  - S1 Text. Supporting figures and table. S1 Text contains supporting Figs
+figures: 6
+figure_labels:
+  - "1"
+  - "2"
+  - "-"
+  - "-"
+  - "3"
+  - "4"
+tables: 1
+table_labels:
+  - "1"
+math_blocks: 23
+citations: 89
+references: 60
+references_with_doi: 51

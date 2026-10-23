@@ -1,0 +1,29 @@
+---
+source: rust/codec-tei/tests/examples.rs
+expression: info.losses
+---
+//TEI/facsimile: 1
+//TEI/teiHeader/@lang: 1
+//TEI/teiHeader/encodingDesc: 1
+"//TEI/teiHeader/fileDesc/sourceDesc/biblStruct/note[@type='submission']": 1
+//TEI/text/@lang: 1
+"//TEI/text/back/div/div/p/ref[@type='figure'] (unresolved)": 1
+"//TEI/text/back/div/div/p/rs[@type='funder']": 2
+"//TEI/text/back/div/div/p/rs[@type='grantNumber']": 2
+"//TEI/text/back/div/div/p/rs[@type='institution']": 2
+"//TEI/text/back/div/div/p/rs[@type='person']": 2
+"//TEI/text/back/div/figure[@xml:id='fig_12'] (no image)": 1
+"//TEI/text/back/div/listBibl/biblStruct/note[@type='report_type']": 1
+"//TEI/text/body/div/p/ref[@type='formula'] (unresolved)": 3
+"//TEI/text/body/figure[@xml:id='fig_0'] (no image)": 1
+"//TEI/text/body/figure[@xml:id='fig_1'] (no image)": 1
+"//TEI/text/body/figure[@xml:id='fig_10'] (no image)": 1
+"//TEI/text/body/figure[@xml:id='fig_11'] (no image)": 1
+"//TEI/text/body/figure[@xml:id='fig_2'] (no image)": 1
+"//TEI/text/body/figure[@xml:id='fig_3'] (no image)": 1
+"//TEI/text/body/figure[@xml:id='fig_4'] (no image)": 1
+"//TEI/text/body/figure[@xml:id='fig_5'] (no image)": 1
+"//TEI/text/body/figure[@xml:id='fig_6'] (no image)": 1
+"//TEI/text/body/figure[@xml:id='fig_7'] (no image)": 1
+"//TEI/text/body/figure[@xml:id='fig_8'] (no image)": 1
+"//TEI/text/body/figure[@xml:id='fig_9'] (no image)": 1

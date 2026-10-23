@@ -1,0 +1,6 @@
+---
+source: rust/codec-tei/tests/examples.rs
+expression: info.losses
+---
+//TEI/text/div/listBibl/biblStruct/monogr/authority: 8
+//TEI/text/div/listBibl/biblStruct/monogr/ptr: 8

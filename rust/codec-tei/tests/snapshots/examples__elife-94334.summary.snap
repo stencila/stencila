@@ -1,0 +1,104 @@
+---
+source: rust/codec-tei/tests/examples.rs
+expression: "Summary::of(&article)?"
+---
+title: Prolonged cell cycle arrest in response to DNA damage in yeast requires the maintenance of DNA damage signaling and the spindle assembly checkpoint
+authors:
+  - Felix Y Zhou (1 affiliations)
+  - David P Waterman (1 affiliations)
+  - Marissa Ashton (1 affiliations)
+  - Suhaily Caban-Penix (1 affiliations)
+  - Gonen Memisoglu (2 affiliations)
+  - Vinay V Eapen (2 affiliations)
+  - James E Haber (1 affiliations)
+abstract_paragraphs: 1
+headings:
+  - Introduction
+  - Results
+  - Measuring DNA damage checkpoint arrest and maintenance
+  - Analysis of checkpoint factors required for checkpoint maintenance
+  - "-figure supplement 2B-E)."
+  - "Chk1 sustains checkpoint signaling in the absence of Ddc2, Rad9, Rad24, or Rad53"
+  - Dun1 is required for the initiation but not for the maintenance of cell cycle arrest
+  - "Ddc2 and Rad53's role in maintaining arrest become dispensable in extended G 2 /M arrest"
+  - ).
+  - Spindle assembly checkpoint proteins Mad1 and Mad2 are required for prolonged arrest
+  - Mitotic exit network proteins Bfa1 and Bub2 have different roles in the DDR
+  - The location of the second DSB site relative to the centromere affects prolonged arrest
+  - Discussion
+  - Materials and methods
+  - Yeast strain and plasmid construction
+  - "Culturing conditions, HO expression, and auxin treatment"
+  - TCA protein extraction
+  - Western blotting
+  - "Microscopy, DAPI staining, and cell morphology determination"
+  - Adaptation and auxin plating assays
+  - Quantification and data analysis
+  - Acknowledgements
+  - Data availability
+  - Additional information
+  - 5T32GM139798 Marissa Ashton
+  - Additional files
+  - Supplementary files
+figures: 54
+figure_labels:
+  - "-"
+  - "1"
+  - "2"
+  - "1"
+  - "2"
+  - "2"
+  - "2"
+  - "2"
+  - "2"
+  - "2"
+  - "2"
+  - "2"
+  - "2"
+  - "2"
+  - "2"
+  - "2"
+  - "3"
+  - "23"
+  - "3"
+  - "1"
+  - "1"
+  - "1"
+  - "-"
+  - "4"
+  - "5"
+  - "-"
+  - "1"
+  - "1"
+  - "1"
+  - "1"
+  - "1"
+  - "5"
+  - "-"
+  - "6"
+  - "1"
+  - "2"
+  - "1"
+  - "2"
+  - "2"
+  - "2"
+  - "3"
+  - "6"
+  - "3"
+  - "3"
+  - "6"
+  - "7"
+  - "1"
+  - "1"
+  - "1"
+  - "1"
+  - "1"
+  - "8"
+  - "9"
+  - "-"
+tables: 0
+table_labels: []
+math_blocks: 0
+citations: 120
+references: 68
+references_with_doi: 67

@@ -30,6 +30,7 @@ pub enum Format {
     Dom,
     Html,
     Jats,
+    Tei,
     // Markdown and derivatives
     Markdown, // Commonmark Markdown with GitHub Flavored Markdown extensions (as in the `markdown` crate)
     Smd,
@@ -230,6 +231,7 @@ impl Format {
             Svg => "SVG",
             Swb => "Stencila Web Bundle",
             Tailwind => "Tailwind",
+            Tei => "TEI",
             Tex => "TeX",
             Text => "Plain text",
             Tiptap => "Tiptap JSON",
@@ -408,7 +410,7 @@ impl Format {
     /// Is this format a flavor of XML?
     pub fn is_xml_flavor(&self) -> bool {
         use Format::*;
-        matches!(self, Jats)
+        matches!(self, Jats | Tei)
     }
 
     /// Resolve a [`Format`] from a name for the format
@@ -497,6 +499,7 @@ impl Format {
             "svg" => Svg,
             "swb" => Swb,
             "tailwind" => Tailwind,
+            "tei" | "tei.xml" => Tei,
             "tex" => Tex,
             "text" | "txt" => Text,
             "toml" => Toml,
@@ -541,6 +544,9 @@ impl Format {
             (".oxa.json", OxaJson),
             (".oxa.yaml", OxaYaml),
             (".oxa.yml", OxaYaml),
+            (".tei.xml", Tei),
+            // GROBID TEI is often distributed gzip compressed (e.g. by OpenAlex)
+            (".tei.xml.gz", Tei),
         ] {
             if path_string.ends_with(end) {
                 return format;
@@ -586,6 +592,7 @@ impl Format {
             "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" => Ok(Xlsx),
             "audio/mp4" => Ok(Aac), // M4A files use audio/mp4 MIME type but are AAC format
             "audio/mpeg" => Ok(Mp3),
+            "application/tei+xml" => Ok(Tei),
             "image/svg+xml" => Ok(Svg),
             "text/jats+xml" => Ok(Jats),
             "text/plain" => Ok(Text),
@@ -646,6 +653,7 @@ impl Format {
             Ods => "application/vnd.oasis.opendocument.spreadsheet".to_string(),
             Email => "text/html".to_string(),
             Jats => "text/jats+xml".to_string(),
+            Tei => "application/tei+xml".to_string(),
             Markdown => "text/markdown".to_string(),
             Mjml => "text/mjml".to_string(),
             Text => "text/plain".to_string(),
@@ -675,6 +683,7 @@ impl Format {
         use Format::*;
         match self {
             Jats => "jats.xml".to_string(),
+            Tei => "tei.xml".to_string(),
             MiraJsonLd => "mira.jsonld".to_string(),
             OxaJson => "oxa.json".to_string(),
             OxaYaml => "oxa.yaml".to_string(),
@@ -773,6 +782,7 @@ impl Display for Format {
             Svg => "svg",
             Swb => "swb",
             Tailwind => "tailwind",
+            Tei => "tei",
             Tex => "tex",
             Text => "text",
             Tiptap => "tiptap",
@@ -826,6 +836,8 @@ mod test {
         assert_eq!(Format::from_url("document.oxa.yml"), Format::OxaYaml);
         assert_eq!(Format::from_url("document.mira.json"), Format::MiraJsonLd);
         assert_eq!(Format::from_url("document.mira.jsonld"), Format::MiraJsonLd);
+        assert_eq!(Format::from_url("paper.tei.xml"), Format::Tei);
+        assert_eq!(Format::from_url("paper.tei.xml.gz"), Format::Tei);
 
         assert_eq!(
             Format::from_url("file.foo"),
@@ -926,6 +938,7 @@ mod test {
             ("image/jpeg", Format::Jpeg),
             ("image/svg+xml", Format::Svg),
             ("text/jats+xml", Format::Jats),
+            ("application/tei+xml", Format::Tei),
             ("text/plain", Format::Text),
             ("video/quicktime", Format::Mov),
             ("video/x-msvideo", Format::Avi),

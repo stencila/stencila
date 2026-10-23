@@ -15,6 +15,7 @@ items:
       - { name: "dom", label: "DOM HTML" }
       - { name: "html", label: "HTML" }
       - { name: "jats", label: "JATS" }
+      - { name: "tei", label: "TEI" }
 
   - label: "Typesetting"
     items:

@@ -1,0 +1,33 @@
+---
+source: rust/codec-tei/tests/examples.rs
+expression: "Summary::of(&article)?"
+---
+title: "Author Correction: From coarse to fine: the absolute Escherichia coli proteome under diverse growth conditions"
+authors:
+  - Matteo Mori (0 affiliations)
+  - Zhongge Zhang (0 affiliations)
+  - Amir Banaei-Esfahani (0 affiliations)
+  - Jean-Benoît Lalanne (0 affiliations)
+  - Hiroyuki Okano (0 affiliations)
+  - Ben C Collins (0 affiliations)
+  - Alexander Schmidt (0 affiliations)
+  - Olga T Schubert (0 affiliations)
+  - Deok-Sun Lee (0 affiliations)
+  - Gene-Wei Li (0 affiliations)
+  - Ruedi Aebersold (0 affiliations)
+  - Terence Hwa (0 affiliations)
+  - Christina Ludwig (0 affiliations)
+abstract_paragraphs: 0
+headings:
+  - "Datasets:"
+figures: 3
+figure_labels:
+  - "-"
+  - "-"
+  - "4"
+tables: 0
+table_labels: []
+math_blocks: 0
+citations: 0
+references: 0
+references_with_doi: 0

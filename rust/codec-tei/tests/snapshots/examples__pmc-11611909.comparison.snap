@@ -1,0 +1,68 @@
+---
+source: rust/codec-tei/tests/examples.rs
+expression: comparison
+---
+headings_only_in_tei:
+  - Box 1. Kinetic model of the mRNA life cycle
+  - Reagents and tools table
+  - Reagent/resource
+  - Experimental models
+  - "Modified time:"
+  - Peer review information
+  - Expanded View Figures
+headings_only_in_jats:
+  - Validation with external datasets and independent approaches
+  - Supplementary information
+  - Author contributions
+headings_in_both:
+  - "Introduction (1, 1)"
+  - "Results (1, 1)"
+  - "Spatiotemporal measurement of newly transcribed mRNA (1, 2)"
+  - "Model of subcellular mRNA dynamics (1, 2)"
+  - "Modeling of transcriptional elongation rates (1, 2)"
+  - "Model parameterization unveils lengthdependent elongation rate (1, 2)"
+  - "Nuclear retention time is the rate-limiting step in the life cycle of most mRNAs (1, 2)"
+  - "Functionally related transcripts tend to have similar kinetic profiles (1, 2)"
+  - "Differentially localized mRNAs exhibit distinct dynamic behavior (1, 2)"
+  - "Discussion (1, 1)"
+  - "Methods (1, 1)"
+  - "Mouse embryonic stem cell (mESC) culture (1, 2)"
+  - "Metabolic labeling and cell fractionation (1, 2)"
+  - "RNA isolation, alkylation of 4sU-labeled RNA, and SLAM-seq (1, 2)"
+  - "Western blotting (1, 2)"
+  - "Transcriptional inhibition by flavopiridol (1, 2)"
+  - "RT-qPCR (1, 2)"
+  - "Custom genome annotation for intronic regions (1, 2)"
+  - "Alignment and read counting (1, 2)"
+  - "Exclusion of SNPs from T2C mutation counting (1, 2)"
+  - "T2C mutation counting and normalization (1, 2)"
+  - "Additional data analysis (1, 2)"
+  - "Minimal effect of metabolic labeling on the transcriptome (1, 2)"
+  - "Quantifying relative mRNA abundance of subcellular compartments (1, 2)"
+  - "Model fitting of subcellular mRNA dynamics (1, 2)"
+  - "Discriminating models with and without nuclear mRNA degradation (1, 2)"
+  - "Transcription inhibition-derived subcellular half-lives (1, 2)"
+  - "Model-derived half-lives (1, 2)"
+  - "Targeting signal and gene group annotations (1, 2)"
+  - "Acknowledgements (1, 1)"
+  - "Funding (1, 1)"
+  - "Data availability (1, 1)"
+  - "Disclosure and competing interests statement (1, 1)"
+figures:
+  - 13
+  - 12
+tables:
+  - 0
+  - 1
+math_blocks:
+  - 0
+  - 0
+citations:
+  - 79
+  - 82
+references:
+  - 46
+  - 46
+authors:
+  - 7
+  - 6

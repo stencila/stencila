@@ -1,0 +1,88 @@
+---
+source: rust/codec-tei/tests/examples.rs
+expression: "Summary::of(&article)?"
+---
+title: A Virtual Machine Introspection Based Architecture for Intrusion Detection
+authors:
+  - Tal Garfinkel (1 affiliations)
+  - Mendel Rosenblum (1 affiliations)
+abstract_paragraphs: 1
+headings:
+  - Introduction
+  - Motivation
+  - VMMs and VMI
+  - "  Virtual Machine Monitors"
+  - "  VMM Implementation"
+  - "  VMM Assurance"
+  - "  Leveraging the VMM"
+  - "    Inspection"
+  - "    Interposition"
+  - Design
+  - "  Threat Model"
+  - "  The Virtual Machine Monitor"
+  - "    The VMM Interface"
+  - "      OS Interface Library"
+  - "      Guest OS"
+  - "      Guest Apps"
+  - "      Virtual Machine"
+  - "      Virtual Machine Monitor"
+  - "      callback or Response"
+  - "      Policy Modules"
+  - "      Query Response Hardware State"
+  - "      Policy Engine"
+  - "      Monitored Host"
+  - "      INSPECTION"
+  - "  The VMI IDS"
+  - "    The OS Interface Library"
+  - "    The Policy Engine"
+  - Implementation
+  - "  VMM"
+  - "  VMM Interface"
+  - "  OS Interface Library"
+  - "  Policy Engine"
+  - "    Policy Framework"
+  - "    Policy Modules"
+  - Example Policy Modules
+  - "  Polling Policy Modules"
+  - "    Lie Detector"
+  - "    User Program Integrity Detector"
+  - "    Signature Detector"
+  - "    Raw Socket Detector"
+  - "  Event Driven Policy Modules"
+  - "    Memory Access Enforcer"
+  - "    NIC Access Enforcer"
+  - Experimental Results
+  - "  Sample Attacks"
+  - "  Detection Results"
+  - "    Performance of Polling Policy Modules"
+  - "  Performance"
+  - Weaknesses and Attacks
+  - "  Attacking the VMM"
+  - "    Indirect Attacks"
+  - "    Detecting the VMM"
+  - "    Directly Subverting the VMM"
+  - "    Attacking the VMM through the IDS"
+  - "  Attacking the IDS"
+  - "    Fooling the OS Interface Library"
+  - "    Compromising the OS Interface Library"
+  - "    Compromising the Policy Engine"
+  - "      Sanitize Inputs:"
+  - "      A High-Level Policy Language"
+  - "      Failing Closed"
+  - "      Event Flow Control:"
+  - "      Avoiding Wedging with Timers"
+  - Related Work
+  - Future Work
+  - Conclusion
+  - Acknowledgments
+  - A Sample Attacks
+figures: 0
+figure_labels: []
+tables: 2
+table_labels:
+  - "-"
+  - "-"
+math_blocks: 1
+citations: 75
+references: 47
+references_with_doi: 0

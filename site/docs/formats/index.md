@@ -58,6 +58,7 @@ Stencila uses property testing to exercise codec round-trips and detect regressi
 | Quarto Markdown | `qmd` | [Quarto Markdown](qmd) |
 | R+LaTeX | `rnw` | [R+LaTeX](rnw) |
 | Stencila Markdown | `smd` | [Stencila Markdown](smd) |
+| TEI | `tei.xml` | [TEI](tei) |
 | TSV | `tsv` | [TSV](tsv) |
 | TeX | `tex` | [TeX](tex) |
 | YAML | `yaml` | [YAML](yaml) |

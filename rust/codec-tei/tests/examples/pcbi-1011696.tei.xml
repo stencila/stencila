@@ -1,0 +1,1856 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<TEI xml:space="preserve" xmlns="http://www.tei-c.org/ns/1.0" 
+xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+xsi:schemaLocation="http://www.tei-c.org/ns/1.0 https://raw.githubusercontent.com/kermitt2/grobid/master/grobid-home/schemas/xsd/Grobid.xsd"
+ xmlns:xlink="http://www.w3.org/1999/xlink">
+	<teiHeader xml:lang="en">
+		<fileDesc>
+			<titleStmt>
+				<title level="a" type="main">Phenotypic memory in quorum sensing</title>
+				<funder>
+					<orgName type="full">Army Research Office MURI</orgName>
+				</funder>
+				<funder ref="#_A7TndFz">
+					<orgName type="full">National Science Foundation</orgName>
+					<orgName type="abbreviated">NSF</orgName>
+				</funder>
+			</titleStmt>
+			<publicationStmt>
+				<publisher/>
+				<availability  status="unknown">
+					<licence/>
+				</availability>
+				<date type="published" when="2024-07-08">July 8, 2024</date>
+			</publicationStmt>
+			<sourceDesc>
+				<biblStruct status="extracted">
+					<analytic>
+						<author>
+							<persName><forename type="first">Ghazaleh</forename><surname>Ostovar</surname></persName>
+							<affiliation key="aff0">
+								<orgName type="department">Department of Physics and Astronomy</orgName>
+								<orgName type="institution">University of Southern California</orgName>
+								<address>
+									<settlement>Los Angeles</settlement>
+									<region>California</region>
+									<country key="US">United States of America</country>
+								</address>
+							</affiliation>
+							<affiliation key="aff2">
+								<orgName type="institution">Rice University</orgName>
+								<address>
+									<country key="US">UNITED STATES OF AMERICA</country>
+								</address>
+							</affiliation>
+						</author>
+						<author role="corresp">
+							<persName><forename type="first">James</forename><forename type="middle">Q</forename><surname>Boedicker</surname></persName>
+							<email>boedicke@usc.edu</email>
+							<idno type="ORCID">0000-0003-4107-3719</idno>
+							<affiliation key="aff0">
+								<orgName type="department">Department of Physics and Astronomy</orgName>
+								<orgName type="institution">University of Southern California</orgName>
+								<address>
+									<settlement>Los Angeles</settlement>
+									<region>California</region>
+									<country key="US">United States of America</country>
+								</address>
+							</affiliation>
+							<affiliation key="aff1">
+								<orgName type="department">Department of Biological Sciences</orgName>
+								<orgName type="institution">University of Southern California</orgName>
+								<address>
+									<settlement>Los Angeles</settlement>
+									<region>California</region>
+									<country key="US">United States of America</country>
+								</address>
+							</affiliation>
+						</author>
+						<title level="a" type="main">Phenotypic memory in quorum sensing</title>
+					</analytic>
+					<monogr>
+						<imprint>
+							<date type="published" when="2024-07-08">July 8, 2024</date>
+						</imprint>
+					</monogr>
+					<idno type="MD5">C3A1B3EF72AD4AA6ADA0299963E736E3</idno>
+					<idno type="DOI">10.1371/journal.pcbi.1011696</idno>
+					<note type="submission">Received: December 7, 2023 Accepted: June 19, 2024</note>
+				</biblStruct>
+			</sourceDesc>
+		</fileDesc>
+		<encodingDesc>
+			<appInfo>
+				<application version="0.9.1" ident="GROBID" when="2026-10-23T04:45+0000">
+					<desc>GROBID - A machine learning software for extracting information from scholarly documents</desc>
+					<label type="revision">0.9.1</label>
+					<label type="parameters">startPage=-1, endPage=-1, consolidateCitations=0, consolidateHeader=0, consolidateFunders=0, includeRawAffiliations=false, includeRawCitations=false, includeRawCopyrights=false, generateTeiIds=false, generateTeiCoordinates=[figure, formula], flavor=null, debugLabelingCollector=disabled</label>
+					<ref target="https://github.com/kermitt2/grobid"/>
+				</application>
+			</appInfo>
+		</encodingDesc>
+		<profileDesc>
+			<abstract>
+<div xmlns="http://www.tei-c.org/ns/1.0"><p>Quorum sensing (QS) is a regulatory mechanism used by bacteria to coordinate group behavior in response to high cell densities. During QS, cells monitor the concentration of external signals, known as autoinducers, as a proxy for cell density. QS often involves positive feedback loops, leading to the upregulation of genes associated with QS signal production and detection. This results in distinct steady-state concentrations of QS-related molecules in QS-ON and QS-OFF states. Due to the slow decay rates of biomolecules such as proteins, even after removal of the initial stimuli, cells can retain elevated levels of QSassociated biomolecules for extended periods of time. This persistence of biomolecules after the removal of the initial stimuli has the potential to impact the response to future stimuli, indicating a memory of past exposure. This phenomenon, which is a consequence of the carry-over of biomolecules rather than genetic inheritance, is known as "phenotypic" memory. This theoretical study aims to investigate the presence of phenotypic memory in QS and the conditions that influence this memory. Numerical simulations based on ordinary differential equations and analytical modeling were used to study gene expression in response to sudden changes in cell density and extracellular signal concentrations. The model examined the effect of various cellular parameters on the strength of QS memory and the impact on gene regulatory dynamics. The findings revealed that QS memory has a transient effect on the expression of QS-responsive genes. These consequences of QS memory depend strongly on how cell density was perturbed, as well as various cellular parameters, including the Fold Change in the expression of QS-regulated genes, the autoinducer synthesis rate, the autoinducer threshold required for activation, and the cell growth rate.</p></div>
+			</abstract>
+		</profileDesc>
+	</teiHeader>
+	<facsimile>
+		<surface n="1" ulx="0.0" uly="0.0" lrx="612.0" lry="792.0"/>
+		<surface n="2" ulx="0.0" uly="0.0" lrx="612.0" lry="792.0"/>
+		<surface n="3" ulx="0.0" uly="0.0" lrx="612.0" lry="792.0"/>
+		<surface n="4" ulx="0.0" uly="0.0" lrx="612.0" lry="792.0"/>
+		<surface n="5" ulx="0.0" uly="0.0" lrx="612.0" lry="792.0"/>
+		<surface n="6" ulx="0.0" uly="0.0" lrx="612.0" lry="792.0"/>
+		<surface n="7" ulx="0.0" uly="0.0" lrx="612.0" lry="792.0"/>
+		<surface n="8" ulx="0.0" uly="0.0" lrx="612.0" lry="792.0"/>
+		<surface n="9" ulx="0.0" uly="0.0" lrx="612.0" lry="792.0"/>
+		<surface n="10" ulx="0.0" uly="0.0" lrx="612.0" lry="792.0"/>
+		<surface n="11" ulx="0.0" uly="0.0" lrx="612.0" lry="792.0"/>
+		<surface n="12" ulx="0.0" uly="0.0" lrx="612.0" lry="792.0"/>
+		<surface n="13" ulx="0.0" uly="0.0" lrx="612.0" lry="792.0"/>
+		<surface n="14" ulx="0.0" uly="0.0" lrx="612.0" lry="792.0"/>
+		<surface n="15" ulx="0.0" uly="0.0" lrx="612.0" lry="792.0"/>
+		<surface n="16" ulx="0.0" uly="0.0" lrx="612.0" lry="792.0"/>
+		<surface n="17" ulx="0.0" uly="0.0" lrx="612.0" lry="792.0"/>
+		<surface n="18" ulx="0.0" uly="0.0" lrx="612.0" lry="792.0"/>
+		<surface n="19" ulx="0.0" uly="0.0" lrx="612.0" lry="792.0"/>
+		<surface n="20" ulx="0.0" uly="0.0" lrx="612.0" lry="792.0"/>
+		<surface n="21" ulx="0.0" uly="0.0" lrx="612.0" lry="792.0"/>
+		<surface n="22" ulx="0.0" uly="0.0" lrx="612.0" lry="792.0"/>
+		<surface n="23" ulx="0.0" uly="0.0" lrx="612.0" lry="792.0"/>
+	</facsimile>
+	<text xml:lang="en">
+		<body>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>Introduction</head><p>Quorum sensing in bacteria is known as a mechanism to monitor cell density and coordinate gene expression within populations of cells <ref type="bibr" target="#b0">[1]</ref><ref type="bibr" target="#b1">[2]</ref><ref type="bibr" target="#b2">[3]</ref>. QS relies on the synthesis and detection of diffusible signaling molecules, also known as autoinducers, by individual cells. As cell density increases, the concentration of released signals in the environment also increases. As the amount of external signal grows to a high concentration, the expression of target genes under QS regulation is initiated, exhibiting a switch-like behavior <ref type="bibr" target="#b3">[4,</ref><ref type="bibr" target="#b4">5]</ref>. Since the concentration of signals in the environment is proportional to the population size, QS is considered a proxy for cell density. Several genes involved in collective behavior are subject to regulation under QS, including those responsible for virulence, bioluminescence, and biofilm formation <ref type="bibr" target="#b5">[6]</ref>. Activation of QS in response to high signal concentrations leads to a transition of the intracellular concentrations of expressed target genes from a low to high state, referred to as the QS OFF and ON steady states, respectively <ref type="bibr" target="#b6">[7,</ref><ref type="bibr" target="#b7">8]</ref>. Such switch-like behavior is often attributed to the presence of positive feedback loops within many QS circuits <ref type="bibr" target="#b4">[5,</ref><ref type="bibr" target="#b8">9]</ref>. Positive feedback in QS is due to increased synthesis of proteins involved in signal transduction, the synthase and receptor proteins, upon activation. As a result, low and high signal concentrations as environmental inputs can induce two distinct phenotypes in a QS system, referred to as OFF and ON phenotypes, respectively. However, it remains unclear whether the QS response is solely determined by the current cell density and signal concentrations or is influenced by past exposure to signal.</p><p>Prior studies have shown that bacterial responses to current conditions may be influenced by past environmental conditions. Examples of such history-dependent behavior have been previously studied in metabolic systems, stress responses, and biofilm formation <ref type="bibr" target="#b9">[10]</ref><ref type="bibr" target="#b10">[11]</ref><ref type="bibr" target="#b11">[12]</ref><ref type="bibr" target="#b12">[13]</ref>. The lac operon in E. coli exemplifies history-dependent behavior in bacteria <ref type="bibr" target="#b10">[11]</ref>. When transitioning from glucose to lactose as the carbon source, cells previously exposed to lactose exhibited shorter growth lag phases, indicating a memory of past lactose exposure. Overexpression of LacZ proteins further reduced the lag phase, suggesting that the memory effect is associated with carry-over of intracellular LacZ proteins, in which the duration of the lag phase reflected the strength of history-dependent behavior. Such a memory effect, resulting from the persistence of cellular components rather than genetic inheritance, is known as "phenotypic" memory <ref type="bibr" target="#b13">[14,</ref><ref type="bibr" target="#b14">15]</ref>. Another instance of phenotypic memory in bacteria can be observed in the stress response of Bacillus subtilis. <ref type="bibr">Mutlu et al.</ref> demonstrated that the ability of spores to recover is regulated by molecules transmitted from the progenitor cells to the spores during sporulation timing <ref type="bibr" target="#b12">[13]</ref>. Moreover, previous exposure of Pseudomonas aeruginosa <ref type="bibr" target="#b11">[12]</ref> cells to a surface imprints a memory of the surface through cyclic adenosine monophosphate (cAMP), enabling cells to gradually become better adapted for sensing and attachment upon returning to the surface. This phenotypic memory has been shown to potentially provide adaptive advantages in fluctuating environments <ref type="bibr" target="#b11">[12]</ref>.</p><p>Previous studies have also analyzed memory within QS. It has been observed that activation of competence in Streptococcus pneumoniae cells depended on the pH of media in past cultures <ref type="bibr" target="#b15">[16]</ref>. Sappington et al. <ref type="bibr" target="#b16">[17]</ref> demonstrated that LasR, a transcriptional activator involved in quorum sensing, can maintain its functional state even in the absence of the signaling molecule for a certain period. The study revealed that the presence of a reservoir of signal-free LasR within the cells enables the activation of transcription upon re-exposure to the signaling molecule. Another study demonstrated that overexpression of LuxR in E. coli cells carrying the Lux-I-LuxR quorum sensing circuit significantly shortened the onset timing of signaling supporting the effect of elevated receptor concentration is QS activation <ref type="bibr" target="#b16">[17]</ref>. Moreover it has been observed that cells with previous QS activity can expedite activation in neighboring cells, suggesting the presence of a potential memory of prior stimulation in form of higher than basal rate of autoinducer synthesis <ref type="bibr" target="#b17">[18]</ref>.</p><p>In this study we aim to further investigate the phenomenon of phenotypic memory in QS. Specifically, we hypothesize that when bacterial cells transition from high to low cell densities, the presence of excessive receptor and synthase proteins carried over from the QS ON state may influence QS reactivation dynamics, thereby encoding a memory of past exposure. We utilize a mathematical model of QS to examine the consequences of biomolecule carry-over when cells move from a region of high cell density in QS ON state, to a region of low cell density. During this transition, molecular concentrations are expected to gradually transition back to levels associated with the OFF state. Our study aims to assess the potential carry-over effects and their impact on the expression of QS-regulated genes. To investigate the potential sources of phenotypic memory in QS, we evaluate the contribution of multiple components <ref type="bibr" target="#b18">[19,</ref><ref type="bibr" target="#b19">20]</ref>. Considering that each biomolecule has a different abundance and decays at a different rate, it is plausible that multiple sources of memory may exist <ref type="bibr" target="#b9">[10,</ref><ref type="bibr" target="#b20">21,</ref><ref type="bibr" target="#b21">22]</ref>. Furthermore, we develop a simplified analytical model to determine the parameters that control the strength and duration of phenotypic memory in quorum sensing.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>Methods</head><p>LuxR-LuxI regulatory circuit can be modeled through a set of ordinary differential equations (ODEs) <ref type="bibr" target="#b3">[4]</ref> based on the mass-action kinetics formalism <ref type="bibr" target="#b22">[23]</ref>. Such simplified models assume the concentration of biomolecules transformed by the reactions depend solely on the current amount of species, the rates at which these reactions proceed, and the stoichiometry of the reactions <ref type="bibr" target="#b3">[4]</ref>. These equations were used previously to model QS dynamics <ref type="bibr" target="#b3">[4,</ref><ref type="bibr" target="#b23">24]</ref>. The set of differential equations and the description of associated model parameters can be found in Eqs 1-8 and Table <ref type="table" target="#tab_0">1</ref>. These equations describe the dynamics of the quorum sensing machinery including receptor protein LuxR in unbound (R), monomeric (RA), and dimeric/complex forms (C), the synthase protein LuxI (I), AHL signaling molecule (A), a quorum sensing target gene (G), and cell number (N). Although the model should apply to many quorum sensing systems, it is inspired by the LuxR_LuxI circuit of Vibrio fischeri, a well-studied marine bacterium known for its bioluminescent interaction with the Hawaiian bobtail squid. This choice is based on the extensive availability of quantitative data regarding the QS system of Vibrio fischeri.</p><p>Briefly, quorum sensing regulated proteins (LuxR, LuxI, and the target QS-regulated protein) are produced at either a basal rate, when AHL concentration is low, or at an elevated rate, when high AHL concentrations results in receptor dimer formation. The protein concentration per cell is reduced due to both cell division and protein decay. The rate of protein degradation was set to reflect that cell division sets the rate that proteins are diluted during cell growth. To simplify the model, this rate of protein degradation does not change as cell growth slows near the saturating cell density. Separate degradation and production rates could have been implemented, dependent on the growth phase of the culture, however QS activation is expected to occur well before reaching density-dependent growth limitations. This simplification prevents a ramp up in protein levels during stationary phase. While dilution resulting from cell division is often the primary mechanism of protein degradation, it should be noted that LuxR is inherently unstable in its non-dimeric state, particularly when AHL concentrations are low <ref type="bibr" target="#b24">[25]</ref>, and thus is prone to rapid degradation. In this model, cells produce AHLs in proportion to the concentration of synthase protein present within each cell. The concentration of AHLs within the cells (A) and outside the cells (A ex ) is linked through diffusion across the cell membrane. Cell division in this model follows the logistic growth equation. Transcription and translation of mRNAs are not explicitly accounted for in the model, as these molecules have much shorter half-lives than the timescale of quorum sensing dynamics <ref type="bibr" target="#b25">[26]</ref>. As a result, mRNAs are assumed to be in quasi-steady state and are not explicitly tracked within the model.  <ref type="bibr" target="#b30">[31]</ref> *Estimated based on <ref type="bibr" target="#b31">[32]</ref>, LuxI and LuxR are assumed to have approximately the same basal expression rates and QS activation at a cell density near 10 9 cell/mL. ** Rate constants are estimated to achieve a Fold Change of 10 for LuxI ***Estimated to obtain half maximum activity at around 25-50 nM AHL concentration <ref type="bibr" target="#b32">[33]</ref>.</p><formula xml:id="formula_0" coords="4,231.93,589.88,344.04,121.74">½dI� dt ¼ k 5 þ k 3 ½C� k dI þ ½C� À k 7 I ½ � À k 11 I ½ � Eq 1 d½R� dt ¼ k 6 þ k 4 ½C� k dR þ ½C� þ k À 1 RA ½ � À k 1 R ½ � A ½ � À k 8 R ½ � À k 11 R ½ � Eq 2 d½RA� dt ¼ 2k À 2 C ½ � À 2k 2 RA ½ � RA ½ � À k À 1 RA ½ � þ k 1 R ½ � A ½ � À k 8 RA ½ � À k 11 RA ½ � Eq 3</formula><p><ref type="url" target="https://doi.org/10.1371/journal.pcbi.1011696.t001">https://doi.org/10.1371/journal.pcbi.1011696.t001</ref> </p><formula xml:id="formula_1" coords="5,244.74,96.56,331.23,61.17">d½C� dt ¼ k 2 RA ½ � RA ½ � À k À 2 C ½ � À k 11 C ½ � Eq 4 d½A� dt ¼ b I ½ � À k 1 R ½ � A ½ � þ k À 1 RA ½ � À D ½A� À ½A ex � ð Þ À k 9 A ½ � À k 11 A ½ � Eq<label>5</label></formula><formula xml:id="formula_2" coords="5,300.25,172.90,275.72,103.58">d½A ex � dt ¼ rD N ½ � ½A� À ½A ex � ð Þ À k 9 A ex ½ � Eq 6 ½dG� dt ¼ k 10 þ k 4 ½C� k DI þ ½C� À k 7 G ½ � À k 11 G ½ � Eq 7 d½N� dt ¼ k 11 N ½ � 1 À ½N� ½N max � � � Eq 8</formula><p>In this study, we numerically solved the system of ODEs using the scipy.integrate.odeint function provided by the SciPy library in Python, which employs LSODA (Livermore Solver for Ordinary Differential Equations). To characterize the "ON" and "OFF" states, simulations were run using Eqs 1-8 with an initial concentration of 1 cell/ml and the variables I, R, RA, A, A ex , C, and G initialized to zero. Within a range spanning low to high maximum achievable cell densities denoted by N max , the system exhibits two distinct steady-state solutions contingent upon value of N max . These solutions are denoted as the "ON" and "OFF" steady states. Moreover the N max value at which the QS regulated gene, denoted with G, reaches half of its maximum value is defined as the critical cell density required for activation. Throughout the paper, for cells initially in the "OFF" state, the initial conditions in the set of ODEs are set to the values associated with the "OFF" state, while cells initially in the "ON" state are initialized with the values corresponding to the "ON" state. Fig <ref type="figure">A</ref> in S1 Text shows expression of the QS target for a range of final cell densities. Molecular concentrations are normalized by dividing by the concentration in the ON state, listed in Table <ref type="table">A</ref> in S1 Text.</p><p>The process of dilution resets the external signal concentrations to zero and reduces the initial cell density N to its post-dilution value. When comparing diluted "ON" cells to "OFF" cells, both the external signal concentrations of initially "ON" and "OFF" cells are adjusted to zero.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>Results</head></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>A model for quorum sensing activation and deactivation</head><p>Quorum sensing in bacteria is based on synthesis and detection of diffusible signaling molecules known as autoinducers. LuxR-LuxI regulatory circuit in the marine bacterium Aliivibrio fischeri is a well-known example of a QS regulatory circuits in Gram-negative bacteria <ref type="bibr" target="#b33">[34]</ref>. A. fisheri synthesizes the signaling molecule N-3-oxohexanoyl-homoserine lactone (3-oxo-C6-HSL or AHL more generally) using LuxI synthase proteins. Binding to the signal leads to dimerization of the receptor protein, and this dimer acts as a transcription regulator. As the cell density increases, the concentration of AHLs in the environment rises, resulting in an increased number of LuxR dimers and the upregulation of genes regulated by quorum sensing. Notably, the LuxI and LuxR proteins are both upregulated by the receptor dimer, resulting in a positive autoregulatory circuit <ref type="bibr" target="#b34">[35]</ref><ref type="bibr" target="#b35">[36]</ref><ref type="bibr" target="#b36">[37]</ref><ref type="bibr" target="#b37">[38]</ref>. As a consequence of the positive feedback, activation of quorum sensing resembles a switch-like behavior. This transition to an active state is accompanied by alterations in the levels of several cellular components, including the LuxI and LuxR proteins, as well as the concentration of signals <ref type="bibr" target="#b23">[24]</ref>. A schematic representation of LuxR-LuxI circuit is shown in Fig <ref type="figure" target="#fig_0">1A</ref>.</p><p>Next, we implemented the model to examine the process of quorum sensing activation and deactivation, as shown in Fig <ref type="figure" target="#fig_0">1B</ref>. Activation occurs as cells grow and AHLs accumulate over time. Cell density starts at 10 6 cell/ml and saturates at 10 11 cell/ml. Cells were initialized in the OFF state, using molecular concentrations listed in Table <ref type="table">A</ref> in S1 Text. As shown in Fig <ref type="figure" target="#fig_0">1C</ref>, the levels of quorum sensing-associated biomolecules undergo a transition from low steadystate concentrations (OFF state) to high steady-state concentrations (ON state).</p><p>Although a population of cells held at a high density will remain in the ON state indefinitely, it is possible for cells to transition back to the OFF state under certain conditions, such as if the population is diluted to a very low cell density. To investigate this deactivation process, the model examines a scenario where the cell density is abruptly reduced from 10 11 to 10 6 cell/ml, and the external AHL concentration is reset to zero. Following the dilution step, the concentrations of quorum sensing-associated biomolecules undergo changes due to several processes: dilution by cell division, intrinsic degradation, transport across the membrane, and dissociation and formation of molecular complexes. Consequently, the concentrations of the QS-associated biomolecules transition from the ON state to the OFF state levels. Moreover, the low concentration of signal in the environment favors loss of signal from inside the cell and therefore a decrease in the number of dimer complexes, resulting in a reduction in the positive feedback loop that promotes receptor and synthase production in the ON state of quorum sensing. Further cell growth and signal synthesis eventually will lead to QS reactivation. This paper examines the influence of molecular carry-over in initially ON cells on the reactivation dynamics and investigates the conditions in which the phenotypic memory of being in the ON state affects future activity states.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>Carry-over of biomolecules during the deactivation of quorum sensing</head><p>In Fig <ref type="figure" target="#fig_0">1B</ref>, a cartoon illustration depicts the process of removing a cell from a high cell density/ high AHL concentration environment. At low cell density, a reduced rate of gene expression along with dilution due to cell division results in a decrease in the concentration of QS-regulated molecules during deactivation. Simultaneously, the reactivation of quorum sensing occurs upon further growth and signal production, which results in increase in concentration of genes under QS regulation.</p><p>As seen in Fig <ref type="figure" target="#fig_0">1C</ref>, upon abrupt changes in cell density and external AHL concentration at t = 1500 min, the concentration of QS-regulated genes does not reach OFF-state concentrations instantly, there is a slow decrease in concentrations over a period of time. This transition from ON to OFF state, which occurs mainly due to cell division-mediated dilution, can take multiple generations. Similarly, the normalized concentrations of LuxR, LuxI, monomer, dimers, and the internal AHLs remain elevated for a period of time after the initial dilution. To better understand how multiple QS-related molecules contribute to QS phenotypic memory, the normalized concentration of each biomolecule during deactivation was fitted to an exponential decay equation C(t) = C ON e -γt +C OFF . Here C refers to the concentration of each biomolecule, and with C ON and C OFF denoting the characteristic concentrations of these molecules in the ON and OFF states respectively, as listed in Table <ref type="table">A</ref> in S1 Text. The degradation rate was calculated for LuxR dimers, LuxR monomers, and the total LuxR (the combination of unbound LuxR, bound LuxR, and dimer complex). As shown in Fig <ref type="figure" target="#fig_0">1D</ref>, The decay rate of internal AHLs is notably high, primarily due to their rapid diffusion across the cell membrane. When external AHLs are removed and cells are diluted to low cell density, the internal AHL concentration decreases to low levels. As a result, the levels of dimers, which are the stable form of LuxR in the ON state <ref type="bibr" target="#b38">[39]</ref>, decline due to the dissociation into monomers and the degradation of inherently unstable unbound LuxR proteins <ref type="bibr" target="#b24">[25]</ref>. This phenomenon leads to a concentration peak of LuxR that persists for approximately two generations. Synthase proteins, LuxI on the other hand, have the slowest decay rates mainly due to dilution by cell division. As seen in Fig <ref type="figure" target="#fig_0">1C</ref>, the transition from ON to OFF state for LuxI takes up to 4-5 generations. As a result, there are two important biomolecular sources encoding phenotypic memory in quorum sensing, LuxI and LuxR complexes. Due to the carry-over effect of LuxI, cells continue to produce AHLs at a higher rate than the basal level even after being removed from a high cell density environment. This results in a more rapid accumulation of AHLs as compared to signal production from a population of cells in the OFF state. Elevated levels of LuxR presumably make cells more responsive to sense the current AHL concentrations. Next, we explore if this molecular carry-over, QS memory, affects the dynamics of reactivation in a population of cells following dilution to low cell density.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>Phenotypic memory effect in quorum sensing</head><p>QS circuits can be approximated as a switch-like activation, requiring a critical signal concentration threshold associated with a critical cell density <ref type="bibr" target="#b39">[40]</ref>. This critical density, denoted as N C , is depicted in Fig <ref type="figure">A</ref> in S1 Text, in which the expression of QS-regulated genes is shown for populations grown to different maximum densities. As seen in this figure there is a significant increase in the concentration of QS-regulated genes at approximately 10 9.8 cell/ml. This critical density cell density (N C ), is defined as the cell density at which the steady-state concentration of the QS target gene reaches half the maximum value reached in the ON state. We postulated that cells previously in the ON state might reactivate QS at a lower cell density than N C , post dilution to a lower cell density, thereby retaining a memory of past exposure to high signal concentrations.</p><p>To test this hypothesis, we compared the activation of QS for cells starting in the ON and OFF states. Cells in initially ON state had the molecular concentration of cells grown to a density of 10 11 cell/ml. Cell in the initially OFF state had the molecular concentration of cells grown to a density of 10 7 cell/ml. These two populations were simulated with a starting density of N i = 10 8.5 and grew to three different final cell densities: I: N max = 10 8.7 (&lt;N c ), II: N max = 10 9.3 (�N c ) and III:: N max = 10 10 (&gt;N C ) cell/ml.</p><p>As shown in Fig <ref type="figure" target="#fig_1">2A</ref>, the initial activity state of the cells can determine the final activity state. For densities well below or above N C , the previous activity state of QS had no impact on the final activity state. However, for final cell densities near N C , the initial activity state of QS influenced the final activity state. Such history dependent behavior can be seen in Fig <ref type="figure" target="#fig_1">2A</ref>, when initially ON cells grown to 10 9.3 cell/mL ended up in ON state, while those initially in the QS OFF state remained in the QS OFF state despite reaching the same final cell density. Further simulations of cell growth to a range of final cell densities revealed there exists a range of final cell densities for which the final activity state depended on the initial activity state. As shown in Fig <ref type="figure" target="#fig_1">2B</ref>, we refer to this range of cell densities as the "memory zone". The range of final cell densities included in this memory zone was dependent on the initial density of the cells following dilution. For example, as shown in Fig <ref type="figure">B</ref> in S1 Text over dilution of cells to 10 7 cell/ml resulted in no memory zone, as in this case the time scale over which the memory of the QS ON state was retained was shorter than the time scale needed for reactivation of QS. Intuitively higher initial cell density leads to accelerated reactivation and the emergence of the memory effect. Conversely, excessive dilution prolongs the time needed for activation and diminishes the effects of the molecular carry-over during the activation process, thereby reducing the extent of the memory zone.</p><p>To further explore the effect of each biomolecule in emergence of the memory zone, starting from a high initial cell density, 10 8.5 cell/ml, we switched the value of each component in the initial conditions of the initially ON cells individually to OFF values and plotted the corresponding activation curve as shown in Fig <ref type="figure">C</ref> in S1 Text. This figure analyzed the isolated role of different molecular components on QS memory. Switching either dimers or LuxI to OFF values, leads to significant reduction in the memory zone, resulting in an activation curve that overlaps the initially OFF cells. Conversely, the impact of other components, namely unbound LuxR, monomer and the internal AHL concentration on width of memory zone was found to be minimal. This is expected since the dimers are the most abundant form of LuxR in initially ON cells due to stability in presence of AHL. Moreover, LuxI, is expected to encode memory of ON state by maintaining an elevated rate of AHL synthesis hence formation of new dimers and reactivation. These results demonstrate that the most influential phenotypic memory is stored within elevated concentrations of LuxR dimers and LuxI synthase proteins.</p><p>Moreover, we explored the reverse scenario by switching the value of each individual component in the initial conditions of the initially OFF cells to ON values and plotted the corresponding activation curve as shown in Fig <ref type="figure">C</ref> in S1 Text. As seen in this figure, only when both LuxI and dimer concentrations were switched to ON values the initially OFF cells activated at a lower critical cell density. This result is in agreements with the findings of Fig <ref type="figure">C</ref> in S1 Text and confirms that both the synthase and receptor encode the phenotypic memory in QS.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>Cellular parameters controlling the strength of phenotypic memory in quorum sensing</head><p>To further explore the other potential parameters influencing phenotypic memory in QS beyond the initial cell density, we developed a simplified analytical approach. This approach predicts the reduction in the critical cell density as a consequence of phenotypic memory.</p><p>In this model, we assume that the cells from the QS ON state are diluted to a new cell density, denoted as N 0 , where N 0 &lt; N C . Upon dilution, external signaling molecules are removed and initially set to a concentration of 0. As seen previously following the dilution, the internal concentration of signals decreases, causing the dissociation of bound receptors, particularly stable dimers, into unbound receptors and free signals. Although the dynamics of signalreceptor dissociation and rebinding depicted in the system of ordinary differential equations are intricate, we make several simplifications. Specifically, we consider that following the removal of signals and dilution, both the dimeric and monomeric configurations of LuxR molecules rapidly dissociate into individual AHL and LuxR units. This reservoir of receptors, referred to as total LuxR, remains transient before ultimately transitioning to the OFF state. This transient pool of additional LuxR within cells is hypothesized to heighten signal detection sensitivity relative to cells in the OFF state with lower LuxR concentrations. To examine this hypothesis via numerical simulations, we consider the instantaneous disassembly of dimers and monomers upon dilution. As a result, we substituted the LuxR concentration in both dimeric and monomeric forms within initially ON cells with values corresponding to the OFF state, while incorporating the respective values from the instant dissociation into the pool of unbound LuxR and internal AHL concentrations. In Fig <ref type="figure">C</ref> in S1 Text, the activation curve for initially ON cells under instant dissociation conditions is shown with a red dashed line. As seen in this figure, the small changes in the activation curves support the assumption of instantaneous dissociation of dimers and signal-bound monomers following the substitution.</p><p>Furthermore, presence of this free pool of LuxR, combined with the abundance of synthase proteins (LuxI) in initially ON cells, leads to a potentially accelerated rate of signal-receptor binding events <ref type="bibr" target="#b15">[16]</ref>, as the formation of complexes between LuxR and signal is a fundamental step for the transition back to the QS ON state. In this section we define activation as the formation of more than a threshold amount of signal bound LuxR.</p><p>To begin, we examine the effects resulting from the carry-over of LuxI proteins. Since external signals are removed during cell dilution, we assume that the LuxR dimers dissociate at the time of dilution, decreasing the concentration below the threshold required to sustain elevated production rates of QS-regulated genes. As a result, the rate of gene expression reverts to the basal rate. We assume LuxI is produced at a rate β I , equivalent to parameter k 5 in Eq 1 and degrades at a rate of γ I . Moreover we assume the decrease in concentration of LuxI after dilution is mainly due to dilution by cell division <ref type="bibr" target="#b40">[41]</ref>, setting γ I = γ to be the cell growth rate which is equivalent to parameter k 11 in Eq 1. Solving Eq 9, the changes in LuxI concentration, denoted with I, during the deactivation phase at time t after dilution can be determined as follows: </p><formula xml:id="formula_3" coords="10,338.80,440.29,237.17,71.92">dI dt ¼ À gI þ b I ; Eq 9 I t ð Þ ¼ b I g þ C I</formula><formula xml:id="formula_4" coords="11,307.90,97.01,137.68,13.55">I ON t¼0 ðtÞ ¼ I OFF ð1 þ ðFC À 1Þe À gt Þ:</formula></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>Eq 12</head><p>If we assume that each cell synthesizes AHLs at a rate proportional to the concentration of LuxI proteins within the cell, multiplied by a constant rate b, and that the AHLs are immediately released into the extracellular environment, we can calculate the rate of changes in accumulated concentration of autoinducer in the external environment, A, using Eq 13.</p><formula xml:id="formula_5" coords="11,337.44,183.75,238.56,22.90">dA dt ¼ v cell N t ð ÞbI t ð Þ: Eq 13</formula><p>This rate can be expressed as the multiplication of the cell volume v cell , the cell density N(t), and the AHL synthesis rate b, and the concentration of synthase proteins in each cell, denoted as I(t). The cell density N(t) can be described by the exponential growth equation:</p><formula xml:id="formula_6" coords="11,349.57,263.40,226.43,11.73">NðtÞ ¼ N 0 e gt : Eq 14</formula><p>where N 0 is the initial cell density after dilution, and γ, represents the growth rate constant. Moreover, we assume that the degradation of AHLs is negligible. By replacing I with the expression in Eq 12, we can calculate the accumulated AHL concentration, denoted as A, at time t after dilution of initially ON cells:</p><formula xml:id="formula_7" coords="11,281.48,342.53,294.52,30.23">A ON t¼0 ¼ v cell bI OFF Z t 0 NðtÞð1 þ ðFC À 1Þe À gt Þdt: Eq 15</formula><p>The integral in Eq 15 represents the cumulative AHL production over time, and the solution in Eq 16 provides an explicit expression for the accumulated AHL concentration for initially ON cells as a function of time.</p><formula xml:id="formula_8" coords="11,288.97,426.32,287.03,29.42">A ON t¼0 ¼ v cell bI OFF N 0 e gt À 1 g þ ðFC À 1Þt � � : Eq 16</formula><p>Eq <ref type="bibr" target="#b15">16</ref> includes two distinct terms. The first term, e gt À 1 g , characterizes the production of AHL molecules under OFF-level synthase concentration, denoted as I OFF , which is applicable to OFF cells. The subsequent term, (FC-1)t, is due to the elevated production of AHL molecules as a result of the heightened LuxI presence in initially ON cells. This term is proportional to the initial cell density and quantifies the carry-over effect of heightened levels of LuxI proteins on signal production. Eq 16 can be rewritten to highlight the contribution of the additional LuxI proteins present at t = 0 due to this carry-over effect.</p><formula xml:id="formula_9" coords="11,294.64,571.19,281.36,23.11">A ON t¼0 t ð Þ ¼ v cell bI OFF N 0 e gt À 1 g 1 þ xðtÞ ð Þ: Eq<label>17</label></formula><p>Here the term ξ(t), here referred to as the "LuxI memory" term, is given by ξ(t) = gðFCÀ 1Þt e gt À 1 . ξ(t) represents the ratio of the accumulated AHLs due to elevated level of LuxI in cells in the ON state over the accumulated AHLs due to basal production, equivalent to the AHL produced by initially OFF cells. For OFF cells, LuxI memory term is always zero, ξ(t) = 0.</p><p>In Fig <ref type="figure">D</ref> in S1 Text the LuxI memory term ξ(t) is depicted with respect to two parameters: the Fold Change (FC), and the doubling time = ln2/γ. Both plots demonstrate that the LuxI memory term is at a maximum at the time of dilution. Subsequently, this value gradually diminishes to zero as time progresses.</p><p>Next, we extend this analysis to include carry-over effects resulting from increased concentrations of the pool of LuxR receptor in QS ON cells. By combining the carry-over of LuxR with the increased signal production due to carry-over of LuxI, we can predict the overall contribution to the reformation of LuxR bound with signal.</p><p>As shown in Eq 18, diluting QS ON cells to a low cell density initiates a slow transition of the concentration of LuxR from R ON to R OFF , following:</p><formula xml:id="formula_10" coords="12,327.97,161.41,248.03,62.63">dR dt ¼ À g R R þ b R ; Eq 18 R ON t¼0 t ð Þ ¼ b R g R þ Ce À g R t ; Eq 19</formula><p>Here, the degradation of the total LuxR occurs with rate constant γ R = γ+ γ intrinsic , including both dilution by cell division and the rapid intrinsic degradation of LuxR in non-dimeric form.</p><p>Solving Eq 19, assuming complete deactivation as t!1, R ! R OFF ¼ b R g R , where R OFF represents the total LuxR concentration in the OFF state. On the other hand, at </p><formula xml:id="formula_11" coords="12,200.01,278.81,350.69,28.93">t = 0, R ON t¼0 ¼ b R g R þ C R ¼ R OFF þ C R .</formula><formula xml:id="formula_12" coords="12,303.99,356.89,145.79,13.49">R ON t¼0 ðtÞ ¼ R OFF ð1 þ ðFC À 1Þe À g R t Þ:</formula></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>Eq 20</head><p>In Eq 20, the concentration of receptors in the OFF state is denoted by R OFF , and R ON t¼0 ðtÞ is the concentration of total receptors (accounting for the dissociation of dimers and monomers) following dilution of QS ON cells at t = 0. The Fold Change (FC) is assumed to be the same for both LuxI and LuxR and is represented by FC.</p><p>The rate of formation of bound receptor is determined by a rate constant, here assumed to be equal to one for simplicity, multiplied by the accumulated AHL concentration from Eq 17, multiplied by the receptor concentration at time t after dilution from Eq 20. The formation rate of bound receptors can be written as:</p><formula xml:id="formula_13" coords="12,228.02,492.67,347.98,23.11">R ON t¼0 t ð Þ:A ON t¼0 t ð Þ ¼ R OFF v cell bI OFF N 0 e gt À 1 g 1 þ ðFC À 1Þe À g R t ð Þ 1 þ xðtÞ ð Þ: Eq 21</formula></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>Eq 21</head><p>can be rewritten by introducing the overall memory term, Θ(t), which accounts for the combined carry-over effects of both LuxI and LuxR.</p><formula xml:id="formula_14" coords="12,264.93,559.90,311.07,23.11">R ON t¼0 t ð Þ:A ON t¼0 t ð Þ ¼ v cell bR OFF I OFF N 0 e gt À 1 g 1 þ YðtÞ ð Þ; Eq 22</formula><p>In which,</p><formula xml:id="formula_15" coords="12,297.58,613.14,278.42,9.96">YðtÞ ¼ xðtÞ þ ðFC À 1Þe À g R t ð1 þ xðtÞÞ: Eq<label>23</label></formula><formula xml:id="formula_16" coords="12,211.98,637.36,17.11,9.14">Θ(t)</formula><p>comprises two distinct components. The first term ξ(t) accounts for the carry-over effects of LuxI, whereas the second term accounts for the carry-over effects associated with both LuxI and LuxR. The second introduces a second-order dependency on FC. This results in more substantial effects and a quicker decay, attributable to the parameter γ R .</p><p>Fig <ref type="figure" target="#fig_4">3A</ref> and 3B represent the overall memory term Θ(t), as a function of time past dilution, plotted against Fold Change (FC) and doubling time. In Fig <ref type="figure" target="#fig_4">3A</ref>, doubling time is fixed at 40 minutes, and FC values ranges from 1 to 10. It can be observed that the overall memory term dissipates over time, with a more pronounced effect observed for higher FC values.</p><p>In Fig <ref type="figure" target="#fig_4">3B</ref>, FC is set to 10, and the doubling time varies in range of 20 to 200 min. The overall memory term also dissipates over time, with a more pronounced effect seen for longer doubling times. Intuitively a higher doubling time results in a decrease in the ratio of AHL produced due to the basal rate, compared to the portion synthesized due to carry-over of LuxI in initially ON cells. Larger doubling times lead to a smaller dilution rate of receptors, resulting in a prolonged period of increased sensitivity to AHL concentrations. As shown in Fig <ref type="figure" target="#fig_4">3B</ref>, the overall memory term is nearly insensitive to changes in the doubling time when the doubling time is large.</p><p>We suspect the rapid degradation of LuxR in absence of AHL molecules, decreases the potential memory effect. The figures presented in Fig <ref type="figure">E</ref> in S1 Text depict the overall memory term Θ(t) plotted against Fold Change (FC) and doubling time, in the absence of rapid degradation of LuxR (γ intrinsic = 0 , γ R = γ). Both plots show that in the absence of rapid degradation of LuxR, the overall memory term remains elevated for a longer period. Furthermore, it can be observed from Fig <ref type="figure">E</ref> in S1 Text that the overall memory term is more strongly influenced by doubling times in the absence of rapid LuxR degradation, different than the results shown in Fig <ref type="figure" target="#fig_4">3B</ref> when rapid LuxR degradation is included. This highlights the impact of fast degradation of LuxR in its non-dimeric form in history-dependent behavior.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>Reactivation of quorum sensing in cells with quorum sensing memory</head><p>To further the analysis of QS reactivation following cell dilution, the rate of dimer formation can be calculated by rewriting Eq 22 in terms of changes in cell density over time, resulting in: To assess the contribution of the overall memory term to reactivation, we assume that once the binding reaction rate in Eq 24, reaches a threshold value, the cells transition instantaneously from the OFF to ON state and remain in a steady ON state indefinitely. We define the activity state as a step function, denoted with u, in response to the receptor-signal binding reaction rate as shown in Eq 24. We assume when this rate surpasses a certain threshed denoted with (R.A) Thresh , the activity state jumps from OFF to ON state here, represented by 0 and 1 states respectively.</p><formula xml:id="formula_17" coords="13,263.51,667.66,312.49,22.16">R ON t¼0 t ð Þ:A ON t¼0 t ð Þ ¼ v cell bR OFF I OFF NðtÞ À N 0 g 1 þ YðtÞ ð Þ: Eq 24</formula></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>Activity state ¼ uðRðtÞ:AðtÞ À ðR:AÞ Thresh Þ</head></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>Eq 25</head><p>Using Eq 24, the cell density at which reactivation occurs can be calculated. (R.A) Thresh = R OFF . A thresh , in which A thresh corresponds to the AHL concentration required for activation. Solving for N, the critical cell density required for activation of initially ON cells, denote by N 0 C , can be calculated:</p><formula xml:id="formula_18" coords="14,310.56,256.21,265.44,24.30">N 0 C ¼ g A thresh v cell bI OFF ð1 þ YðtÞÞ þ N 0 : Eq 26</formula><p>This approach can also calculate the cell density for reactivation of OFF cells, when the value of Θ(t) is zero. The critical cell density required for activation of initially OFF, N C is:</p><formula xml:id="formula_19" coords="14,334.55,324.92,241.45,24.36">N C ¼ g A thresh v cell bI off þ N 0 : Eq 27</formula><p>The memory zone is therefore defined as the range of N values that satisfy the inequality N 0 C &lt; N &lt; N C , corresponding to the range of cell densities for which initially OFF cells do not activate, but initially ON cells do reactivate. Where N C 0 and N C are determined using Eqs 26 and 27, respectively.</p><p>As seen in both Eqs 26 and 27, the critical cell density required for activation increases with initial cell density after dilution, N 0 . Moreover, it has been previously observed when cells are over-diluted with N 0 &lt;&lt;N C , activation curves for different dilution ratios overlap <ref type="bibr" target="#b41">[42]</ref>, leaving the value of the critical cell density unchanged, N C N 0 &lt;&lt;N C � gA thresh v cell bI off . This affect is due to the exponential growth within the time interval required for activation, and has been previously observed experimentally <ref type="bibr" target="#b15">[16,</ref><ref type="bibr" target="#b41">42]</ref>. By replacing N c with N 0 e gt activation , the time required for activation can be calculated as:</p><formula xml:id="formula_20" coords="14,320.71,510.91,255.28,34.81">t activation � 1 g ln gA thresh N 0 v cell bI off ! : Eq 28</formula><p>Hence smaller threshold A thresh , higher initial cell density N 0 , and higher AHL synthesis rate constant, b, are expected to reduce the time required for activation, regardless of the history of the activity state.</p><p>Moreover, higher doubling times always reduce the critical cell density required for activation with a second order dependency on gamma since</p><formula xml:id="formula_21" coords="14,416.75,612.56,106.34,17.19">I off ¼ b I g ; N C N 0 &lt;&lt;N C � g 2 A thresh v cell b b I</formula><p>The width of the memory zone region can be expressed as N C 0 -N C , and can be written as Eq 29.</p><formula xml:id="formula_22" coords="14,294.07,664.66,281.93,24.49">N C À N 0 C ¼ gA thresh v cell bI off YðtÞ 1 þ YðtÞ jt activation ON t¼0 : Eq 29</formula><p>As seen in Eq 29, when Θ(t) is small, the width of the memory zone increases with Θ(t) at activation time of initially ON cells, which itself is augmented with higher Fold Change and higher doubling times, and shorter time past dilution. Consequently, a reduced time for activation is anticipated to widen the memory zone region, as the decrease in Θ(t) over time diminishes the width memory zone. It's important to note that since 0 � YðtÞ 1þYðtÞ jt activation ON t¼0 &lt; 1; the width of the memory zone always falls between zero and gA thresh v cell bI off . width of zero occurs to the overall memory term at the reactivation time of initially ON cells converges to zero, Y t act ON t¼0 ! 0, resulting in no memory effect, and N C 0 -N C . Conversely, an infinitely large overall memory term at reactivation time (Y t act ON t¼0 ! 1), leads to N C 0 -N C , resulting in the maximum memory zone width of gA thresh v cell bI off . In Fig <ref type="figure" target="#fig_5">4A</ref> the QS activity state calculated from Eq 25, is shown for initially ON and initially OFF cells as a function of the Fold Change (FC) and cell density. The initial cell density in both cases is N 0 = 10 8 cell/ml, and cells were allowed to grow exponentially for 700 minutes.</p><p>As seen in this figure, for initially ON cells, at higher FC values, reactivation occurred at lower cell densities compared to initially OFF cells, resulting in the emergence of the memory zone, shown as purple region. The width of the memory zone varied depending on the FC values, narrowing for lower FC and widening for larger FC values. Such effect is a direct result of higher overall memory term values for higher Fold Changes.</p><p>In Fig <ref type="figure" target="#fig_5">4B</ref>, representing the activity state of initially ON and initially OFF cells, the initial cell density was reduced to 10 6 cell/ml. Regardless of the value of FC, the final activity states of initially ON and initially OFF cells overlap, reducing the width of memory zone to zero. In this case, the delayed reactivation due to over-dilution results in a nearly zero overall memory term at the time of reactivation. This observation aligns with the findings in Fig <ref type="figure">B</ref> in S1 Text, where over-dilution results in zero memory effect.</p><p>Fig <ref type="figure">F</ref> in S1 Text shows the activity state of initially ON and OFF cells as a function of doubling time and cell density. As expected, the width of the memory zone described as Eq 29 increases with Θ(t), which, in turn, increases higher doubling time, expands for higher doubling times. Additionally, an increase in doubling time leads to a lower critical cell density required for activation, regardless of the past history of activation.</p><p>Moreover, a high basal level of AHL production primes the switch and yields a stronger history-dependent behavior. Fig <ref type="figure">G</ref> in S1 Text shows the activity state of initially ON and initially OFF cells per cell density and the AHL basal synthesis rate constant, b, which varies between 0.01-0.1min -1 . The memory zone widens for higher b and shrinks for smaller values. Moreover, as expected from Eqs 26 and 27, higher b reduces the cell density required for activation for both initially ON and initially OFF cells individually, while expanding the memory zone through increasing the overall memory term Θ(t).</p><p>To assess the effect of autoinducer threshold required for activation on memory zone, A thresh values were varied between 10-100 nM. Fig <ref type="figure">G</ref> in S1 Text show the activity state of initially ON and initially OFF cells with respect to cell density and A thresh . As expected, the cell density required for activation increases with higher A thresh values for both initially ON and initially OFF cells, while the memory zone contracts with increased thresholds. Lower threshold values, like higher basal rate constant values (b), lead to earlier reactivation, enhancing the impact of molecular carry-over during reactivation.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>Discussion</head><p>Quorum sensing (QS) serves as a regulatory mechanism in bacteria, facilitating coordinated group behavior and optimizing fitness through the controlled production of valuable exoproducts. This mechanism is activated upon reaching a critical cell density <ref type="bibr" target="#b39">[40]</ref>. However, the understanding of whether the QS response depends solely on current cell density or is influenced by past activity states, indicating a memory effect, remains limited. This theoretical study aims to investigate the presence of phenotypic memory in QS, specifically focusing on the reduction in critical cell density required for activation as an indicator of memory. Our analysis revealed history of past exposure can affect the future response denoting a memory effect. With the critical cell density require for activation as a measure of phenotypic memory in QS, we showed previously ON cells can activate at a lower critical cell density compared to initially OFF cells.</p><p>Activation at lower critical cell densities is largely due to the carry-over of synthase proteins and receptors, which are predominantly in dimeric form in initially ON cells. An excess of synthases in these cells leads to an earlier accumulation of signals above baseline levels compared to initially OFF cells. This increased signal concentration boosts the rate of receptor binding reactions, potentially facilitating the formation of new dimers necessary for reactivation. Moreover, an initial surplus of receptors in ON cells enhances their sensitivity to current signal concentrations by accelerating receptor binding reactions, thus potentially enabling activation at lower cell densities compared to OFF cells. Furthermore, simulation results indicate that both LuxR, mainly in its stable dimeric form, and LuxI play critical roles in sustaining the memory effect by priming the quorum sensing (QS) switch. Substituting either the dimers or LuxI molecules with those from OFF cells results in a significant reduction in the memory effect. Additionally, replacing both LuxI and dimers with ON values in initially OFF cells led to earlier QS activation, emphasizing the role of these components in hastening the QS response. Interestingly, the presence of excess LuxR was found to be a crucial factor for earlier activation, irrespective of its configuration. Substituting dimeric LuxR with unbound forms did not alter the outcomes, suggesting that the availability of LuxR, rather than its dimeric configuration, plays a pivotal role in the activation process. We have shown that this molecular carry-over affects the reactivation specifically near the critical cell density required for activation, where the time required for activation is smaller. We further identified several influential parameters affecting the strength of the effect. This includes the initial cell density following a change in cell density, the Fold Change in gene expression, the threshold concentration for autoinducers, the basal rate of autoinducer synthesis, and the cell growth rate.</p><p>Whether activation at a lower cell density is advantageous or detrimental to a population of bacteria likely depends on the context. For example, previous studies have shown that quorum sensing is the optimal strategy for producing costly public goods when activation occurs at high cell density <ref type="bibr" target="#b42">[43,</ref><ref type="bibr" target="#b43">44]</ref>. Consequently, a significant phenotypic memory could hinder the effectiveness of quorum sensing, resulting in the production of public goods at non-optimal cell densities. Another potentially evolved strategy for minimizing significant memory effects in the system could involve non-linear degradation rates of receptors in the absence of autoinducers and the optimization of other cellular parameters, such as the autoinducer threshold and Fold Change.</p><p>Although phenotypic memory has been shown to provide advantages in fluctuating environments by optimizing long-term fitness in metabolic regulatory systems <ref type="bibr" target="#b10">[11,</ref><ref type="bibr" target="#b44">45,</ref><ref type="bibr" target="#b45">46]</ref>, its implications within QS systems remain unclear. Moreover, the optimal strategy for achieving fitness may vary depending on the temporal order and speed of environmental changes. For example, it has been shown that slower or diversified responses is preferred in rapidly changing environments, potentially surpassing strong memory effect <ref type="bibr" target="#b45">[46]</ref><ref type="bibr" target="#b46">[47]</ref><ref type="bibr" target="#b47">[48]</ref><ref type="bibr" target="#b48">[49]</ref><ref type="bibr" target="#b49">[50]</ref>. The potential disadvantages of QS memory might arise when environmental correlations that historically informed bacterial responses become decoupled due to these rapid environmental changes. In such scenarios, memory-based responses might no longer confer the appropriate adaptive advantages, leading to reduced fitness and possibly increased extinction risks <ref type="bibr" target="#b50">[51]</ref>. Additionally, the ability to adapt to changing environments often comes with a fitness cost for growth in stable environments <ref type="bibr" target="#b45">[46]</ref>.</p><p>In natural quorum sensing (QS) systems, fluctuations in cell density, signal concentration, or both, frequently occur. The nonlinear degradation of LuxR in the absence of signals prevents strong memory effects when there is a delay in growth after perturbation. Although LuxI content might not degrade significantly, as dilution by cell division does not occur, delays in growth still lead to degradation processes where receptor dimers dissociate, and unbound receptors degrade. Consequently, by the time favorable growth conditions resume, much of the receptor content may have already degraded, particularly if delays are prolonged, thereby nullifying the memory effect. In quorum sensing (QS) systems, cell density perturbations can occur while external signal concentrations remain unchanged. Enzymes like lactonases and acylases degrade signaling molecules <ref type="bibr" target="#b51">[52]</ref>, leading to a delayed activation of QS pathways and a reduction in memory effects. These enzymes act as a natural "reset" mechanism, modulating autoinducer levels to prevent the reactivation of QS pathways from residual high-density signals. This adjustment avoids unnecessary energy or virulence factor production and aligns QS responses more dynamically with the current environmental and cell density conditions.</p><p>Phenotypic memory in QS is presumably advantageous in periodically fluctuating environment. The disruption of quorum sensing activity through the removal of external autoinducers and reduction of cell density imposes a metabolic cost for re-synthesis of autoinducers <ref type="bibr" target="#b52">[53]</ref> until reactivation occurs. In such cases, carry-over effects can be advantageous, enabling cells to initiate a subsequent response at a lower metabolic cost and maximize fitness in the new environment. This memory effect is most prominent when the initial cell density is close to the critical cell density required for activation, ensuring that phenotypic memory is noticeable only when the reduction in cell density is relatively small. Moreover, research has demonstrated that in environments with extreme and random fluctuations, adopting a mixed strategy is often the most effective for survival <ref type="bibr" target="#b14">[15]</ref>. Phenotypic memory, in this context, resembles such a mixed strategy, enhancing survivability in unpredictably changing environments.</p><p>Ecologically, even transient phenotypic memory can influence interspecies relationships, potentially altering the pattern of associations between species. Additionally, it suggests that the phenotypic memory of species is likely to co-evolve <ref type="bibr" target="#b14">[15]</ref>. In environments subject to frequent changes, bacteria equipped with advanced QS memory capabilities can gain a distinct competitive advantage. This allows them to activate survival strategies and dominate ecological niches. Such advantages are especially critical during abrupt environmental changes that demand rapid responses for survival. Consequently, QS memory not only boosts the fitness of individual bacteria but also affects community-level interactions and stability, potentially leading to the development of dominant bacterial strains finely adapted to their fluctuating environments.</p><p>Regardless of whether phenotypic memory in QS serves an evolutionary adaptive advantage, it is crucial to study this phenomenon due to various implications in industry and medicine, including QS inhibitors. An example of this is bacteria detaching from a high cell density, QS "ON" environment and infecting small, confined spaces resembling high cell density conditions. This phenomenon is particularly observed in biofilms, where bacteria can disperse from a mature biofilm to colonize new surfaces. The dispersed cells can exhibit behaviors influenced by their previous high cell density environments, potentially accelerating the establishment of new biofilms in confined areas. Phenotypic memory in QS affects population dynamics by enabling faster responses to environmental changes, enhancing competitive advantages in resource utilization and colonization. Moreover, QS memory potentially equips bacteria to adapt more rapidly to environmental fluctuations, which can be crucial for survival in dynamic conditions such as nutrient availability and host immune responses. In pathogenic bacteria, QS memory can modulate the timing and intensity of virulence factor production, potentially affecting their ability to evade or suppress host defenses. Bacteria like Pseudomonas aeruginosa, known for its role in chronic infections, often utilize quorum sensing to regulate virulence and biofilm formation, adapting quickly to new environments after dispersing from their original colony. This adaptability is crucial in environments where rapid colonization is necessary for survival, such as in the human lungs during infection. Furthermore, the carry-over effects in QS reactivation can potentially influence the timing and strategy of therapeutic interventions, particularly in QS inhibition approaches. Phenotypic memory could be crucial in strategies for managing infections or treatments, especially considering the frequency and predictability of the environmental pressures involved. The presence of crosstalk and varying thresholds required for the detection to different types of signals <ref type="bibr" target="#b53">[54,</ref><ref type="bibr" target="#b54">55]</ref>, raises the possibility of a stronger or weaker memory effect in response to fluctuations in specific types of autoinducers, or cell type. This variability can potentially lead to varying degrees of history-dependent behavior, implying potential advantages within complex microbial communities.</p><p>It's worth noting that parameters affecting the QS memory exhibit significant variation across bacterial species and environmental conditions <ref type="bibr" target="#b7">[8,</ref><ref type="bibr" target="#b32">33,</ref><ref type="bibr" target="#b38">39,</ref><ref type="bibr" target="#b55">56,</ref><ref type="bibr" target="#b56">57]</ref>, potentially influencing the strength of the memory effect. For example, the range of Fold Change values in QS circuits can vary significantly, ranging from slightly above one to hundreds. For instance, in Vibrio harveyi, LuxR expression demonstrates a Fold Change value of approximately 8 <ref type="bibr" target="#b38">[39]</ref>. In contrast, the LasI/LasR system of Pseudomonas aeruginosa exhibits a high Fold Change in gene expression, with several hundred-fold increases in LasI and LasR expression at high cell density <ref type="bibr" target="#b55">[56,</ref><ref type="bibr" target="#b56">57]</ref>. In this case higher Fold Change facilitate increased production of virulence factors, enhancing competition and colonization of new environments. The optimal Fold Change values in QS circuits likely depend on additional cellular parameters and the fitness costs of differential expression of these genes in response to cell density, rather than solely controlling the carry-over effects. A lower threshold concentration results in activation at a lower critical cell density and a stronger history-dependent behavior upon reactivation. Most bacterial species exhibit threshold concentrations ranging from 10-50 nM, such as 25-50nM in Vibrio fisheri <ref type="bibr" target="#b32">[33]</ref>. For example, Vibrio cholerae and Staphylococcus aureus form biofilms at low autoinducer thresholds thereby low cell density <ref type="bibr" target="#b7">[8]</ref>. Low thresholds are advantageous when rapid responses to changing environmental conditions are needed. On the other hand, higher threshold levels result in delayed reactivation and dampening history-dependent behaviors. Similar to low threshold values, heightened rates of autoinducer production led to faster reactivation, enhancing memory effects. The intricate relationship between these parameters and QS responses in fluctuating environments necessitates further investigation.</p><p>Building upon previous experiments demonstrating the presence of phenotypic memory in bacteria <ref type="bibr" target="#b16">[17]</ref>, we propose to extend these studies to measure the effects of molecular carry-over in cells previously activated ('ON' state) compared to naive ('OFF') cells. Prior work has shown that when a high concentration of signal is added to cells previously in a quorum sensing active state, the carry-over effects led to a faster reactivation of quorum sensing <ref type="bibr" target="#b16">[17]</ref>. Future work should further probe quorum sensing memory, testing if carry-over of synthase proteins also changes reactivation dynamics, as predicted in this study. Experimentally probing the limits of QS memory would help determine the specific contexts in which this memory has an impact. To specifically investigate the effects of each biomolecule, the synthase and receptor proteins, genetic circuits could be designed to modulate the Fold Change and degradation rates of each protein independently. To closely mimic the environmental fluctuations that bacterial communities naturally encounter, we recommend exposing bacterial populations to periodically changing signal concentrations and cell densities using microfluidic chambers. Employing microfluidic platforms will enable precise control over experimental conditions <ref type="bibr" target="#b10">[11,</ref><ref type="bibr" target="#b57">58]</ref>, providing insights into how QS systems adapt over time to dynamic signal environments. The role of cell division and protein degradation in QS memory should also be explored, as these are key factors that set the duration of phenotypic memory. Our findings demonstrated that systems with a high Fold Change, low activation threshold, and high basal levels of signal synthesis exhibit the strongest memory effects, and these results could be experimentally validated. Such studies will not only corroborate our theoretical findings but also expand our understanding of microbial communication in fluctuating environments, potentially leading to novel strategies for managing microbial populations.</p><p>It is worth noting that throughout this study the single cell heterogeneity in response was not considered. As a consequence of single cell heterogeneity <ref type="bibr" target="#b58">[59]</ref> the population level activation does not necessarily follow a step function, resulting in a graded response <ref type="bibr" target="#b59">[60]</ref>. This graded response can, in turn, affect the impact of molecular memory on reactivation. Further study is needed to explore these effects in the emergence of phenotypic memory in quorum sensing.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>Conclusion</head><p>In conclusion, investigating the factors influencing phenotypic memory in quorum sensing would provide valuable insights into how bacteria respond to changing environments and optimize their fitness. This knowledge could inform the development of innovative approaches for regulating and manipulating quorum sensing circuits, with potential applications in biotechnology and therapeutics.</p></div><figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_0" coords="6,200.01,368.13,371.21,6.80;6,200.01,377.66,368.65,6.80;6,200.01,387.12,368.01,6.80;6,200.01,396.65,365.94,6.80;6,200.01,406.12,346.93,6.80;6,200.01,415.64,353.18,6.80;6,200.01,425.17,360.39,6.80;6,200.01,434.63,287.81,6.80;6,200.01,450.17,150.50,6.80;6,200.01,78.01,361.87,281.99"><head>Fig 1 .</head><label>1</label><figDesc>Fig 1. Dynamics of quorum sensing activation and deactivation. A) Schematic representation of the LuxR-LuxI QS regulatory circuit. B) Cartoon illustration of QS activation and deactivation. Upon dilution of cells to low cell density and removal of extracellular autoinducer, levels of QS-dependent genes begin to decrease. As cells grow and produce signal, QS reactivates. Reactivation is potentially influenced by molecular memory of being in the QS active state. C) Simulations examined the concentration of QS-regulated molecules as a population of cells activated and then deactivated QS. As cell density increased, QS-regulated molecules transitioned from low to high concentrations. Eventually cell growth and signal production resulted in the reactivation of QS. D) Simulation results were used to calculate the maximum decay rates for each QS-regulated biomolecule during deactivation. https://doi.org/10.1371/journal.pcbi.1011696.g001</figDesc><graphic coords="6,200.01,78.01,361.87,281.99" type="bitmap" /></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_1" coords="8,177.62,653.41,389.76,6.80;8,177.62,662.88,63.07,6.80;8,240.66,661.10,7.04,4.53;8,249.39,662.88,147.09,8.18;8,396.45,661.10,7.04,4.53;8,403.43,662.88,58.14,8.18;8,461.48,661.10,7.04,4.53;8,468.51,662.88,74.52,8.18;8,542.95,661.10,5.71,4.53;8,548.62,662.88,14.03,8.18;8,177.62,672.40,361.70,6.80;8,177.62,681.87,392.58,6.80;8,177.62,691.40,207.92,6.80;8,385.51,689.61,7.04,4.53;8,392.49,691.40,11.74,6.80;8,404.16,689.61,9.88,4.53;8,415.73,691.40,23.62,6.80;8,177.62,706.87,150.55,6.80;8,177.62,285.96,398.38,359.26"><head>Fig 2 .</head><label>2</label><figDesc>Fig 2. Phenotypic memory impacts QS reactivation near the critical cell density. A, top) Populations of cells were grown from a density of 10 8.5 cell/ml to three final cell densities: I: N max = 10 8.7 &lt;N c , II: N max = 10 9.3 �N c , and III: N max = 10 10 &gt;N c cell/ml. A, bottom) Normalized QS target gene expression levels for cells initially in the QS ON and QS OFF states, corresponding to each final cell density. B) Normalized expression levels of the QS-regulated gene for cells initially in the QS ON and QS OFF states, at the final cell densities in the range of 10 8.5 -10 10.5 cell/ml. https://doi.org/10.1371/journal.pcbi.1011696.g002</figDesc><graphic coords="8,177.62,285.96,398.38,359.26" type="bitmap" /></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_2" coords="10,396.51,497.04,4.00,9.24;10,400.54,495.45,9.06,5.10;10,410.29,496.85,2.70,8.50;10,553.49,496.85,22.51,8.50;10,200.02,532.11,45.65,10.22;10,247.86,532.11,254.10,9.43;10,501.96,537.40,10.71,5.54;10,515.96,532.11,7.70,8.50;10,526.45,530.20,5.02,6.86;10,527.98,538.19,2.62,5.10;10,532.18,532.11,28.73,8.50;10,200.02,547.19,331.83,9.60;10,200.01,561.72,3.35,9.24;10,203.36,566.88,16.33,6.74;10,223.60,561.53,7.70,8.50;10,234.09,559.62,5.02,6.92;10,235.62,567.67,2.62,5.10;10,242.02,561.53,16.27,9.43;10,258.29,566.88,2.01,5.54;10,263.85,561.53,13.84,9.43;10,277.68,566.88,10.57,5.54;10,291.12,561.53,16.27,9.43;10,307.39,566.88,2.01,5.54;10,310.17,561.53,240.23,10.22;10,552.53,561.53,14.08,8.50;10,200.02,576.67,72.53,10.16;10,274.68,576.67,79.26,9.54;10,353.93,581.96,16.50,6.74;10,373.61,576.67,184.64,8.50;10,200.01,591.24,369.47,9.60;10,200.01,604.28,18.95,10.16;10,221.16,604.28,278.43,9.43;10,308.24,629.19,3.35,9.24;10,311.58,634.29,16.33,6.74;10,329.05,629.00,27.67,9.43;10,356.77,634.29,10.57,5.54;10,370.15,629.00,17.12,8.50;10,387.27,634.29,8.48,5.54;10,398.78,629.00,13.27,9.43;10,412.10,634.29,10.57,5.54;10,423.27,629.00,7.85,8.50;10,431.09,627.54,9.11,5.10;10,440.90,629.00,2.70,8.50;10,553.49,629.00,22.51,8.50;10,200.02,658.14,29.83,9.43;10,229.83,663.43,16.50,6.80;10,247.35,658.14,314.24,9.43;10,200.01,672.76,248.38,10.16;10,448.33,672.77,116.69,8.50;10,200.01,686.82,118.87,10.16;10,318.84,686.82,239.90,8.50;10,561.71,684.91,9.11,6.80;10,560.92,693.02,10.85,6.74;10,572.32,686.82,2.29,8.50;10,200.02,702.30,366.45,8.50;11,200.01,77.89,365.97,8.50"><figDesc>e À gt ; Eq 10 in which C I is constant. In the case of complete deactivation, as t!1, I ! I OFF ¼ b I g , where I OFF represents the LuxI concentration in the OFF state. On the other hand, at t = 0, I ON t¼0 ¼ b I g þ C I ¼ I OFF þ C I . Therefore, since cells are initially in the ON state at t = 0, C I can be calculated as C I = I ON -I OFF , where I ON t¼0 denotes the LuxI concentration in initially ON cells and I ON denotes the LuxI concentration in the ON steady state. By substituting the value of C I in Eq 10, we can obtain the value of I(t) in initially ON cells as follows: I ON t¼0 ðtÞ ¼ I OFF þ ðI ON À I OFF Þe À gt ; Eq 11 where I ON t¼0 ðtÞ denotes the LuxI concentration at time t past dilution initially ON cells. The ratio of the LuxI concentration in the ON state, denoted as I ON , to the LuxI concentration in the OFF state, denoted as I OFF , is defined as the Fold Change (FC), and can be expressed as I ON I OFF . Fold change in expression of a target gene expressed under QS regulation is a measure of the promoter activity in active to inactive states. Using this definition, Eq 11 can be rewritten as:</figDesc></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_3" coords="12,287.04,294.79,229.62,10.16;12,518.63,294.79,50.25,8.50;12,200.02,310.21,41.17,10.22;12,243.16,310.21,84.79,9.60;12,327.97,315.56,16.33,6.74;12,347.47,310.21,210.28,8.50;12,200.01,324.84,371.23,9.54;12,200.01,337.82,82.22,10.22;12,284.26,337.82,144.77,9.43;12,429.05,343.11,16.16,6.80;12,446.34,337.82,128.83,8.50"><figDesc>Therefore, since cells are initially in the ON state at t = 0, C R can be calculated as C R = R ON -R OFF , where R ON t¼0 denotes the concentration of total LuxR in initially ON cells at time t, and R ON denotes the concentration of total LuxR in the ON steady state. By substituting the value of C R in Eq 19, we can obtain the value of R ON t¼0 ðtÞ in initially ON cells as follows:</figDesc></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_4" coords="13,72.00,295.17,490.66,7.14;13,72.00,304.69,495.09,7.14;13,72.00,314.16,9.42,6.80;13,72.00,329.69,150.50,6.80;13,72.00,78.01,504.00,209.03"><head>Fig 3 .</head><label>3</label><figDesc>Fig 3. Overall memory term dependency on time after dilution, Fold Change, and doubling time. A) Overall memory term, Θ vs time after dilution as a function of Fold Change. Doubling time is set to 40 min. B) Overall memory term, Θ vs time after dilution as a function of doubling time. Fold Change set to 10. https://doi.org/10.1371/journal.pcbi.1011696.g003</figDesc><graphic coords="13,72.00,78.01,504.00,209.03" type="bitmap" /></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_5" coords="15,72.00,643.89,497.74,6.80;15,72.00,653.41,490.02,6.80;15,72.00,662.88,493.08,6.80;15,72.00,672.40,348.06,6.80;15,419.98,670.62,2.87,4.53;15,424.57,672.40,127.52,7.54;15,72.00,680.14,491.37,8.53;15,72.00,689.71,354.97,9.80;15,426.95,691.55,8.25,7.39;15,435.12,689.71,8.13,8.48;15,72.00,706.87,150.50,6.80;15,72.00,450.94,504.00,184.76"><head>Fig 4 .</head><label>4</label><figDesc>Fig 4. The effect of Fold Change and initial cell density on the emergence of the memory zone. The colored regions indicate the state of the cells as density increases. In region I (blue) cells are in the OFF state, in region III (pink) cells are in the ON state, and in region II (purple) the activity state depends on the initial activity state. Solid and dashed lines indicate the boundary between regions I and III for cells in initially OFF or ON states. Cells grow for 700 min, the doubling time is set to 40min, and the Fold Change is kept constant at 10. A) The initial cell density is set to 10 8 cell/ml. Higher FC values result in wider memory zone B) The initial cell density is reduced to 10 6 cell/ml, resulting in a delayed reactivation and a decrease in the width of the memory zone to zero. For these calculations γ = 017min -1 , b = 0.04min -1 , I OFF = 1000nM, A thresh = 20nM, γ R = 0.018min -1 , v cell = 10 -12 ml -1 . https://doi.org/10.1371/journal.pcbi.1011696.g004</figDesc><graphic coords="15,72.00,450.94,504.00,184.76" type="bitmap" /></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" type="table" xml:id="tab_0" coords="4,36.00,77.92,514.19,260.46"><head>Table 1 .</head><label>1</label><figDesc>Model parameters.</figDesc><table coords="4,58.79,92.78,491.40,245.61"><row><cell>Parameter</cell><cell>Value</cell><cell>Description</cell><cell>Reference</cell></row><row><cell>k -1</cell><cell>10[min -1]</cell><cell>Dissociation rate of monomer (RA)</cell><cell>[4]</cell></row><row><cell>k -2</cell><cell>1[min -1]</cell><cell>Dissociation rate of dimer (C)</cell><cell>[4]</cell></row><row><cell>k d1</cell><cell>100[nM]</cell><cell>Dissociation constant of monomer (RA)</cell><cell>[4, 27]</cell></row><row><cell>k d2</cell><cell>20[nM]</cell><cell>Dissociation constant of dimer (C)</cell><cell>[4]</cell></row><row><cell>k 1 = k -1 /kd1</cell><cell>0.1[nM -1min -1]</cell><cell>Monomer (RA) formation rate</cell><cell>[4]</cell></row><row><cell>k 2 = k -2 /kd2</cell><cell>0.05[nM -1min -1]</cell><cell>Dimer (C) formation rate</cell><cell>[4]</cell></row><row><cell>b</cell><cell>0.04[min -1]</cell><cell>Synthesis rate of AHL by LuxI</cell><cell>[4]</cell></row><row><cell>D</cell><cell>10[min -1]</cell><cell>Diffusion rate of AHL through the cell membrane</cell><cell>[4, 28]</cell></row><row><cell>k 3</cell><cell>80 [nM -1min -1]</cell><cell>Activated expression rate of LuxI</cell><cell>estimated**</cell></row><row><cell>k 4</cell><cell>80 [nM -1min -1]</cell><cell>Activated expression rate of LuxR</cell><cell>estimated**</cell></row><row><cell>k 5</cell><cell>8 [nM -1min -1]</cell><cell>Basal expression rate of LuxI</cell><cell>estimated*</cell></row><row><cell>k 6</cell><cell>8 [nM -1min -1]</cell><cell>Basal expression rate of LuxR</cell><cell>estimated*</cell></row><row><cell>k dR = k dI</cell><cell>100 [nM]</cell><cell>Dimer (C) concentration at half maximum activity</cell><cell>estimated ***</cell></row><row><cell>k 7</cell><cell>0.006[min -1]</cell><cell>Degradation rate of LuxI</cell><cell>[29]</cell></row><row><cell>k 8</cell><cell>0.15[min -1]</cell><cell>Degradation rate of LuxR and monomer (RA)</cell><cell>[29]</cell></row><row><cell>k 9</cell><cell>0.005[min -1]</cell><cell>Degradation rate of AHL</cell><cell>[30]</cell></row><row><cell>k 11</cell><cell>0.017[min -1]</cell><cell>Growth rate</cell><cell>doubling time � 40min</cell></row><row><cell>k 10</cell><cell>0.5[nM -1min -1]</cell><cell>Basal expression rate of QS target gene (G)</cell><cell>Estimated</cell></row><row><cell>r</cell><cell>10 -12 ml</cell><cell>v cell</cell><cell></cell></row></table></figure>
+			<note xmlns="http://www.tei-c.org/ns/1.0" place="foot" xml:id="foot_0"><p>PLOS Computational Biology | https://doi.org/10.1371/journal.pcbi.1011696 July 8, 2024</p></note>
+		</body>
+		<back>
+
+			<div type="funding">
+<div><p>This work was supported by funding from <rs type="funder">NSF</rs> grant No. <rs type="grantNumber">PHY-1753268</rs> (JQB) and the <rs type="funder">Army Research Office MURI</rs> Award No.</p></div>
+			</div>
+			<listOrg type="funding">
+				<org type="funding" xml:id="_A7TndFz">
+					<idno type="grant-number">PHY-1753268</idno>
+				</org>
+			</listOrg>
+
+			<div type="availability">
+<div xmlns="http://www.tei-c.org/ns/1.0"><p>All relevant data are within the manuscript and its Supporting Information files.</p></div>
+			</div>
+
+
+			<div type="conflict">
+<div xmlns="http://www.tei-c.org/ns/1.0"><p>The authors have declared that no competing interests exist.</p></div>
+			</div>
+
+
+			<div type="contribution">
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>Author Contributions</head><p>Conceptualization: Ghazaleh Ostovar, James Q. Boedicker.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>Data curation: Ghazaleh Ostovar.</head></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>Formal analysis: Ghazaleh Ostovar.</head><p>Investigation: Ghazaleh Ostovar.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>Methodology: Ghazaleh Ostovar.</head><p>Project administration: James Q. Boedicker.</p><p>Resources: James Q. Boedicker.</p><p>Software: Ghazaleh Ostovar. Supervision: James Q. Boedicker.</p><p>Validation: Ghazaleh Ostovar.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>Visualization: Ghazaleh Ostovar.</head><p>Writing -original draft: Ghazaleh Ostovar, James Q. Boedicker.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>Writing -review &amp; editing:</head><p>Ghazaleh Ostovar, James Q. Boedicker.</p></div>
+			</div>
+
+			<div type="annex">
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>Supporting information</head></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>S1 Text. Supporting figures and table. S1 Text contains supporting Figs</head> <ref type="figure">A-G</ref> <p>and Table A with concentration values used in simulations. (DOCX) <ref type="url" target="http://journals.plos.org/ploscompbiol/article/asset?unique&amp;id=info:doi/10.1371/journal.pcbi.1011696.s002">S1 Appendix</ref>. S1 Appendix contains a table of data used to generate all main text figures. (XLSX)</p></div>			</div>
+			<div type="references">
+
+				<listBibl>
+
+<biblStruct status="extracted" xml:id="b0">
+	<analytic>
+		<title level="a" type="main">Quorum sensing: cell-to-cell communication in bacteria</title>
+		<author>
+			<persName><forename type="first">C</forename><forename type="middle">M</forename><surname>Waters</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">B</forename><forename type="middle">L</forename><surname>Bassler</surname></persName>
+		</author>
+		<idno type="DOI">10.1146/annurev.cellbio.21.012704.131001</idno>
+		<idno type="PMID">16212498</idno>
+		<ptr target="https://doi.org/10.1146/annurev.cellbio.21.012704.131001" />
+	</analytic>
+	<monogr>
+		<title level="j">Annu Rev Cell Dev Biol</title>
+		<imprint>
+			<biblScope unit="volume">21</biblScope>
+			<biblScope unit="page" from="319" to="346" />
+			<date type="published" when="2005">2005</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct status="extracted" xml:id="b1">
+	<analytic>
+		<title level="a" type="main">Quorum sensing: the explanation of a curious phenomenon reveals a common characteristic of bacteria</title>
+		<author>
+			<persName><forename type="first">J</forename><forename type="middle">W</forename><surname>Hastings</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">E</forename><forename type="middle">P</forename><surname>Greenberg</surname></persName>
+		</author>
+		<idno type="DOI">10.1128/JB.181.9.2667-2668.1999</idno>
+		<idno type="PMID">10217751</idno>
+		<ptr target="https://doi.org/10.1128/JB" />
+	</analytic>
+	<monogr>
+		<title level="j">Journal of bacteriology</title>
+		<imprint>
+			<biblScope unit="volume">181</biblScope>
+			<biblScope unit="issue">9</biblScope>
+			<biblScope unit="page" from="2667" to="2668" />
+			<date type="published" when="1999">1999. 1999</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct status="extracted" xml:id="b2">
+	<analytic>
+		<title level="a" type="main">Lactone Quorum Sensing: From Evolution to Application</title>
+		<author>
+			<persName><forename type="first">M</forename><surname>Schuster</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Joseph</forename><surname>Sexton</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">D</forename><surname>Diggle</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">S</forename><forename type="middle">P</forename></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Peter</forename><surname>Greenberg</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">E</forename><surname>Acyl-Homoserine</surname></persName>
+		</author>
+		<idno type="DOI">10.1146/annurev-micro-092412-155635</idno>
+		<idno type="PMID">23682605</idno>
+		<ptr target="https://doi.org/10.1146/annurev-micro-092412-155635" />
+	</analytic>
+	<monogr>
+		<title level="j">Annual Review of Microbiology</title>
+		<imprint>
+			<biblScope unit="volume">67</biblScope>
+			<biblScope unit="issue">1</biblScope>
+			<biblScope unit="page" from="43" to="63" />
+			<date type="published" when="2013">2013</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct status="extracted" xml:id="b3">
+	<analytic>
+		<title level="a" type="main">Dynamics of the quorum sensing switch: stochastic and non-stationary effects</title>
+		<author>
+			<persName><forename type="first">M</forename><surname>Weber</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><surname>Buceta</surname></persName>
+		</author>
+		<idno type="DOI">10.1186/1752-0509-7-6</idno>
+		<idno type="PMID">23324134</idno>
+		<ptr target="https://doi.org/10.1186/1752-0509-7-6" />
+	</analytic>
+	<monogr>
+		<title level="j">BMC systems biology</title>
+		<imprint>
+			<biblScope unit="volume">7</biblScope>
+			<biblScope unit="issue">6</biblScope>
+			<date type="published" when="2013">2013</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct status="extracted" xml:id="b4">
+	<analytic>
+		<title level="a" type="main">Robust and sensitive control of a quorum-sensing circuit by two interlocked feedback loops</title>
+		<author>
+			<persName><forename type="first">J</forename><forename type="middle">W</forename><surname>Williams</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">X</forename><surname>Cui</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><surname>Levchenko</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><forename type="middle">M</forename><surname>Stevens</surname></persName>
+		</author>
+		<idno type="DOI">10.1038/msb.2008.70</idno>
+		<idno type="PMID">19096361</idno>
+		<ptr target="https://doi.org/10.1038/msb.2008.70" />
+	</analytic>
+	<monogr>
+		<title level="j">Molecular systems biology</title>
+		<imprint>
+			<biblScope unit="volume">4</biblScope>
+			<biblScope unit="issue">1</biblScope>
+			<biblScope unit="page">234</biblScope>
+			<date type="published" when="2008">2008</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct status="extracted" xml:id="b5">
+	<analytic>
+		<title level="a" type="main">Quorum sensing and environmental adaptation in Pseudomonas aeruginosa: a tale of regulatory networks and multifunctional signal molecules</title>
+		<author>
+			<persName><forename type="first">P</forename><surname>Williams</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><surname>Camara</surname></persName>
+		</author>
+		<idno type="DOI">10.1016/j.mib.2009.01.005</idno>
+		<idno type="PMID">19249239</idno>
+		<ptr target="https://doi.org/10.1016/j.mib.2009.01.005" />
+	</analytic>
+	<monogr>
+		<title level="j">Curr Opin Microbiol</title>
+		<imprint>
+			<biblScope unit="volume">12</biblScope>
+			<biblScope unit="issue">2</biblScope>
+			<biblScope unit="page" from="182" to="191" />
+			<date type="published" when="2009">2009</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct status="extracted" xml:id="b6">
+	<analytic>
+		<title level="a" type="main">Local and global consequences of flow on bacterial quorum sensing</title>
+		<author>
+			<persName><forename type="first">M</forename><forename type="middle">K</forename><surname>Kim</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">F</forename><surname>Ingremeau</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><surname>Zhao</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">B</forename><forename type="middle">L</forename><surname>Bassler</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">H</forename><forename type="middle">A</forename><surname>Stone</surname></persName>
+		</author>
+		<idno type="DOI">10.1038/nmicrobiol.2015.5</idno>
+		<idno type="PMID">27571752</idno>
+		<ptr target="https://doi.org/10.1038/nmicrobiol.2015.5" />
+	</analytic>
+	<monogr>
+		<title level="j">Nature microbiology</title>
+		<imprint>
+			<biblScope unit="volume">1</biblScope>
+			<biblScope unit="page">15005</biblScope>
+			<date type="published" when="2016">2016</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct status="extracted" xml:id="b7">
+	<analytic>
+		<title level="a" type="main">Bacterial quorum sensing in complex and dynamically changing environments</title>
+		<author>
+			<persName><forename type="first">S</forename><surname>Mukherjee</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">B</forename><forename type="middle">L</forename><surname>Bassler</surname></persName>
+		</author>
+		<idno type="DOI">10.1038/s41579-019-0186-5</idno>
+		<idno type="PMID">30944413</idno>
+		<ptr target="https://doi.org/10.1038/s41579-019-0186-5" />
+	</analytic>
+	<monogr>
+		<title level="j">Nature Reviews Microbiology</title>
+		<imprint>
+			<biblScope unit="volume">17</biblScope>
+			<biblScope unit="issue">6</biblScope>
+			<biblScope unit="page" from="371" to="382" />
+			<date type="published" when="2019">2019</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct status="extracted" xml:id="b8">
+	<analytic>
+		<title level="a" type="main">A mathematical model for quorum sensing in Pseudomonas aeruginosa</title>
+		<author>
+			<persName><forename type="first">J</forename><forename type="middle">D</forename><surname>Dockery</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><forename type="middle">P</forename><surname>Keener</surname></persName>
+		</author>
+		<idno type="DOI">10.1006/bulm.2000.0205</idno>
+		<idno type="PMID">11146885</idno>
+		<ptr target="https://doi.org/10.1006/bulm.2000.0205" />
+	</analytic>
+	<monogr>
+		<title level="j">Bulletin of mathematical biology</title>
+		<imprint>
+			<biblScope unit="volume">63</biblScope>
+			<biblScope unit="issue">1</biblScope>
+			<biblScope unit="page" from="95" to="116" />
+			<date type="published" when="2001">2001</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct status="extracted" xml:id="b9">
+	<analytic>
+		<title level="a" type="main">Memory in microbes: quantifying history-dependent behavior in a bacterium</title>
+		<author>
+			<persName><forename type="first">D</forename><forename type="middle">M</forename><surname>Wolf</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">L</forename><surname>Fontaine-Bodin</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">I</forename><surname>Bischofs</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">G</forename><surname>Price</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><surname>Keasling</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><forename type="middle">P</forename><surname>Arkin</surname></persName>
+		</author>
+		<idno type="DOI">10.1371/journal.pone.0001700</idno>
+		<idno type="PMID">18324309</idno>
+		<ptr target="https://doi.org/10.1371/journal.pone.0001700" />
+	</analytic>
+	<monogr>
+		<title level="j">PLOS one</title>
+		<imprint>
+			<biblScope unit="volume">3</biblScope>
+			<biblScope unit="issue">2</biblScope>
+			<biblScope unit="page">1700</biblScope>
+			<date type="published" when="2008">2008</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct status="extracted" xml:id="b10">
+	<analytic>
+		<title level="a" type="main">Memory and fitness optimization of bacteria under fluctuating environments</title>
+		<author>
+			<persName><forename type="first">G</forename><surname>Lambert</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">E</forename><surname>Kussell</surname></persName>
+		</author>
+		<idno type="DOI">10.1371/journal.pgen.1004556</idno>
+		<idno type="PMID">25255314</idno>
+		<ptr target="https://doi.org/10.1371/journal.pgen.1004556" />
+	</analytic>
+	<monogr>
+		<title level="j">PLoS genetics</title>
+		<imprint>
+			<biblScope unit="volume">10</biblScope>
+			<biblScope unit="issue">9</biblScope>
+			<biblScope unit="page">1004556</biblScope>
+			<date type="published" when="2014">2014</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct status="extracted" xml:id="b11">
+	<analytic>
+		<title level="a" type="main">Multigenerational memory and adaptive adhesion in early bacterial biofilm communities</title>
+		<author>
+			<persName><forename type="first">C</forename><forename type="middle">K</forename><surname>Lee</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">De</forename><surname>Anda</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><surname>Baker</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><forename type="middle">E</forename><surname>Bennett</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">R</forename><forename type="middle">R</forename><surname>Luo</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Y</forename><surname>Lee</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">E</forename><forename type="middle">Y</forename></persName>
+		</author>
+		<idno type="DOI">10.1073/pnas.1720071115</idno>
+		<idno type="PMID">29559526</idno>
+		<ptr target="https://doi.org/10.1073/pnas.1720071115" />
+	</analytic>
+	<monogr>
+		<title level="j">Proceedings of the National Academy of Sciences</title>
+		<imprint>
+			<biblScope unit="volume">115</biblScope>
+			<biblScope unit="issue">17</biblScope>
+			<biblScope unit="page" from="4471" to="4476" />
+			<date type="published" when="2018">2018</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct status="extracted" xml:id="b12">
+	<analytic>
+		<title level="a" type="main">Phenotypic memory in Bacillus subtilis links dormancy entry and exit by a spore quantity-quality tradeoff</title>
+		<author>
+			<persName><forename type="first">A</forename><surname>Mutlu</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">S</forename><surname>Trauth</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><surname>Ziesack</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">K</forename><surname>Nagler</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J-P</forename><surname>Bergeest</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">K</forename><surname>Rohr</surname></persName>
+		</author>
+		<idno type="DOI">10.1038/s41467-017-02477-1</idno>
+		<idno type="PMID">29302032</idno>
+		<ptr target="https://doi.org/10.1038/s41467-017-02477-1" />
+	</analytic>
+	<monogr>
+		<title level="j">Nature Communications</title>
+		<imprint>
+			<biblScope unit="volume">9</biblScope>
+			<biblScope unit="issue">1</biblScope>
+			<biblScope unit="page">69</biblScope>
+			<date type="published" when="2018">2018</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct status="extracted" xml:id="b13">
+	<analytic>
+		<title level="a" type="main">Phenotypic memory drives population growth and extinction risk in a noisy environment</title>
+		<author>
+			<persName><forename type="first">M</forename><surname>Rescan</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">D</forename><surname>Grulois</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">E</forename><surname>Ortega-Aboud</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">L-M</forename><surname>Chevin</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Nature ecology &amp; evolution</title>
+		<imprint>
+			<biblScope unit="volume">4</biblScope>
+			<biblScope unit="issue">2</biblScope>
+			<biblScope unit="page" from="193" to="201" />
+			<date type="published" when="2020">2020</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct status="extracted" xml:id="b14">
+	<analytic>
+		<title level="a" type="main">The adaptive advantage of phenotypic memory in changing environments</title>
+		<author>
+			<persName><forename type="first">E</forename><surname>Jablonka</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">B</forename><surname>Oborny</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">I</forename><surname>Molnar</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">E</forename><surname>Kisdi</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><surname>Hofbauer</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">T</forename><surname>Czaran</surname></persName>
+		</author>
+		<idno type="DOI">10.1098/rstb.1995.0147</idno>
+		<idno type="PMID">8577857</idno>
+		<ptr target="https://doi.org/10.1098/rstb.1995.0147" />
+	</analytic>
+	<monogr>
+		<title level="j">Philosophical Transactions</title>
+		<imprint>
+			<biblScope unit="volume">350</biblScope>
+			<biblScope unit="page" from="133" to="141" />
+			<date type="published" when="1332">1995. 1332</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct status="extracted" xml:id="b15">
+	<analytic>
+		<title level="a" type="main">Quorum sensing integrates environmental cues, cell density and cell history to control bacterial competence</title>
+		<author>
+			<persName><forename type="first">S</forename><surname>Moreno-Ga ´mez</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">R</forename><forename type="middle">A</forename><surname>Sorg</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><surname>Domenech</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><surname>Kjos</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">F</forename><forename type="middle">J</forename><surname>Weissing</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">G</forename><forename type="middle">S</forename><surname>Van Doorn</surname></persName>
+		</author>
+		<idno type="DOI">10.1038/s41467-017-00903-y</idno>
+		<idno type="PMID">29021534</idno>
+		<ptr target="https://doi.org/10.1038/s41467-017-00903-y" />
+	</analytic>
+	<monogr>
+		<title level="j">Nature Communications</title>
+		<imprint>
+			<biblScope unit="volume">8</biblScope>
+			<biblScope unit="issue">1</biblScope>
+			<biblScope unit="page">854</biblScope>
+			<date type="published" when="2017">2017</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct status="extracted" xml:id="b16">
+	<analytic>
+		<title level="a" type="main">Reversible signal binding by the Pseudomonas aeruginosa quorum-sensing signal receptor LasR</title>
+		<author>
+			<persName><forename type="first">K</forename><forename type="middle">J</forename><surname>Sappington</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><forename type="middle">A</forename><surname>Dandekar</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">K-I</forename><surname>Oinuma</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">E</forename><forename type="middle">P</forename><surname>Greenberg</surname></persName>
+		</author>
+		<idno type="DOI">10.1128/mBio.00011-11</idno>
+		<idno type="PMID">21325039</idno>
+		<ptr target="https://doi.org/10.1128/mBio.00011-11" />
+	</analytic>
+	<monogr>
+		<title level="j">MBio</title>
+		<imprint>
+			<biblScope unit="volume">2</biblScope>
+			<biblScope unit="issue">1</biblScope>
+			<date type="published" when="2011">2011</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct status="extracted" xml:id="b17">
+	<analytic>
+		<title level="a" type="main">Environmental sensing in dynamic quorum responses</title>
+		<author>
+			<persName><forename type="first">E</forename><forename type="middle">K</forename><surname>Chu</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><surname>Groisman</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><surname>Levchenko</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">bioRxiv</title>
+		<imprint>
+			<biblScope unit="page">745091</biblScope>
+			<date type="published" when="2019">2019</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct status="extracted" xml:id="b18">
+	<analytic>
+		<title level="a" type="main">Effects of molecular memory and bursting on fluctuations in gene expression</title>
+		<author>
+			<persName><forename type="first">J</forename><forename type="middle">M</forename><surname>Pedraza</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><surname>Paulsson</surname></persName>
+		</author>
+		<idno type="DOI">10.1126/science.1144331</idno>
+		<idno type="PMID">18202292</idno>
+		<ptr target="https://doi.org/10.1126/science.1144331" />
+	</analytic>
+	<monogr>
+		<title level="j">Science</title>
+		<imprint>
+			<biblScope unit="volume">319</biblScope>
+			<biblScope unit="issue">5861</biblScope>
+			<biblScope unit="page" from="339" to="343" />
+			<date type="published" when="2008">2008</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct status="extracted" xml:id="b19">
+	<analytic>
+		<title level="a" type="main">Response of single bacterial cells to stress gives rise to complex history dependence at the population level</title>
+		<author>
+			<persName><forename type="first">R</forename><surname>Mathis</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><surname>Ackermann</surname></persName>
+		</author>
+		<idno type="DOI">10.1073/pnas.1511509113</idno>
+		<idno type="PMID">26960998</idno>
+		<ptr target="https://doi.org/10.1073/pnas.1511509113" />
+	</analytic>
+	<monogr>
+		<title level="j">Proceedings of the National Academy of Sciences</title>
+		<imprint>
+			<biblScope unit="volume">113</biblScope>
+			<biblScope unit="issue">15</biblScope>
+			<biblScope unit="page" from="4224" to="4229" />
+			<date type="published" when="2016">2016</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct status="extracted" xml:id="b20">
+	<analytic>
+		<title level="a" type="main">Memory in bacteria and phage</title>
+		<author>
+			<persName><forename type="first">J D'</forename><surname>Casadesu</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">R</forename><surname>Ari</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Bioessays</title>
+		<imprint>
+			<biblScope unit="volume">24</biblScope>
+			<biblScope unit="issue">6</biblScope>
+			<biblScope unit="page" from="512" to="518" />
+			<date type="published" when="2002">2002</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct status="extracted" xml:id="b21">
+	<analytic>
+		<title level="a" type="main">Memory shapes microbial populations</title>
+		<author>
+			<persName><forename type="first">C</forename><forename type="middle">S</forename><surname>Gokhale</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">S</forename><surname>Giaimo</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">P</forename><surname>Remigi</surname></persName>
+		</author>
+		<idno type="DOI">10.1371/journal.pcbi.1009431</idno>
+		<idno type="PMID">34597291</idno>
+		<ptr target="https://doi.org/10.1371/journal.pcbi.1009431" />
+	</analytic>
+	<monogr>
+		<title level="j">PLoS Computational Biology</title>
+		<imprint>
+			<biblScope unit="volume">17</biblScope>
+			<biblScope unit="issue">10</biblScope>
+			<biblScope unit="page">1009431</biblScope>
+			<date type="published" when="2021">2021</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct status="extracted" xml:id="b22">
+	<analytic>
+		<title level="a" type="main">Modeling and analysis of mass-action kinetics</title>
+		<author>
+			<persName><forename type="first">V</forename><surname>Chellaboina</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">S</forename><forename type="middle">P</forename><surname>Bhat</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">W</forename><forename type="middle">M</forename><surname>Haddad</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">D</forename><forename type="middle">S</forename><surname>Bernstein</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">IEEE Control Systems Magazine</title>
+		<imprint>
+			<biblScope unit="volume">29</biblScope>
+			<biblScope unit="issue">4</biblScope>
+			<biblScope unit="page" from="60" to="78" />
+			<date type="published" when="2009">2009</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct status="extracted" xml:id="b23">
+	<analytic>
+		<title level="a" type="main">Jo ¨nsson H. A cell-based model for quorum sensing in heterogeneous bacterial colonies</title>
+		<author>
+			<persName><forename type="first">P</forename><surname>Melke</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">P</forename><surname>Sahlin</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><surname>Levchenko</surname></persName>
+		</author>
+		<idno type="DOI">10.1371/journal.pcbi.1000819</idno>
+		<idno type="PMID">20585545</idno>
+		<ptr target="https://doi.org/10.1371/journal.pcbi.1000819" />
+	</analytic>
+	<monogr>
+		<title level="j">PLoS computational biology</title>
+		<imprint>
+			<biblScope unit="volume">6</biblScope>
+			<biblScope unit="issue">6</biblScope>
+			<biblScope unit="page">1000819</biblScope>
+			<date type="published" when="2010">2010</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct status="extracted" xml:id="b24">
+	<analytic>
+		<title level="a" type="main">Nonlinear protein degradation and the function of genetic circuits</title>
+		<author>
+			<persName><forename type="first">N</forename><forename type="middle">E</forename><surname>Buchler</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">U</forename><surname>Gerland</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">T</forename><surname>Hwa</surname></persName>
+		</author>
+		<idno type="DOI">10.1073/pnas.0409553102</idno>
+		<idno type="PMID">15972813</idno>
+		<ptr target="https://doi.org/10.1073/pnas" />
+	</analytic>
+	<monogr>
+		<title level="j">Proceedings of the National Academy of Sciences</title>
+		<imprint>
+			<biblScope unit="volume">102</biblScope>
+			<biblScope unit="issue">27</biblScope>
+			<biblScope unit="page" from="9559" to="9564" />
+			<date type="published" when="2005">2005</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct status="extracted" xml:id="b25">
+	<analytic>
+		<title level="a" type="main">Initiation of mRNA decay in bacteria</title>
+		<author>
+			<persName><forename type="first">S</forename><surname>Laalami</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">L</forename><surname>Zig</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">H</forename><surname>Putzer</surname></persName>
+		</author>
+		<idno type="DOI">10.1007/s00018-013-1472-4</idno>
+		<ptr target="https://doi.org/10.1007/s00018-013-1472-4PMID" />
+	</analytic>
+	<monogr>
+		<title level="j">Cellular and molecular life sciences</title>
+		<imprint>
+			<biblScope unit="volume">71</biblScope>
+			<biblScope unit="page">24064983</biblScope>
+			<date type="published" when="2014">2014</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct status="extracted" xml:id="b26">
+	<analytic>
+		<title level="a" type="main">Reversible acyl-homoserine lactone binding to purified Vibrio fischeri LuxR protein</title>
+		<author>
+			<persName><forename type="first">M</forename><surname>Urbanowski</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">C</forename><surname>Lostroh</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">E</forename><surname>Greenberg</surname></persName>
+		</author>
+		<idno type="DOI">10.1128/JB.186.3.631-637.2004</idno>
+		<idno type="PMID">14729687</idno>
+		<ptr target="https://doi.org/10.1128/JB.186.3.631-637" />
+	</analytic>
+	<monogr>
+		<title level="j">Journal of bacteriology</title>
+		<imprint>
+			<biblScope unit="volume">186</biblScope>
+			<biblScope unit="issue">3</biblScope>
+			<biblScope unit="page" from="631" to="637" />
+			<date type="published" when="2004">2004. 2004</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct status="extracted" xml:id="b27">
+	<analytic>
+		<title level="a" type="main">Diffusion of autoinducer is involved in regulation of the Vibrio fischeri luminescence system</title>
+		<author>
+			<persName><forename type="first">H</forename><forename type="middle">B</forename><surname>Kaplan</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">E</forename><surname>Greenberg</surname></persName>
+		</author>
+		<idno type="DOI">10.1128/jb.163.3.1210-1214.1985</idno>
+		<idno type="PMID">3897188</idno>
+		<ptr target="https://doi.org/10.1128/jb.163.3.1210-1214" />
+	</analytic>
+	<monogr>
+		<title level="j">Journal of bacteriology</title>
+		<imprint>
+			<biblScope unit="volume">163</biblScope>
+			<biblScope unit="issue">3</biblScope>
+			<biblScope unit="page" from="1210" to="1214" />
+			<date type="published" when="1985">1985. 1985</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct status="extracted" xml:id="b28">
+	<analytic>
+		<title level="a" type="main">Systems analysis of a quorum sensing network: design constraints imposed by the functional requirements, network topology and kinetic constants</title>
+		<author>
+			<persName><forename type="first">A</forename><surname>Goryachev</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">D</forename><surname>Toh</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">T</forename><surname>Lee</surname></persName>
+		</author>
+		<idno type="DOI">10.1016/j.biosystems.2005.04.006</idno>
+		<idno type="PMID">16174549</idno>
+		<ptr target="https://doi.org/10.1016/j.biosystems.2005.04.006" />
+	</analytic>
+	<monogr>
+		<title level="j">Biosystems</title>
+		<imprint>
+			<biblScope unit="volume">83</biblScope>
+			<biblScope unit="issue">2-3</biblScope>
+			<biblScope unit="page" from="178" to="187" />
+			<date type="published" when="2006">2006</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct status="extracted" xml:id="b29">
+	<analytic>
+		<title level="a" type="main">Noise regulation by quorum sensing in low mRNA copy number systems</title>
+		<author>
+			<persName><forename type="first">M</forename><surname>Weber</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><surname>Buceta</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">BMC systems biology</title>
+		<imprint>
+			<biblScope unit="volume">5</biblScope>
+			<biblScope unit="page" from="1" to="13" />
+			<date type="published" when="2011">2011</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct status="extracted" xml:id="b30">
+	<monogr>
+		<title level="m" type="main">Cell biology by the numbers</title>
+		<author>
+			<persName><forename type="first">R</forename><surname>Milo</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">R</forename><surname>Phillips</surname></persName>
+		</author>
+		<imprint>
+			<date type="published" when="2015">2015</date>
+			<publisher>Garland Science</publisher>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct status="extracted" xml:id="b31">
+	<analytic>
+		<title level="a" type="main">Promoter and transcription factor dynamics tune protein mean and noise strength in a quorum sensing-based feedback synthetic circuit</title>
+		<author>
+			<persName><forename type="first">Y</forename><surname>Boada</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><surname>Vignoni</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">´j</forename><surname>Pico</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">bioRxiv</title>
+		<imprint>
+			<biblScope unit="page">106229</biblScope>
+			<date type="published" when="2017">2017</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct status="extracted" xml:id="b32">
+	<analytic>
+		<title level="a" type="main">Optimal tuning of bacterial sensing potential</title>
+		<author>
+			<persName><forename type="first">A</forename><surname>Pai</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">L</forename><surname>You</surname></persName>
+		</author>
+		<idno type="DOI">10.1038/msb.2009.43</idno>
+		<idno type="PMID">19584835</idno>
+		<ptr target="https://doi.org/10.1038/msb.2009.43" />
+	</analytic>
+	<monogr>
+		<title level="j">Molecular systems biology</title>
+		<imprint>
+			<biblScope unit="volume">5</biblScope>
+			<biblScope unit="issue">1</biblScope>
+			<biblScope unit="page">286</biblScope>
+			<date type="published" when="2009">2009</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct status="extracted" xml:id="b33">
+	<analytic>
+		<title level="a" type="main">Quorum sensing in Vibrio fischeri: essential elements for activation of the luminescence genes</title>
+		<author>
+			<persName><forename type="first">A</forename><forename type="middle">M</forename><surname>Stevens</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">E</forename><surname>Greenberg</surname></persName>
+		</author>
+		<idno type="DOI">10.1128/jb.179.2.557-562.1997</idno>
+		<idno type="PMID">8990313</idno>
+		<ptr target="https://doi.org/10.1128/jb.179.2.557-562" />
+	</analytic>
+	<monogr>
+		<title level="j">Journal of bacteriology</title>
+		<imprint>
+			<biblScope unit="volume">179</biblScope>
+			<biblScope unit="issue">2</biblScope>
+			<biblScope unit="page" from="557" to="562" />
+			<date type="published" when="1997">1997. 1997</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct status="extracted" xml:id="b34">
+	<analytic>
+		<title level="a" type="main">LuxR-and luxI-type quorum-sensing circuits are prevalent in members of the Populus deltoides microbiome</title>
+		<author>
+			<persName><forename type="first">A</forename><forename type="middle">L</forename><surname>Schaefer</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">C</forename><forename type="middle">R</forename><surname>Lappala</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">R</forename><forename type="middle">P</forename><surname>Morlen</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">D</forename><forename type="middle">A</forename><surname>Pelletier</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">T-Ys</forename><surname>Lu</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">P</forename><forename type="middle">K</forename><surname>Lankford</surname></persName>
+		</author>
+		<idno type="DOI">10.1128/AEM.01417-13</idno>
+		<idno type="PMID">23851092</idno>
+		<ptr target="https://doi.org/10.1128/AEM.01417-13" />
+	</analytic>
+	<monogr>
+		<title level="j">Applied and environmental microbiology</title>
+		<imprint>
+			<biblScope unit="volume">79</biblScope>
+			<biblScope unit="issue">18</biblScope>
+			<biblScope unit="page" from="5745" to="5752" />
+			<date type="published" when="2013">2013</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct status="extracted" xml:id="b35">
+	<analytic>
+		<title level="a" type="main">Quorum sensing in Vibrio fischeri: elements of the luxI promoter</title>
+		<author>
+			<persName><forename type="first">K</forename><forename type="middle">A</forename><surname>Egland</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">E</forename><surname>Greenberg</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Molecular microbiology</title>
+		<imprint>
+			<biblScope unit="volume">31</biblScope>
+			<biblScope unit="issue">4</biblScope>
+			<biblScope unit="page" from="1197" to="1204" />
+			<date type="published" when="1999">1999</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct status="extracted" xml:id="b36">
+	<analytic>
+		<title level="a" type="main">The Vibrio fischeri quorum-sensing systems ain and lux sequentially induce luminescence gene expression and are important for persistence in the squid host</title>
+		<author>
+			<persName><forename type="first">C</forename><surname>Lupp</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><surname>Urbanowski</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">E</forename><forename type="middle">P</forename><surname>Greenberg</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">E</forename><forename type="middle">G</forename><surname>Ruby</surname></persName>
+		</author>
+		<idno type="DOI">10.1046/j.1365-2958.2003.t01-1-03585.x</idno>
+		<idno type="PMID">14507383</idno>
+		<ptr target="https://doi.org/10.1046/j.1365-2958.2003.t01-1-03585" />
+	</analytic>
+	<monogr>
+		<title level="j">Molecular microbiology</title>
+		<imprint>
+			<biblScope unit="volume">50</biblScope>
+			<biblScope unit="issue">1</biblScope>
+			<biblScope unit="page" from="319" to="331" />
+			<date type="published" when="2003">2003</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct status="extracted" xml:id="b37">
+	<analytic>
+		<title level="a" type="main">New insights into the regulatory mechanisms of the LuxR family of quorum sensing regulators</title>
+		<author>
+			<persName><forename type="first">W</forename><surname>Nasser</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">S</forename><surname>Reverchon</surname></persName>
+		</author>
+		<idno type="DOI">10.1007/s00216-006-0702-0</idno>
+		<idno type="PMID">16953322</idno>
+		<ptr target="https://doi.org/10.1007/s" />
+	</analytic>
+	<monogr>
+		<title level="j">Analytical and bioanalytical chemistry</title>
+		<imprint>
+			<biblScope unit="volume">387</biblScope>
+			<biblScope unit="page" from="381" to="390" />
+			<date type="published" when="2007">2007</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct status="extracted" xml:id="b38">
+	<analytic>
+		<title level="a" type="main">Measurement of the copy number of the master quorum-sensing regulator of a bacterial cell</title>
+		<author>
+			<persName><forename type="first">S-W</forename><surname>Teng</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Y</forename><surname>Wang</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">K</forename><forename type="middle">C</forename><surname>Tu</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">T</forename><surname>Long</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">P</forename><surname>Mehta</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">N</forename><forename type="middle">S</forename><surname>Wingreen</surname></persName>
+		</author>
+		<idno type="DOI">10.1016/j.bpj.2010.01.031</idno>
+		<idno type="PMID">20441767</idno>
+		<ptr target="https://doi.org/10.1016/j.bpj.2010.01.031" />
+	</analytic>
+	<monogr>
+		<title level="j">Biophysical journal</title>
+		<imprint>
+			<biblScope unit="volume">98</biblScope>
+			<biblScope unit="issue">9</biblScope>
+			<biblScope unit="page" from="2024" to="2031" />
+			<date type="published" when="2010">2010</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct status="extracted" xml:id="b39">
+	<analytic>
+		<title level="a" type="main">Quorum-sensing in Gram-negative bacteria</title>
+		<author>
+			<persName><forename type="first">N</forename><forename type="middle">A</forename><surname>Whitehead</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><forename type="middle">M</forename><surname>Barnard</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">H</forename><surname>Slater</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">N</forename><forename type="middle">J</forename><surname>Simpson</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">G</forename><forename type="middle">P</forename><surname>Salmond</surname></persName>
+		</author>
+		<idno type="DOI">10.1111/j.1574-6976.2001.tb00583.x</idno>
+		<idno type="PMID">11524130</idno>
+		<ptr target="https://doi.org/10.1111/j.1574-6976.2001.tb00583" />
+	</analytic>
+	<monogr>
+		<title level="j">FEMS microbiology reviews</title>
+		<imprint>
+			<biblScope unit="volume">25</biblScope>
+			<biblScope unit="issue">4</biblScope>
+			<biblScope unit="page" from="365" to="404" />
+			<date type="published" when="2001">2001</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct status="extracted" xml:id="b40">
+	<analytic>
+		<title level="a" type="main">Dilution and the theoretical description of growth-rate dependent gene expression</title>
+		<author>
+			<persName><forename type="first">M</forename><surname>Hintsche</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">S</forename><surname>Klumpp</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Journal of biological engineering</title>
+		<imprint>
+			<biblScope unit="volume">7</biblScope>
+			<biblScope unit="issue">1</biblScope>
+			<biblScope unit="page" from="1" to="3" />
+			<date type="published" when="2013">2013</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct status="extracted" xml:id="b41">
+	<analytic>
+		<title level="a" type="main">Generic metric to quantify quorum sensing activation dynamics</title>
+		<author>
+			<persName><forename type="first">A</forename><surname>Pai</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><forename type="middle">K</forename><surname>Srimani</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Y</forename><surname>Tanouchi</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">L</forename><surname>You</surname></persName>
+		</author>
+		<idno type="DOI">10.1021/sb400069w</idno>
+		<idno type="PMID">24011134</idno>
+		<ptr target="https://doi.org/10.1021/sb400069" />
+	</analytic>
+	<monogr>
+		<title level="j">ACS synthetic biology</title>
+		<imprint>
+			<biblScope unit="volume">3</biblScope>
+			<biblScope unit="issue">4</biblScope>
+			<biblScope unit="page" from="220" to="227" />
+			<date type="published" when="2014">2014</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct status="extracted" xml:id="b42">
+	<analytic>
+		<title level="a" type="main">Optimality and robustness in quorum sensing (QS)-mediated regulation of a costly public good enzyme</title>
+		<author>
+			<persName><forename type="first">A</forename><surname>Pai</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Y</forename><surname>Tanouchi</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">L</forename><surname>You</surname></persName>
+		</author>
+		<idno type="DOI">10.1073/pnas.1211072109</idno>
+		<idno type="PMID">23144221</idno>
+		<ptr target="https://doi.org/10.1073/pnas.1211072109" />
+	</analytic>
+	<monogr>
+		<title level="j">Proceedings of the National Academy of Sciences</title>
+		<imprint>
+			<biblScope unit="volume">109</biblScope>
+			<biblScope unit="issue">48</biblScope>
+			<biblScope unit="page" from="19810" to="19815" />
+			<date type="published" when="2012">2012</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct status="extracted" xml:id="b43">
+	<analytic>
+		<title level="a" type="main">Intertemporal trade-off between population growth rate and carrying capacity during public good production</title>
+		<author>
+			<persName><forename type="first">M</forename><forename type="middle">S</forename><surname>Gangan</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><forename type="middle">M</forename><surname>Vasconcelos</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">U</forename><surname>Mitra</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">O</forename><surname>Ca ˆmara</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><forename type="middle">Q</forename><surname>Boedicker</surname></persName>
+		</author>
+		<idno type="DOI">10.1016/j.isci.2022.104117</idno>
+		<idno type="PMID">35391831</idno>
+		<ptr target="https://doi.org/10.1016/j.isci.2022.104117" />
+	</analytic>
+	<monogr>
+		<title level="j">Iscience</title>
+		<imprint>
+			<biblScope unit="volume">25</biblScope>
+			<biblScope unit="issue">4</biblScope>
+			<date type="published" when="2022">2022</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct status="extracted" xml:id="b44">
+	<analytic>
+		<title level="a" type="main">Genetic and epigenetic strategies potentiate Gal4 activation to enhance fitness in recently diverged yeast species</title>
+		<author>
+			<persName><forename type="first">V</forename><surname>Sood</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><forename type="middle">H</forename><surname>Brickner</surname></persName>
+		</author>
+		<idno type="DOI">10.1016/j.cub.2017.10.035</idno>
+		<idno type="PMID">29153325</idno>
+		<ptr target="https://doi.org/10.1016/j.cub.2017.10.035" />
+	</analytic>
+	<monogr>
+		<title level="j">Current Biology</title>
+		<imprint>
+			<biblScope unit="volume">27</biblScope>
+			<biblScope unit="issue">23</biblScope>
+			<biblScope unit="page" from="3591" to="3602" />
+			<date type="published" when="2017">2017</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct status="extracted" xml:id="b45">
+	<analytic>
+		<title level="a" type="main">Do microbes have a memory? History-dependent behavior in the adaptation to variable environments</title>
+		<author>
+			<persName><forename type="first">L</forename><surname>Vermeersch</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">L</forename><surname>Cool</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><surname>Gorkovskiy</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">K</forename><surname>Voordeckers</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">T</forename><surname>Wenseleers</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">K</forename><forename type="middle">J</forename><surname>Verstrepen</surname></persName>
+		</author>
+		<idno type="DOI">10.3389/fmicb.2022.1004488</idno>
+		<idno type="PMID">36299722</idno>
+		<ptr target="https://doi.org/10.3389/fmicb.2022.1004488" />
+	</analytic>
+	<monogr>
+		<title level="j">Frontiers in Microbiology</title>
+		<imprint>
+			<biblScope unit="volume">13</biblScope>
+			<biblScope unit="page">1004488</biblScope>
+			<date type="published" when="2022">2022</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct status="extracted" xml:id="b46">
+	<analytic>
+		<title level="a" type="main">Phenotypic diversity, population growth, and information in fluctuating environments</title>
+		<author>
+			<persName><forename type="first">E</forename><surname>Kussell</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">S</forename><surname>Leibler</surname></persName>
+		</author>
+		<idno type="DOI">10.1126/science.1114383</idno>
+		<idno type="PMID">16123265</idno>
+		<ptr target="https://doi.org/10.1126/science.1114383" />
+	</analytic>
+	<monogr>
+		<title level="j">Science</title>
+		<imprint>
+			<biblScope unit="volume">309</biblScope>
+			<biblScope unit="issue">5743</biblScope>
+			<biblScope unit="page" from="2075" to="2078" />
+			<date type="published" when="2005">2005</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct status="extracted" xml:id="b47">
+	<analytic>
+		<title level="a" type="main">Evolutionary tipping points in the capacity to adapt to environmental change</title>
+		<author>
+			<persName><forename type="first">C</forename><forename type="middle">A</forename><surname>Botero</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">F</forename><forename type="middle">J</forename><surname>Weissing</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><surname>Wright</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">D</forename><forename type="middle">R</forename><surname>Rubenstein</surname></persName>
+		</author>
+		<idno type="DOI">10.1073/pnas.1408589111</idno>
+		<idno type="PMID">25422451</idno>
+		<ptr target="https://doi.org/10.1073/pnas.1408589111" />
+	</analytic>
+	<monogr>
+		<title level="j">Proceedings of the National Academy of Sciences</title>
+		<imprint>
+			<biblScope unit="volume">112</biblScope>
+			<biblScope unit="issue">1</biblScope>
+			<biblScope unit="page" from="184" to="189" />
+			<date type="published" when="2015">2015</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct status="extracted" xml:id="b48">
+	<analytic>
+		<title level="a" type="main">Delayed bet-hedging resilience strategies under environmental fluctuations</title>
+		<author>
+			<persName><forename type="first">M</forename><surname>Ogura</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><surname>Wakaiki</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">H</forename><surname>Rubin</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">V</forename><forename type="middle">M</forename><surname>Preciado</surname></persName>
+		</author>
+		<idno type="DOI">10.1103/PhysRevE.95.052404</idno>
+		<idno type="PMID">28618624</idno>
+		<ptr target="https://doi.org/10.1103/PhysRevE.95.052404" />
+	</analytic>
+	<monogr>
+		<title level="j">Physical Review E</title>
+		<imprint>
+			<biblScope unit="volume">95</biblScope>
+			<biblScope unit="issue">5</biblScope>
+			<biblScope unit="page">52404</biblScope>
+			<date type="published" when="2017">2017</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct status="extracted" xml:id="b49">
+	<analytic>
+		<title level="a" type="main">Heterogeneous timing of gene induction as a regulation strategy</title>
+		<author>
+			<persName><forename type="first">G</forename><surname>Fritz</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">N</forename><surname>Walker</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">U</forename><surname>Gerland</surname></persName>
+		</author>
+		<idno type="DOI">10.1016/j.jmb.2019.05.020</idno>
+		<idno type="PMID">31141707</idno>
+		<ptr target="https://doi.org/10.1016/j.jmb.2019.05.020" />
+	</analytic>
+	<monogr>
+		<title level="j">Journal of molecular biology</title>
+		<imprint>
+			<biblScope unit="volume">431</biblScope>
+			<biblScope unit="issue">23</biblScope>
+			<biblScope unit="page" from="4760" to="4774" />
+			<date type="published" when="2019">2019</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct status="extracted" xml:id="b50">
+	<analytic>
+		<title level="a" type="main">Life in fluctuating environments</title>
+		<author>
+			<persName><forename type="first">J</forename><forename type="middle">R</forename><surname>Bernhardt</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">O'</forename><surname>Connor</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><forename type="middle">I</forename><surname>Sunday</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><forename type="middle">M</forename><surname>Gonzalez</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename></persName>
+		</author>
+		<idno type="DOI">10.1098/rstb.2019.0454</idno>
+		<idno type="PMID">33131443</idno>
+		<ptr target="https://doi.org/10.1098/rstb.2019.0454" />
+	</analytic>
+	<monogr>
+		<title level="j">Philosophical Transactions of the Royal Society B</title>
+		<imprint>
+			<biblScope unit="volume">375</biblScope>
+			<biblScope unit="page">20190454</biblScope>
+			<date type="published" when="1814">2020. 1814</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct status="extracted" xml:id="b51">
+	<analytic>
+		<title level="a" type="main">Quorum quenching enzymes and their application in degrading signal molecules to block quorum sensing-dependent infection</title>
+		<author>
+			<persName><forename type="first">F</forename><surname>Chen</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Y</forename><surname>Gao</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">X</forename><surname>Chen</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Z</forename><surname>Yu</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">X</forename><surname>Li</surname></persName>
+		</author>
+		<idno type="DOI">10.3390/ijms140917477</idno>
+		<idno type="PMID">24065091</idno>
+		<ptr target="https://doi.org/10.3390/ijms140917477" />
+	</analytic>
+	<monogr>
+		<title level="j">International journal of molecular sciences</title>
+		<imprint>
+			<biblScope unit="volume">14</biblScope>
+			<biblScope unit="issue">9</biblScope>
+			<biblScope unit="page" from="17477" to="17500" />
+			<date type="published" when="2013">2013</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct status="extracted" xml:id="b52">
+	<analytic>
+		<title level="a" type="main">The fitness burden imposed by synthesising quorum sensing signals</title>
+		<author>
+			<persName><forename type="first">A</forename><surname>Ruparell</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><forename type="middle">F</forename><surname>Dubern</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">C</forename><forename type="middle">A</forename><surname>Ortori</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">F</forename><surname>Harrison</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">N</forename><forename type="middle">M</forename><surname>Halliday</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><surname>Emtage</surname></persName>
+		</author>
+		<idno type="DOI">10.1038/srep33101</idno>
+		<idno type="PMID">27616328</idno>
+		<ptr target="https://doi.org/10.1038/srep33101" />
+	</analytic>
+	<monogr>
+		<title level="j">Scientific Reports</title>
+		<imprint>
+			<biblScope unit="volume">6</biblScope>
+			<biblScope unit="issue">1</biblScope>
+			<biblScope unit="page">33101</biblScope>
+			<date type="published" when="2016">2016</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct status="extracted" xml:id="b53">
+	<analytic>
+		<title level="a" type="main">Quorum sensing signal selectivity and the potential for interspecies cross talk</title>
+		<author>
+			<persName><forename type="first">S</forename><surname>Wellington</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">E</forename><forename type="middle">P</forename><surname>Greenberg</surname></persName>
+		</author>
+		<idno type="DOI">10.1128/mBio.00146-19</idno>
+		<idno type="PMID">30837333</idno>
+		<ptr target="https://doi.org/10.1128/mBio.00146-19" />
+	</analytic>
+	<monogr>
+		<title level="j">MBio</title>
+		<imprint>
+			<biblScope unit="volume">10</biblScope>
+			<biblScope unit="issue">2</biblScope>
+			<date type="published" when="2019">2019</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct status="extracted" xml:id="b54">
+	<analytic>
+		<title level="a" type="main">Quantifying the strength of quorum sensing crosstalk within microbial communities</title>
+		<author>
+			<persName><forename type="first">Kpt</forename><surname>Silva</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">P</forename><surname>Chellamuthu</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><forename type="middle">Q</forename><surname>Boedicker</surname></persName>
+		</author>
+		<idno type="DOI">10.1371/journal.pcbi.1005809</idno>
+		<idno type="PMID">29049387</idno>
+		<ptr target="https://doi.org/10.1371/journal.pcbi.1005809" />
+	</analytic>
+	<monogr>
+		<title level="j">PLoS computational biology</title>
+		<imprint>
+			<biblScope unit="volume">13</biblScope>
+			<biblScope unit="issue">10</biblScope>
+			<biblScope unit="page">e1005809</biblScope>
+			<date type="published" when="2017">2017</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct status="extracted" xml:id="b55">
+	<analytic>
+		<title level="a" type="main">Quorum sensing-dependent virulence during Pseudomonas aeruginosa colonisation and pneumonia in mechanically ventilated patients</title>
+		<author>
+			<persName><forename type="first">T</forename><surname>Ko ¨hler</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">R</forename><surname>Guanella</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><surname>Carlet</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">C</forename><surname>Van Delden</surname></persName>
+		</author>
+		<idno type="DOI">10.1136/thx.2009.133082</idno>
+		<idno type="PMID">20685744</idno>
+		<ptr target="https://doi.org/10.1136/thx.2009.133082" />
+	</analytic>
+	<monogr>
+		<title level="j">Thorax</title>
+		<imprint>
+			<biblScope unit="volume">65</biblScope>
+			<biblScope unit="issue">8</biblScope>
+			<biblScope unit="page" from="703" to="710" />
+			<date type="published" when="2010">2010</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct status="extracted" xml:id="b56">
+	<analytic>
+		<title level="a" type="main">Regulation of las and rhl quorum sensing in Pseudomonas aeruginosa</title>
+		<author>
+			<persName><forename type="first">E</forename><forename type="middle">C</forename><surname>Pesci</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><forename type="middle">P</forename><surname>Pearson</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">P</forename><forename type="middle">C</forename><surname>Seed</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">B</forename><forename type="middle">H</forename><surname>Iglewski</surname></persName>
+		</author>
+		<idno type="DOI">10.1128/jb.179.10.3127-3132.1997</idno>
+		<idno type="PMID">9150205</idno>
+		<ptr target="https://doi.org/10.1128/jb.179.10" />
+	</analytic>
+	<monogr>
+		<title level="j">Journal of bacteriology</title>
+		<imprint>
+			<biblScope unit="volume">179</biblScope>
+			<biblScope unit="issue">10</biblScope>
+			<biblScope unit="page" from="3127" to="3132" />
+			<date type="published" when="1997">1997. 1997</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct status="extracted" xml:id="b57">
+	<analytic>
+		<title level="a" type="main">Microfluidic investigation of the impacts of flow fluctuations on the development of Pseudomonas putida biofilms</title>
+		<author>
+			<persName><forename type="first">G</forename><surname>Wei</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><forename type="middle">Q</forename><surname>Yang</surname></persName>
+		</author>
+		<idno type="DOI">10.1038/s41522-023-00442-z</idno>
+		<idno type="PMID">37789000</idno>
+		<ptr target="https://doi.org/10.1038/s" />
+	</analytic>
+	<monogr>
+		<title level="j">Biofilms and Microbiomes</title>
+		<imprint>
+			<biblScope unit="volume">9</biblScope>
+			<biblScope unit="issue">1</biblScope>
+			<biblScope unit="page">73</biblScope>
+			<date type="published" when="2023">2023</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct status="extracted" xml:id="b58">
+	<analytic>
+		<title level="a" type="main">Phenotypic Heterogeneity, a Phenomenon That May Explain Why Quorum Sensing Does Not Always Result in Truly Homogenous Cell Behavior</title>
+		<author>
+			<persName><forename type="first">J</forename><surname>Grote</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">D</forename><surname>Krysciak</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">W</forename><forename type="middle">R</forename><surname>Streit</surname></persName>
+		</author>
+		<idno type="DOI">10.1128/AEM.00900-15</idno>
+		<idno type="PMID">26025903</idno>
+		<ptr target="https://doi.org/10.1128/AEM.00900-15" />
+	</analytic>
+	<monogr>
+		<title level="j">Applied and Environmental Microbiology</title>
+		<imprint>
+			<biblScope unit="volume">81</biblScope>
+			<biblScope unit="issue">16</biblScope>
+			<biblScope unit="page">5280</biblScope>
+			<date type="published" when="2015">2015</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct status="extracted" xml:id="b59">
+	<analytic>
+		<title level="a" type="main">Bacterial quorum sensing allows graded and bimodal cellular responses to variations in population density</title>
+		<author>
+			<persName><forename type="first">J</forename><forename type="middle">B</forename><surname>Rattray</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">S</forename><forename type="middle">A</forename><surname>Thomas</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Y</forename><surname>Wang</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">E</forename><surname>Molotkova</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><surname>Gurney</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><forename type="middle">J</forename><surname>Varga</surname></persName>
+		</author>
+		<idno type="DOI">10.1128/mbio.00745-22</idno>
+		<idno type="PMID">35583321</idno>
+		<ptr target="https://doi.org/10.1128/mbio.00745-22" />
+	</analytic>
+	<monogr>
+		<title level="j">MBio</title>
+		<imprint>
+			<biblScope unit="volume">13</biblScope>
+			<biblScope unit="issue">3</biblScope>
+			<biblScope unit="page" from="745" to="767" />
+			<date type="published" when="2022">2022</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+				</listBibl>
+			</div>
+		</back>
+	</text>
+</TEI>

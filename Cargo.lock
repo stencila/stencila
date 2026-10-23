@@ -11082,6 +11082,25 @@ dependencies = [
 ]
 
 [[package]]
+name = "stencila-codec-tei"
+version = "0.0.0"
+dependencies = [
+ "flate2",
+ "glob",
+ "insta",
+ "itertools 0.14.0",
+ "roxmltree 0.21.1",
+ "serde",
+ "serde_json",
+ "stencila-codec",
+ "stencila-codec-jats",
+ "stencila-codec-text-trait",
+ "stencila-codec-utils",
+ "tempfile",
+ "tokio",
+]
+
+[[package]]
 name = "stencila-codec-text"
 version = "0.0.0"
 dependencies = [
@@ -11240,6 +11259,7 @@ dependencies = [
  "stencila-codec-png",
  "stencila-codec-rnw",
  "stencila-codec-swb",
+ "stencila-codec-tei",
  "stencila-codec-text",
  "stencila-codec-tiptap",
  "stencila-codec-utils",

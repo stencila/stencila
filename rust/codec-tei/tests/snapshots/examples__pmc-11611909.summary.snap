@@ -1,0 +1,76 @@
+---
+source: rust/codec-tei/tests/examples.rs
+expression: "Summary::of(&article)?"
+---
+title: Subcellular mRNA kinetic modeling reveals nuclear retention as rate-limiting
+authors:
+  - David Steinbrecht (2 affiliations)
+  - Igor Minia (1 affiliations)
+  - Miha Milek (1 affiliations)
+  - Johannes Meisig (2 affiliations)
+  - Nils Blüthgen (2 affiliations)
+  - Markus Landthaler (1 affiliations)
+  - Al (1 affiliations)
+abstract_paragraphs: 1
+headings:
+  - Introduction
+  - Results
+  - Spatiotemporal measurement of newly transcribed mRNA
+  - Model of subcellular mRNA dynamics
+  - Box 1. Kinetic model of the mRNA life cycle
+  - Modeling of transcriptional elongation rates
+  - Model parameterization unveils lengthdependent elongation rate
+  - Nuclear retention time is the rate-limiting step in the life cycle of most mRNAs
+  - Functionally related transcripts tend to have similar kinetic profiles
+  - Differentially localized mRNAs exhibit distinct dynamic behavior
+  - Discussion
+  - Methods
+  - Reagents and tools table
+  - Reagent/resource
+  - Experimental models
+  - Mouse embryonic stem cell (mESC) culture
+  - Metabolic labeling and cell fractionation
+  - "RNA isolation, alkylation of 4sU-labeled RNA, and SLAM-seq"
+  - Western blotting
+  - Transcriptional inhibition by flavopiridol
+  - RT-qPCR
+  - Custom genome annotation for intronic regions
+  - Alignment and read counting
+  - Exclusion of SNPs from T2C mutation counting
+  - T2C mutation counting and normalization
+  - Additional data analysis
+  - Minimal effect of metabolic labeling on the transcriptome
+  - Quantifying relative mRNA abundance of subcellular compartments
+  - Model fitting of subcellular mRNA dynamics
+  - Discriminating models with and without nuclear mRNA degradation
+  - Transcription inhibition-derived subcellular half-lives
+  - Model-derived half-lives
+  - "Modified time:"
+  - Targeting signal and gene group annotations
+  - Acknowledgements
+  - Funding
+  - Data availability
+  - Peer review information
+  - Disclosure and competing interests statement
+  - Expanded View Figures
+figures: 13
+figure_labels:
+  - "1"
+  - "2"
+  - "3"
+  - "4"
+  - "5"
+  - EV2
+  - "-"
+  - EV3
+  - EV4
+  - EV5
+  - "2"
+  - "-"
+  - EV1
+tables: 0
+table_labels: []
+math_blocks: 0
+citations: 79
+references: 46
+references_with_doi: 1

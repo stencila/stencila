@@ -72,6 +72,7 @@ use stencila_codec_pmc::PmcCodec;
 use stencila_codec_png::PngCodec;
 use stencila_codec_rnw::RnwCodec;
 use stencila_codec_swb::SwbCodec;
+use stencila_codec_tei::TeiCodec;
 use stencila_codec_text::TextCodec;
 use stencila_codec_tiptap::TiptapCodec;
 use stencila_codec_xlsx::XlsxCodec;
@@ -123,6 +124,7 @@ pub fn list() -> Vec<Box<dyn Codec>> {
         Box::new(PdfCodec),
         Box::new(PngCodec),
         Box::<SwbCodec>::default(),
+        Box::new(TeiCodec),
         Box::new(TextCodec),
         Box::new(TiptapCodec),
         Box::new(XlsxCodec),

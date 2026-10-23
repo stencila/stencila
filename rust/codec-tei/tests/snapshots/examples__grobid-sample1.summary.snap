@@ -1,0 +1,16 @@
+---
+source: rust/codec-tei/tests/examples.rs
+expression: "Summary::of(&article)?"
+---
+title: ""
+authors: []
+abstract_paragraphs: 0
+headings: []
+figures: 0
+figure_labels: []
+tables: 0
+table_labels: []
+math_blocks: 0
+citations: 0
+references: 8
+references_with_doi: 0

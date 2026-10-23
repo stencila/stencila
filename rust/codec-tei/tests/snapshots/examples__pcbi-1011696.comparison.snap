@@ -1,0 +1,48 @@
+---
+source: rust/codec-tei/tests/examples.rs
+expression: comparison
+---
+headings_only_in_tei:
+  - Eq 12
+  - Eq 20
+  - Eq 21
+  - "Activity state ¼ uðRðtÞ:AðtÞ À ðR:AÞ Thresh Þ"
+  - Eq 25
+  - Author Contributions
+  - "Data curation: Ghazaleh Ostovar."
+  - "Formal analysis: Ghazaleh Ostovar."
+  - "Methodology: Ghazaleh Ostovar."
+  - "Visualization: Ghazaleh Ostovar."
+  - "Writing -review & editing:"
+  - S1 Text. Supporting figures and table. S1 Text contains supporting Figs
+headings_only_in_jats: []
+headings_in_both:
+  - "Introduction (1, 1)"
+  - "Methods (1, 1)"
+  - "Results (1, 1)"
+  - "A model for quorum sensing activation and deactivation (1, 2)"
+  - "Carry-over of biomolecules during the deactivation of quorum sensing (1, 2)"
+  - "Phenotypic memory effect in quorum sensing (1, 2)"
+  - "Cellular parameters controlling the strength of phenotypic memory in quorum sensing (1, 2)"
+  - "Reactivation of quorum sensing in cells with quorum sensing memory (1, 2)"
+  - "Discussion (1, 1)"
+  - "Conclusion (1, 1)"
+  - "Supporting information (1, 1)"
+figures:
+  - 6
+  - 4
+tables:
+  - 1
+  - 1
+math_blocks:
+  - 23
+  - 29
+citations:
+  - 89
+  - 93
+references:
+  - 60
+  - 60
+authors:
+  - 2
+  - 2

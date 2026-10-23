@@ -1,0 +1,55 @@
+---
+source: rust/codec-tei/tests/examples.rs
+expression: comparison
+---
+headings_only_in_tei:
+  - "-figure supplement 2B-E)."
+  - ).
+  - 5T32GM139798 Marissa Ashton
+  - Supplementary files
+headings_only_in_jats:
+  - Competing interests
+  - Author contributions
+  - Appendix 1
+headings_in_both:
+  - "Introduction (1, 1)"
+  - "Results (1, 1)"
+  - "Measuring DNA damage checkpoint arrest and maintenance (1, 2)"
+  - "Analysis of checkpoint factors required for checkpoint maintenance (1, 2)"
+  - "Chk1 sustains checkpoint signaling in the absence of Ddc2, Rad9, Rad24, or Rad53 (1, 2)"
+  - "Dun1 is required for the initiation but not for the maintenance of cell cycle arrest (1, 2)"
+  - "Ddc2 and Rad53's role in maintaining arrest become dispensable in extended G 2 /M arrest (1, 2)"
+  - "Spindle assembly checkpoint proteins Mad1 and Mad2 are required for prolonged arrest (1, 2)"
+  - "Mitotic exit network proteins Bfa1 and Bub2 have different roles in the DDR (1, 2)"
+  - "The location of the second DSB site relative to the centromere affects prolonged arrest (1, 2)"
+  - "Discussion (1, 1)"
+  - "Materials and methods (1, 1)"
+  - "Yeast strain and plasmid construction (1, 2)"
+  - "Culturing conditions, HO expression, and auxin treatment (1, 2)"
+  - "TCA protein extraction (1, 2)"
+  - "Western blotting (1, 2)"
+  - "Microscopy, DAPI staining, and cell morphology determination (1, 2)"
+  - "Adaptation and auxin plating assays (1, 2)"
+  - "Quantification and data analysis (1, 2)"
+  - "Acknowledgements (1, 1)"
+  - "Data availability (1, 1)"
+  - "Additional information (1, 1)"
+  - "Additional files (1, 1)"
+figures:
+  - 54
+  - 19
+tables:
+  - 0
+  - 2
+math_blocks:
+  - 0
+  - 0
+citations:
+  - 120
+  - 136
+references:
+  - 68
+  - 68
+authors:
+  - 7
+  - 7

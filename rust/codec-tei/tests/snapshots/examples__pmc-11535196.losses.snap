@@ -1,0 +1,12 @@
+---
+source: rust/codec-tei/tests/examples.rs
+expression: info.losses
+---
+//TEI/facsimile: 1
+//TEI/teiHeader/@lang: 1
+//TEI/teiHeader/encodingDesc: 1
+//TEI/text/@lang: 1
+//TEI/text/body/figure/head: 1
+"//TEI/text/body/figure[@xml:id='fig_0'] (no image)": 1
+"//TEI/text/body/figure[@xml:id='fig_1'] (no image)": 1
+"//TEI/text/body/figure[@xml:id='fig_2'] (no image)": 1

@@ -1,0 +1,69 @@
+---
+source: rust/codec-tei/tests/examples.rs
+expression: info.losses
+---
+//TEI/facsimile: 1
+//TEI/teiHeader/@lang: 1
+//TEI/teiHeader/encodingDesc: 1
+"//TEI/teiHeader/fileDesc/sourceDesc/biblStruct/note[@type='submission']": 1
+//TEI/text/@lang: 1
+"//TEI/text/back/div/div/p/rs[@type='grantNumber']": 1
+"//TEI/text/back/div/div/p/rs[@type='institution']": 1
+"//TEI/text/back/div/div/p/rs[@type='person']": 5
+"//TEI/text/body/div/note[@type='other']": 1
+"//TEI/text/body/div/p/ref[@type='figure'] (unresolved)": 5
+"//TEI/text/body/div/p/ref[@type='table'] (unresolved)": 4
+"//TEI/text/body/figure[@xml:id='fig_0'] (no image)": 1
+"//TEI/text/body/figure[@xml:id='fig_1'] (no image)": 1
+"//TEI/text/body/figure[@xml:id='fig_10'] (no image)": 1
+"//TEI/text/body/figure[@xml:id='fig_11'] (no image)": 1
+"//TEI/text/body/figure[@xml:id='fig_12'] (no image)": 1
+"//TEI/text/body/figure[@xml:id='fig_13'] (no image)": 1
+"//TEI/text/body/figure[@xml:id='fig_14'] (no image)": 1
+"//TEI/text/body/figure[@xml:id='fig_15'] (no image)": 1
+"//TEI/text/body/figure[@xml:id='fig_16'] (no image)": 1
+"//TEI/text/body/figure[@xml:id='fig_17'] (no image)": 1
+"//TEI/text/body/figure[@xml:id='fig_18'] (no image)": 1
+"//TEI/text/body/figure[@xml:id='fig_19'] (no image)": 1
+"//TEI/text/body/figure[@xml:id='fig_2'] (no image)": 1
+"//TEI/text/body/figure[@xml:id='fig_20'] (no image)": 1
+"//TEI/text/body/figure[@xml:id='fig_21'] (no image)": 1
+"//TEI/text/body/figure[@xml:id='fig_22'] (no image)": 1
+"//TEI/text/body/figure[@xml:id='fig_23'] (no image)": 1
+"//TEI/text/body/figure[@xml:id='fig_24'] (no image)": 1
+"//TEI/text/body/figure[@xml:id='fig_25'] (no image)": 1
+"//TEI/text/body/figure[@xml:id='fig_26'] (no image)": 1
+"//TEI/text/body/figure[@xml:id='fig_27'] (no image)": 1
+"//TEI/text/body/figure[@xml:id='fig_28'] (no image)": 1
+"//TEI/text/body/figure[@xml:id='fig_29'] (no image)": 1
+"//TEI/text/body/figure[@xml:id='fig_3'] (no image)": 1
+"//TEI/text/body/figure[@xml:id='fig_30'] (no image)": 1
+"//TEI/text/body/figure[@xml:id='fig_31'] (no image)": 1
+"//TEI/text/body/figure[@xml:id='fig_32'] (no image)": 1
+"//TEI/text/body/figure[@xml:id='fig_33'] (no image)": 1
+"//TEI/text/body/figure[@xml:id='fig_34'] (no image)": 1
+"//TEI/text/body/figure[@xml:id='fig_35'] (no image)": 1
+"//TEI/text/body/figure[@xml:id='fig_36'] (no image)": 1
+"//TEI/text/body/figure[@xml:id='fig_37'] (no image)": 1
+"//TEI/text/body/figure[@xml:id='fig_38'] (no image)": 1
+"//TEI/text/body/figure[@xml:id='fig_39'] (no image)": 1
+"//TEI/text/body/figure[@xml:id='fig_4'] (no image)": 1
+"//TEI/text/body/figure[@xml:id='fig_40'] (no image)": 1
+"//TEI/text/body/figure[@xml:id='fig_41'] (no image)": 1
+"//TEI/text/body/figure[@xml:id='fig_42'] (no image)": 1
+"//TEI/text/body/figure[@xml:id='fig_43'] (no image)": 1
+"//TEI/text/body/figure[@xml:id='fig_44'] (no image)": 1
+"//TEI/text/body/figure[@xml:id='fig_45'] (no image)": 1
+"//TEI/text/body/figure[@xml:id='fig_46'] (no image)": 1
+"//TEI/text/body/figure[@xml:id='fig_47'] (no image)": 1
+"//TEI/text/body/figure[@xml:id='fig_48'] (no image)": 1
+"//TEI/text/body/figure[@xml:id='fig_49'] (no image)": 1
+"//TEI/text/body/figure[@xml:id='fig_5'] (no image)": 1
+"//TEI/text/body/figure[@xml:id='fig_50'] (no image)": 1
+"//TEI/text/body/figure[@xml:id='fig_51'] (no image)": 1
+"//TEI/text/body/figure[@xml:id='fig_52'] (no image)": 1
+"//TEI/text/body/figure[@xml:id='fig_53'] (no image)": 1
+"//TEI/text/body/figure[@xml:id='fig_6'] (no image)": 1
+"//TEI/text/body/figure[@xml:id='fig_7'] (no image)": 1
+"//TEI/text/body/figure[@xml:id='fig_8'] (no image)": 1
+"//TEI/text/body/figure[@xml:id='fig_9'] (no image)": 1

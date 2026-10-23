@@ -188,6 +188,8 @@ path = [
     "rust/codec-lexical/tests/snapshots/**",
     "rust/codec-pmc/tests/examples/**",
     "rust/codec-pmc/tests/snapshots/**",
+    "rust/codec-tei/tests/examples/*.xml",
+    "rust/codec-tei/tests/snapshots/**",
     "rust/codec-csl/tests/examples/10.1016-j.cell.2024.01.009.json",
     "rust/codec-jats/tests/examples/biorxiv-465267.jats.xml",
     "rust/codec-jats/tests/examples/biorxiv-573522.jats.xml",
@@ -207,6 +209,16 @@ precedence = "override"
 SPDX-FileCopyrightText = "Upstream rightsholders"
 SPDX-License-Identifier = "LicenseRef-Upstream-Test-Fixture"
 SPDX-FileComment = "External article data retained as codec regression fixtures. These files are not relicensed by Stencila."
+
+[[annotations]]
+path = [
+    "rust/codec-tei/tests/examples/grobid-sample1.tei.xml",
+    "rust/codec-tei/tests/examples/grobid-sample2.tei.xml",
+]
+precedence = "override"
+SPDX-FileCopyrightText = "GROBID contributors"
+SPDX-License-Identifier = "Apache-2.0"
+SPDX-FileComment = "Full-text TEI samples from the GROBID repository (grobidOrg/grobid at 523bb8e97f357e93682dc4eaa6d22faa8b5b93de), retained as codec regression fixtures."
 
 [[annotations]]
 path = [

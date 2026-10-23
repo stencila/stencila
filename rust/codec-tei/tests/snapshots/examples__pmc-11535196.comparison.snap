@@ -1,0 +1,27 @@
+---
+source: rust/codec-tei/tests/examples.rs
+expression: comparison
+---
+headings_only_in_tei:
+  - "Datasets:"
+headings_only_in_jats:
+  - Supplementary information
+headings_in_both: []
+figures:
+  - 3
+  - 2
+tables:
+  - 0
+  - 0
+math_blocks:
+  - 0
+  - 0
+citations:
+  - 0
+  - 0
+references:
+  - 0
+  - 0
+authors:
+  - 13
+  - 13

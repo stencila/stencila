@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<TEI xml:space="preserve" xmlns="http://www.tei-c.org/ns/1.0" 
+xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+xsi:schemaLocation="http://www.tei-c.org/ns/1.0 https://raw.githubusercontent.com/kermitt2/grobid/master/grobid-home/schemas/xsd/Grobid.xsd"
+ xmlns:xlink="http://www.w3.org/1999/xlink">
+	<teiHeader xml:lang="en">
+		<fileDesc>
+			<titleStmt>
+				<title level="a" type="main">Author Correction: From coarse to fine: the absolute Escherichia coli proteome under diverse growth conditions</title>
+			</titleStmt>
+			<publicationStmt>
+				<publisher/>
+				<availability  status="unknown">
+					<licence/>
+				</availability>
+				<date type="published" when="2024-10-01">1 October 2024</date>
+			</publicationStmt>
+			<sourceDesc>
+				<biblStruct status="extracted">
+					<analytic>
+						<author>
+							<persName><forename type="first">Matteo</forename><surname>Mori</surname></persName>
+						</author>
+						<author>
+							<persName><forename type="first">Zhongge</forename><surname>Zhang</surname></persName>
+						</author>
+						<author>
+							<persName><forename type="first">Amir</forename><surname>Banaei-Esfahani</surname></persName>
+							<idno type="ORCID">0000-0002-9533-7647</idno>
+						</author>
+						<author>
+							<persName><forename type="first">Jean-Benoît</forename><surname>Lalanne</surname></persName>
+							<idno type="ORCID">0000-0001-8753-0669</idno>
+						</author>
+						<author>
+							<persName><forename type="first">Hiroyuki</forename><surname>Okano</surname></persName>
+						</author>
+						<author>
+							<persName><forename type="first">Ben</forename><forename type="middle">C</forename><surname>Collins</surname></persName>
+						</author>
+						<author>
+							<persName><forename type="first">Alexander</forename><surname>Schmidt</surname></persName>
+							<idno type="ORCID">0000-0002-3149-2381</idno>
+						</author>
+						<author>
+							<persName><forename type="first">Olga</forename><forename type="middle">T</forename><surname>Schubert</surname></persName>
+							<idno type="ORCID">0000-0002-2613-0714</idno>
+						</author>
+						<author>
+							<persName><forename type="first">Deok-Sun</forename><surname>Lee</surname></persName>
+						</author>
+						<author>
+							<persName><forename type="first">Gene-Wei</forename><surname>Li</surname></persName>
+						</author>
+						<author>
+							<persName><forename type="first">Ruedi</forename><surname>Aebersold</surname></persName>
+						</author>
+						<author>
+							<persName><forename type="first">Terence</forename><surname>Hwa</surname></persName>
+						</author>
+						<author>
+							<persName><forename type="first">Christina</forename><surname>Ludwig</surname></persName>
+						</author>
+						<title level="a" type="main">Author Correction: From coarse to fine: the absolute Escherichia coli proteome under diverse growth conditions</title>
+					</analytic>
+					<monogr>
+						<imprint>
+							<date type="published" when="2024-10-01">1 October 2024</date>
+						</imprint>
+					</monogr>
+					<idno type="MD5">8BC4CB67C6D9E750B2E3370AF72FFB2F</idno>
+					<idno type="DOI">10.15252/msb.20209536</idno>
+				</biblStruct>
+			</sourceDesc>
+		</fileDesc>
+		<encodingDesc>
+			<appInfo>
+				<application version="0.9.1" ident="GROBID" when="2026-10-23T04:45+0000">
+					<desc>GROBID - A machine learning software for extracting information from scholarly documents</desc>
+					<label type="revision">0.9.1</label>
+					<label type="parameters">startPage=-1, endPage=-1, consolidateCitations=0, consolidateHeader=0, consolidateFunders=0, includeRawAffiliations=false, includeRawCitations=false, includeRawCopyrights=false, generateTeiIds=false, generateTeiCoordinates=[figure, formula], flavor=null, debugLabelingCollector=disabled</label>
+					<ref target="https://github.com/kermitt2/grobid"/>
+				</application>
+			</appInfo>
+		</encodingDesc>
+		<profileDesc>
+			<abstract/>
+		</profileDesc>
+	</teiHeader>
+	<facsimile>
+		<surface n="1" ulx="0.0" uly="0.0" lrx="595.276" lry="790.866"/>
+		<surface n="2" ulx="0.0" uly="0.0" lrx="595.276" lry="790.866"/>
+		<surface n="3" ulx="0.0" uly="0.0" lrx="595.276" lry="790.866"/>
+	</facsimile>
+	<text xml:lang="en">
+		<body>
+<div xmlns="http://www.tei-c.org/ns/1.0"><p>Author statement: Figure 4: In Figure 4, the labelling of Panel 4D and Panel 4E (A-sector and Ssector) has been mistakenly inverted, as well as the indication of regulations. Additionally, in Figure 4I and 4J, the indication of regulation has been inverted (while here, the sector name is correct). </p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>Datasets:</head><p>It was brought to our attention that the protein molecular weights reported in Dataset EV6 appeared incorrect. We found that these were mistakenly inflated by about 20% due to a bioinformatic error. We corrected the molecular weights and recalculated the protein mass fractions in datasets EV6, EV7, EV8 and EV9, as well as the slopes in dataset EV11. The maximum change in the protein mass fractions compared to the ones reported in the retracted datasets is less than 1%, and the classification of proteins into protein sectors is not affected. Thus, this error does not affect in any way the conclusions of the original paper.</p><p>All authors agree to this correction and apologize to the readers for this error.</p><p>Expanded view data, supplementary information, appendices are available for this paper at <ref type="url" target="https://doi.org/10.1038/s44320-024-00062-5">https://doi.org/10.1038/s44320-024-00062-5</ref>. </p></div><figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_0" coords="1,42.52,354.15,235.87,8.49;1,42.52,376.89,212.73,8.49"><head>Figure</head><figDesc>Figure panels 4D, 4E, 4I and 4J are withdrawn and replaced. Datasets EV6, EV7, EV8, EV9 and EV11 are corrected.</figDesc></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_1" coords="2,49.32,489.42,59.35,6.50;2,70.03,87.65,481.48,377.92"><figDesc>Figure 4. Original.</figDesc><graphic coords="2,70.03,87.65,481.48,377.92" type="bitmap" /></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_2" coords="3,49.32,489.30,65.02,6.50;3,69.88,87.59,481.72,378.04"><head>Figure 4 .</head><label>4</label><figDesc>Figure 4. Corrected.</figDesc><graphic coords="3,69.88,87.59,481.72,378.04" type="bitmap" /></figure>
+			<note xmlns="http://www.tei-c.org/ns/1.0" place="foot" xml:id="foot_0"><p>1234567890();,: © The Author(s) Molecular Systems Biology Volume 20 | Issue 11 | November 2024 | 1257 -1259</p></note>
+			<note xmlns="http://www.tei-c.org/ns/1.0" place="foot" xml:id="foot_1"><p>Molecular Systems BiologyVolume 20 | Issue 11 | November 2024 | 1257 -1259 © The Author(s)</p></note>
+			<note xmlns="http://www.tei-c.org/ns/1.0" place="foot" xml:id="foot_2"><p>© The Author(s)Molecular Systems Biology Volume 20 | Issue 11 | November 2024 | 1257 -1259</p></note>
+		</body>
+		<back>
+			<div type="references">
+
+				<listBibl/>
+			</div>
+		</back>
+	</text>
+</TEI>
