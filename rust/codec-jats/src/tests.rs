@@ -2637,3 +2637,53 @@ async fn custom_figure_encoder_reports_all_losses() -> Result<()> {
 
     Ok(())
 }
+
+/// A citation of several references in one `<xref>` is decoded to a group of
+/// citations, one of each, so that each can be resolved, and is encoded back
+/// to a single `<xref>`
+#[tokio::test]
+async fn citation_of_several_references_roundtrip() -> Result<()> {
+    let codec = JatsCodec {};
+
+    let jats = r#"<article><body><p>As shown <xref ref-type="bibr" rid="b0 b1">[1,2]</xref>.</p></body></article>"#;
+
+    let (doc1, ..) = codec.from_str(jats, None).await?;
+    let Node::Article(Article { content, .. }) = &doc1 else {
+        bail!("expected an article")
+    };
+    let [Block::Paragraph(paragraph)] = content.as_slice() else {
+        bail!("expected a paragraph: {content:?}")
+    };
+    let Some(Inline::CitationGroup(group)) = paragraph.content.get(1) else {
+        bail!("expected a citation group: {:?}", paragraph.content)
+    };
+    let targets = group
+        .items
+        .iter()
+        .map(|citation| citation.target.as_str())
+        .collect::<Vec<_>>();
+    assert_eq!(targets, vec!["b0", "b1"]);
+    assert_eq!(
+        group.content.as_ref().map(to_text).as_deref(),
+        Some("[1,2]")
+    );
+
+    let (encoded, ..) = codec
+        .to_string(
+            &doc1,
+            Some(EncodeOptions {
+                compact: Some(true),
+                ..Default::default()
+            }),
+        )
+        .await?;
+    assert!(
+        encoded.contains(r#"<xref ref-type="bibr" rid="b0 b1">[1,2]</xref>"#),
+        "{encoded}"
+    );
+
+    let (doc2, ..) = codec.from_str(&encoded, None).await?;
+    assert_eq!(doc2, doc1);
+
+    Ok(())
+}

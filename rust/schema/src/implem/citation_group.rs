@@ -59,6 +59,27 @@ impl LatexCodec for CitationGroup {
 
 impl JatsCodec for CitationGroup {
     fn to_jats(&self, context: &mut JatsEncodeContext) {
+        // A group with content, either decoded from a single `<xref>` with
+        // several `rid`s or rendered in a citation style, is encoded as such
+        // an `<xref>` so that the content is not lost, and so that it round
+        // trips. Each target is resolved separately to the id that its
+        // reference is emitted with.
+        if let Some(content) = &self.content {
+            let target = self
+                .items
+                .iter()
+                .flat_map(|item| item.target.split_whitespace())
+                .map(|target| context.resolve_reference_id(target).to_string())
+                .join(" ");
+            context
+                .enter_elem("xref")
+                .push_attr("ref-type", "bibr")
+                .push_attr("rid", target);
+            content.to_jats(context);
+            context.exit_elem();
+            return;
+        }
+
         context.push_text("(");
         for (index, item) in self.items.iter().enumerate() {
             if index > 0 {

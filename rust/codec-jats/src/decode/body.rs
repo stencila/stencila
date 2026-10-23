@@ -8,14 +8,15 @@ use roxmltree::Node;
 use stencila_codec::{
     stencila_format::Format,
     stencila_schema::{
-        Admonition, AudioObject, AudioObjectOptions, Block, Citation, CitationOptions, Claim,
-        ClaimType, CodeBlock, CodeChunk, CodeExpression, CodeInline, Cord, CreativeWorkType, Date,
-        DateTime, Duration, ExecutionMode, Figure, Heading, HorizontalAlignment, ImageObject,
-        ImageObjectOptions, Inline, Link, List, ListItem, ListOrder, MathBlock, MathBlockOptions,
-        MathInline, MathInlineOptions, MediaObject, MediaObjectOptions, Note, NoteType, Parameter,
-        Section, SectionType, StyledInline, Supplement, Table, TableCell, TableCellOptions,
-        TableCellType, TableOptions, TableRow, TableRowType, Text, ThematicBreak, Time, Timestamp,
-        VerticalAlignment, VideoObject, VideoObjectOptions,
+        Admonition, AudioObject, AudioObjectOptions, Block, Citation, CitationGroup,
+        CitationOptions, Claim, ClaimType, CodeBlock, CodeChunk, CodeExpression, CodeInline, Cord,
+        CreativeWorkType, Date, DateTime, Duration, ExecutionMode, Figure, Heading,
+        HorizontalAlignment, ImageObject, ImageObjectOptions, Inline, Link, List, ListItem,
+        ListOrder, MathBlock, MathBlockOptions, MathInline, MathInlineOptions, MediaObject,
+        MediaObjectOptions, Note, NoteType, Parameter, Section, SectionType, StyledInline,
+        Supplement, Table, TableCell, TableCellOptions, TableCellType, TableOptions, TableRow,
+        TableRowType, Text, ThematicBreak, Time, Timestamp, VerticalAlignment, VideoObject,
+        VideoObjectOptions,
         shortcuts::{em, mi, p, qb, qi, stg, stk, sub, sup, t, u},
     },
 };
@@ -1653,16 +1654,32 @@ fn decode_timestamp(path: &str, node: &Node, losses: &mut DecodeContext) -> Inli
 /// There is no builtin way to differentiate between narrative and parenthetical
 /// citations in JATS (it needs to be inferred from surrounding punctuation
 /// during structuring). So in this function, do not assume one or other.
+///
+/// A `rid` can list more than one reference (e.g. for "[1,2]"). Because the
+/// target of a citation is a single reference, such a `<xref>` is decoded to a
+/// [`Inline::CitationGroup`] with a citation of each, and the content of the
+/// `<xref>` as the content of the group.
 fn decode_xref_citation(path: &str, node: &Node, losses: &mut DecodeContext) -> Inline {
-    let target = node.attribute("rid").map(String::from).unwrap_or_default();
+    let targets = node
+        .attribute("rid")
+        .map(|rid| rid.split_whitespace().map(String::from).collect_vec())
+        .unwrap_or_default();
 
     record_attrs_lost(path, node, ["ref-type", "rid"], losses);
 
     let content = decode_inlines(path, node.children(), losses);
     let content = (!content.is_empty()).then_some(content);
 
+    if targets.len() > 1 {
+        return Inline::CitationGroup(CitationGroup {
+            items: targets.into_iter().map(Citation::new).collect(),
+            content,
+            ..Default::default()
+        });
+    }
+
     Inline::Citation(Citation {
-        target,
+        target: targets.into_iter().next().unwrap_or_default(),
         options: Box::new(CitationOptions {
             content,
             ..Default::default()
