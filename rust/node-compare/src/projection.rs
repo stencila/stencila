@@ -92,6 +92,9 @@ pub const PROJECTION_VERSION: &str = "1";
 /// far beyond any real document — a scholarly article nests a few tens of levels at
 /// most — and exceeding it returns [`CompareError::DepthExceeded`] rather than
 /// aborting the process.
+///
+/// Nested dynamic arrays and objects count toward the same limit. Errors inside a
+/// dynamic value name its containing path, since its entries are not node paths.
 pub const MAX_DEPTH: usize = 128;
 
 /// An index into a [`Projection`]'s arena of occurrences
@@ -308,6 +311,19 @@ impl Projection {
             })
     }
 
+    /// Enforce one nesting limit across structured nodes and dynamic scalar values.
+    fn check_depth(&self, path: &NodePath, depth: usize) -> CompareResult<()> {
+        if depth > MAX_DEPTH {
+            return Err(CompareError::DepthExceeded {
+                side: self.side,
+                path: path.clone(),
+                depth,
+                allowed: MAX_DEPTH,
+            });
+        }
+        Ok(())
+    }
+
     /// Project a value, returning the item that represents it
     fn project(
         &mut self,
@@ -317,14 +333,7 @@ impl Projection {
         parent_property: Option<NodeProperty>,
         depth: usize,
     ) -> CompareResult<Item> {
-        if depth > MAX_DEPTH {
-            return Err(CompareError::DepthExceeded {
-                side: self.side,
-                path,
-                depth,
-                allowed: MAX_DEPTH,
-            });
-        }
+        self.check_depth(&path, depth)?;
 
         // A value with a node type is a structured occurrence. Union enums report the
         // node type of their selected branch, so they add no occurrence of their own,
@@ -355,7 +364,7 @@ impl Projection {
         }
 
         match node.scalar() {
-            Some(scalar) => Ok(Item::Scalar(self.scalar_value(scalar, &path)?)),
+            Some(scalar) => Ok(Item::Scalar(self.scalar_value(scalar, &path, depth)?)),
             None => Err(CompareError::Projection {
                 side: self.side,
                 path,
@@ -416,7 +425,13 @@ impl Projection {
     }
 
     /// Convert a borrowed scalar into a canonical scalar value
-    fn scalar_value(&self, scalar: ScalarRef<'_>, path: &NodePath) -> CompareResult<ScalarValue> {
+    fn scalar_value(
+        &self,
+        scalar: ScalarRef<'_>,
+        path: &NodePath,
+        depth: usize,
+    ) -> CompareResult<ScalarValue> {
+        self.check_depth(path, depth)?;
         Ok(match scalar {
             ScalarRef::Null => ScalarValue::Null,
             ScalarRef::Boolean(value) => ScalarValue::Boolean { value },
@@ -436,7 +451,7 @@ impl Projection {
             ScalarRef::Array(array) => {
                 let items = array
                     .iter()
-                    .map(|primitive| self.primitive_value(primitive, path))
+                    .map(|primitive| self.primitive_value(primitive, path, depth + 1))
                     .collect::<CompareResult<Vec<_>>>()?;
                 ScalarValue::Array { items }
             }
@@ -444,7 +459,10 @@ impl Projection {
                 let entries = object
                     .iter()
                     .map(|(key, primitive)| {
-                        Ok((key.clone(), self.primitive_value(primitive, path)?))
+                        Ok((
+                            key.clone(),
+                            self.primitive_value(primitive, path, depth + 1)?,
+                        ))
                     })
                     .collect::<CompareResult<Vec<_>>>()?;
                 ScalarValue::object(entries).map_err(|error| CompareError::Scalar {
@@ -461,9 +479,10 @@ impl Projection {
         &self,
         primitive: &dyn InspectNode,
         path: &NodePath,
+        depth: usize,
     ) -> CompareResult<ScalarValue> {
         match primitive.scalar() {
-            Some(scalar) => self.scalar_value(scalar, path),
+            Some(scalar) => self.scalar_value(scalar, path, depth),
             None => Err(CompareError::Scalar {
                 side: self.side,
                 path: path.clone(),
