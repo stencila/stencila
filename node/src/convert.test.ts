@@ -47,7 +47,11 @@ test('toPath', async () => {
 
   const temp = tmp.fileSync({ postfix: '.jats' }).name
   await toPath(original, temp)
-  const roundTrip = await fromPath(temp)
+  const roundTrip = await fromPath<Article>(temp)
+  // File decoding can add source metadata depending on the Git environment.
+  delete roundTrip.path
+  delete roundTrip.commit
+  delete roundTrip.repository
   expect(roundTrip).toEqual(original)
 })
 
