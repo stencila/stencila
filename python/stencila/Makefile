@@ -21,10 +21,11 @@ fix: uv.lock
 lint: uv.lock
 	uv run ruff check
 
-# Run tests
-test: uv.lock
-	uv run maturin develop
-	uv run pytest
+# Run tests with one debug build, avoiding uv's implicit release build
+test:
+	uv sync --no-install-project
+	uv run --no-sync maturin develop
+	uv run --no-sync pytest
 
 # Run tests with coverage
 cover: uv.lock
