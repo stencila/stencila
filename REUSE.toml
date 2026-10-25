@@ -68,6 +68,7 @@ path = [
     "rust/code-analysis/include/**",
     "rust/code-analysis/rules/**",
     "rust/code-analysis/scripts/**",
+    "rust/codec-jats/MEDIA.md",
     "rust/content-credentials/icons/**",
     "rust/content-credentials/interop/**",
     "rust/kernel-python/test-themes.py",
