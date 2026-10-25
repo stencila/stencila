@@ -1,7 +1,7 @@
 use stencila_codec::{
     DecodeInfo, EncodeOptions,
     eyre::{OptionExt, Result, bail},
-    stencila_schema::{Article, Block, Node},
+    stencila_schema::{Article, Block, Inline, Node},
 };
 use stencila_codec_jats::{decode, encode};
 use stencila_codec_text_trait::to_text;
@@ -75,6 +75,85 @@ fn deduplicates_only_identical_back_matter_sections() -> Result<()> {
 }
 
 #[test]
+fn preserves_images_in_table_cells() -> Result<()> {
+    let (article, info) = article(
+        r#"<article xmlns:xlink="http://www.w3.org/1999/xlink"><body>
+          <table-wrap><table><tr>
+            <td> <inline-graphic xlink:href="inline.png"/> </td>
+            <td><p><inline-graphic xlink:href="paragraph.png"/></p></td>
+            <td><disp-formula><graphic xlink:href="formula.png"/></disp-formula></td>
+            <td><inline-graphic xlink:href="before.png"/> text <inline-graphic xlink:href="after.png"/></td>
+            <td> </td>
+          </tr></table></table-wrap>
+        </body></article>"#,
+    )?;
+    assert!(info.losses.is_empty());
+    let Block::Table(table) = &article.content[0] else {
+        bail!("expected a table")
+    };
+    let cells = &table.rows[0].cells;
+    for (cell, url) in [(&cells[0], "inline.png"), (&cells[1], "paragraph.png")] {
+        let Block::Paragraph(paragraph) = &cell.content[0] else {
+            bail!("expected an image paragraph")
+        };
+        assert_eq!(paragraph.content.len(), 1);
+        assert!(matches!(
+            &paragraph.content[0],
+            Inline::ImageObject(image) if image.content_url == url
+        ));
+    }
+    let Block::MathBlock(math) = &cells[2].content[0] else {
+        bail!("expected an image formula")
+    };
+    let images = math
+        .options
+        .images
+        .as_ref()
+        .ok_or_eyre("missing formula image")?;
+    assert_eq!(images[0].content_url, "formula.png");
+    let Block::Paragraph(paragraph) = &cells[3].content[0] else {
+        bail!("expected a paragraph with images surrounding text")
+    };
+    assert!(
+        matches!(paragraph.content.first(), Some(Inline::ImageObject(image)) if image.content_url == "before.png")
+    );
+    assert!(
+        matches!(paragraph.content.last(), Some(Inline::ImageObject(image)) if image.content_url == "after.png")
+    );
+    assert!(cells[4].content.is_empty());
+    assert_roundtrip(&article)
+}
+
+#[test]
+fn preserves_inline_runs_around_table_cell_blocks() -> Result<()> {
+    let (article, info) = article(
+        r#"<article><body><table-wrap><table><tr>
+          <th>Before <p>Middle</p> After</th>
+          <td><bold>Start</bold><p>One</p> between <p>Two</p><italic>End</italic></td>
+        </tr></table></table-wrap></body></article>"#,
+    )?;
+    assert!(info.losses.is_empty());
+    let Block::Table(table) = &article.content[0] else {
+        bail!("expected a table")
+    };
+    for (cell, expected) in [
+        (&table.rows[0].cells[0], vec!["Before", "Middle", "After"]),
+        (
+            &table.rows[0].cells[1],
+            vec!["Start", "One", "between", "Two", "End"],
+        ),
+    ] {
+        let actual = cell
+            .content
+            .iter()
+            .map(|block| to_text(block).trim().to_string())
+            .collect::<Vec<_>>();
+        assert_eq!(actual, expected);
+    }
+    assert_roundtrip(&article)
+}
+
+#[test]
 fn accumulates_reference_lists_and_ignores_empty_lists() -> Result<()> {
     let (article, info) = article(
         r#"<article><back>
@@ -96,4 +175,28 @@ fn accumulates_reference_lists_and_ignores_empty_lists() -> Result<()> {
         [Some("r1"), Some("r2")]
     );
     assert_roundtrip(&article)
+}
+
+#[test]
+fn retains_boxed_text_caption_after_whitespace_or_comments() -> Result<()> {
+    let compact = "<article><body><boxed-text><caption><title>Important</title></caption><p>Content</p></boxed-text></body></article>";
+    let (expected, expected_info) = article(compact)?;
+    for prefix in ["\n  ", "\n<!-- a comment -->\n  "] {
+        let source = compact.replace("<boxed-text>", &format!("<boxed-text>{prefix}"));
+        let (actual, info) = article(&source)?;
+        assert_eq!(actual, expected);
+        assert_eq!(
+            serde_json::to_value(&info.losses)?,
+            serde_json::to_value(&expected_info.losses)?
+        );
+        let Block::Admonition(admonition) = &actual.content[0] else {
+            bail!("expected boxed text")
+        };
+        assert_eq!(
+            to_text(admonition.title.as_ref().ok_or_eyre("missing caption")?),
+            "Important"
+        );
+        assert_roundtrip(&actual)?;
+    }
+    Ok(())
 }

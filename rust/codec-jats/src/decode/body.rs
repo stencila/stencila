@@ -143,18 +143,9 @@ fn decode_boxed_text(path: &str, node: &Node, losses: &mut DecodeContext, depth:
         .attribute("is-folded")
         .and_then(|is_folded| is_folded.parse().ok());
 
-    let mut title = None;
-    let mut children = node.children().peekable();
-    if let Some(first) = children.peek()
-        && first.tag_name().name() == "caption"
-    {
-        title = Some(decode_inlines(
-            &extend_path(path, "caption"),
-            first.children(),
-            losses,
-        ));
-        children.next();
-    }
+    let caption = node.children().find(|child| child.has_tag_name("caption"));
+    let title = caption
+        .map(|caption| decode_inlines(&extend_path(path, "caption"), caption.children(), losses));
 
     record_attrs_lost(path, node, ["id", "content-type", "is-folded"], losses);
 
@@ -163,7 +154,12 @@ fn decode_boxed_text(path: &str, node: &Node, losses: &mut DecodeContext, depth:
         admonition_type: typ,
         is_folded,
         title,
-        content: decode_blocks(path, children, losses, depth),
+        content: decode_blocks(
+            path,
+            node.children().filter(|child| Some(*child) != caption),
+            losses,
+            depth,
+        ),
         ..Default::default()
     })
 }
@@ -1148,41 +1144,26 @@ fn decode_table_cell(path: &str, node: &Node, losses: &mut DecodeContext, depth:
     }
     record_attrs_lost(path, node, not_lost, losses);
 
-    // Decide between block and inline decoding up front. Trial decoding as
-    // inlines first would report every block child (usually a <p>) as lost even
-    // though the block fallback goes on to decode it.
-    let has_block_children = node
-        .children()
-        .any(|child| child.is_element() && is_block_element(child.tag_name().name()));
-
-    let content = if has_block_children {
-        decode_blocks(path, node.children(), losses, depth)
-            .into_iter()
-            .filter_map(|block| (!to_text(&block).trim().is_empty()).then_some(block))
-            .collect()
-    } else {
-        // Drop the whitespace that surrounds the content of a cell, but not
-        // whitespace within it, which separates words
-        let mut inlines: Vec<Inline> = decode_inlines(path, node.children(), losses);
-        while inlines
-            .first()
-            .is_some_and(|inline| to_text(inline).trim().is_empty())
-        {
-            inlines.remove(0);
-        }
-        while inlines
-            .last()
-            .is_some_and(|inline| to_text(inline).trim().is_empty())
-        {
-            inlines.pop();
-        }
-
-        if inlines.is_empty() {
-            Vec::new()
+    // A cell can mix inline runs with blocks. Decode each run as a paragraph
+    // and each block directly, keeping their order and avoiding trial decodes
+    // that would incorrectly report supported children as lost.
+    let mut content = Vec::new();
+    let mut inlines = Vec::new();
+    for child in node.children() {
+        if child.is_element() && is_block_element(child.tag_name().name()) {
+            if let Some(paragraph) =
+                decode_cell_paragraph(path, std::mem::take(&mut inlines), losses)
+            {
+                content.push(paragraph);
+            }
+            content.extend(decode_blocks(path, once(child), losses, depth));
         } else {
-            vec![p(inlines)]
+            inlines.push(child);
         }
-    };
+    }
+    if let Some(paragraph) = decode_cell_paragraph(path, inlines, losses) {
+        content.push(paragraph);
+    }
 
     TableCell {
         cell_type,
@@ -1197,6 +1178,22 @@ fn decode_table_cell(path: &str, node: &Node, losses: &mut DecodeContext, depth:
         }),
         ..Default::default()
     }
+}
+
+/// Decode an inline run within a table cell, trimming only whitespace text.
+///
+/// An image or another non-text node can have an empty text representation
+/// while still carrying content, so it must never be trimmed on that basis.
+fn decode_cell_paragraph(
+    path: &str,
+    nodes: Vec<Node>,
+    losses: &mut DecodeContext,
+) -> Option<Block> {
+    let mut inlines = decode_inlines(path, nodes.into_iter(), losses);
+    let is_content = |inline: &Inline| !matches!(inline, Inline::Text(Text { value, .. }) if value.trim().is_empty());
+    let start = inlines.iter().position(is_content)?;
+    let end = inlines.iter().rposition(is_content)?;
+    Some(p(inlines.drain(start..=end).collect_vec()))
 }
 
 /// Decode the JATS `align` attribute of a table cell
