@@ -6,6 +6,7 @@ headings_only_in_tei:
   - "Datasets:"
 headings_only_in_jats:
   - Supplementary information
+  - Supplementary information
 headings_in_both: []
 figures:
   - 3

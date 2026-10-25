@@ -1,19 +1,19 @@
 Examples of the parameter type can be inferred from options when using Markdown.
 
-No options and no type, so no validator: .
+No options and no type, so no validator: par1.
 
-Options only found on string parameters: , , .
+Options only found on string parameters: par1, par2, par3.
 
-Option vals is only on "enum" parameters: .
+Option vals is only on "enum" parameters: par1.
 
-Options specified as bool: .
+Options specified as bool: par1.
 
-Options specified as integer: , , .
+Options specified as integer: par1, par2, par3.
 
-Options specified as number: , , , .
+Options specified as number: par1, par2, par3, par4.
 
-Options specified as date: .
+Options specified as date: par1.
 
-Options specified as time: .
+Options specified as time: par1.
 
-Options specified as datetime: .
+Options specified as datetime: par1.

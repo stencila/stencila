@@ -5235,6 +5235,36 @@ expression: article
     },
     {
       "type": "Section",
+      "id": "s6",
+      "sectionType": "CompetingInterests",
+      "content": [
+        {
+          "type": "Heading",
+          "level": 1,
+          "content": [
+            {
+              "type": "Text",
+              "value": {
+                "string": "Competing Interest"
+              }
+            }
+          ]
+        },
+        {
+          "type": "Paragraph",
+          "content": [
+            {
+              "type": "Text",
+              "value": {
+                "string": "None declared."
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "Section",
       "id": "s7",
       "content": [
         {

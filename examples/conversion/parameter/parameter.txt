@@ -1,15 +1,15 @@
-A boolean parameter , with a default , with a default and value 
+A boolean parameter par_bool_1, with a default par_bool_2, with a default and value par_bool_3
 
-An integer parameter , with a default , with a default and value , with min, max and mult options 
+An integer parameter par_int_1, with a default par_int_2, with a default and value par_int_3, with min, max and mult options par_int_4
 
-A number parameter 
+A number parameter par_num_1
 
-A string parameter  with quotes in properties 
+A string parameter par_str_1 with quotes in properties par_str_2
 
-A date parameter 
+A date parameter par_date
 
-A time parameter 
+A time parameter par_time
 
-A date-time parameter 
+A date-time parameter par_date_time
 
-An enum parameter 
+An enum parameter par_enum

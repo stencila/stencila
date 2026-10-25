@@ -2792,6 +2792,36 @@ expression: article
           ]
         }
       ]
+    },
+    {
+      "type": "Section",
+      "id": "s5",
+      "sectionType": "CompetingInterests",
+      "content": [
+        {
+          "type": "Heading",
+          "level": 1,
+          "content": [
+            {
+              "type": "Text",
+              "value": {
+                "string": "Conflict of Interest"
+              }
+            }
+          ]
+        },
+        {
+          "type": "Paragraph",
+          "content": [
+            {
+              "type": "Text",
+              "value": {
+                "string": "The authors declare no conflict of interest."
+              }
+            }
+          ]
+        }
+      ]
     }
   ],
   "identifiers": [

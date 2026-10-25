@@ -13,6 +13,7 @@ headings_only_in_tei:
 headings_only_in_jats:
   - Validation with external datasets and independent approaches
   - Supplementary information
+  - Supplementary information
   - Author contributions
 headings_in_both:
   - "Introduction (1, 1)"
