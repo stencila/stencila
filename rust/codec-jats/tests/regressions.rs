@@ -200,3 +200,90 @@ fn retains_boxed_text_caption_after_whitespace_or_comments() -> Result<()> {
     }
     Ok(())
 }
+
+fn assert_mathml_preserved(mathml: &str) -> Result<()> {
+    let (article, info) = article(&format!(
+        "<article><body><disp-formula>{mathml}</disp-formula></body></article>"
+    ))?;
+    assert!(info.losses.is_empty());
+    let Block::MathBlock(math) = &article.content[0] else {
+        bail!("expected a formula")
+    };
+    assert_xml_elements_equal(mathml, &math.code)?;
+
+    // Pretty encoding can indent the MathML source. Compare expanded names
+    // and attribute values rather than requiring identical source whitespace.
+    let node = Node::Article(article);
+    for compact in [true, false] {
+        let (encoded, _) = encode(
+            &node,
+            Some(EncodeOptions {
+                compact: Some(compact),
+                ..Default::default()
+            }),
+        )?;
+        let (decoded, _) = decode(&encoded, None)?;
+        let Node::Article(article) = decoded else {
+            bail!("expected an article")
+        };
+        let Block::MathBlock(math) = &article.content[0] else {
+            bail!("expected a formula")
+        };
+        assert_xml_elements_equal(mathml, &math.code)?;
+    }
+    Ok(())
+}
+
+fn assert_xml_elements_equal(expected: &str, actual: &str) -> Result<()> {
+    let expected = roxmltree::Document::parse(expected)?;
+    let actual = roxmltree::Document::parse(actual)?;
+    let expected = expected
+        .descendants()
+        .filter(roxmltree::Node::is_element)
+        .collect::<Vec<_>>();
+    let actual = actual
+        .descendants()
+        .filter(roxmltree::Node::is_element)
+        .collect::<Vec<_>>();
+    assert_eq!(actual.len(), expected.len());
+    for (actual, expected) in actual.iter().zip(&expected) {
+        assert_eq!(actual.tag_name(), expected.tag_name());
+        assert_eq!(actual.attributes().len(), expected.attributes().len());
+        for attribute in expected.attributes() {
+            let value = actual
+                .attributes()
+                .find(|actual| {
+                    actual.name() == attribute.name() && actual.namespace() == attribute.namespace()
+                })
+                .map(|attribute| attribute.value());
+            assert_eq!(
+                value,
+                Some(attribute.value()),
+                "attribute {}",
+                attribute.name()
+            );
+        }
+    }
+    Ok(())
+}
+
+#[test]
+fn escapes_mathml_attribute_values() -> Result<()> {
+    assert_mathml_preserved(
+        r#"<math xmlns="http://www.w3.org/1998/Math/MathML" alttext="A &amp; B &lt; C &quot;quoted&quot; &apos;single&apos; &#9;&#10;&#13;"><mi>x</mi></math>"#,
+    )
+}
+
+#[test]
+fn preserves_scoped_default_namespaces_in_mathml() -> Result<()> {
+    assert_mathml_preserved(
+        r#"<math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>x</mi><annotation-xml encoding="application/xhtml+xml"><div xmlns="http://www.w3.org/1999/xhtml"><span>x</span><plain xmlns="">y</plain></div></annotation-xml></semantics></math>"#,
+    )
+}
+
+#[test]
+fn preserves_rebound_prefixes_and_namespaced_attributes_in_mathml() -> Result<()> {
+    assert_mathml_preserved(
+        r#"<math xmlns="http://www.w3.org/1998/Math/MathML" xmlns:m="http://www.w3.org/1998/Math/MathML" xmlns:q="urn:outer" m:flag="yes" xml:lang="en"><semantics><mi q:flag="outer">x</mi><annotation-xml><q:outer><q:inner xmlns:q="urn:inner" q:flag="inner"/><q:outer/></q:outer></annotation-xml></semantics></math>"#,
+    )
+}

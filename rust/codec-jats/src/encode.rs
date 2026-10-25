@@ -11,7 +11,7 @@ use stencila_codec::{
     eyre::{Result, bail, eyre},
     stencila_schema::Node,
 };
-use stencila_codec_jats_trait::to_jats;
+use stencila_codec_jats_trait::{encode::escape, to_jats};
 
 /// Encode a [`Node`] as JATS XML
 pub fn encode(node: &Node, options: Option<EncodeOptions>) -> Result<(String, EncodeInfo)> {
@@ -266,81 +266,101 @@ fn write_indent<W: std::io::Write>(writer: &mut Writer<W>, depth: usize) -> Resu
 
 /// Recursively serialise a `roxmltree::Node` (and its subtree) to XML.
 ///
-/// The serialized fragment stands on its own: the prefix of every name is kept
-/// and the namespaces that the subtree uses are declared on its root, so that
-/// content such as MathML remains valid wherever it is put again.
+/// The serialized fragment stands on its own. Namespace bindings are declared
+/// where needed and scoped to each element, preserving nested default
+/// namespaces and prefix rebindings in content such as MathML annotations.
 pub(super) fn serialize_node(node: XmlNode) -> Result<String> {
     let mut writer = Writer::new(Cursor::new(Vec::new()));
-    write_node(&mut writer, node, true)?;
+    // The xml prefix is implicitly bound in every XML document.
+    let mut namespaces = vec![(
+        Some("xml".to_string()),
+        "http://www.w3.org/XML/1998/namespace".to_string(),
+    )];
+    write_node(&mut writer, node, &mut namespaces)?;
     let bytes = writer.into_inner().into_inner();
-    Ok(String::from_utf8(bytes).expect("UTF-8 in quick-xml writer"))
+    Ok(String::from_utf8(bytes)?)
 }
 
-/// The qualified name of a node or attribute, with the prefix that it was
-/// written with
-fn qualified_name(element: &XmlNode, namespace: Option<&str>, name: &str) -> String {
-    match namespace.and_then(|namespace| element.lookup_prefix(namespace)) {
+/// Qualify a node or attribute name with a namespace prefix.
+fn qualified_name(prefix: Option<&str>, name: &str) -> String {
+    match prefix {
         Some(prefix) if !prefix.is_empty() => [prefix, ":", name].concat(),
         _ => name.to_string(),
     }
 }
 
-/// The namespaces used by an element and its descendants
-fn used_namespaces<'input>(
-    node: &XmlNode<'input, 'input>,
-) -> Vec<(Option<&'input str>, &'input str)> {
-    let mut used: Vec<(Option<&str>, &str)> = Vec::new();
-    for descendant in node.descendants().filter(XmlNode::is_element) {
-        let namespaces = descendant
-            .tag_name()
-            .namespace()
-            .into_iter()
-            .chain(descendant.attributes().filter_map(|a| a.namespace()));
-        for namespace in namespaces {
-            if used.iter().any(|(.., uri)| *uri == namespace) {
-                continue;
-            }
-            if let Some(namespace) = descendant
-                .namespaces()
-                .find(|candidate| candidate.uri() == namespace)
-            {
-                used.push((namespace.name(), namespace.uri()));
-            }
-        }
+/// Declare a binding only when it differs from the binding currently in scope.
+/// An empty URI resets an inherited default namespace for an unqualified node.
+fn declare_namespace(
+    start: &mut BytesStart,
+    namespaces: &mut Vec<(Option<String>, String)>,
+    prefix: Option<&str>,
+    uri: &str,
+) {
+    let current = namespaces
+        .iter()
+        .rev()
+        .find(|(name, _)| name.as_deref() == prefix)
+        .map(|(_, uri)| uri.as_str())
+        .unwrap_or_default();
+    if current == uri {
+        return;
     }
-    used
+
+    let declaration = match prefix {
+        Some(prefix) => ["xmlns:", prefix].concat(),
+        None => "xmlns".to_string(),
+    };
+    start.push_attribute((declaration.as_bytes(), escape(uri).as_bytes()));
+    namespaces.push((prefix.map(String::from), uri.to_string()));
 }
 
 /// Internal helper that writes one node and all descendants.
-fn write_node<W: std::io::Write>(w: &mut Writer<W>, node: XmlNode, root: bool) -> Result<()> {
+fn write_node<W: std::io::Write>(
+    w: &mut Writer<W>,
+    node: XmlNode,
+    namespaces: &mut Vec<(Option<String>, String)>,
+) -> Result<()> {
     match node.node_type() {
         XmlNodeType::Element => {
-            // <elem …attrs…>
-            let name = qualified_name(&node, node.tag_name().namespace(), node.tag_name().name());
+            let scope_start = namespaces.len();
+            let namespace = node.tag_name().namespace();
+            let prefix = namespace.and_then(|uri| node.lookup_prefix(uri));
+            let name = qualified_name(prefix, node.tag_name().name());
             let mut start = BytesStart::new(name.clone());
-            if root {
-                for (prefix, uri) in used_namespaces(&node) {
-                    let declaration = match prefix {
-                        Some(prefix) => ["xmlns:", prefix].concat(),
-                        None => "xmlns".to_string(),
-                    };
-                    start.push_attribute((declaration.as_bytes(), uri.as_bytes()));
-                }
-            }
+            declare_namespace(
+                &mut start,
+                namespaces,
+                prefix,
+                namespace.unwrap_or_default(),
+            );
+
             for a in node.attributes() {
-                let name = qualified_name(&node, a.namespace(), a.name());
-                start.push_attribute((name.as_bytes(), a.value().as_bytes()));
+                // Default namespaces do not apply to attributes. Prefer an
+                // explicit prefix, falling back to the implicit xml prefix.
+                let prefix = a.namespace().and_then(|uri| {
+                    node.namespaces()
+                        .find(|namespace| namespace.name().is_some() && namespace.uri() == uri)
+                        .and_then(|namespace| namespace.name())
+                        .or_else(|| node.lookup_prefix(uri))
+                });
+                if let Some(uri) = a.namespace() {
+                    declare_namespace(&mut start, namespaces, prefix, uri);
+                }
+                let name = qualified_name(prefix, a.name());
+                // roxmltree has already unescaped the value. Escape it again,
+                // including character references for attribute whitespace.
+                start.push_attribute((name.as_bytes(), escape(a.value()).as_bytes()));
             }
             w.write_event(Event::Start(start))?;
 
-            // children
             for child in node.children() {
-                write_node(w, child, false)?;
+                write_node(w, child, namespaces)?;
             }
 
-            // </elem>
             let end = BytesEnd::new(name);
             w.write_event(Event::End(end))?;
+            namespaces.truncate(scope_start);
         }
 
         XmlNodeType::Text => {
