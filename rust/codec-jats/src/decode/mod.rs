@@ -119,23 +119,21 @@ fn decode_article(path: &str, root: &roxmltree::Node, losses: &mut DecodeContext
         }
     }
 
-    // Append any front or back matter content (e.g. <notes>) but not if the same section
-    // already exists (e.g. sometime conflict of interest section is in frontmatter notes and body)
+    // Front and back matter sometimes repeat a body section. Only discard an
+    // identical section: a shared type does not make two appendices or
+    // acknowledgements duplicates, and distinct ids must remain addressable.
     for block in notes {
-        if let Block::Section(Section {
-            section_type: Some(section_type),
-            ..
-        }) = block
+        if matches!(
+            &block,
+            Block::Section(Section {
+                section_type: Some(_),
+                ..
+            })
+        ) && content.contains(&block)
         {
-            if !content.iter().any(|block| match block {
-                Block::Section(section) => section.section_type == Some(section_type),
-                _ => false,
-            }) {
-                content.push(block);
-            }
-        } else {
-            content.push(block);
+            continue;
         }
+        content.push(block);
     }
     article.content = content;
 

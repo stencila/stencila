@@ -391,6 +391,10 @@ expression: jats
       <p>The authors have declared no competing interest.</p>
     </sec>
     <p><fn fn-type="custom" id="fn-1" custom-type="Footnote"><p>&#10;            <ext-link id="ext-link-2" ext-link-type="uri" xlink:href="https://github.com/COSIN3-UOC">https://github.com/COSIN3-UOC</ext-link>&#10;          </p></fn></p>
+    <sec id="s5" sec-type="CompetingInterests">
+      <title level="1">CONFLICT OF INTERESTS</title>
+      <p>The authors declare that there are no conflicts of interest regarding the publication of this paper.</p>
+    </sec>
     <sec id="s6" sec-type="CodeAvailability">
       <title level="1">CODE AVAILABILITY</title>
       <p>The corresponding software code to (1) generate synthetic networks with nested, modular and in-block nested structures; (2) the implementation of the metrics and optimization algorithms aimed to characterize nestedness, modularity, and in-block nestedness; and (3) the Python implementation of the five null models employed in this paper are available at the Github repository <ext-link id="ext-link-6" ext-link-type="uri" xlink:href="https://github.com/COSIN3-UOC">https://github.com/COSIN3-UOC</ext-link>.</p>

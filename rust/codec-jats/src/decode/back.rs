@@ -212,7 +212,12 @@ fn decode_ref_list(path: &str, ref_list: &Node, article: &mut Article, losses: &
         references.push(reference);
     }
 
-    article.references = (!references.is_empty()).then_some(references);
+    if !references.is_empty() {
+        article
+            .references
+            .get_or_insert_default()
+            .extend(references);
+    }
 }
 
 /// The bibliographic fields that the children of a citation element can supply

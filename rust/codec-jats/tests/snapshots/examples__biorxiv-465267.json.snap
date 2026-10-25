@@ -18761,6 +18761,36 @@ expression: article
     },
     {
       "type": "Section",
+      "id": "s5",
+      "sectionType": "CompetingInterests",
+      "content": [
+        {
+          "type": "Heading",
+          "level": 1,
+          "content": [
+            {
+              "type": "Text",
+              "value": {
+                "string": "CONFLICT OF INTERESTS"
+              }
+            }
+          ]
+        },
+        {
+          "type": "Paragraph",
+          "content": [
+            {
+              "type": "Text",
+              "value": {
+                "string": "The authors declare that there are no conflicts of interest regarding the publication of this paper."
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "Section",
       "id": "s6",
       "sectionType": "CodeAvailability",
       "content": [
