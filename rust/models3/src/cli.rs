@@ -826,8 +826,8 @@ mod tests {
         assert_ne!(model, "gpt-5.4-pro");
     }
 
-    #[test]
-    fn resolve_provider_errors_early_when_provider_not_registered() {
+    #[tokio::test]
+    async fn resolve_provider_errors_early_when_provider_not_registered() {
         let client = Client::builder()
             .add_provider_as("openai", TestAdapter("test-openai"))
             .credential_source("openai", CredentialSource::AuthOverride)
