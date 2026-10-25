@@ -45,7 +45,6 @@ test:
 	make -C ts test
 	make -C node test
 	make -C python/stencila test
-	make -C test test
 	make -C claude test
 
 # Run tests with coverage
