@@ -435,6 +435,16 @@ pub(super) fn decode_inlines<'a, 'input: 'a, I: Iterator<Item = Node<'a, 'input>
             "ref" => inlines.append(&mut decode_ref(&node, context)),
             "hi" => inlines.append(&mut decode_hi(&node, context)),
             "formula" => inlines.push(decode_inline_formula(&node, context)),
+            "s" => {
+                // GROBID's optional sentence segmentation can omit whitespace
+                // between adjacent sentences. Keep their boundary when removing
+                // the wrappers; normalization collapses any existing whitespace.
+                context.lost_attrs(&node, &[]);
+                if !inlines.is_empty() {
+                    inlines.push(t(" "));
+                }
+                inlines.append(&mut decode_inlines(node.children(), context));
+            }
             "lb" => {
                 // A line break within a run of text separates the words on
                 // either side of it, which is all that the schema records here

@@ -1008,3 +1008,31 @@ fn formula_text_has_renderable_mathml() -> Result<()> {
 
     Ok(())
 }
+
+#[test]
+fn sentence_boundaries_are_preserved() -> Result<()> {
+    for (content, expected) in [
+        (
+            "<s>First sentence.</s><s>Second sentence.</s>",
+            "First sentence. Second sentence.",
+        ),
+        (
+            "<s> First sentence. </s>\n  <s> Second sentence. </s>",
+            "First sentence. Second sentence.",
+        ),
+        (
+            r#"<s><hi rend="italic">First</hi> sentence.</s><s><ref target="https://example.org">Second</ref> sentence.</s>"#,
+            "First sentence. Second sentence.",
+        ),
+        (
+            r#"<s>A <hi rend="bold">co</hi>efficient.</s><s>Done.</s>"#,
+            "A coefficient. Done.",
+        ),
+    ] {
+        let (article, losses) = decode_article(&tei("", &format!("<p>{content}</p>"), ""))?;
+        assert_eq!(to_text(&article.content), expected);
+        assert!(losses.is_empty(), "{:?}", labels(&losses));
+    }
+
+    Ok(())
+}
