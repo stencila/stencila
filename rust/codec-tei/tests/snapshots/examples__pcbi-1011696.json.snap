@@ -5305,7 +5305,8 @@ expression: article
           "code": {
             "string": "½dI� dt ¼ k 5 þ k 3 ½C� k dI þ ½C� À k 7 I ½ � À k 11 I ½ � Eq 1 d½R� dt ¼ k 6 þ k 4 ½C� k dR þ ½C� þ k À 1 RA ½ � À k 1 R ½ � A ½ � À k 8 R ½ � À k 11 R ½ � Eq 2 d½RA� dt ¼ 2k À 2 C ½ � À 2k 2 RA ½ � RA ½ � À k À 1 RA ½ � þ k 1 R ½ � A ½ � À k 8 RA ½ � À k 11 RA ½ � Eq 3"
           },
-          "mathLanguage": "text"
+          "mathLanguage": "text",
+          "mathml": "<math xmlns=\"http://www.w3.org/1998/Math/MathML\"><mtext>½dI� dt ¼ k 5 þ k 3 ½C� k dI þ ½C� À k 7 I ½ � À k 11 I ½ � Eq 1 d½R� dt ¼ k 6 þ k 4 ½C� k dR þ ½C� þ k À 1 RA ½ � À k 1 R ½ � A ½ � À k 8 R ½ � À k 11 R ½ � Eq 2 d½RA� dt ¼ 2k À 2 C ½ � À 2k 2 RA ½ � RA ½ � À k À 1 RA ½ � þ k 1 R ½ � A ½ � À k 8 RA ½ � À k 11 RA ½ � Eq 3</mtext></math>"
         },
         {
           "type": "Paragraph",
@@ -5332,7 +5333,8 @@ expression: article
           },
           "mathLanguage": "text",
           "label": "5",
-          "labelAutomatically": false
+          "labelAutomatically": false,
+          "mathml": "<math xmlns=\"http://www.w3.org/1998/Math/MathML\"><mtext>d½C� dt ¼ k 2 RA ½ � RA ½ � À k À 2 C ½ � À k 11 C ½ � Eq 4 d½A� dt ¼ b I ½ � À k 1 R ½ � A ½ � þ k À 1 RA ½ � À D ½A� À ½A ex � ð Þ À k 9 A ½ � À k 11 A ½ � Eq</mtext></math>"
         },
         {
           "type": "MathBlock",
@@ -5340,7 +5342,8 @@ expression: article
           "code": {
             "string": "d½A ex � dt ¼ rD N ½ � ½A� À ½A ex � ð Þ À k 9 A ex ½ � Eq 6 ½dG� dt ¼ k 10 þ k 4 ½C� k DI þ ½C� À k 7 G ½ � À k 11 G ½ � Eq 7 d½N� dt ¼ k 11 N ½ � 1 À ½N� ½N max � � � Eq 8"
           },
-          "mathLanguage": "text"
+          "mathLanguage": "text",
+          "mathml": "<math xmlns=\"http://www.w3.org/1998/Math/MathML\"><mtext>d½A ex � dt ¼ rD N ½ � ½A� À ½A ex � ð Þ À k 9 A ex ½ � Eq 6 ½dG� dt ¼ k 10 þ k 4 ½C� k DI þ ½C� À k 7 G ½ � À k 11 G ½ � Eq 7 d½N� dt ¼ k 11 N ½ � 1 À ½N� ½N max � � � Eq 8</mtext></math>"
         },
         {
           "type": "Paragraph",
@@ -5970,7 +5973,8 @@ expression: article
           "code": {
             "string": "dI dt ¼ À gI þ b I ; Eq 9 I t ð Þ ¼ b I g þ C I"
           },
-          "mathLanguage": "text"
+          "mathLanguage": "text",
+          "mathml": "<math xmlns=\"http://www.w3.org/1998/Math/MathML\"><mtext>dI dt ¼ À gI þ b I ; Eq 9 I t ð Þ ¼ b I g þ C I</mtext></math>"
         },
         {
           "type": "MathBlock",
@@ -5978,7 +5982,8 @@ expression: article
           "code": {
             "string": "I ON t¼0 ðtÞ ¼ I OFF ð1 þ ðFC À 1Þe À gt Þ:"
           },
-          "mathLanguage": "text"
+          "mathLanguage": "text",
+          "mathml": "<math xmlns=\"http://www.w3.org/1998/Math/MathML\"><mtext>I ON t¼0 ðtÞ ¼ I OFF ð1 þ ðFC À 1Þe À gt Þ:</mtext></math>"
         }
       ]
     },
@@ -6014,7 +6019,8 @@ expression: article
           "code": {
             "string": "dA dt ¼ v cell N t ð ÞbI t ð Þ: Eq 13"
           },
-          "mathLanguage": "text"
+          "mathLanguage": "text",
+          "mathml": "<math xmlns=\"http://www.w3.org/1998/Math/MathML\"><mtext>dA dt ¼ v cell N t ð ÞbI t ð Þ: Eq 13</mtext></math>"
         },
         {
           "type": "Paragraph",
@@ -6033,7 +6039,8 @@ expression: article
           "code": {
             "string": "NðtÞ ¼ N 0 e gt : Eq 14"
           },
-          "mathLanguage": "text"
+          "mathLanguage": "text",
+          "mathml": "<math xmlns=\"http://www.w3.org/1998/Math/MathML\"><mtext>NðtÞ ¼ N 0 e gt : Eq 14</mtext></math>"
         },
         {
           "type": "Paragraph",
@@ -6052,7 +6059,8 @@ expression: article
           "code": {
             "string": "A ON t¼0 ¼ v cell bI OFF Z t 0 NðtÞð1 þ ðFC À 1Þe À gt Þdt: Eq 15"
           },
-          "mathLanguage": "text"
+          "mathLanguage": "text",
+          "mathml": "<math xmlns=\"http://www.w3.org/1998/Math/MathML\"><mtext>A ON t¼0 ¼ v cell bI OFF Z t 0 NðtÞð1 þ ðFC À 1Þe À gt Þdt: Eq 15</mtext></math>"
         },
         {
           "type": "Paragraph",
@@ -6071,7 +6079,8 @@ expression: article
           "code": {
             "string": "A ON t¼0 ¼ v cell bI OFF N 0 e gt À 1 g þ ðFC À 1Þt � � : Eq 16"
           },
-          "mathLanguage": "text"
+          "mathLanguage": "text",
+          "mathml": "<math xmlns=\"http://www.w3.org/1998/Math/MathML\"><mtext>A ON t¼0 ¼ v cell bI OFF N 0 e gt À 1 g þ ðFC À 1Þt � � : Eq 16</mtext></math>"
         },
         {
           "type": "Paragraph",
@@ -6110,7 +6119,8 @@ expression: article
           },
           "mathLanguage": "text",
           "label": "17",
-          "labelAutomatically": false
+          "labelAutomatically": false,
+          "mathml": "<math xmlns=\"http://www.w3.org/1998/Math/MathML\"><mtext>A ON t¼0 t ð Þ ¼ v cell bI OFF N 0 e gt À 1 g 1 þ xðtÞ ð Þ: Eq</mtext></math>"
         },
         {
           "type": "Paragraph",
@@ -6162,7 +6172,8 @@ expression: article
           "code": {
             "string": "dR dt ¼ À g R R þ b R ; Eq 18 R ON t¼0 t ð Þ ¼ b R g R þ Ce À g R t ; Eq 19"
           },
-          "mathLanguage": "text"
+          "mathLanguage": "text",
+          "mathml": "<math xmlns=\"http://www.w3.org/1998/Math/MathML\"><mtext>dR dt ¼ À g R R þ b R ; Eq 18 R ON t¼0 t ð Þ ¼ b R g R þ Ce À g R t ; Eq 19</mtext></math>"
         },
         {
           "type": "Paragraph",
@@ -6192,7 +6203,8 @@ expression: article
           "code": {
             "string": "t = 0, R ON t¼0 ¼ b R g R þ C R ¼ R OFF þ C R ."
           },
-          "mathLanguage": "text"
+          "mathLanguage": "text",
+          "mathml": "<math xmlns=\"http://www.w3.org/1998/Math/MathML\"><mtext>t = 0, R ON t¼0 ¼ b R g R þ C R ¼ R OFF þ C R .</mtext></math>"
         },
         {
           "type": "MathBlock",
@@ -6200,7 +6212,8 @@ expression: article
           "code": {
             "string": "R ON t¼0 ðtÞ ¼ R OFF ð1 þ ðFC À 1Þe À g R t Þ:"
           },
-          "mathLanguage": "text"
+          "mathLanguage": "text",
+          "mathml": "<math xmlns=\"http://www.w3.org/1998/Math/MathML\"><mtext>R ON t¼0 ðtÞ ¼ R OFF ð1 þ ðFC À 1Þe À g R t Þ:</mtext></math>"
         }
       ]
     },
@@ -6247,7 +6260,8 @@ expression: article
           "code": {
             "string": "R ON t¼0 t ð Þ:A ON t¼0 t ð Þ ¼ R OFF v cell bI OFF N 0 e gt À 1 g 1 þ ðFC À 1Þe À g R t ð Þ 1 þ xðtÞ ð Þ: Eq 21"
           },
-          "mathLanguage": "text"
+          "mathLanguage": "text",
+          "mathml": "<math xmlns=\"http://www.w3.org/1998/Math/MathML\"><mtext>R ON t¼0 t ð Þ:A ON t¼0 t ð Þ ¼ R OFF v cell bI OFF N 0 e gt À 1 g 1 þ ðFC À 1Þe À g R t ð Þ 1 þ xðtÞ ð Þ: Eq 21</mtext></math>"
         }
       ]
     },
@@ -6283,7 +6297,8 @@ expression: article
           "code": {
             "string": "R ON t¼0 t ð Þ:A ON t¼0 t ð Þ ¼ v cell bR OFF I OFF N 0 e gt À 1 g 1 þ YðtÞ ð Þ; Eq 22"
           },
-          "mathLanguage": "text"
+          "mathLanguage": "text",
+          "mathml": "<math xmlns=\"http://www.w3.org/1998/Math/MathML\"><mtext>R ON t¼0 t ð Þ:A ON t¼0 t ð Þ ¼ v cell bR OFF I OFF N 0 e gt À 1 g 1 þ YðtÞ ð Þ; Eq 22</mtext></math>"
         },
         {
           "type": "Paragraph",
@@ -6304,7 +6319,8 @@ expression: article
           },
           "mathLanguage": "text",
           "label": "23",
-          "labelAutomatically": false
+          "labelAutomatically": false,
+          "mathml": "<math xmlns=\"http://www.w3.org/1998/Math/MathML\"><mtext>YðtÞ ¼ xðtÞ þ ðFC À 1Þe À g R t ð1 þ xðtÞÞ: Eq</mtext></math>"
         },
         {
           "type": "MathBlock",
@@ -6312,7 +6328,8 @@ expression: article
           "code": {
             "string": "Θ(t)"
           },
-          "mathLanguage": "text"
+          "mathLanguage": "text",
+          "mathml": "<math xmlns=\"http://www.w3.org/1998/Math/MathML\"><mtext>Θ(t)</mtext></math>"
         },
         {
           "type": "Paragraph",
@@ -6482,7 +6499,8 @@ expression: article
           "code": {
             "string": "R ON t¼0 t ð Þ:A ON t¼0 t ð Þ ¼ v cell bR OFF I OFF NðtÞ À N 0 g 1 þ YðtÞ ð Þ: Eq 24"
           },
-          "mathLanguage": "text"
+          "mathLanguage": "text",
+          "mathml": "<math xmlns=\"http://www.w3.org/1998/Math/MathML\"><mtext>R ON t¼0 t ð Þ:A ON t¼0 t ð Þ ¼ v cell bR OFF I OFF NðtÞ À N 0 g 1 þ YðtÞ ð Þ: Eq 24</mtext></math>"
         }
       ]
     },
@@ -6535,7 +6553,8 @@ expression: article
           "code": {
             "string": "N 0 C ¼ g A thresh v cell bI OFF ð1 þ YðtÞÞ þ N 0 : Eq 26"
           },
-          "mathLanguage": "text"
+          "mathLanguage": "text",
+          "mathml": "<math xmlns=\"http://www.w3.org/1998/Math/MathML\"><mtext>N 0 C ¼ g A thresh v cell bI OFF ð1 þ YðtÞÞ þ N 0 : Eq 26</mtext></math>"
         },
         {
           "type": "Paragraph",
@@ -6554,7 +6573,8 @@ expression: article
           "code": {
             "string": "N C ¼ g A thresh v cell bI off þ N 0 : Eq 27"
           },
-          "mathLanguage": "text"
+          "mathLanguage": "text",
+          "mathml": "<math xmlns=\"http://www.w3.org/1998/Math/MathML\"><mtext>N C ¼ g A thresh v cell bI off þ N 0 : Eq 27</mtext></math>"
         },
         {
           "type": "Paragraph",
@@ -6632,7 +6652,8 @@ expression: article
           "code": {
             "string": "t activation � 1 g ln gA thresh N 0 v cell bI off ! : Eq 28"
           },
-          "mathLanguage": "text"
+          "mathLanguage": "text",
+          "mathml": "<math xmlns=\"http://www.w3.org/1998/Math/MathML\"><mtext>t activation � 1 g ln gA thresh N 0 v cell bI off ! : Eq 28</mtext></math>"
         },
         {
           "type": "Paragraph",
@@ -6662,7 +6683,8 @@ expression: article
           "code": {
             "string": "I off ¼ b I g ; N C N 0 <<N C � g 2 A thresh v cell b b I"
           },
-          "mathLanguage": "text"
+          "mathLanguage": "text",
+          "mathml": "<math xmlns=\"http://www.w3.org/1998/Math/MathML\"><mtext>I off ¼ b I g ; N C N 0 &lt;&lt;N C � g 2 A thresh v cell b b I</mtext></math>"
         },
         {
           "type": "Paragraph",
@@ -6681,7 +6703,8 @@ expression: article
           "code": {
             "string": "N C À N 0 C ¼ gA thresh v cell bI off YðtÞ 1 þ YðtÞ jt activation ON t¼0 : Eq 29"
           },
-          "mathLanguage": "text"
+          "mathLanguage": "text",
+          "mathml": "<math xmlns=\"http://www.w3.org/1998/Math/MathML\"><mtext>N C À N 0 C ¼ gA thresh v cell bI off YðtÞ 1 þ YðtÞ jt activation ON t¼0 : Eq 29</mtext></math>"
         },
         {
           "type": "Paragraph",

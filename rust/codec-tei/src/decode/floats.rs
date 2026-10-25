@@ -1,9 +1,11 @@
+use quick_xml::escape::escape;
 use roxmltree::Node;
 
 use stencila_codec::stencila_schema::{
-    Block, Figure, FigureOptions, ImageObject, Inline, MathBlock, MathInline, Primitive,
-    PropertyValue, PropertyValueOptions, PropertyValueOrString, Table, TableCell, TableCellOptions,
-    TableCellType, TableOptions, TableRow, TableRowType, shortcuts::p,
+    Block, Figure, FigureOptions, ImageObject, Inline, MathBlock, MathBlockOptions, MathInline,
+    MathInlineOptions, Primitive, PropertyValue, PropertyValueOptions, PropertyValueOrString,
+    Table, TableCell, TableCellOptions, TableCellType, TableOptions, TableRow, TableRowType,
+    shortcuts::p,
 };
 
 use super::{
@@ -210,12 +212,19 @@ pub(super) fn decode_formula(node: &Node, context: &mut Context) -> Block {
                 .to_string()
         });
 
+    let code = formula_text(node, context);
+    let mathml = formula_mathml(&code);
+
     Block::MathBlock(MathBlock {
         id: xml_id(node).map(String::from),
-        code: formula_text(node, context).into(),
+        code: code.into(),
         math_language: Some(FORMULA_LANGUAGE.into()),
         label_automatically: label.is_some().then_some(false),
         label,
+        options: Box::new(MathBlockOptions {
+            mathml: Some(mathml),
+            ..Default::default()
+        }),
         ..Default::default()
     })
 }
@@ -225,12 +234,31 @@ pub(super) fn decode_inline_formula(node: &Node, context: &mut Context) -> Inlin
     context.lost_attrs(node, &["id"]);
     context.lost_label(format!("{} (text, not TeX or MathML)", path(node)));
 
+    let code = formula_text(node, context);
+    let mathml = formula_mathml(&code);
+
     Inline::MathInline(MathInline {
         id: xml_id(node).map(String::from),
-        code: formula_text(node, context).into(),
+        code: code.into(),
         math_language: Some(FORMULA_LANGUAGE.into()),
+        options: Box::new(MathInlineOptions {
+            mathml: Some(mathml),
+            ..Default::default()
+        }),
         ..Default::default()
     })
+}
+
+/// Render extracted formula text without guessing its mathematical structure.
+///
+/// Math nodes display MathML or images, and there is no kernel for the `text`
+/// language. Supplying MathML here also lets compilation preserve this external
+/// representation instead of attempting to execute the extracted text.
+fn formula_mathml(text: &str) -> String {
+    format!(
+        r#"<math xmlns="http://www.w3.org/1998/Math/MathML"><mtext>{}</mtext></math>"#,
+        escape(text)
+    )
 }
 
 /// Get the text of a formula, excluding its label

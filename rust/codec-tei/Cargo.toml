@@ -8,6 +8,7 @@ repository.workspace = true
 [dependencies]
 flate2 = { workspace = true }
 itertools = { workspace = true }
+quick-xml = { workspace = true }
 roxmltree = { workspace = true }
 stencila-codec = { path = "../codec" }
 stencila-codec-text-trait = { path = "../codec-text-trait" }
@@ -18,6 +19,7 @@ glob = { workspace = true }
 insta = { workspace = true }
 serde = { workspace = true }
 serde_json = { workspace = true }
+stencila-codec-dom-trait = { path = "../codec-dom-trait" }
 stencila-codec-jats = { path = "../codec-jats" }
 tempfile = { workspace = true }
 tokio = { workspace = true }

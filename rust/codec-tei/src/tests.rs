@@ -953,3 +953,58 @@ fn corpus_of_one_or_more() -> Result<()> {
 
     Ok(())
 }
+
+#[test]
+fn formula_text_has_renderable_mathml() -> Result<()> {
+    let (article, ..) = decode_article(&tei(
+        "",
+        r#"<formula xml:id="eq1">x &lt; y &amp; y &gt; z<label>(1)</label></formula>
+        <p>Inline <formula>α &lt; β</formula>.</p>"#,
+        "",
+    ))?;
+
+    let [Block::MathBlock(block), Block::Paragraph(paragraph)] = article.content.as_slice() else {
+        bail!("expected display math and a paragraph")
+    };
+    let Some(Inline::MathInline(inline)) = paragraph.content.get(1) else {
+        bail!("expected inline math")
+    };
+
+    let dom = stencila_codec_dom_trait::to_dom(&article);
+    assert_eq!(dom.matches("slot=mathml").count(), 2);
+    for (code, mathml, expected) in [
+        (&block.code, &block.options.mathml, "x < y & y > z"),
+        (&inline.code, &inline.options.mathml, "α < β"),
+    ] {
+        assert_eq!(code.as_str(), expected);
+        let Some(mathml) = mathml else {
+            bail!("expected a renderable fallback for {expected}")
+        };
+        let xml = roxmltree::Document::parse(mathml)?;
+        assert!(
+            xml.root_element()
+                .has_tag_name(("http://www.w3.org/1998/Math/MathML", "math"))
+        );
+        let Some(text) = xml.descendants().find(|node| node.has_tag_name("mtext")) else {
+            bail!("expected the extracted formula as MathML text")
+        };
+        assert_eq!(text.text(), Some(expected));
+        assert_eq!(
+            xml.descendants().filter(|node| node.is_element()).count(),
+            2
+        );
+        assert!(dom.contains(mathml));
+    }
+
+    // The same fallback must survive export to another document format.
+    let (jats, ..) = stencila_codec_jats::encode(&Node::Article(article), None)?;
+    let xml = roxmltree::Document::parse(&jats)?;
+    let formulas = xml
+        .descendants()
+        .filter(|node| node.has_tag_name("mtext"))
+        .filter_map(|node| node.text())
+        .collect::<Vec<_>>();
+    assert_eq!(formulas, ["x < y & y > z", "α < β"]);
+
+    Ok(())
+}
