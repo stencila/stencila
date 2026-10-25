@@ -10,6 +10,11 @@
 //! Every pairwise inversion is deliberately *not* emitted, because that can be
 //! quadratic in the number of pairs; this is linear.
 //!
+//! Paired scalar items of mixed collections retain their sequence alignment. They
+//! partition the structured pairs into gaps: a structured item crossing a scalar
+//! pair is reordered, and the maximum preserved subset is chosen within the gaps.
+//! Scalars remain value observations rather than gaining occurrence references.
+//!
 //! A reorder observation is a statement about two snapshots, not a claim about
 //! historical editing causation: it means the pair lies outside the canonical
 //! preserved-order subset for its scope.
@@ -19,6 +24,8 @@
 //! that mirror one another, such as `(1, 2)` and `(2, 1)`, have the same positional key
 //! from either side, so swapping the inputs would otherwise select the mirror image and
 //! report the other pair as reordered.
+
+use std::collections::HashMap;
 
 use crate::{
     align::Aligned,
@@ -46,42 +53,74 @@ pub(crate) fn derive(
     aligned: &Aligned,
 ) -> CompareResult<Vec<Difference>> {
     let mut differences = Vec::new();
+    let pairing: HashMap<_, _> = aligned.pairs.iter().copied().collect();
 
     for scope in &aligned.properties {
         let left_parent = left.occurrence(scope.left_parent)?;
         let right_parent = right.occurrence(scope.right_parent)?;
+        let left_items = items(left_parent, scope.property);
+        let right_items = items(right_parent, scope.property);
 
-        // Only structured items become correspondences, so only they can be reordered;
-        // a scalar item of a mixed collection is an indexed value observation instead
-        let mut pairs = Vec::new();
-        for step in &scope.steps {
-            let Step::Pair {
-                left: left_index,
-                right: right_index,
-            } = *step
-            else {
-                continue;
-            };
-            let (Some(Item::Structured(left_id)), Some(Item::Structured(right_id))) = (
-                item(left_parent, scope.property, left_index),
-                item(right_parent, scope.property, right_index),
-            ) else {
-                continue;
-            };
-            pairs.push(PositionedPair {
-                positions: (left_index, right_index),
-                occurrences: (*left_id, *right_id),
-            });
-        }
+        // Reconciliation can pair siblings after their local sequence alignment.
+        // Use the final pairs, restricted to these two corresponding properties, so
+        // those siblings participate but moves between parents or properties do not.
+        let right_positions: HashMap<_, _> = right_items
+            .iter()
+            .enumerate()
+            .filter_map(|(index, item)| match item {
+                Item::Structured(id) => Some((*id, index)),
+                Item::Scalar(..) => None,
+            })
+            .collect();
+        let pairs: Vec<_> = left_items
+            .iter()
+            .enumerate()
+            .filter_map(|(left_index, item)| {
+                let Item::Structured(left_id) = item else {
+                    return None;
+                };
+                let right_id = pairing.get(left_id)?;
+                let right_index = right_positions.get(right_id)?;
+                Some(PositionedPair {
+                    positions: (left_index, *right_index),
+                    occurrences: (*left_id, *right_id),
+                })
+            })
+            .collect();
 
-        if pairs.len() < 2 {
+        if pairs.is_empty() {
             continue;
         }
 
-        // The steps are in sequence order, but reconciliation may have appended pairs
-        // that cross them, so sort before selecting
-        let mut order: Vec<usize> = (0..pairs.len()).collect();
-        order.sort_by_key(|index| pairs[*index].positions);
+        // Scalar pairs come only from the order-preserving sequence alignment.
+        // Keep them fixed: they have no occurrence to carry a reorder observation.
+        let mut scalars: Vec<_> = scope
+            .steps
+            .iter()
+            .filter_map(|step| match *step {
+                Step::Pair { left, right }
+                    if matches!(left_items.get(left), Some(Item::Scalar(..)))
+                        && matches!(right_items.get(right), Some(Item::Scalar(..))) =>
+                {
+                    Some((left, right))
+                }
+                _ => None,
+            })
+            .collect();
+        scalars.sort_unstable();
+
+        // A structured pair can be preserved only if it lies in the same gap
+        // between scalar pairs on both sides. The remaining pairs are already in
+        // left position order, and pairs in different gaps cannot cross each other.
+        let order: Vec<usize> = pairs
+            .iter()
+            .enumerate()
+            .filter(|(_, pair)| {
+                scalars.partition_point(|scalar| scalar.0 < pair.positions.0)
+                    == scalars.partition_point(|scalar| scalar.1 < pair.positions.1)
+            })
+            .map(|(index, _)| index)
+            .collect();
         let sorted: Vec<(usize, usize)> =
             order.iter().map(|index| pairs[*index].positions).collect();
 
@@ -101,9 +140,9 @@ pub(crate) fn derive(
         let preserved = maximum_increasing(&sorted, |index| {
             (symmetric_key(sorted[index]), content[index])
         });
-        let mut in_order = vec![false; sorted.len()];
+        let mut in_order = vec![false; pairs.len()];
         for index in preserved {
-            in_order[index] = true;
+            in_order[order[index]] = true;
         }
 
         let left_scope = Some(NodeRef::new(
@@ -115,11 +154,11 @@ pub(crate) fn derive(
             right_parent.node_type,
         ));
 
-        for (position, original) in order.iter().enumerate() {
+        for (position, pair) in pairs.iter().enumerate() {
             if in_order[position] {
                 continue;
             }
-            let (left_id, right_id) = pairs[*original].occurrences;
+            let (left_id, right_id) = pair.occurrences;
             let left_occurrence = left.occurrence(left_id)?;
             let right_occurrence = right.occurrence(right_id)?;
 
@@ -136,15 +175,14 @@ pub(crate) fn derive(
     Ok(differences)
 }
 
-/// The item at a position of a property of an occurrence
-fn item(
+/// The items of a property of an occurrence
+fn items(
     occurrence: &crate::projection::Occurrence,
     property: stencila_node_type::NodeProperty,
-    index: usize,
-) -> Option<&Item> {
+) -> &[Item] {
     occurrence
         .properties
         .iter()
         .find(|projected| projected.decl.property == property)
-        .and_then(|projected| projected.items.get(index))
+        .map_or(&[], |projected| projected.items.as_slice())
 }

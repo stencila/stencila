@@ -3,11 +3,11 @@
 use eyre::{Result, bail};
 use pretty_assertions::assert_eq;
 
-use stencila_node_compare::{Comparison, Difference, compare};
+use stencila_node_compare::{Comparison, Difference, MatchRule, compare};
 use stencila_node_path::{NodePath, NodeSlot};
 use stencila_node_type::{NodeProperty, NodeType};
 use stencila_schema::{
-    Node,
+    Block, Node, Paragraph,
     shortcuts::{art, p, t},
 };
 
@@ -174,5 +174,46 @@ fn selection_is_deterministic() -> Result<()> {
         assert_eq!(reorders(&compare(&left, &right)?), first);
     }
 
+    Ok(())
+}
+
+/// Reconciliation can pair siblings after their local sequence alignment finished.
+/// Those pairs still participate in the final order observations.
+#[test]
+fn reconciled_siblings_are_reordered() -> Result<()> {
+    let identified = |id: &str| {
+        Block::Paragraph(Paragraph {
+            id: Some(id.into()),
+            ..Paragraph::new(vec![t("Apples and orchards")])
+        })
+    };
+    for (left, right) in [
+        (
+            art([identified("old"), p([t("Zebras and savannahs")])]),
+            art([p([t("Zebras and savannahs")]), identified("new")]),
+        ),
+        (
+            art([
+                p([t("A distinctive and quite unmistakable paragraph")]),
+                p([t("Zebras and savannahs")]),
+            ]),
+            art([
+                p([t("Zebras and savannahs")]),
+                p([t("A distinctive and quite unmistakable paragraph, revised")]),
+            ]),
+        ),
+    ] {
+        let comparison = compare(&left, &right)?;
+        comparison.validate(&left, &right)?;
+        assert!(comparison.alignment().pairs().any(|(left, right, info)| {
+            left.path == content(0)
+                && right.path == content(1)
+                && info.rule == MatchRule::CrossParentReconciliation
+        }));
+        assert!(!comparison.alignment().has_one_sided());
+        assert!(!comparison.is_equal());
+        assert_eq!(reorders(&comparison).len(), 1, "{comparison:#?}");
+        assert_eq!(comparison, compare(&right, &left)?.invert());
+    }
     Ok(())
 }

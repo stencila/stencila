@@ -96,6 +96,73 @@ fn a_mixed_collection_aligns_all_its_tokens() -> Result<()> {
     Ok(())
 }
 
+/// Moving a structured item across a paired scalar changes collection order even
+/// when it is the only structured item in the collection.
+#[test]
+fn mixed_reorders_include_scalar_positions() -> Result<()> {
+    let left = outputs(vec![Node::Integer(0), paragraph("A distinctive paragraph")]);
+    let right = outputs(vec![paragraph("A distinctive paragraph"), Node::Integer(0)]);
+    let comparison = compare(&left, &right)?;
+    comparison.validate(&left, &right)?;
+    assert!(!comparison.is_equal());
+    assert!(!comparison.is_equal_unfiltered());
+    assert!(!comparison.alignment().has_one_sided());
+    assert!(
+        matches!(comparison.differences(), [Difference::Reordered {
+        left, right, property: NodeProperty::Outputs, ..
+    }] if left.path == output(1) && right.path == output(0)),
+        "{comparison:#?}"
+    );
+    assert_eq!(comparison, compare(&right, &left)?.invert());
+    Ok(())
+}
+
+/// Swaps involving scalars and structured items cannot disappear, whichever
+/// anchors the sequence alignment keeps.
+#[test]
+fn mixed_swaps_are_never_equal() -> Result<()> {
+    let items = vec![
+        Node::Integer(0),
+        paragraph("Apples and orchards"),
+        Node::Integer(42),
+        paragraph("Zebras and savannahs"),
+    ];
+    let left = outputs(items.clone());
+    for first in 0..items.len() {
+        for second in first + 1..items.len() {
+            let mut swapped = items.clone();
+            swapped.swap(first, second);
+            let right = outputs(swapped);
+            let comparison = compare(&left, &right)?;
+            comparison.validate(&left, &right)?;
+            assert!(
+                !comparison.is_equal(),
+                "swap {first} and {second}: {comparison:#?}"
+            );
+            assert_eq!(comparison, compare(&right, &left)?.invert());
+        }
+    }
+    Ok(())
+}
+
+/// Scalar insertions shift structured positions without changing their order.
+#[test]
+fn mixed_insertions_are_not_reorders() -> Result<()> {
+    let left = outputs(vec![Node::Integer(0), paragraph("A distinctive paragraph")]);
+    let right = outputs(vec![
+        Node::Integer(7),
+        Node::Integer(0),
+        paragraph("A distinctive paragraph"),
+    ]);
+    let comparison = compare(&left, &right)?;
+    assert!(matches!(
+        comparison.differences(),
+        [Difference::ValueChanged { .. }]
+    ));
+    assert_eq!(comparison, compare(&right, &left)?.invert());
+    Ok(())
+}
+
 /// A scalar item never becomes a correspondence record
 #[test]
 fn scalar_items_produce_no_correspondences() -> Result<()> {
