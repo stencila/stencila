@@ -1036,3 +1036,112 @@ fn sentence_boundaries_are_preserved() -> Result<()> {
 
     Ok(())
 }
+
+/// Check that internal links still resolve after decoding and exporting to JATS.
+fn assert_jats_link_targets(article: Article, targets: &[&str]) -> Result<()> {
+    let (jats, info) = stencila_codec_jats::encode(&Node::Article(article), None)?;
+    let xml = roxmltree::Document::parse(&jats)?;
+    for &target in targets {
+        assert!(
+            xml.descendants()
+                .any(|node| node.attribute("id") == Some(target)),
+            "missing anchor {target}: {jats}"
+        );
+        assert!(
+            xml.descendants()
+                .any(|node| node.has_tag_name("xref") && node.attribute("rid") == Some(target)),
+            "missing cross-reference to {target}: {jats}"
+        );
+    }
+    assert!(!labels(&info.losses).contains(&"Link.target"));
+    Ok(())
+}
+
+#[test]
+fn back_matter_division_ids_are_preserved() -> Result<()> {
+    let (article, losses) = decode_article(&tei(
+        "",
+        r##"<p>See <ref target="#app1">Appendix A</ref>, <ref target="#app1a">its details</ref>, and <ref target="#app2">Appendix B</ref>.</p>"##,
+        r#"<div type="annex">
+            <div xml:id="app1"><head>Appendix A</head><p>Content.</p>
+                <div xml:id="app1a"><head>Details</head><p>More content.</p></div>
+            </div>
+            <div id="app2"><head>Appendix B</head><p>Other content.</p></div>
+        </div>"#,
+    ))?;
+
+    assert!(losses.is_empty(), "{:?}", labels(&losses));
+    assert_jats_link_targets(article, &["app1", "app1a", "app2"])
+}
+
+#[test]
+fn table_note_ids_are_preserved() -> Result<()> {
+    let (article, losses) = decode_article(&tei(
+        "",
+        r##"<figure type="table" xml:id="tab_0">
+            <table><row><cell>Value <ref type="foot" target="#tn1">a</ref> and <ref type="foot" target="#tn2">b</ref></cell></row></table>
+            <note xml:id="tn1" place="foot"><p>First note.</p><p>Continued.</p></note>
+            <note id="tn2" place="foot">Second note.</note>
+        </figure>"##,
+        "",
+    ))?;
+
+    // Table notes remain in the table rather than becoming article footnotes.
+    let [Block::Table(table)] = article.content.as_slice() else {
+        bail!("expected only a table")
+    };
+    assert!(table.notes.is_some());
+    assert!(losses.is_empty(), "{:?}", labels(&losses));
+    assert_jats_link_targets(article, &["tn1", "tn2"])
+}
+
+#[test]
+fn table_note_blocks_are_preserved() -> Result<()> {
+    let (article, losses) = decode_article(&tei(
+        "",
+        r#"<figure type="table">
+            <table><row><cell>Value</cell></row></table>
+            <note xml:id="tn1" place="foot">Before.
+                <list><item>First item.</item><item>Second item.</item></list>
+                <quote>Quoted text.</quote>
+                After.
+            </note>
+        </figure>"#,
+        "",
+    ))?;
+
+    let [Block::Table(table)] = article.content.as_slice() else {
+        bail!("expected only a table")
+    };
+    let Some([Block::Paragraph(paragraph)]) = table.notes.as_deref() else {
+        bail!("expected a paragraph containing the table note")
+    };
+    let [Inline::Note(note)] = paragraph.content.as_slice() else {
+        bail!("expected an identified table note")
+    };
+    assert_eq!(note.id.as_deref(), Some("tn1"));
+
+    // Block content is preserved even when the note has no explicit <p>.
+    let [
+        Block::Paragraph(before),
+        Block::List(list),
+        Block::QuoteBlock(quote),
+        Block::Paragraph(after),
+    ] = note.content.as_slice()
+    else {
+        bail!(
+            "expected paragraphs, a list, and a quote: {:?}",
+            note.content
+        )
+    };
+    assert_eq!(to_text(before), "Before.");
+    assert_eq!(
+        list.items.iter().map(to_text).collect::<Vec<_>>(),
+        ["First item.", "Second item."]
+    );
+    assert_eq!(to_text(quote), "Quoted text.");
+    assert_eq!(to_text(after), "After.");
+    assert!(losses.is_empty(), "{:?}", labels(&losses));
+
+    Ok(())
+}

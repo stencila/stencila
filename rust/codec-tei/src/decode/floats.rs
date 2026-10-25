@@ -10,7 +10,7 @@ use stencila_codec::stencila_schema::{
 
 use super::{
     Context, child, collapse_whitespace, non_empty_text, path,
-    text::{decode_blocks, decode_inlines, normalize},
+    text::{decode_blocks, decode_inlines, decode_note, normalize},
     xml_id,
 };
 
@@ -105,8 +105,14 @@ fn decode_table(node: &Node, context: &mut Context) -> Block {
                 }
             }
             "note" => {
-                context.lost_attrs(&child, &["id", "place"]);
-                notes.append(&mut decode_blocks(child.children(), 0, context));
+                if xml_id(&child).is_some() {
+                    // Keep an identified note addressable by references from
+                    // the cells, without moving it into the article footnotes.
+                    notes.push(p([Inline::Note(decode_note(&child, context))]));
+                } else {
+                    context.lost_attrs(&child, &["place"]);
+                    notes.append(&mut decode_blocks(child.children(), 0, context));
+                }
             }
             _ => context.lost(&child),
         }

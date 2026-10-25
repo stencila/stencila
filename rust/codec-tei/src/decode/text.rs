@@ -23,7 +23,8 @@ pub(super) enum Divisions {
     /// As nested sections, each starting with a heading
     Sections,
     /// As headings and content, for divisions within a part that is itself a
-    /// section, such as the acknowledgements in the back matter
+    /// section, such as the acknowledgements in the back matter. Divisions
+    /// with ids remain sections so that references to them still resolve.
     Flattened,
 }
 
@@ -233,13 +234,23 @@ fn decode_division_nodes(
             }
             Divisions::Flattened => {
                 let heading_level = depth + level as i64;
-                blocks.push(decode_head(&head, heading_level, context));
-                blocks.append(&mut decode_divisions(
+                let mut content = vec![decode_head(&head, heading_level, context)];
+                content.append(&mut decode_divisions(
                     node.children().filter(|child| *child != head),
                     heading_level,
                     divisions,
                     context,
                 ));
+                if let Some(id) = xml_id(&node) {
+                    blocks.push(Block::Section(Section {
+                        id: Some(id.into()),
+                        section_type,
+                        content,
+                        ..Default::default()
+                    }));
+                } else {
+                    blocks.append(&mut content);
+                }
             }
         }
     }
@@ -640,18 +651,10 @@ pub(super) fn decode_note(node: &Node, context: &mut Context) -> Note {
 
     context.lost_attrs(node, &["id", "place"]);
 
-    let content = if node.children().any(|child| child.has_tag_name("p")) {
-        decode_blocks(node.children(), 0, context)
-    } else {
-        paragraph(decode_inlines(node.children(), context))
-            .into_iter()
-            .collect()
-    };
-
     Note {
         id: xml_id(node).map(String::from),
         note_type,
-        content,
+        content: decode_blocks(node.children(), 0, context),
         ..Default::default()
     }
 }
