@@ -1006,12 +1006,16 @@ async fn credentials_assertion_records_document_and_source() -> Result<()> {
         .find(|assertion| assertion["label"] == "c2pa.actions.v2")
         .and_then(|assertion| assertion["data"]["actions"].as_array())
         .expect("source ingredient manifest actions");
-    assert_eq!(source_actions[0]["action"], "c2pa.created");
+    assert_eq!(source_actions[0]["action"], "c2pa.opened");
     assert!(
-        source_actions[0]["when"]
-            .as_str()
-            .is_some_and(|when| !when.is_empty()),
-        "source input ingredient created action should use source creation timestamp: {source_actions:#?}"
+        source_actions[0].get("when").is_none(),
+        "source creation time must not be used as its opening time: {source_actions:#?}"
+    );
+    assert!(
+        source_actions
+            .iter()
+            .all(|action| action["action"] != "c2pa.created"),
+        "signing an existing source must not claim to have created it: {source_actions:#?}"
     );
 
     let actions = document_manifest["manifests"][active]["assertions"]
@@ -1388,12 +1392,16 @@ async fn credentials_per_asset_snapshots_split_document_and_chunk_execution() ->
         .find(|assertion| assertion["label"] == "c2pa.actions.v2")
         .and_then(|assertion| assertion["data"]["actions"].as_array())
         .expect("code ingredient manifest actions");
-    assert_eq!(code_actions[0]["action"], "c2pa.created");
+    assert_eq!(code_actions[0]["action"], "c2pa.opened");
     assert!(
-        code_actions[0]["when"]
-            .as_str()
-            .is_some_and(|when| !when.is_empty()),
-        "executed code input ingredient created action should use source creation timestamp: {code_actions:#?}"
+        code_actions[0].get("when").is_none(),
+        "source creation time must not be used as the code's opening time: {code_actions:#?}"
+    );
+    assert!(
+        code_actions
+            .iter()
+            .all(|action| action["action"] != "c2pa.created"),
+        "signing existing code must not claim to have created it: {code_actions:#?}"
     );
 
     let actions = figure_manifest["manifests"][active]["assertions"]
@@ -1429,11 +1437,23 @@ async fn credentials_per_asset_snapshots_split_document_and_chunk_execution() ->
         Some(1),
         "executed action should reference the executed code input: {executed_action:#?}"
     );
-    let figure_manifest_json =
-        serde_json::to_string(&figure_manifest).expect("serialize figure manifest");
+    // The signed code has provenance, while its original unsigned bytes remain
+    // an explicit parent with unknown provenance.
     assert!(
-        !figure_manifest_json.contains("ingredient.unknownProvenance"),
-        "executed code ingredient should carry provenance: {figure_manifest_json}"
+        code_manifest_assertions
+            .iter()
+            .any(|assertion| assertion["label"] == "org.stencila.provenance"),
+        "executed code ingredient should carry a Stencila provenance assertion"
+    );
+    let code_parents = &figure_manifest["manifests"][code_manifest_id]["ingredients"];
+    assert!(
+        code_parents.as_array().is_some_and(|parents| {
+            parents.len() == 1
+                && parents[0]["relationship"] == "parentOf"
+                && parents[0]["format"] == "text/x-python"
+                && parents[0].get("active_manifest").is_none()
+        }),
+        "code should retain its unsigned original as its parent: {code_parents:#?}"
     );
 
     // Environment fields hold for both snapshots; assert on the figure's.
