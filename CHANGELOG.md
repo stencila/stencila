@@ -1,3 +1,23 @@
+# [2.18.0](https://github.com/stencila/stencila/compare/v2.17.0...v2.18.0) (2026-10-26)
+
+### Bug Fixes
+
+* **JATS round-tripping:** Decode citations that reference several bibliography entries to citation groups that resolve against the reference list, and encode them back to a single `<xref>`. Preserve table cell content, boxed text captions, MathML namespaces and attribute values, and distinct back matter sections and reference lists.
+
+* **PubMed Central downloads:** NCBI has retired the PMC FTP article datasets, which caused package downloads to fail and decoding to silently fall back to scraping HTML. Articles, media, and supplements are now fetched from the PMC Open Data bucket on AWS, with checksum verification and atomic cache updates. HTML pages cached while downloads were failing are upgraded when the article is available.
+
+* **Document comparison:** Detect sibling reorders that are mixed with other changes or reconciled across nesting, and enforce depth limits when comparing dynamic values.
+
+* **Compressed and decode-only formats:** Read `.gz` files as binary, and report unknown locations, rather than failing, for diagnostics in formats that cannot be encoded to.
+
+### Features
+
+* **GROBID TEI decoding:** Add a decoder for the full-text TEI that GROBID extracts from PDFs (as served, gzip compressed, by OpenAlex), supporting `.tei.xml` and `.tei.xml.gz` files. TEI is decoded to the same Stencila nodes as the equivalent JATS, including formulas as MathML, internal link targets, notes, and sentence boundaries, with unsupported content reported as conversion losses.
+
+* **Media references in conversions:** Local media and supplement references are now rebased to the output location when exporting to JSON, YAML, CBOR, Markdown flavors, HTML, and LaTeX, so links continue to resolve wherever the output is written. JSON gains support for `--embed-media` and `--extract-media`, which copies referenced originals without resizing or transcoding. When decoding JATS from a file, graphic, media, and supplement links are resolved relative to the XML file, including extensionless links, with a preference for original, higher-resolution formats.
+
+* **Retaining archive originals:** MECA archives now honor the media and supplement embedding options, as PMC packages do. When embedding is disabled, original media are retained in a directory beside the archive so references remain valid after extraction. Converting an archive file to JSON now keeps media and supplements as file references by default; use `--embed-media` and `--embed-supplements` for a self-contained JSON document.
+
 # [2.17.0](https://github.com/stencila/stencila/compare/v2.16.0...v2.17.0) (2026-10-22)
 
 ### Bug Fixes

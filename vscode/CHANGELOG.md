@@ -1,5 +1,9 @@
 # Change Log
 
+## 2.18.0 2026-10-26
+
+- Based on Stencila CLI [v2.18.0](https://github.com/stencila/stencila/releases/tag/v2.18.0), which adds a decoder for GROBID TEI, rebases media and supplement references when converting to JSON, YAML, Markdown, HTML, and LaTeX, and retains original media from MECA and PMC archives by reference. Also restores PubMed Central downloads following the retirement of NCBI's FTP datasets, improves JATS round-tripping of citations, tables, MathML, and back matter, and makes document comparison more accurate for reordered content.
+
 ## 2.17.0 2026-10-22
 
 - Based on Stencila CLI [v2.17.0](https://github.com/stencila/stencila/releases/tag/v2.17.0), which adds suggestion-based document merges, more accurate semantic comparisons with cosmetic-change classification, multiple comparison outputs, MIRA JSON-LD interchange, and research-object authoring in the visual document editor. Also improves provenance graphs and Content Credentials, fixes JATS contributor roles, and restores Windows CLI builds.
