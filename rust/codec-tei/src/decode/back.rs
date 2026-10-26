@@ -63,7 +63,7 @@ fn decode_back_div(node: &Node, context: &mut Context) -> Vec<Block> {
         context.lost_label(format!("{}[@type='{div_type}']", path(node)));
     }
 
-    context.lost_attrs(node, &["id", "type"]);
+    context.lost_attrs(node, &["id", "coords", "type"]);
 
     let content = decode_divisions(node.children(), 0, Divisions::Flattened, context);
     if content.is_empty() {
@@ -71,7 +71,7 @@ fn decode_back_div(node: &Node, context: &mut Context) -> Vec<Block> {
     }
 
     vec![Block::Section(Section {
-        id: xml_id(node).map(String::from),
+        id: context.source_id(node, xml_id(node)),
         section_type,
         content,
         ..Default::default()

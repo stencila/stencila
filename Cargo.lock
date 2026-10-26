@@ -11098,6 +11098,7 @@ dependencies = [
  "stencila-codec-jats",
  "stencila-codec-text-trait",
  "stencila-codec-utils",
+ "stencila-node-compare",
  "tempfile",
  "tokio",
 ]

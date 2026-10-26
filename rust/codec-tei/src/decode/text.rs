@@ -165,7 +165,9 @@ fn decode_division_nodes(
             others.clear();
         }
 
-        context.lost_attrs(&node, &["id", "type"]);
+        // The `id` and `coords` are recorded as lost below by each of the
+        // branches that does not decode the division to a section
+        context.lost_attrs(&node, &["id", "coords", "type"]);
 
         // The type of a section is from its `type`, or else from its heading,
         // as when decoding JATS. A `type` that is not a type of section is
@@ -193,13 +195,16 @@ fn decode_division_nodes(
                 Some(id) if !content.is_empty() => open.append(
                     &mut blocks,
                     vec![Block::Section(Section {
-                        id: Some(id.into()),
+                        id: context.source_id(&node, Some(id)),
                         section_type,
                         content,
                         ..Default::default()
                     })],
                 ),
-                _ => open.append(&mut blocks, content),
+                _ => {
+                    context.lost_attrs_named(&node, &["id", "coords"]);
+                    open.append(&mut blocks, content)
+                }
             }
             continue;
         };
@@ -225,7 +230,7 @@ fn decode_division_nodes(
                     level,
                     numbered: numbering.is_some(),
                     section: Section {
-                        id: xml_id(&node).map(String::from),
+                        id: context.source_id(&node, xml_id(&node)),
                         section_type,
                         content,
                         ..Default::default()
@@ -243,12 +248,13 @@ fn decode_division_nodes(
                 ));
                 if let Some(id) = xml_id(&node) {
                     blocks.push(Block::Section(Section {
-                        id: Some(id.into()),
+                        id: context.source_id(&node, Some(id)),
                         section_type,
                         content,
                         ..Default::default()
                     }));
                 } else {
+                    context.lost_attrs_named(&node, &["coords"]);
                     blocks.append(&mut content);
                 }
             }
@@ -278,12 +284,12 @@ fn numbering_level(n: &str) -> usize {
 /// but is not otherwise kept because a heading's label is only rendered as the
 /// label of an appendix. It is recorded as lost.
 fn decode_head(head: &Node, level: i64, context: &mut Context) -> Block {
-    context.lost_attrs(head, &[]);
+    context.lost_attrs(head, &["id", "coords"]);
 
-    Block::Heading(Heading::new(
-        level,
-        normalize(decode_inlines(head.children(), context)),
-    ))
+    Block::Heading(Heading {
+        id: context.source_id(head, xml_id(head)),
+        ..Heading::new(level, normalize(decode_inlines(head.children(), context)))
+    })
 }
 
 /// Whether an element is decoded as a block rather than as inline content
@@ -331,8 +337,12 @@ pub(super) fn decode_blocks<'a, 'input: 'a, I: Iterator<Item = Node<'a, 'input>>
             "formula" => blocks.push(decode_formula(&node, context)),
             "list" => blocks.push(decode_list(&node, depth, context)),
             "quote" => {
-                context.lost_attrs(&node, &[]);
-                blocks.push(qb(decode_blocks(node.children(), depth, context)));
+                context.lost_attrs(&node, &["id", "coords"]);
+                let mut quote = qb(decode_blocks(node.children(), depth, context));
+                if let Block::QuoteBlock(quote) = &mut quote {
+                    quote.id = context.source_id(&node, xml_id(&node));
+                }
+                blocks.push(quote);
             }
             "note" if node.attribute("place") == Some("foot") => {
                 // Decoded where they are referenced, or at the end of the body
@@ -381,7 +391,7 @@ fn paragraph(inlines: Vec<Inline>) -> Option<Block> {
 /// A block within a paragraph, such as a figure, ends the paragraph and is
 /// decoded as a block in its own right, as it is when decoding JATS.
 fn decode_p(node: &Node, depth: i64, context: &mut Context) -> Vec<Block> {
-    context.lost_attrs(node, &[]);
+    context.lost_attrs(node, &["id", "coords"]);
 
     let mut blocks = Vec::new();
     let mut inlines = Vec::new();
@@ -395,6 +405,13 @@ fn decode_p(node: &Node, depth: i64, context: &mut Context) -> Vec<Block> {
     }
     blocks.extend(paragraph(decode_inlines(inlines.into_iter(), context)));
 
+    let mut id = xml_id(node);
+    for block in &mut blocks {
+        if let Block::Paragraph(paragraph) = block {
+            paragraph.id = context.source_id(node, id.take());
+        }
+    }
+
     blocks
 }
 
@@ -405,7 +422,7 @@ fn decode_list(node: &Node, depth: i64, context: &mut Context) -> Block {
         _ => ListOrder::Unordered,
     };
 
-    context.lost_attrs(node, &["type", "rend"]);
+    context.lost_attrs(node, &["id", "coords", "type", "rend"]);
 
     let items = node
         .children()
@@ -414,16 +431,18 @@ fn decode_list(node: &Node, depth: i64, context: &mut Context) -> Block {
                 context.lost(&child);
                 return None;
             }
-            context.lost_attrs(&child, &[]);
-            Some(ListItem::new(decode_blocks(
-                child.children(),
-                depth,
-                context,
-            )))
+            context.lost_attrs(&child, &["id", "coords"]);
+            Some(ListItem {
+                id: context.source_id(&child, xml_id(&child)),
+                ..ListItem::new(decode_blocks(child.children(), depth, context))
+            })
         })
         .collect();
 
-    Block::List(List::new(items, order))
+    Block::List(List {
+        id: context.source_id(node, xml_id(node)),
+        ..List::new(items, order)
+    })
 }
 
 /// Decode inline content
@@ -463,22 +482,26 @@ pub(super) fn decode_inlines<'a, 'input: 'a, I: Iterator<Item = Node<'a, 'input>
                 inlines.push(t(" "));
             }
             "email" => {
-                context.lost_attrs(&node, &[]);
+                context.lost_attrs(&node, &["id", "coords"]);
                 let address = text_of(&node);
                 inlines.push(Inline::Link(Link {
+                    id: context.source_id(&node, xml_id(&node)),
                     target: ["mailto:", &address].concat(),
                     content: vec![t(address)],
                     ..Default::default()
                 }));
             }
             "ptr" => {
-                context.lost_attrs(&node, &["target"]);
+                context.lost_attrs(&node, &["id", "coords", "target"]);
                 if let Some(target) = node.attribute("target") {
                     inlines.push(Inline::Link(Link {
+                        id: context.source_id(&node, xml_id(&node)),
                         target: target.to_string(),
                         content: vec![t(target)],
                         ..Default::default()
                     }));
+                } else {
+                    context.lost_attrs_named(&node, &["id", "coords"]);
                 }
             }
             "note" if node.attribute("place") == Some("foot") => {
@@ -543,7 +566,7 @@ pub(super) fn normalize(inlines: Vec<Inline>) -> Vec<Inline> {
 fn decode_ref(node: &Node, context: &mut Context) -> Vec<Inline> {
     let ref_type = node.attribute("type");
 
-    context.lost_attrs(node, &["type", "target"]);
+    context.lost_attrs(node, &["id", "coords", "type", "target"]);
 
     let content = normalize(decode_inlines(node.children(), context));
 
@@ -556,7 +579,11 @@ fn decode_ref(node: &Node, context: &mut Context) -> Vec<Inline> {
         && let Some(id) = ids.first()
         && let Some(note) = context.place_footnote(id)
     {
-        return vec![Inline::Note(decode_note(&note, context))];
+        let note = decode_note(&note, context);
+        context.source_id(node, note.id.as_deref());
+        // The note takes the place of the reference, and has its own id
+        context.lost_attrs_named(node, &["id"]);
+        return vec![Inline::Note(note)];
     }
 
     if !ids.is_empty() {
@@ -567,6 +594,7 @@ fn decode_ref(node: &Node, context: &mut Context) -> Vec<Inline> {
             // each, because the target of a citation is a single entry
             if ids.len() > 1 {
                 return vec![Inline::CitationGroup(CitationGroup {
+                    id: context.source_id(node, xml_id(node)),
                     items: ids.into_iter().map(Citation::new).collect(),
                     content,
                     ..Default::default()
@@ -574,6 +602,7 @@ fn decode_ref(node: &Node, context: &mut Context) -> Vec<Inline> {
             }
 
             return vec![Inline::Citation(Citation {
+                id: context.source_id(node, xml_id(node)),
                 target: ids.join(" "),
                 options: Box::new(CitationOptions {
                     content,
@@ -584,6 +613,7 @@ fn decode_ref(node: &Node, context: &mut Context) -> Vec<Inline> {
         }
 
         return vec![Inline::Link(Link {
+            id: context.source_id(node, xml_id(node)),
             target: ids
                 .iter()
                 .map(|id| ["#", id].concat())
@@ -598,6 +628,7 @@ fn decode_ref(node: &Node, context: &mut Context) -> Vec<Inline> {
         && !target.starts_with('#')
     {
         return vec![Inline::Link(Link {
+            id: context.source_id(node, xml_id(node)),
             target: target.to_string(),
             content,
             ..Default::default()
@@ -609,6 +640,9 @@ fn decode_ref(node: &Node, context: &mut Context) -> Vec<Inline> {
         path(node),
         ref_type.unwrap_or_default()
     ));
+
+    // An unresolved reference has no decoded wrapper to carry this metadata.
+    context.lost_attrs_named(node, &["id", "coords"]);
 
     content
 }
@@ -649,10 +683,10 @@ pub(super) fn decode_note(node: &Node, context: &mut Context) -> Note {
         _ => NoteType::Footnote,
     };
 
-    context.lost_attrs(node, &["id", "place"]);
+    context.lost_attrs(node, &["id", "coords", "place"]);
 
     Note {
-        id: xml_id(node).map(String::from),
+        id: context.source_id(node, xml_id(node)),
         note_type,
         content: decode_blocks(node.children(), 0, context),
         ..Default::default()

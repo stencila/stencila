@@ -396,10 +396,7 @@ fn formula_as_text_is_a_loss() -> Result<()> {
 
     assert_eq!(
         labels(&losses),
-        vec![
-            "//TEI/text/body/div/formula (text, not TeX or MathML)",
-            "//TEI/text/body/div/formula/@coords"
-        ]
+        vec!["//TEI/text/body/div/formula (text, not TeX or MathML)"]
     );
 
     Ok(())
@@ -1143,5 +1140,216 @@ fn table_note_blocks_are_preserved() -> Result<()> {
     assert_eq!(to_text(after), "After.");
     assert!(losses.is_empty(), "{:?}", labels(&losses));
 
+    Ok(())
+}
+
+/// Coordinates are opaque strings, including their original spacing and precision.
+fn coordinate_values(
+    identifiers: &Option<Vec<PropertyValueOrString>>,
+) -> Vec<(Option<&str>, &str)> {
+    identifiers
+        .iter()
+        .flatten()
+        .filter_map(|identifier| match identifier {
+            PropertyValueOrString::PropertyValue(value)
+                if value.property_id.as_deref() == Some("coords") =>
+            {
+                let Primitive::String(coords) = &value.value else {
+                    return None;
+                };
+                Some((value.options.name.as_deref(), coords.as_str()))
+            }
+            _ => None,
+        })
+        .collect()
+}
+
+#[test]
+fn metadata_coordinates_and_xml_ids() -> Result<()> {
+    let (article, losses) = decode_article(&tei(
+        r#"<fileDesc><sourceDesc><biblStruct><analytic>
+        <author coords="1,10,20,30,40"><persName xml:id="person0" coords=" 1,1.00,2,3,4;2,5,6,7,8 "><forename>Jane</forename><surname>Doe</surname></persName>
+            <affiliation xml:id="aff0" coords="1,10,11,12,13"><orgName coords="1,20,21,22,23">Institute</orgName><address coords="1,30,31,32,33"><country>NZ</country></address></affiliation>
+        </author>
+        <author xml:id="consortium" coords="2,1,2,3,4"><orgName coords="2,5,6,7,8">Consortium</orgName></author>
+        </analytic></biblStruct></sourceDesc></fileDesc>"#,
+        "",
+        r#"<listBibl><biblStruct xml:id="b0" coords="3,1,2,3,4;4,5,6,7,8"><monogr><title level="m">Book</title></monogr></biblStruct></listBibl>"#,
+    ))?;
+    let Some([Author::Person(person), Author::Organization(organization)]) =
+        article.authors.as_deref()
+    else {
+        bail!("expected a person and an organization")
+    };
+    assert_eq!(person.id.as_deref(), Some("person0"));
+    assert_eq!(
+        coordinate_values(&person.options.identifiers),
+        vec![
+            (None, "1,10,20,30,40"),
+            (Some("persName"), " 1,1.00,2,3,4;2,5,6,7,8 "),
+        ]
+    );
+    let Some([affiliation]) = person.affiliations.as_deref() else {
+        bail!("expected one affiliation")
+    };
+    assert_eq!(affiliation.id.as_deref(), Some("aff0"));
+    assert_eq!(
+        coordinate_values(&affiliation.options.identifiers),
+        vec![
+            (None, "1,10,11,12,13"),
+            (Some("orgName"), "1,20,21,22,23"),
+            (Some("address"), "1,30,31,32,33"),
+        ]
+    );
+    assert_eq!(organization.id.as_deref(), Some("consortium"));
+    assert_eq!(
+        coordinate_values(&organization.options.identifiers),
+        vec![(None, "2,1,2,3,4"), (Some("orgName"), "2,5,6,7,8"),]
+    );
+    let Some([reference]) = article.references.as_deref() else {
+        bail!("expected one reference")
+    };
+    assert_eq!(reference.id.as_deref(), Some("b0"));
+    assert_eq!(
+        coordinate_values(&reference.options.identifiers),
+        vec![(None, "3,1,2,3,4;4,5,6,7,8"),]
+    );
+    assert!(losses.is_empty(), "{:?}", labels(&losses));
+    Ok(())
+}
+
+#[test]
+fn content_coordinates_are_indexed_by_unique_stable_ids() -> Result<()> {
+    let xml = tei(
+        "",
+        r#"<div><head xml:id="tei-p-1" coords="1,1,2,3,4">Heading</head>
+        <p xml:id="p0" coords=" 1,2,3,4,5;2,6,7,8,9 ">Before<list><item>Item</item></list>After</p>
+        <p coords="1,3,4,5,6">Another</p><p>No coordinates</p><p coords=" ">Empty coordinates</p>
+        <formula xml:id="eq0" coords="2,1,2,3,4">x</formula>
+    </div>"#,
+        "",
+    );
+    let (article, losses) = decode_article(&xml)?;
+    let (again, _) = decode_article(&xml)?;
+    assert_eq!(article, again);
+    let [Block::Section(section)] = article.content.as_slice() else {
+        bail!("expected a section")
+    };
+    let [
+        Block::Heading(heading),
+        Block::Paragraph(before),
+        Block::List(_),
+        Block::Paragraph(after),
+        Block::Paragraph(another),
+        Block::Paragraph(unlocated),
+        Block::Paragraph(empty),
+        Block::MathBlock(equation),
+    ] = section.content.as_slice()
+    else {
+        bail!("unexpected section content: {:?}", section.content)
+    };
+    assert_eq!(heading.id.as_deref(), Some("tei-p-1"));
+    assert_eq!(before.id.as_deref(), Some("p0"));
+    assert_eq!(after.id.as_deref(), Some("tei-p-2"));
+    assert_eq!(another.id.as_deref(), Some("tei-p-3"));
+    assert_eq!(unlocated.id, None);
+    assert_eq!(empty.id, None);
+    assert_eq!(equation.id.as_deref(), Some("eq0"));
+    assert_eq!(
+        coordinate_values(&article.options.identifiers),
+        vec![
+            (Some("tei-p-1"), "1,1,2,3,4"),
+            (Some("p0"), " 1,2,3,4,5;2,6,7,8,9 "),
+            (Some("tei-p-2"), " 1,2,3,4,5;2,6,7,8,9 "),
+            (Some("tei-p-3"), "1,3,4,5,6"),
+            (Some("eq0"), "2,1,2,3,4"),
+        ]
+    );
+    assert_eq!(
+        labels(&losses),
+        vec!["//TEI/text/body/div/formula (text, not TeX or MathML)"]
+    );
+    Ok(())
+}
+
+#[test]
+fn page_coordinates_do_not_create_jats_comparison_differences() -> Result<()> {
+    let (jats, _) = stencila_codec_jats::decode(
+        r#"<article><front><article-meta>
+        <title-group><article-title>Test</article-title></title-group>
+        <contrib-group><contrib contrib-type="author"><name><surname>Doe</surname><given-names>Jane</given-names></name><xref ref-type="aff" rid="aff0"/></contrib></contrib-group>
+        <aff id="aff0"><institution>Institute</institution></aff>
+        </article-meta></front><body><sec><title>Heading</title><p>Text.<xref ref-type="bibr" rid="b0">[1]</xref></p></sec></body>
+        <back><ref-list><ref id="b0"><element-citation><source>Book</source></element-citation></ref></ref-list></back>
+        </article>"#,
+        None,
+    )?;
+    let (located, _) = decode(
+        &tei(
+            r#"<fileDesc><titleStmt><title>Test</title></titleStmt><sourceDesc><biblStruct><analytic>
+        <author><persName coords="1,1,2,3,4"><forename>Jane</forename><surname>Doe</surname></persName><affiliation xml:id="aff0" coords="1,2,3,4,5"><orgName>Institute</orgName></affiliation></author>
+        </analytic></biblStruct></sourceDesc></fileDesc>"#,
+            r##"<div><head coords="1,3,4,5,6">Heading</head><p coords="1,4,5,6,7">Text.<ref xml:id="cite0" coords="1,7,8,9,10" type="bibr" target="#b0">[1]</ref></p></div>"##,
+            r#"<listBibl><biblStruct xml:id="b0" coords="1,5,6,7,8"><monogr><title level="m">Book</title></monogr></biblStruct></listBibl>"#,
+        ),
+        None,
+    )?;
+    for (left, right) in [(&jats, &located), (&located, &jats)] {
+        let comparison = stencila_node_compare::compare(left, right)?;
+        assert!(comparison.is_equal(), "{comparison:#?}");
+    }
+    Ok(())
+}
+
+#[test]
+fn source_metadata_without_a_node_to_carry_it_is_a_loss() -> Result<()> {
+    let (_, losses) = decode_article(&tei(
+        "",
+        r##"<div><head>Introduction</head><p>See<ptr xml:id="x" coords="1,2,3,4,5"/>. A claim<ref xml:id="r1" type="foot" target="#foot_0">1</ref>.</p></div>
+        <div xml:id="d1" coords="1,1,1,1,1"> </div>
+        <note place="foot" xml:id="foot_0"><p>The footnote.</p></note>"##,
+        "",
+    ))?;
+    let labels = labels(&losses);
+    for label in [
+        "//TEI/text/body/div/p/ptr/@id",
+        "//TEI/text/body/div/p/ptr/@coords",
+        "//TEI/text/body/div/p/ref/@id",
+        "//TEI/text/body/div/@id",
+        "//TEI/text/body/div/@coords",
+    ] {
+        assert!(labels.contains(&label), "{label} not in {labels:?}");
+    }
+    Ok(())
+}
+
+#[test]
+fn author_ids_are_from_the_author_or_its_name() -> Result<()> {
+    let (article, losses) = decode_article(&tei(
+        r#"<fileDesc><sourceDesc><biblStruct><analytic>
+        <author xml:id="a1"><persName xml:id="p1"><surname>Doe</surname></persName></author>
+        <author><orgName xml:id="o1" coords="1,1,1,1,1">Institute</orgName><persName xml:id="p2"><surname>Roe</surname></persName></author>
+        <author xml:id="a3" coords="1,2,3,4,5"><email>x@example.org</email></author>
+        </analytic></biblStruct></sourceDesc></fileDesc>"#,
+        "",
+        "",
+    ))?;
+    let Some([Author::Person(doe), Author::Person(roe)]) = article.authors.as_deref() else {
+        bail!("expected two people: {:?}", article.authors)
+    };
+    assert_eq!(doe.id.as_deref(), Some("a1"));
+
+    // The `orgName` of a person is lost, along with its id and coordinates
+    assert_eq!(roe.id.as_deref(), Some("p2"));
+    assert_eq!(coordinate_values(&roe.options.identifiers), vec![]);
+
+    let labels = labels(&losses);
+    for label in [
+        "//TEI/teiHeader/fileDesc/sourceDesc/biblStruct/analytic/author/persName/@id",
+        "//TEI/teiHeader/fileDesc/sourceDesc/biblStruct/analytic/author/orgName",
+        "//TEI/teiHeader/fileDesc/sourceDesc/biblStruct/analytic/author",
+    ] {
+        assert!(labels.contains(&label), "{label} not in {labels:?}");
+    }
     Ok(())
 }

@@ -6,13 +6,16 @@ use roxmltree::{Document, NS_XML_URI, Node, NodeId, ParsingOptions};
 use stencila_codec::{
     DecodeInfo, DecodeOptions, Losses,
     eyre::{OptionExt, Result, bail},
-    stencila_schema::{Article, Block, Node as SchemaNode, PersonOrOrganization, Reference},
+    stencila_schema::{
+        Article, Block, Node as SchemaNode, PersonOrOrganization, PropertyValueOrString, Reference,
+    },
 };
 
 mod back;
 mod bibl;
 mod floats;
 mod header;
+mod metadata;
 mod text;
 
 use back::decode_back;
@@ -138,6 +141,11 @@ fn decode_tei(root: &Node, context: &mut Context) -> Article {
         article.references = Some(references);
     }
 
+    metadata::append(
+        &mut article.options.identifiers,
+        std::mem::take(&mut context.coordinates),
+    );
+
     article
 }
 
@@ -172,6 +180,12 @@ pub(super) struct Context<'a, 'input> {
     /// GROBID puts the reference list in the back matter, but older output,
     /// such as for patents, has lists of references within the body.
     references: Vec<Reference>,
+
+    /// Coordinates of content nodes, keyed by their IDs in identifier names
+    coordinates: Option<Vec<PropertyValueOrString>>,
+
+    /// Serial for stable, collision-free IDs of elements with coordinates
+    coordinate_serial: usize,
 }
 
 impl<'a, 'input> Context<'a, 'input> {
@@ -199,12 +213,41 @@ impl<'a, 'input> Context<'a, 'input> {
             placed_footnotes: HashSet::new(),
             funders: Vec::new(),
             references: Vec::new(),
+            coordinates: None,
+            coordinate_serial: 0,
         }
     }
 
     /// Whether an element with an id exists
     fn has_id(&self, id: &str) -> bool {
         self.ids.contains(id)
+    }
+
+    /// Preserve a content node's ID and index its coordinates on the article.
+    ///
+    /// Nodes without IDs get deterministic IDs only when they have coordinates.
+    /// Callers splitting one element into several nodes pass its XML ID only for
+    /// the first node, so every resulting node remains uniquely addressable.
+    fn source_id(&mut self, node: &Node, id: Option<&str>) -> Option<String> {
+        let has_coords = node
+            .attribute("coords")
+            .is_some_and(|coords| !coords.trim().is_empty());
+        let id = match id {
+            Some(id) => id.to_string(),
+            None if has_coords => loop {
+                self.coordinate_serial += 1;
+                let id = format!("tei-{}-{}", node.tag_name().name(), self.coordinate_serial);
+                if self.ids.insert(id.clone()) {
+                    break id;
+                }
+            },
+            None => return None,
+        };
+        metadata::append(
+            &mut self.coordinates,
+            metadata::coordinates(node, Some(&id)),
+        );
+        Some(id)
     }
 
     /// Get a footnote, by its id, to decode where it is referenced
@@ -264,6 +307,20 @@ impl<'a, 'input> Context<'a, 'input> {
         for attribute in node.attributes() {
             let name = attribute.name();
             if !decoded.contains(&name) {
+                self.losses.add([&path(node), "/@", name].concat());
+            }
+        }
+    }
+
+    /// Record that the attributes of an element, named by their local names,
+    /// were lost, after having been passed to [`Self::lost_attrs`] as decoded
+    ///
+    /// For when it is only known after decoding an element that nothing
+    /// carries them, as for its `id` and `coords` when it decodes to no node.
+    fn lost_attrs_named(&mut self, node: &Node, names: &[&str]) {
+        for attribute in node.attributes() {
+            let name = attribute.name();
+            if names.contains(&name) {
                 self.losses.add([&path(node), "/@", name].concat());
             }
         }

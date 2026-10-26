@@ -9424,6 +9424,144 @@ expression: article
       "type": "PropertyValue",
       "propertyId": "MD5",
       "value": "C3A1B3EF72AD4AA6ADA0299963E736E3"
+    },
+    {
+      "type": "PropertyValue",
+      "propertyId": "coords",
+      "value": "4,231.93,589.88,344.04,121.74",
+      "name": "formula_0"
+    },
+    {
+      "type": "PropertyValue",
+      "propertyId": "coords",
+      "value": "5,244.74,96.56,331.23,61.17",
+      "name": "formula_1"
+    },
+    {
+      "type": "PropertyValue",
+      "propertyId": "coords",
+      "value": "5,300.25,172.90,275.72,103.58",
+      "name": "formula_2"
+    },
+    {
+      "type": "PropertyValue",
+      "propertyId": "coords",
+      "value": "10,338.80,440.29,237.17,71.92",
+      "name": "formula_3"
+    },
+    {
+      "type": "PropertyValue",
+      "propertyId": "coords",
+      "value": "11,307.90,97.01,137.68,13.55",
+      "name": "formula_4"
+    },
+    {
+      "type": "PropertyValue",
+      "propertyId": "coords",
+      "value": "11,337.44,183.75,238.56,22.90",
+      "name": "formula_5"
+    },
+    {
+      "type": "PropertyValue",
+      "propertyId": "coords",
+      "value": "11,349.57,263.40,226.43,11.73",
+      "name": "formula_6"
+    },
+    {
+      "type": "PropertyValue",
+      "propertyId": "coords",
+      "value": "11,281.48,342.53,294.52,30.23",
+      "name": "formula_7"
+    },
+    {
+      "type": "PropertyValue",
+      "propertyId": "coords",
+      "value": "11,288.97,426.32,287.03,29.42",
+      "name": "formula_8"
+    },
+    {
+      "type": "PropertyValue",
+      "propertyId": "coords",
+      "value": "11,294.64,571.19,281.36,23.11",
+      "name": "formula_9"
+    },
+    {
+      "type": "PropertyValue",
+      "propertyId": "coords",
+      "value": "12,327.97,161.41,248.03,62.63",
+      "name": "formula_10"
+    },
+    {
+      "type": "PropertyValue",
+      "propertyId": "coords",
+      "value": "12,200.01,278.81,350.69,28.93",
+      "name": "formula_11"
+    },
+    {
+      "type": "PropertyValue",
+      "propertyId": "coords",
+      "value": "12,303.99,356.89,145.79,13.49",
+      "name": "formula_12"
+    },
+    {
+      "type": "PropertyValue",
+      "propertyId": "coords",
+      "value": "12,228.02,492.67,347.98,23.11",
+      "name": "formula_13"
+    },
+    {
+      "type": "PropertyValue",
+      "propertyId": "coords",
+      "value": "12,264.93,559.90,311.07,23.11",
+      "name": "formula_14"
+    },
+    {
+      "type": "PropertyValue",
+      "propertyId": "coords",
+      "value": "12,297.58,613.14,278.42,9.96",
+      "name": "formula_15"
+    },
+    {
+      "type": "PropertyValue",
+      "propertyId": "coords",
+      "value": "12,211.98,637.36,17.11,9.14",
+      "name": "formula_16"
+    },
+    {
+      "type": "PropertyValue",
+      "propertyId": "coords",
+      "value": "13,263.51,667.66,312.49,22.16",
+      "name": "formula_17"
+    },
+    {
+      "type": "PropertyValue",
+      "propertyId": "coords",
+      "value": "14,310.56,256.21,265.44,24.30",
+      "name": "formula_18"
+    },
+    {
+      "type": "PropertyValue",
+      "propertyId": "coords",
+      "value": "14,334.55,324.92,241.45,24.36",
+      "name": "formula_19"
+    },
+    {
+      "type": "PropertyValue",
+      "propertyId": "coords",
+      "value": "14,320.71,510.91,255.28,34.81",
+      "name": "formula_20"
+    },
+    {
+      "type": "PropertyValue",
+      "propertyId": "coords",
+      "value": "14,416.75,612.56,106.34,17.19",
+      "name": "formula_21"
+    },
+    {
+      "type": "PropertyValue",
+      "propertyId": "coords",
+      "value": "14,294.07,664.66,281.93,24.49",
+      "name": "formula_22"
     }
   ],
   "funders": [

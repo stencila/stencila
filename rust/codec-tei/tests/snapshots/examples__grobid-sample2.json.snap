@@ -85,7 +85,14 @@ expression: article
             }
           }
         ]
-      }
+      },
+      "identifiers": [
+        {
+          "type": "PropertyValue",
+          "propertyId": "coords",
+          "value": "14,335.39,89.54,211.06,8.07;14,335.40,100.46,106.60,8.07"
+        }
+      ]
     },
     {
       "type": "Reference",
@@ -124,7 +131,14 @@ expression: article
         ],
         "volumeNumber": 8,
         "issueNumber": 53
-      }
+      },
+      "identifiers": [
+        {
+          "type": "PropertyValue",
+          "propertyId": "coords",
+          "value": "14,335.39,110.18,211.04,8.07;14,335.40,121.10,71.49,8.07"
+        }
+      ]
     },
     {
       "type": "Reference",
@@ -172,7 +186,14 @@ expression: article
             }
           }
         ]
-      }
+      },
+      "identifiers": [
+        {
+          "type": "PropertyValue",
+          "propertyId": "coords",
+          "value": "14,335.39,130.82,211.05,8.07;14,335.40,141.86,211.29,8.07;14,335.40,152.78,153.86,8.07"
+        }
+      ]
     },
     {
       "type": "Reference",
@@ -227,7 +248,14 @@ expression: article
         "issueNumber": 1
       },
       "pageStart": 80,
-      "pageEnd": 107
+      "pageEnd": 107,
+      "identifiers": [
+        {
+          "type": "PropertyValue",
+          "propertyId": "coords",
+          "value": "14,335.39,162.50,210.95,8.07;14,335.40,173.42,211.19,8.07;14,335.40,184.34,73.28,8.07"
+        }
+      ]
     },
     {
       "type": "Reference",
@@ -284,7 +312,14 @@ expression: article
             }
           }
         ]
-      }
+      },
+      "identifiers": [
+        {
+          "type": "PropertyValue",
+          "propertyId": "coords",
+          "value": "14,335.39,194.06,210.97,8.07;14,335.40,204.98,211.08,8.07;14,335.40,216.02,211.18,8.07;14,335.40,226.94,126.52,8.07"
+        }
+      ]
     },
     {
       "type": "Reference",
@@ -334,7 +369,14 @@ expression: article
             }
           }
         ]
-      }
+      },
+      "identifiers": [
+        {
+          "type": "PropertyValue",
+          "propertyId": "coords",
+          "value": "14,335.39,236.66,211.08,8.07;14,335.40,247.58,211.08,8.07;14,335.40,258.62,211.17,8.07;14,335.40,269.54,62.37,8.07"
+        }
+      ]
     },
     {
       "type": "Reference",
@@ -362,7 +404,14 @@ expression: article
       "publisher": {
         "type": "Organization",
         "address": "Sans Institute IDS FAQ"
-      }
+      },
+      "identifiers": [
+        {
+          "type": "PropertyValue",
+          "propertyId": "coords",
+          "value": "14,335.39,279.26,211.20,8.07;14,335.40,290.18,51.32,8.07"
+        }
+      ]
     },
     {
       "type": "Reference",
@@ -403,7 +452,14 @@ expression: article
             }
           }
         ]
-      }
+      },
+      "identifiers": [
+        {
+          "type": "PropertyValue",
+          "propertyId": "coords",
+          "value": "14,335.39,299.90,211.20,8.07;14,335.40,310.82,69.43,8.07"
+        }
+      ]
     },
     {
       "type": "Reference",
@@ -425,6 +481,13 @@ expression: article
           "value": {
             "string": "Sniffer detection tools and countermeasures"
           }
+        }
+      ],
+      "identifiers": [
+        {
+          "type": "PropertyValue",
+          "propertyId": "coords",
+          "value": "14,335.39,320.54,201.81,8.07"
         }
       ]
     },
@@ -504,7 +567,14 @@ expression: article
             }
           }
         ]
-      }
+      },
+      "identifiers": [
+        {
+          "type": "PropertyValue",
+          "propertyId": "coords",
+          "value": "14,336.95,330.26,209.64,8.07;14,335.40,341.18,211.21,8.07;14,335.40,352.10,210.96,8.07;14,335.40,363.14,211.18,8.07;14,335.40,374.06,58.99,8.07"
+        }
+      ]
     },
     {
       "type": "Reference",
@@ -526,6 +596,13 @@ expression: article
           "value": {
             "string": "c, packet coded backdoor"
           }
+        }
+      ],
+      "identifiers": [
+        {
+          "type": "PropertyValue",
+          "propertyId": "coords",
+          "value": "14,336.95,383.78,209.87,8.07;14,335.40,395.18,185.80,7.05"
         }
       ]
     },
@@ -616,7 +693,14 @@ expression: article
         ]
       },
       "pageStart": 335,
-      "pageEnd": 344
+      "pageEnd": 344,
+      "identifiers": [
+        {
+          "type": "PropertyValue",
+          "propertyId": "coords",
+          "value": "14,336.95,404.42,209.50,8.07;14,335.40,415.34,211.17,8.07;14,335.40,426.38,210.97,8.07;14,335.40,437.30,38.62,8.07"
+        }
+      ]
     },
     {
       "type": "Reference",
@@ -677,7 +761,14 @@ expression: article
         ]
       },
       "pageStart": 13,
-      "pageEnd": 23
+      "pageEnd": 23,
+      "identifiers": [
+        {
+          "type": "PropertyValue",
+          "propertyId": "coords",
+          "value": "14,336.95,447.02,209.65,8.07;14,335.40,457.94,211.06,8.07;14,335.40,468.86,138.64,8.07"
+        }
+      ]
     },
     {
       "type": "Reference",
@@ -747,7 +838,14 @@ expression: article
         ]
       },
       "pageStart": 411,
-      "pageEnd": 418
+      "pageEnd": 418,
+      "identifiers": [
+        {
+          "type": "PropertyValue",
+          "propertyId": "coords",
+          "value": "14,336.95,478.58,209.64,8.07;14,335.40,489.62,211.07,8.07;14,335.40,500.54,155.06,8.07"
+        }
+      ]
     },
     {
       "type": "Reference",
@@ -773,6 +871,13 @@ expression: article
           "value": {
             "string": "Architectural Principles for Virtual Computer Systems"
           }
+        }
+      ],
+      "identifiers": [
+        {
+          "type": "PropertyValue",
+          "propertyId": "coords",
+          "value": "14,336.95,510.26,209.64,8.07;14,335.40,521.18,190.79,8.07"
         }
       ]
     },
@@ -818,7 +923,14 @@ expression: article
         "issueNumber": 17
       },
       "pageStart": 34,
-      "pageEnd": 45
+      "pageEnd": 45,
+      "identifiers": [
+        {
+          "type": "PropertyValue",
+          "propertyId": "coords",
+          "value": "14,336.95,530.90,209.73,8.07;14,335.40,541.82,150.28,8.07;14,317.04,551.54,101.71,8.07;14,439.76,551.54,106.73,8.07;14,335.40,562.94,205.00,7.05;14,335.40,573.98,45.46,7.05;14,317.04,583.10,229.54,8.07;14,335.40,594.14,136.95,8.07"
+        }
+      ]
     },
     {
       "type": "Reference",
@@ -881,7 +993,14 @@ expression: article
         "issueNumber": 3
       },
       "pageStart": 151,
-      "pageEnd": 180
+      "pageEnd": 180,
+      "identifiers": [
+        {
+          "type": "PropertyValue",
+          "propertyId": "coords",
+          "value": "14,336.95,603.86,209.50,8.07;14,335.40,614.78,211.20,8.07;14,335.40,625.70,128.21,8.07"
+        }
+      ]
     },
     {
       "type": "Reference",
@@ -953,7 +1072,14 @@ expression: article
         ]
       },
       "pageStart": 190,
-      "pageEnd": 199
+      "pageEnd": 199,
+      "identifiers": [
+        {
+          "type": "PropertyValue",
+          "propertyId": "coords",
+          "value": "14,336.95,635.42,209.65,8.07;14,335.40,646.34,211.08,8.07;14,335.40,657.38,211.07,8.07;14,335.40,668.30,55.78,8.07"
+        }
+      ]
     },
     {
       "type": "Reference",
@@ -1016,6 +1142,13 @@ expression: article
             "string": "A retrospective on the VAX VMM security kernel"
           }
         }
+      ],
+      "identifiers": [
+        {
+          "type": "PropertyValue",
+          "propertyId": "coords",
+          "value": "14,336.95,678.02,209.51,8.07;14,335.40,688.94,211.05,8.07;14,335.40,699.86,39.22,8.07"
+        }
       ]
     },
     {
@@ -1069,7 +1202,14 @@ expression: article
         ]
       },
       "pageStart": 18,
-      "pageEnd": 29
+      "pageEnd": 29,
+      "identifiers": [
+        {
+          "type": "PropertyValue",
+          "propertyId": "coords",
+          "value": "15,84.71,70.94,209.51,8.07;15,83.04,81.86,211.18,8.07;15,83.04,92.90,211.07,8.07;15,83.04,103.82,86.47,8.07"
+        }
+      ]
     },
     {
       "type": "Reference",
@@ -1108,7 +1248,14 @@ expression: article
         ],
         "volumeNumber": 10,
         "issueNumber": 16
-      }
+      },
+      "identifiers": [
+        {
+          "type": "PropertyValue",
+          "propertyId": "coords",
+          "value": "15,84.71,112.94,209.50,8.07;15,83.04,123.86,68.61,8.07"
+        }
+      ]
     },
     {
       "type": "Reference",
@@ -1174,7 +1321,14 @@ expression: article
             }
           }
         ]
-      }
+      },
+      "identifiers": [
+        {
+          "type": "PropertyValue",
+          "propertyId": "coords",
+          "value": "15,84.71,132.98,209.48,8.07;15,83.04,143.90,211.19,8.07;15,83.04,154.82,211.06,8.07;15,83.04,165.86,69.57,8.07"
+        }
+      ]
     },
     {
       "type": "Reference",
@@ -1189,6 +1343,13 @@ expression: article
           "value": {
             "string": "Building into the linux network layer. Phrack, 9(55):article 12 of 19"
           }
+        }
+      ],
+      "identifiers": [
+        {
+          "type": "PropertyValue",
+          "propertyId": "coords",
+          "value": "15,84.71,174.86,209.64,8.07;15,83.04,185.90,118.13,8.07"
         }
       ]
     },
@@ -1239,7 +1400,14 @@ expression: article
             }
           }
         ]
-      }
+      },
+      "identifiers": [
+        {
+          "type": "PropertyValue",
+          "propertyId": "coords",
+          "value": "15,84.71,194.90,209.49,8.07;15,83.04,205.82,211.20,8.07;15,83.04,216.86,158.18,8.07"
+        }
+      ]
     },
     {
       "type": "Reference",
@@ -1253,6 +1421,13 @@ expression: article
           "givenNames": [
             "Lord"
           ]
+        }
+      ],
+      "identifiers": [
+        {
+          "type": "PropertyValue",
+          "propertyId": "coords",
+          "value": "15,84.71,225.86,209.75,8.07;15,83.04,237.38,148.02,7.05"
         }
       ]
     },
@@ -1287,6 +1462,13 @@ expression: article
             "string": "Carbonite v1.0 -A Linux Kernel Module to aid in RootKit detection"
           }
         }
+      ],
+      "identifiers": [
+        {
+          "type": "PropertyValue",
+          "propertyId": "coords",
+          "value": "15,84.71,245.90,115.62,8.07;15,215.80,245.90,78.44,8.07;15,83.04,256.94,211.22,8.07;15,83.04,268.34,194.32,7.05;15,83.04,279.26,126.42,7.05"
+        }
       ]
     },
     {
@@ -1318,6 +1500,13 @@ expression: article
           "value": {
             "string": "NetTop: Commercial technology in high assurance applications. http://www.vmware.com/pdf"
           }
+        }
+      ],
+      "identifiers": [
+        {
+          "type": "PropertyValue",
+          "propertyId": "coords",
+          "value": "15,84.71,287.90,124.49,8.07;15,230.56,287.90,63.69,8.07;15,83.04,298.82,211.20,8.07;15,83.04,309.86,203.85,8.07;15,64.80,318.86,111.30,8.07;15,191.22,318.86,103.03,8.07;15,83.04,330.38,194.32,7.05;15,83.04,341.30,83.24,7.05"
         }
       ]
     },
@@ -1351,6 +1540,13 @@ expression: article
             "string": "chkrootkit: locally checks for signs of a rootkit"
           }
         }
+      ],
+      "identifiers": [
+        {
+          "type": "PropertyValue",
+          "propertyId": "coords",
+          "value": "15,84.71,349.94,209.53,8.07;15,83.04,360.86,211.57,8.07;15,83.04,372.26,83.24,7.05"
+        }
       ]
     },
     {
@@ -1382,7 +1578,14 @@ expression: article
         ],
         "volumeNumber": 11,
         "issueNumber": 58
-      }
+      },
+      "identifiers": [
+        {
+          "type": "PropertyValue",
+          "propertyId": "coords",
+          "value": "15,64.80,380.90,229.39,8.07;15,83.04,391.82,101.69,8.07"
+        }
+      ]
     },
     {
       "type": "Reference",
@@ -1424,7 +1627,14 @@ expression: article
         ]
       },
       "pageStart": 31,
-      "pageEnd": 54
+      "pageEnd": 54,
+      "identifiers": [
+        {
+          "type": "PropertyValue",
+          "propertyId": "coords",
+          "value": "15,84.71,400.94,209.51,8.07;15,83.04,411.86,210.72,8.07;15,83.04,422.90,20.03,8.07;15,64.80,431.90,229.40,8.07;15,83.04,442.82,211.95,8.07;15,83.04,454.34,126.43,7.05"
+        }
+      ]
     },
     {
       "type": "Reference",
@@ -1468,7 +1678,14 @@ expression: article
         "address": "1201 5th Street S.W, Calgary, Alberta, Canada"
       },
       "pageStart": 2,
-      "pageEnd": 2
+      "pageEnd": 2,
+      "identifiers": [
+        {
+          "type": "PropertyValue",
+          "propertyId": "coords",
+          "value": "15,84.71,462.86,209.38,8.07;15,83.04,473.90,211.19,8.07;15,83.04,484.82,211.19,8.07;15,83.04,495.74,121.59,8.07"
+        }
+      ]
     },
     {
       "type": "Reference",
@@ -1490,6 +1707,13 @@ expression: article
           "value": {
             "string": "Samhain: distributed host monitoring system"
           }
+        }
+      ],
+      "identifiers": [
+        {
+          "type": "PropertyValue",
+          "propertyId": "coords",
+          "value": "15,84.71,504.86,209.42,8.07;15,83.04,515.78,194.56,8.07"
         }
       ]
     },
@@ -1514,6 +1738,13 @@ expression: article
           "value": {
             "string": "Intrusion detection and network forensics"
           }
+        }
+      ],
+      "identifiers": [
+        {
+          "type": "PropertyValue",
+          "propertyId": "coords",
+          "value": "15,84.71,524.90,209.51,8.07;15,83.04,535.82,138.15,8.07"
         }
       ]
     },
@@ -1587,7 +1818,14 @@ expression: article
         "issueNumber": 1
       },
       "pageStart": 78,
-      "pageEnd": 103
+      "pageEnd": 103,
+      "identifiers": [
+        {
+          "type": "PropertyValue",
+          "propertyId": "coords",
+          "value": "15,84.71,544.94,209.64,8.07;15,83.04,555.86,211.09,8.07;15,83.04,566.90,211.22,8.07;15,83.04,577.82,68.84,8.07"
+        }
+      ]
     },
     {
       "type": "Reference",
@@ -1625,7 +1863,14 @@ expression: article
         }
       ],
       "pageStart": 404,
-      "pageEnd": 410
+      "pageEnd": 410,
+      "identifiers": [
+        {
+          "type": "PropertyValue",
+          "propertyId": "coords",
+          "value": "15,84.71,586.94,209.52,8.07;15,83.04,597.86,151.95,8.07"
+        }
+      ]
     },
     {
       "type": "Reference",
@@ -1654,7 +1899,14 @@ expression: article
           }
         }
       ],
-      "pageStart": 11
+      "pageStart": 11,
+      "identifiers": [
+        {
+          "type": "PropertyValue",
+          "propertyId": "coords",
+          "value": "15,84.71,606.98,209.64,8.07;15,83.04,617.90,139.94,8.07;15,64.80,627.02,65.71,8.07;15,146.95,627.02,147.28,8.07;15,83.04,638.42,199.72,7.05;15,83.04,649.34,203.43,7.05;15,64.80,657.98,76.75,8.07;15,165.67,657.98,128.68,8.07;15,83.04,668.90,13.67,8.07;15,132.95,669.38,161.93,7.05;15,83.04,680.30,176.45,7.05"
+        }
+      ]
     },
     {
       "type": "Reference",
@@ -1694,7 +1946,14 @@ expression: article
             }
           }
         ]
-      }
+      },
+      "identifiers": [
+        {
+          "type": "PropertyValue",
+          "propertyId": "coords",
+          "value": "15,84.71,688.94,209.62,8.07;15,83.04,699.86,139.10,8.07;15,317.04,70.94,229.79,8.07;15,335.40,82.34,115.63,7.05"
+        }
+      ]
     },
     {
       "type": "Reference",
@@ -1751,7 +2010,14 @@ expression: article
             }
           }
         ]
-      }
+      },
+      "identifiers": [
+        {
+          "type": "PropertyValue",
+          "propertyId": "coords",
+          "value": "15,336.95,91.46,209.62,8.07;15,335.40,102.38,211.18,8.07;15,335.40,113.42,211.08,8.07;15,335.40,124.34,191.88,8.07"
+        }
+      ]
     },
     {
       "type": "Reference",
@@ -1780,6 +2046,13 @@ expression: article
             "string": "LIDS Linux Intrusion Detection System vulnerability"
           }
         }
+      ],
+      "identifiers": [
+        {
+          "type": "PropertyValue",
+          "propertyId": "coords",
+          "value": "15,336.95,133.94,209.62,8.07;15,335.40,144.86,211.59,8.07;15,335.40,156.26,197.56,7.05"
+        }
       ]
     },
     {
@@ -1802,6 +2075,13 @@ expression: article
           "value": {
             "string": "St Michael: detection of kernel level rootkits"
           }
+        }
+      ],
+      "identifiers": [
+        {
+          "type": "PropertyValue",
+          "propertyId": "coords",
+          "value": "15,336.95,165.38,209.62,8.07;15,335.40,176.78,207.27,7.05"
         }
       ]
     },
@@ -1826,6 +2106,13 @@ expression: article
             "string": "Analysis of the T0rn rootkit"
           }
         }
+      ],
+      "identifiers": [
+        {
+          "type": "PropertyValue",
+          "propertyId": "coords",
+          "value": "15,336.95,185.90,209.89,8.07;15,335.40,197.30,115.63,7.05"
+        }
       ]
     },
     {
@@ -1848,6 +2135,13 @@ expression: article
           "value": {
             "string": "VMware virtual machine technology"
           }
+        }
+      ],
+      "identifiers": [
+        {
+          "type": "PropertyValue",
+          "propertyId": "coords",
+          "value": "15,336.95,206.42,209.37,8.07;15,335.40,217.82,121.03,7.05"
         }
       ]
     },
@@ -1897,7 +2191,14 @@ expression: article
             }
           }
         ]
-      }
+      },
+      "identifiers": [
+        {
+          "type": "PropertyValue",
+          "propertyId": "coords",
+          "value": "15,336.95,226.94,209.48,8.07;15,335.40,237.86,211.18,8.07;15,335.40,248.90,20.03,8.07"
+        }
+      ]
     },
     {
       "type": "Reference",
@@ -1937,7 +2238,14 @@ expression: article
             }
           }
         ]
-      }
+      },
+      "identifiers": [
+        {
+          "type": "PropertyValue",
+          "propertyId": "coords",
+          "value": "15,336.95,258.38,209.63,8.07;15,335.40,269.42,211.17,8.07;15,335.40,280.34,211.06,8.07"
+        }
+      ]
     },
     {
       "type": "Reference",
@@ -1984,7 +2292,14 @@ expression: article
         }
       ],
       "pageStart": 110,
-      "pageEnd": 129
+      "pageEnd": 129,
+      "identifiers": [
+        {
+          "type": "PropertyValue",
+          "propertyId": "coords",
+          "value": "15,336.95,289.94,209.49,8.07;15,335.40,300.86,211.07,8.07;15,335.40,311.78,78.44,8.07"
+        }
+      ]
     },
     {
       "type": "Reference",
@@ -2042,7 +2357,14 @@ expression: article
             }
           }
         ]
-      }
+      },
+      "identifiers": [
+        {
+          "type": "PropertyValue",
+          "propertyId": "coords",
+          "value": "15,336.95,321.38,209.61,8.07;15,335.40,332.30,211.07,8.07;15,335.40,343.34,211.18,8.07;15,335.40,354.26,114.04,8.07"
+        }
+      ]
     },
     {
       "type": "Reference",
@@ -2064,6 +2386,13 @@ expression: article
           "value": {
             "string": "Building a secure system with LIDS"
           }
+        }
+      ],
+      "identifiers": [
+        {
+          "type": "PropertyValue",
+          "propertyId": "coords",
+          "value": "15,336.95,363.86,59.48,8.07;15,417.07,363.86,129.54,8.07;15,335.40,374.78,22.30,8.07;15,374.50,375.26,172.73,7.05;15,335.40,386.18,105.32,7.05"
         }
       ]
     }
@@ -2132,6 +2461,7 @@ expression: article
             },
             {
               "type": "Citation",
+              "id": "tei-ref-1",
               "target": "b16",
               "content": [
                 {
@@ -2150,6 +2480,7 @@ expression: article
             },
             {
               "type": "Citation",
+              "id": "tei-ref-2",
               "target": "b23",
               "content": [
                 {
@@ -2168,6 +2499,7 @@ expression: article
             },
             {
               "type": "Citation",
+              "id": "tei-ref-3",
               "target": "b42",
               "content": [
                 {
@@ -2186,6 +2518,7 @@ expression: article
             },
             {
               "type": "Citation",
+              "id": "tei-ref-4",
               "target": "b44",
               "content": [
                 {
@@ -2204,6 +2537,7 @@ expression: article
             },
             {
               "type": "Citation",
+              "id": "tei-ref-5",
               "target": "b19",
               "content": [
                 {
@@ -2222,6 +2556,7 @@ expression: article
             },
             {
               "type": "Citation",
+              "id": "tei-ref-6",
               "target": "b30",
               "content": [
                 {
@@ -2240,6 +2575,7 @@ expression: article
             },
             {
               "type": "Citation",
+              "id": "tei-ref-7",
               "target": "b9",
               "content": [
                 {
@@ -2258,6 +2594,7 @@ expression: article
             },
             {
               "type": "Citation",
+              "id": "tei-ref-8",
               "target": "b1",
               "content": [
                 {
@@ -2276,6 +2613,7 @@ expression: article
             },
             {
               "type": "Citation",
+              "id": "tei-ref-9",
               "target": "b31",
               "content": [
                 {
@@ -2294,6 +2632,7 @@ expression: article
             },
             {
               "type": "Citation",
+              "id": "tei-ref-10",
               "target": "b46",
               "content": [
                 {
@@ -2312,6 +2651,7 @@ expression: article
             },
             {
               "type": "Citation",
+              "id": "tei-ref-11",
               "target": "b39",
               "content": [
                 {
@@ -2330,6 +2670,7 @@ expression: article
             },
             {
               "type": "Citation",
+              "id": "tei-ref-12",
               "target": "b21",
               "content": [
                 {
@@ -2348,6 +2689,7 @@ expression: article
             },
             {
               "type": "Citation",
+              "id": "tei-ref-13",
               "target": "b35",
               "content": [
                 {
@@ -2366,6 +2708,7 @@ expression: article
             },
             {
               "type": "Citation",
+              "id": "tei-ref-14",
               "target": "b38",
               "content": [
                 {
@@ -2384,6 +2727,7 @@ expression: article
             },
             {
               "type": "Citation",
+              "id": "tei-ref-15",
               "target": "b30",
               "content": [
                 {
@@ -2456,6 +2800,7 @@ expression: article
                 },
                 {
                   "type": "Citation",
+                  "id": "tei-ref-16",
                   "target": "b15",
                   "content": [
                     {
@@ -2474,6 +2819,7 @@ expression: article
                 },
                 {
                   "type": "Citation",
+                  "id": "tei-ref-17",
                   "target": "b41",
                   "content": [
                     {
@@ -2492,6 +2838,7 @@ expression: article
                 },
                 {
                   "type": "Citation",
+                  "id": "tei-ref-18",
                   "target": "b37",
                   "content": [
                     {
@@ -2538,6 +2885,7 @@ expression: article
                 },
                 {
                   "type": "Citation",
+                  "id": "tei-ref-19",
                   "target": "b37",
                   "content": [
                     {
@@ -2584,6 +2932,7 @@ expression: article
                 },
                 {
                   "type": "Citation",
+                  "id": "tei-ref-20",
                   "target": "b4",
                   "content": [
                     {
@@ -2602,6 +2951,7 @@ expression: article
                 },
                 {
                   "type": "Citation",
+                  "id": "tei-ref-21",
                   "target": "b45",
                   "content": [
                     {
@@ -2620,6 +2970,7 @@ expression: article
                 },
                 {
                   "type": "Citation",
+                  "id": "tei-ref-22",
                   "target": "b18",
                   "content": [
                     {
@@ -2638,6 +2989,7 @@ expression: article
                 },
                 {
                   "type": "Citation",
+                  "id": "tei-ref-23",
                   "target": "b26",
                   "content": [
                     {
@@ -2818,6 +3170,7 @@ expression: article
                 },
                 {
                   "type": "Citation",
+                  "id": "tei-ref-24",
                   "target": "b20",
                   "content": [
                     {
@@ -3213,6 +3566,7 @@ expression: article
                     },
                     {
                       "type": "Citation",
+                      "id": "tei-ref-25",
                       "target": "b32",
                       "content": [
                         {
@@ -3263,6 +3617,7 @@ expression: article
             },
             {
               "type": "Citation",
+              "id": "tei-ref-26",
               "target": "b41",
               "content": [
                 {
@@ -3307,6 +3662,7 @@ expression: article
                 },
                 {
                   "type": "Citation",
+                  "id": "tei-ref-27",
                   "target": "b4",
                   "content": [
                     {
@@ -3353,6 +3709,7 @@ expression: article
                 },
                 {
                   "type": "Citation",
+                  "id": "tei-ref-28",
                   "target": "b23",
                   "content": [
                     {
@@ -3565,6 +3922,7 @@ expression: article
                     },
                     {
                       "type": "Citation",
+                      "id": "tei-ref-29",
                       "target": "b25",
                       "content": [
                         {
@@ -3611,6 +3969,7 @@ expression: article
                     },
                     {
                       "type": "Citation",
+                      "id": "tei-ref-30",
                       "target": "b19",
                       "content": [
                         {
@@ -3629,6 +3988,7 @@ expression: article
                     },
                     {
                       "type": "Citation",
+                      "id": "tei-ref-31",
                       "target": "b0",
                       "content": [
                         {
@@ -3675,6 +4035,7 @@ expression: article
                     },
                     {
                       "type": "Citation",
+                      "id": "tei-ref-32",
                       "target": "b27",
                       "content": [
                         {
@@ -3721,6 +4082,7 @@ expression: article
                     },
                     {
                       "type": "Citation",
+                      "id": "tei-ref-33",
                       "target": "b32",
                       "content": [
                         {
@@ -3795,6 +4157,7 @@ expression: article
                     },
                     {
                       "type": "Citation",
+                      "id": "tei-ref-34",
                       "target": "b39",
                       "content": [
                         {
@@ -3813,6 +4176,7 @@ expression: article
                     },
                     {
                       "type": "Citation",
+                      "id": "tei-ref-35",
                       "target": "b31",
                       "content": [
                         {
@@ -3859,6 +4223,7 @@ expression: article
                     },
                     {
                       "type": "Citation",
+                      "id": "tei-ref-36",
                       "target": "b8",
                       "content": [
                         {
@@ -3935,6 +4300,7 @@ expression: article
                 },
                 {
                   "type": "Citation",
+                  "id": "tei-ref-37",
                   "target": "b35",
                   "content": [
                     {
@@ -3953,6 +4319,7 @@ expression: article
                 },
                 {
                   "type": "Citation",
+                  "id": "tei-ref-38",
                   "target": "b10",
                   "content": [
                     {
@@ -3971,6 +4338,7 @@ expression: article
                 },
                 {
                   "type": "Citation",
+                  "id": "tei-ref-39",
                   "target": "b40",
                   "content": [
                     {
@@ -3989,6 +4357,7 @@ expression: article
                 },
                 {
                   "type": "Citation",
+                  "id": "tei-ref-40",
                   "target": "b6",
                   "content": [
                     {
@@ -4007,6 +4376,7 @@ expression: article
                 },
                 {
                   "type": "Citation",
+                  "id": "tei-ref-41",
                   "target": "b24",
                   "content": [
                     {
@@ -4025,6 +4395,7 @@ expression: article
                 },
                 {
                   "type": "Citation",
+                  "id": "tei-ref-42",
                   "target": "b36",
                   "content": [
                     {
@@ -4043,6 +4414,7 @@ expression: article
                 },
                 {
                   "type": "Citation",
+                  "id": "tei-ref-43",
                   "target": "b24",
                   "content": [
                     {
@@ -4061,6 +4433,7 @@ expression: article
                 },
                 {
                   "type": "Citation",
+                  "id": "tei-ref-44",
                   "target": "b7",
                   "content": [
                     {
@@ -4262,6 +4635,7 @@ expression: article
                     },
                     {
                       "type": "Citation",
+                      "id": "tei-ref-45",
                       "target": "b15",
                       "content": [
                         {
@@ -4308,6 +4682,7 @@ expression: article
                     },
                     {
                       "type": "Citation",
+                      "id": "tei-ref-46",
                       "target": "b2",
                       "content": [
                         {
@@ -4399,6 +4774,7 @@ expression: article
                     },
                     {
                       "type": "Citation",
+                      "id": "tei-ref-47",
                       "target": "b35",
                       "content": [
                         {
@@ -4527,6 +4903,7 @@ expression: article
                         },
                         {
                           "type": "Citation",
+                          "id": "tei-ref-48",
                           "target": "b29",
                           "content": [
                             {
@@ -4601,6 +4978,7 @@ expression: article
                         },
                         {
                           "type": "Citation",
+                          "id": "tei-ref-49",
                           "target": "b29",
                           "content": [
                             {
@@ -4682,6 +5060,7 @@ expression: article
             },
             {
               "type": "Citation",
+              "id": "tei-ref-50",
               "target": "b34",
               "content": [
                 {
@@ -4700,6 +5079,7 @@ expression: article
             },
             {
               "type": "Citation",
+              "id": "tei-ref-51",
               "target": "b13",
               "content": [
                 {
@@ -4718,6 +5098,7 @@ expression: article
             },
             {
               "type": "Citation",
+              "id": "tei-ref-52",
               "target": "b12",
               "content": [
                 {
@@ -4736,6 +5117,7 @@ expression: article
             },
             {
               "type": "Citation",
+              "id": "tei-ref-53",
               "target": "b11",
               "content": [
                 {
@@ -4754,6 +5136,7 @@ expression: article
             },
             {
               "type": "Citation",
+              "id": "tei-ref-54",
               "target": "b18",
               "content": [
                 {
@@ -4772,6 +5155,7 @@ expression: article
             },
             {
               "type": "Citation",
+              "id": "tei-ref-55",
               "target": "b45",
               "content": [
                 {
@@ -4790,6 +5174,7 @@ expression: article
             },
             {
               "type": "Citation",
+              "id": "tei-ref-56",
               "target": "b26",
               "content": [
                 {
@@ -4808,6 +5193,7 @@ expression: article
             },
             {
               "type": "Citation",
+              "id": "tei-ref-57",
               "target": "b9",
               "content": [
                 {
@@ -4826,6 +5212,7 @@ expression: article
             },
             {
               "type": "Citation",
+              "id": "tei-ref-58",
               "target": "b5",
               "content": [
                 {
@@ -4844,6 +5231,7 @@ expression: article
             },
             {
               "type": "Citation",
+              "id": "tei-ref-59",
               "target": "b3",
               "content": [
                 {
@@ -4862,6 +5250,7 @@ expression: article
             },
             {
               "type": "Citation",
+              "id": "tei-ref-60",
               "target": "b14",
               "content": [
                 {
@@ -4880,6 +5269,7 @@ expression: article
             },
             {
               "type": "Citation",
+              "id": "tei-ref-61",
               "target": "b15",
               "content": [
                 {
@@ -4898,6 +5288,7 @@ expression: article
             },
             {
               "type": "Citation",
+              "id": "tei-ref-62",
               "target": "b4",
               "content": [
                 {
@@ -4916,6 +5307,7 @@ expression: article
             },
             {
               "type": "Citation",
+              "id": "tei-ref-63",
               "target": "b37",
               "content": [
                 {
@@ -4934,6 +5326,7 @@ expression: article
             },
             {
               "type": "Citation",
+              "id": "tei-ref-64",
               "target": "b43",
               "content": [
                 {
@@ -4952,6 +5345,7 @@ expression: article
             },
             {
               "type": "Citation",
+              "id": "tei-ref-65",
               "target": "b33",
               "content": [
                 {
@@ -4999,6 +5393,7 @@ expression: article
             },
             {
               "type": "Citation",
+              "id": "tei-ref-66",
               "target": "b17",
               "content": [
                 {
@@ -5046,6 +5441,7 @@ expression: article
             },
             {
               "type": "Citation",
+              "id": "tei-ref-67",
               "target": "b6",
               "content": [
                 {
@@ -5064,6 +5460,7 @@ expression: article
             },
             {
               "type": "Citation",
+              "id": "tei-ref-68",
               "target": "b7",
               "content": [
                 {
@@ -5082,6 +5479,7 @@ expression: article
             },
             {
               "type": "Citation",
+              "id": "tei-ref-69",
               "target": "b22",
               "content": [
                 {
@@ -5100,6 +5498,7 @@ expression: article
             },
             {
               "type": "Citation",
+              "id": "tei-ref-70",
               "target": "b35",
               "content": [
                 {
@@ -5260,6 +5659,7 @@ expression: article
             },
             {
               "type": "Citation",
+              "id": "tei-ref-71",
               "target": "b10",
               "content": [
                 {
@@ -5278,6 +5678,7 @@ expression: article
             },
             {
               "type": "Citation",
+              "id": "tei-ref-72",
               "target": "b36",
               "content": [
                 {
@@ -5296,6 +5697,7 @@ expression: article
             },
             {
               "type": "Citation",
+              "id": "tei-ref-73",
               "target": "b40",
               "content": [
                 {
@@ -5314,6 +5716,7 @@ expression: article
             },
             {
               "type": "Citation",
+              "id": "tei-ref-74",
               "target": "b24",
               "content": [
                 {
@@ -5332,6 +5735,7 @@ expression: article
             },
             {
               "type": "Citation",
+              "id": "tei-ref-75",
               "target": "b20",
               "content": [
                 {
@@ -5351,6 +5755,458 @@ expression: article
           ]
         }
       ]
+    }
+  ],
+  "identifiers": [
+    {
+      "type": "PropertyValue",
+      "propertyId": "coords",
+      "value": "2,205.64,699.18,15.81,8.97",
+      "name": "tei-ref-1"
+    },
+    {
+      "type": "PropertyValue",
+      "propertyId": "coords",
+      "value": "2,223.97,699.18,12.57,8.97",
+      "name": "tei-ref-2"
+    },
+    {
+      "type": "PropertyValue",
+      "propertyId": "coords",
+      "value": "2,239.06,699.18,12.45,8.97",
+      "name": "tei-ref-3"
+    },
+    {
+      "type": "PropertyValue",
+      "propertyId": "coords",
+      "value": "2,254.16,699.18,11.86,8.97",
+      "name": "tei-ref-4"
+    },
+    {
+      "type": "PropertyValue",
+      "propertyId": "coords",
+      "value": "2,384.52,70.26,16.66,8.97",
+      "name": "tei-ref-5"
+    },
+    {
+      "type": "PropertyValue",
+      "propertyId": "coords",
+      "value": "2,444.23,285.42,15.33,8.97",
+      "name": "tei-ref-6"
+    },
+    {
+      "type": "PropertyValue",
+      "propertyId": "coords",
+      "value": "2,527.38,381.06,15.24,8.97",
+      "name": "tei-ref-7"
+    },
+    {
+      "type": "PropertyValue",
+      "propertyId": "coords",
+      "value": "2,467.81,488.70,8.39,8.97",
+      "name": "tei-ref-8"
+    },
+    {
+      "type": "PropertyValue",
+      "propertyId": "coords",
+      "value": "2,489.38,572.34,15.33,8.97",
+      "name": "tei-ref-9"
+    },
+    {
+      "type": "PropertyValue",
+      "propertyId": "coords",
+      "value": "2,496.24,620.22,15.69,8.97",
+      "name": "tei-ref-10"
+    },
+    {
+      "type": "PropertyValue",
+      "propertyId": "coords",
+      "value": "2,515.05,620.22,12.45,8.97",
+      "name": "tei-ref-11"
+    },
+    {
+      "type": "PropertyValue",
+      "propertyId": "coords",
+      "value": "2,530.62,620.22,11.86,8.97",
+      "name": "tei-ref-12"
+    },
+    {
+      "type": "PropertyValue",
+      "propertyId": "coords",
+      "value": "3,141.30,82.26,13.30,8.97",
+      "name": "tei-ref-13"
+    },
+    {
+      "type": "PropertyValue",
+      "propertyId": "coords",
+      "value": "3,202.52,297.42,15.33,8.97",
+      "name": "tei-ref-14"
+    },
+    {
+      "type": "PropertyValue",
+      "propertyId": "coords",
+      "value": "3,124.40,369.18,15.24,8.97",
+      "name": "tei-ref-15"
+    },
+    {
+      "type": "PropertyValue",
+      "propertyId": "coords",
+      "value": "3,487.38,182.94,17.61,8.97",
+      "name": "tei-ref-16"
+    },
+    {
+      "type": "PropertyValue",
+      "propertyId": "coords",
+      "value": "3,355.16,290.58,15.69,8.97",
+      "name": "tei-ref-17"
+    },
+    {
+      "type": "PropertyValue",
+      "propertyId": "coords",
+      "value": "3,373.62,290.58,13.30,8.97",
+      "name": "tei-ref-18"
+    },
+    {
+      "type": "PropertyValue",
+      "propertyId": "coords",
+      "value": "3,527.39,627.54,15.24,8.97",
+      "name": "tei-ref-19"
+    },
+    {
+      "type": "PropertyValue",
+      "propertyId": "coords",
+      "value": "4,101.48,602.34,11.63,8.97",
+      "name": "tei-ref-20"
+    },
+    {
+      "type": "PropertyValue",
+      "propertyId": "coords",
+      "value": "4,161.77,602.34,15.24,8.97",
+      "name": "tei-ref-21"
+    },
+    {
+      "type": "PropertyValue",
+      "propertyId": "coords",
+      "value": "4,529.81,237.66,16.66,8.97",
+      "name": "tei-ref-22"
+    },
+    {
+      "type": "PropertyValue",
+      "propertyId": "coords",
+      "value": "4,445.32,249.54,16.66,8.97",
+      "name": "tei-ref-23"
+    },
+    {
+      "type": "PropertyValue",
+      "propertyId": "coords",
+      "value": "5,85.78,402.78,16.66,8.97",
+      "name": "tei-ref-24"
+    },
+    {
+      "type": "PropertyValue",
+      "propertyId": "coords",
+      "value": "7,246.53,488.46,16.66,8.97",
+      "name": "tei-ref-25"
+    },
+    {
+      "type": "PropertyValue",
+      "propertyId": "coords",
+      "value": "7,189.72,639.42,16.66,8.97",
+      "name": "tei-ref-26"
+    },
+    {
+      "type": "PropertyValue",
+      "propertyId": "coords",
+      "value": "7,417.24,318.42,10.60,8.97",
+      "name": "tei-ref-27"
+    },
+    {
+      "type": "PropertyValue",
+      "propertyId": "coords",
+      "value": "8,143.30,118.14,15.33,8.97",
+      "name": "tei-ref-28"
+    },
+    {
+      "type": "PropertyValue",
+      "propertyId": "coords",
+      "value": "9,127.49,313.02,15.33,8.97",
+      "name": "tei-ref-29"
+    },
+    {
+      "type": "PropertyValue",
+      "propertyId": "coords",
+      "value": "9,115.54,519.90,16.01,8.97",
+      "name": "tei-ref-30"
+    },
+    {
+      "type": "PropertyValue",
+      "propertyId": "coords",
+      "value": "9,139.25,543.78,10.50,8.97",
+      "name": "tei-ref-31"
+    },
+    {
+      "type": "PropertyValue",
+      "propertyId": "coords",
+      "value": "9,446.66,140.70,17.21,8.97",
+      "name": "tei-ref-32"
+    },
+    {
+      "type": "PropertyValue",
+      "propertyId": "coords",
+      "value": "9,529.81,424.74,16.66,8.97",
+      "name": "tei-ref-33"
+    },
+    {
+      "type": "PropertyValue",
+      "propertyId": "coords",
+      "value": "10,128.82,328.62,15.81,8.97",
+      "name": "tei-ref-34"
+    },
+    {
+      "type": "PropertyValue",
+      "propertyId": "coords",
+      "value": "10,146.79,328.62,13.30,8.97",
+      "name": "tei-ref-35"
+    },
+    {
+      "type": "PropertyValue",
+      "propertyId": "coords",
+      "value": "10,86.62,556.38,10.60,8.97",
+      "name": "tei-ref-36"
+    },
+    {
+      "type": "PropertyValue",
+      "propertyId": "coords",
+      "value": "10,449.11,193.50,15.81,8.97",
+      "name": "tei-ref-37"
+    },
+    {
+      "type": "PropertyValue",
+      "propertyId": "coords",
+      "value": "10,466.84,193.50,12.45,8.97",
+      "name": "tei-ref-38"
+    },
+    {
+      "type": "PropertyValue",
+      "propertyId": "coords",
+      "value": "10,481.22,193.50,12.45,8.97",
+      "name": "tei-ref-39"
+    },
+    {
+      "type": "PropertyValue",
+      "propertyId": "coords",
+      "value": "10,495.59,193.50,7.42,8.97",
+      "name": "tei-ref-40"
+    },
+    {
+      "type": "PropertyValue",
+      "propertyId": "coords",
+      "value": "10,345.33,205.38,15.24,8.97",
+      "name": "tei-ref-41"
+    },
+    {
+      "type": "PropertyValue",
+      "propertyId": "coords",
+      "value": "10,428.27,205.38,15.69,8.97",
+      "name": "tei-ref-42"
+    },
+    {
+      "type": "PropertyValue",
+      "propertyId": "coords",
+      "value": "10,446.72,205.38,11.86,8.97",
+      "name": "tei-ref-43"
+    },
+    {
+      "type": "PropertyValue",
+      "propertyId": "coords",
+      "value": "10,515.63,205.38,10.60,8.97",
+      "name": "tei-ref-44"
+    },
+    {
+      "type": "PropertyValue",
+      "propertyId": "coords",
+      "value": "11,493.47,651.42,15.33,8.97",
+      "name": "tei-ref-45"
+    },
+    {
+      "type": "PropertyValue",
+      "propertyId": "coords",
+      "value": "12,104.24,256.50,10.60,8.97",
+      "name": "tei-ref-46"
+    },
+    {
+      "type": "PropertyValue",
+      "propertyId": "coords",
+      "value": "12,138.63,591.66,15.33,8.97",
+      "name": "tei-ref-47"
+    },
+    {
+      "type": "PropertyValue",
+      "propertyId": "coords",
+      "value": "13,120.09,70.26,15.33,8.97",
+      "name": "tei-ref-48"
+    },
+    {
+      "type": "PropertyValue",
+      "propertyId": "coords",
+      "value": "13,121.77,366.30,15.33,8.97",
+      "name": "tei-ref-49"
+    },
+    {
+      "type": "PropertyValue",
+      "propertyId": "coords",
+      "value": "13,64.80,627.54,15.81,8.97",
+      "name": "tei-ref-50"
+    },
+    {
+      "type": "PropertyValue",
+      "propertyId": "coords",
+      "value": "13,84.21,627.54,12.45,8.97",
+      "name": "tei-ref-51"
+    },
+    {
+      "type": "PropertyValue",
+      "propertyId": "coords",
+      "value": "13,100.14,627.54,12.45,8.97",
+      "name": "tei-ref-52"
+    },
+    {
+      "type": "PropertyValue",
+      "propertyId": "coords",
+      "value": "13,116.20,627.54,13.30,8.97",
+      "name": "tei-ref-53"
+    },
+    {
+      "type": "PropertyValue",
+      "propertyId": "coords",
+      "value": "13,253.09,627.54,15.33,8.97",
+      "name": "tei-ref-54"
+    },
+    {
+      "type": "PropertyValue",
+      "propertyId": "coords",
+      "value": "13,250.71,651.42,15.99,8.97",
+      "name": "tei-ref-55"
+    },
+    {
+      "type": "PropertyValue",
+      "propertyId": "coords",
+      "value": "13,145.00,675.30,16.54,8.97",
+      "name": "tei-ref-56"
+    },
+    {
+      "type": "PropertyValue",
+      "propertyId": "coords",
+      "value": "13,429.01,130.02,16.66,8.97",
+      "name": "tei-ref-57"
+    },
+    {
+      "type": "PropertyValue",
+      "propertyId": "coords",
+      "value": "13,374.11,177.90,11.63,8.97",
+      "name": "tei-ref-58"
+    },
+    {
+      "type": "PropertyValue",
+      "propertyId": "coords",
+      "value": "13,437.62,225.66,11.63,8.97",
+      "name": "tei-ref-59"
+    },
+    {
+      "type": "PropertyValue",
+      "propertyId": "coords",
+      "value": "13,348.58,249.54,16.66,8.97",
+      "name": "tei-ref-60"
+    },
+    {
+      "type": "PropertyValue",
+      "propertyId": "coords",
+      "value": "13,317.04,261.54,16.66,8.97",
+      "name": "tei-ref-61"
+    },
+    {
+      "type": "PropertyValue",
+      "propertyId": "coords",
+      "value": "13,389.19,285.42,10.60,8.97",
+      "name": "tei-ref-62"
+    },
+    {
+      "type": "PropertyValue",
+      "propertyId": "coords",
+      "value": "13,529.78,285.42,16.66,8.97",
+      "name": "tei-ref-63"
+    },
+    {
+      "type": "PropertyValue",
+      "propertyId": "coords",
+      "value": "13,423.46,297.42,16.66,8.97",
+      "name": "tei-ref-64"
+    },
+    {
+      "type": "PropertyValue",
+      "propertyId": "coords",
+      "value": "13,481.27,321.30,15.24,8.97",
+      "name": "tei-ref-65"
+    },
+    {
+      "type": "PropertyValue",
+      "propertyId": "coords",
+      "value": "14,198.56,297.42,16.54,8.97",
+      "name": "tei-ref-66"
+    },
+    {
+      "type": "PropertyValue",
+      "propertyId": "coords",
+      "value": "16,280.09,70.26,10.60,8.97",
+      "name": "tei-ref-67"
+    },
+    {
+      "type": "PropertyValue",
+      "propertyId": "coords",
+      "value": "16,115.40,330.90,11.63,8.97",
+      "name": "tei-ref-68"
+    },
+    {
+      "type": "PropertyValue",
+      "propertyId": "coords",
+      "value": "16,527.43,94.14,15.24,8.97",
+      "name": "tei-ref-69"
+    },
+    {
+      "type": "PropertyValue",
+      "propertyId": "coords",
+      "value": "16,336.96,237.66,15.81,8.97",
+      "name": "tei-ref-70"
+    },
+    {
+      "type": "PropertyValue",
+      "propertyId": "coords",
+      "value": "15,518.30,430.62,15.24,8.97",
+      "name": "tei-ref-71"
+    },
+    {
+      "type": "PropertyValue",
+      "propertyId": "coords",
+      "value": "15,466.29,523.14,15.33,8.97",
+      "name": "tei-ref-72"
+    },
+    {
+      "type": "PropertyValue",
+      "propertyId": "coords",
+      "value": "15,355.54,567.78,16.54,8.97",
+      "name": "tei-ref-73"
+    },
+    {
+      "type": "PropertyValue",
+      "propertyId": "coords",
+      "value": "15,409.83,567.78,16.66,8.97",
+      "name": "tei-ref-74"
+    },
+    {
+      "type": "PropertyValue",
+      "propertyId": "coords",
+      "value": "15,476.36,687.30,11.86,8.97",
+      "name": "tei-ref-75"
     }
   ]
 }

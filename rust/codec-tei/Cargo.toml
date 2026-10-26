@@ -21,6 +21,7 @@ serde = { workspace = true }
 serde_json = { workspace = true }
 stencila-codec-dom-trait = { path = "../codec-dom-trait" }
 stencila-codec-jats = { path = "../codec-jats" }
+stencila-node-compare = { path = "../node-compare" }
 tempfile = { workspace = true }
 tokio = { workspace = true }
 

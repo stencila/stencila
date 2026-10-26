@@ -8,7 +8,13 @@ use stencila_codec::stencila_schema::{
 
 use stencila_codec_utils::{split_given_names, strip_doi_prefix, strip_ror_prefix};
 
-use super::{Context, non_empty_text, path, text::normalize, xml_id};
+use super::{
+    Context,
+    metadata::{append, coordinates},
+    non_empty_text, path,
+    text::normalize,
+    xml_id,
+};
 
 /// Decode a `<listBibl>` to a list of [`Reference`]s
 pub(super) fn decode_list_bibl(node: &Node, context: &mut Context) -> Vec<Reference> {
@@ -85,9 +91,12 @@ enum SourceLevel {
 /// | `ptr/@target`                          | `url`                                  |
 /// | `note[@type='raw_reference']`          | `text`, only if there is no title      |
 pub(super) fn decode_bibl_struct(node: &Node, context: &mut Context) -> Reference {
-    context.lost_attrs(node, &["id", "status", "type"]);
+    context.lost_attrs(node, &["id", "coords", "status", "type"]);
 
-    let mut fields = BiblFields::default();
+    let mut fields = BiblFields {
+        identifiers: coordinates(node, None),
+        ..Default::default()
+    };
     for child in node.children().filter(Node::is_element) {
         match child.tag_name().name() {
             "analytic" => decode_analytic(&child, &mut fields, context),
@@ -435,13 +444,17 @@ pub(super) fn decode_author(node: &Node, context: &mut Context) -> Option<Author
     // The corresponding author is marked with `role="corresp"`, which says no
     // more than their email address already does
     let decoded: &[&str] = if node.attribute("role") == Some("corresp") {
-        &["role"]
+        &["id", "coords", "role"]
     } else {
-        &[]
+        &["id", "coords"]
     };
     context.lost_attrs(node, decoded);
 
-    let mut person = Person::default();
+    let mut person = Person {
+        id: xml_id(node).map(String::from),
+        ..Default::default()
+    };
+    person.options.identifiers = coordinates(node, None);
     let mut org_name = None;
     for child in node.children() {
         if !child.is_element() {
@@ -481,8 +494,8 @@ pub(super) fn decode_author(node: &Node, context: &mut Context) -> Option<Author
                 .get_or_insert_default()
                 .push(decode_affiliation(&child, context)),
             "orgName" => {
-                context.lost_attrs(&child, &["type"]);
-                org_name = non_empty_text(&child);
+                context.lost_attrs(&child, &["id", "coords", "type"]);
+                org_name = Some(child);
             }
             _ => context.lost(&child),
         }
@@ -492,13 +505,32 @@ pub(super) fn decode_author(node: &Node, context: &mut Context) -> Option<Author
         || person.given_names.is_some()
         || person.options.name.is_some();
 
+    // The `orgName` is the name of the author only when it has no personal
+    // name, so its id and coordinates are only kept then
     if !has_name {
-        return org_name.map(|name| {
-            Author::Organization(Organization {
-                name: Some(name),
+        let Some((org_name, name)) =
+            org_name.and_then(|org_name| Some((org_name, non_empty_text(&org_name)?)))
+        else {
+            // An author with no name of either kind is not decoded
+            context.lost(node);
+            return None;
+        };
+
+        if person.id.is_some() {
+            context.lost_attrs_named(&org_name, &["id"]);
+        }
+        let mut identifiers = person.options.identifiers;
+        append(&mut identifiers, coordinates(&org_name, Some("orgName")));
+
+        return Some(Author::Organization(Organization {
+            id: person.id.or_else(|| xml_id(&org_name).map(String::from)),
+            name: Some(name),
+            options: Box::new(OrganizationOptions {
+                identifiers,
                 ..Default::default()
-            })
-        });
+            }),
+            ..Default::default()
+        }));
     }
 
     if org_name.is_some() {
@@ -522,7 +554,17 @@ fn decode_editor(node: &Node, context: &mut Context) -> Option<Person> {
 
 /// Decode a `<persName>` onto a [`Person`]
 fn decode_pers_name(node: &Node, person: &mut Person, context: &mut Context) {
-    context.lost_attrs(node, &[]);
+    context.lost_attrs(node, &["id", "coords"]);
+    // The author's own id, or that of an earlier `persName`, takes precedence
+    if person.id.is_none() {
+        person.id = xml_id(node).map(String::from);
+    } else {
+        context.lost_attrs_named(node, &["id"]);
+    }
+    append(
+        &mut person.options.identifiers,
+        coordinates(node, Some("persName")),
+    );
 
     let mut given_names = Vec::new();
     let mut family_names = Vec::new();
@@ -570,25 +612,27 @@ fn decode_pers_name(node: &Node, person: &mut Person, context: &mut Context) {
 /// and the parts of its `<address>` are joined to form its address.
 pub(super) fn decode_affiliation(node: &Node, context: &mut Context) -> Organization {
     // The `key` (e.g. "aff0") only identifies the affiliation within the TEI
-    context.lost_attrs(node, &["key"]);
+    context.lost_attrs(node, &["id", "coords", "key"]);
 
     const TRIM_CHARS: &[char] = &[',', '.', ';', ' '];
 
     let mut name = Vec::new();
     let mut address = Vec::new();
     let mut ror = None;
-    let mut identifiers = None;
+    let mut identifiers = coordinates(node, None);
     let mut raw = None;
     for child in node.children().filter(Node::is_element) {
         match child.tag_name().name() {
             "orgName" => {
-                context.lost_attrs(&child, &["type", "key"]);
+                context.lost_attrs(&child, &["coords", "type", "key"]);
+                append(&mut identifiers, coordinates(&child, Some("orgName")));
                 if let Some(text) = non_empty_text(&child) {
                     name.push(text.trim_matches(TRIM_CHARS).to_string());
                 }
             }
             "address" => {
-                context.lost_attrs(&child, &[]);
+                context.lost_attrs(&child, &["coords"]);
+                append(&mut identifiers, coordinates(&child, Some("address")));
                 for part in child.children().filter(Node::is_element) {
                     // The `key` of a <country> is its ISO 3166 code, which
                     // is not kept because the address is a string
@@ -628,6 +672,7 @@ pub(super) fn decode_affiliation(node: &Node, context: &mut Context) -> Organiza
     };
 
     Organization {
+        id: xml_id(node).map(String::from),
         name,
         ror,
         options: Box::new(OrganizationOptions {

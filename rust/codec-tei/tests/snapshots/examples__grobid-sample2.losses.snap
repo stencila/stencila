@@ -6,14 +6,13 @@ expression: info.losses
 //TEI/teiHeader/encodingDesc: 1
 //TEI/text/@lang: 1
 //TEI/text/back/div/div/head/@n: 1
-//TEI/text/back/div/div/p/ref/@coords: 6
+//TEI/text/back/div/div/p/ref/@coords: 1
 "//TEI/text/back/div/div/p/ref[@type='bibr'] (unresolved)": 1
-//TEI/text/back/div/listBibl/biblStruct/@coords: 47
 //TEI/text/back/div/listBibl/biblStruct/monogr/meeting: 12
 //TEI/text/back/div/listBibl/biblStruct/note: 1
 "//TEI/text/body/div/formula (text, not TeX or MathML)": 1
 //TEI/text/body/div/head/@n: 47
-//TEI/text/body/div/p/ref/@coords: 86
+//TEI/text/body/div/p/ref/@coords: 16
 "//TEI/text/body/div/p/ref[@type='bibr'] (unresolved)": 11
 "//TEI/text/body/div/p/ref[@type='figure'] (unresolved)": 5
 //TEI/text/body/figure/@validated: 2

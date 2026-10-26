@@ -3,13 +3,14 @@ use roxmltree::Node;
 
 use stencila_codec::stencila_schema::{
     Block, Figure, FigureOptions, ImageObject, Inline, MathBlock, MathBlockOptions, MathInline,
-    MathInlineOptions, Primitive, PropertyValue, PropertyValueOptions, PropertyValueOrString,
-    Table, TableCell, TableCellOptions, TableCellType, TableOptions, TableRow, TableRowType,
-    shortcuts::p,
+    MathInlineOptions, Table, TableCell, TableCellOptions, TableCellType, TableOptions, TableRow,
+    TableRowType, shortcuts::p,
 };
 
 use super::{
-    Context, child, collapse_whitespace, non_empty_text, path,
+    Context, child, collapse_whitespace,
+    metadata::{append, coordinates},
+    non_empty_text, path,
     text::{decode_blocks, decode_inlines, decode_note, normalize},
     xml_id,
 };
@@ -141,7 +142,14 @@ fn decode_table(node: &Node, context: &mut Context) -> Block {
 fn decode_row(node: &Node, context: &mut Context) -> TableRow {
     let row_type = (node.attribute("role") == Some("label")).then_some(TableRowType::HeaderRow);
 
-    context.lost_attrs(node, if row_type.is_some() { &["role"] } else { &[] });
+    context.lost_attrs(
+        node,
+        if row_type.is_some() {
+            &["id", "coords", "role"]
+        } else {
+            &["id", "coords"]
+        },
+    );
 
     let cells = node
         .children()
@@ -156,6 +164,7 @@ fn decode_row(node: &Node, context: &mut Context) -> TableRow {
         .collect();
 
     TableRow {
+        id: context.source_id(node, xml_id(node)),
         cells,
         row_type,
         ..Default::default()
@@ -174,7 +183,7 @@ fn decode_cell(node: &Node, context: &mut Context) -> TableCell {
     let row_span = span("rows");
     let column_span = span("cols");
 
-    let mut decoded = vec!["rows", "cols"];
+    let mut decoded = vec!["id", "coords", "rows", "cols"];
     if cell_type.is_some() {
         decoded.push("role");
     }
@@ -188,6 +197,7 @@ fn decode_cell(node: &Node, context: &mut Context) -> TableCell {
     };
 
     TableCell {
+        id: context.source_id(node, xml_id(node)),
         cell_type,
         content,
         options: Box::new(TableCellOptions {
@@ -203,10 +213,9 @@ fn decode_cell(node: &Node, context: &mut Context) -> TableCell {
 ///
 /// The text of the formula is its `code`, and its `<label>` its label. That
 /// the formula is text, not TeX or MathML, is recorded as a loss (counted
-/// rather than reported for each formula), as are its coordinates, which a
-/// math block has no property for.
+/// rather than reported for each formula). Coordinates are indexed on the article.
 pub(super) fn decode_formula(node: &Node, context: &mut Context) -> Block {
-    context.lost_attrs(node, &["id"]);
+    context.lost_attrs(node, &["id", "coords"]);
     context.lost_label(format!("{} (text, not TeX or MathML)", path(node)));
 
     let label = child(node, "label")
@@ -222,7 +231,7 @@ pub(super) fn decode_formula(node: &Node, context: &mut Context) -> Block {
     let mathml = formula_mathml(&code);
 
     Block::MathBlock(MathBlock {
-        id: xml_id(node).map(String::from),
+        id: context.source_id(node, xml_id(node)),
         code: code.into(),
         math_language: Some(FORMULA_LANGUAGE.into()),
         label_automatically: label.is_some().then_some(false),
@@ -237,14 +246,14 @@ pub(super) fn decode_formula(node: &Node, context: &mut Context) -> Block {
 
 /// Decode a `<formula>` within a paragraph to a [`MathInline`]
 pub(super) fn decode_inline_formula(node: &Node, context: &mut Context) -> Inline {
-    context.lost_attrs(node, &["id"]);
+    context.lost_attrs(node, &["id", "coords"]);
     context.lost_label(format!("{} (text, not TeX or MathML)", path(node)));
 
     let code = formula_text(node, context);
     let mathml = formula_mathml(&code);
 
     Inline::MathInline(MathInline {
-        id: xml_id(node).map(String::from),
+        id: context.source_id(node, xml_id(node)),
         code: code.into(),
         math_language: Some(FORMULA_LANGUAGE.into()),
         options: Box::new(MathInlineOptions {
@@ -410,38 +419,5 @@ fn missing(node: &Node, what: &str) -> String {
     match xml_id(node) {
         Some(id) => format!("{}[@xml:id='{id}'] ({what})", path(node)),
         None => format!("{} ({what})", path(node)),
-    }
-}
-
-/// Get the page coordinates of an element as a typed identifier
-///
-/// GROBID's `coords` are a `;` separated list of boxes, each `page,x,y,w,h`
-/// in PDF points from the top left of the page. They are kept, as given, in
-/// an identifier with `propertyId` "coords", named by the part of the element
-/// that they are of (e.g. "graphic") if not of the element itself.
-fn coordinates(node: &Node, part: Option<&str>) -> Option<Vec<PropertyValueOrString>> {
-    let coords = node.attribute("coords")?.trim();
-    if coords.is_empty() {
-        return None;
-    }
-
-    Some(vec![PropertyValueOrString::PropertyValue(PropertyValue {
-        property_id: Some("coords".into()),
-        value: Primitive::String(coords.into()),
-        options: Box::new(PropertyValueOptions {
-            name: part.map(String::from),
-            ..Default::default()
-        }),
-        ..Default::default()
-    })])
-}
-
-/// Append optional identifiers to optional identifiers
-fn append(
-    identifiers: &mut Option<Vec<PropertyValueOrString>>,
-    more: Option<Vec<PropertyValueOrString>>,
-) {
-    if let Some(mut more) = more {
-        identifiers.get_or_insert_default().append(&mut more);
     }
 }
