@@ -45,6 +45,8 @@
 //! derived, because IDs are document-local labels, and citation and internal link
 //! targets differ only when they resolve to nodes that are not paired. So `id` is a
 //! valid selector that matches nothing, and `--include id` restores nothing.
+//! Coordinate identifiers (`propertyId: "coords"`) are omitted from the projection
+//! as source locations; a filter cannot restore them either.
 
 use std::{fmt, str::FromStr};
 

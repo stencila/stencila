@@ -297,7 +297,7 @@ fn artifact_is_versioned() -> Result<()> {
     assert_eq!(alignment.format_version(), AlignmentFormatVersion::V1);
     assert_eq!(alignment.algorithm().name, "stencila-schema-native");
     assert_eq!(alignment.algorithm().version, "3");
-    assert_eq!(alignment.algorithm().projection_version, "1");
+    assert_eq!(alignment.algorithm().projection_version, "2");
     assert_eq!(alignment.algorithm().policy, "schema-native");
 
     Ok(())

@@ -134,6 +134,8 @@ pub fn align_with_options(
 /// Local `id` changes are ignored; citation and internal link targets compare through
 /// the alignment when they resolve uniquely. Targets that are unresolved on both
 /// sides retain literal comparison.
+/// Source-location identifiers (`PropertyValue` entries in `identifiers` whose
+/// `propertyId` is `coords`) are ignored, including for alignment.
 pub fn compare(left: &Node, right: &Node) -> CompareResult<Comparison> {
     compare_with_options(left, right, &CompareOptions::default())
 }

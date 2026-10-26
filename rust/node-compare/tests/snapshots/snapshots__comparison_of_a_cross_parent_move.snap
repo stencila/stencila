@@ -9,7 +9,7 @@ expression: "compare(&left, &right)?"
     "algorithm": {
       "name": "stencila-schema-native",
       "version": "3",
-      "projectionVersion": "1",
+      "projectionVersion": "2",
       "policy": "schema-native"
     },
     "correspondences": [
