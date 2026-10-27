@@ -2,7 +2,7 @@ use super::DecodeContext;
 
 use std::collections::{BTreeMap, BTreeSet};
 
-use roxmltree::Node;
+use roxmltree::{NS_XML_URI, Node};
 use stencila_codec_text_trait::to_text;
 
 use stencila_codec::stencila_schema::{
@@ -499,7 +499,7 @@ pub(super) fn decode_article_meta(
         let tag = child.tag_name().name();
         let child_path = extend_path(path, tag);
         match tag {
-            "abstract" => decode_abstract(&child_path, &child, article, losses),
+            "abstract" | "trans-abstract" => decode_abstract(&child_path, &child, article, losses),
             "article-categories" => decode_article_categories(&child_path, &child, article, losses),
             "article-id" => decode_article_id(&child_path, &child, article, losses),
             "article-version" => decode_article_version(&child_path, &child, article, losses),
@@ -693,16 +693,28 @@ fn decode_author_notes(
     }
 }
 
-/// Decode an `<abstract>` element
+/// Decode an `<abstract>` or `<trans-abstract>` element
 ///
 /// Articles may have more than one abstract, typically an untyped one plus a
 /// graphical, plain language or translated abstract. The untyped abstract is the
 /// article's `abstract`; the others are kept in `parts` as nested works that
 /// carry only an `abstract`, along with their `abstract-type` as a genre.
+/// Translations also carry their language as `inLanguage` metadata, as in the
+/// TEI decoder.
 fn decode_abstract(path: &str, node: &Node, article: &mut Article, losses: &mut DecodeContext) {
     let abstract_type = node.attribute("abstract-type").map(String::from);
-
-    record_attrs_lost(path, node, ["abstract-type", "id"], losses);
+    let is_translation = node.has_tag_name("trans-abstract");
+    let is_primary = !is_translation && abstract_type.is_none() && article.r#abstract.is_none();
+    // A translation carries its own language; an ordinary abstract does not
+    // become a translation just because it inherits the article's language.
+    for attr in node.attributes() {
+        let is_xml_lang = attr.namespace() == Some(NS_XML_URI) && attr.name() == "lang";
+        let is_handled =
+            matches!(attr.name(), "abstract-type" | "id") || (is_translation && is_xml_lang);
+        if !is_handled {
+            losses.add(format!("{path}/@{}", attr.name()));
+        }
+    }
 
     // Use depth = 1 so that headings within abstract are at least level 2
     let content: Vec<Block> = decode_blocks(path, node.children(), losses, 1)
@@ -715,7 +727,7 @@ fn decode_abstract(path: &str, node: &Node, article: &mut Article, losses: &mut 
         })
         .collect();
 
-    if abstract_type.is_none() && article.r#abstract.is_none() {
+    if is_primary {
         article.r#abstract = Some(content);
         return;
     }
@@ -725,6 +737,19 @@ fn decode_abstract(path: &str, node: &Node, article: &mut Article, losses: &mut 
         r#abstract: Some(content),
         options: Box::new(ArticleOptions {
             genre: abstract_type.map(|abstract_type| vec![abstract_type]),
+            extra: is_translation
+                .then(|| {
+                    node.ancestors()
+                        .find_map(|ancestor| ancestor.attribute((NS_XML_URI, "lang")))
+                })
+                .flatten()
+                .filter(|language| !language.is_empty())
+                .map(|language| {
+                    Object::from([(
+                        "inLanguage",
+                        Primitive::String(language.to_ascii_lowercase()),
+                    )])
+                }),
             ..Default::default()
         }),
         ..Default::default()

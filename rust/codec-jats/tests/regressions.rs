@@ -1,7 +1,10 @@
 use stencila_codec::{
     DecodeInfo, EncodeOptions,
     eyre::{OptionExt, Result, bail},
-    stencila_schema::{Article, Author, AuthorRoleAuthor, AuthorRoleName, Block, Inline, Node},
+    stencila_schema::{
+        Article, Author, AuthorRoleAuthor, AuthorRoleName, Block, CreativeWorkVariant, Inline,
+        Node, Primitive,
+    },
 };
 use stencila_codec_jats::{decode, encode};
 use stencila_codec_text_trait::to_text;
@@ -28,6 +31,123 @@ fn assert_roundtrip(article: &Article) -> Result<()> {
         assert_eq!(actual, expected, "compact={compact}: {encoded}");
     }
     Ok(())
+}
+
+#[test]
+fn reference_translated_abstracts() -> Result<()> {
+    let primary = "<abstract><p>Resumo original.</p></abstract>";
+    let translation = r#"<trans-abstract id="en" xml:lang="EN">
+        <p>English <italic>translation</italic>.</p>
+      </trans-abstract>"#;
+    // A translation must remain a part even before, or without, a primary abstract.
+    for abstracts in [
+        format!("{primary}{translation}"),
+        format!("{translation}{primary}"),
+        translation.to_string(),
+    ] {
+        let (article, info) = article(&format!(
+            "<article><front><article-meta>{abstracts}</article-meta></front></article>"
+        ))?;
+        assert_eq!(
+            to_text(&article.r#abstract).trim(),
+            if abstracts.contains(primary) {
+                "Resumo original."
+            } else {
+                ""
+            }
+        );
+        let parts = article
+            .options
+            .parts
+            .as_ref()
+            .ok_or_eyre("missing translation")?;
+        assert_eq!(parts.len(), 1);
+        let CreativeWorkVariant::Article(part) = &parts[0] else {
+            bail!("expected an article part")
+        };
+        assert_eq!(part.id.as_deref(), Some("en"));
+        assert_eq!(to_text(&part.r#abstract).trim(), "English translation.");
+        let Some(Block::Paragraph(paragraph)) =
+            part.r#abstract.as_ref().and_then(|blocks| blocks.first())
+        else {
+            bail!("expected a translated paragraph")
+        };
+        assert!(matches!(
+            paragraph.content.get(1),
+            Some(Inline::Emphasis(..))
+        ));
+        assert_eq!(
+            part.options
+                .extra
+                .as_ref()
+                .and_then(|extra| extra.get("inLanguage")),
+            Some(&Primitive::String("en".into()))
+        );
+        assert!(
+            info.losses.is_empty(),
+            "{:?}",
+            info.losses.iter().collect::<Vec<_>>()
+        );
+        let (_, info) = encode(&Node::Article(article.clone()), None)?;
+        assert!(
+            info.losses.is_empty(),
+            "translation should encode without losses"
+        );
+        assert_roundtrip(&article)?;
+    }
+    Ok(())
+}
+
+#[test]
+fn reference_abstract_languages_and_types() -> Result<()> {
+    let (article, info) = article(
+        r#"<article xml:lang="PT"><front><article-meta>
+      <abstract><p>Resumo.</p></abstract>
+      <trans-abstract abstract-type="plain-language" xml:lang="EN"><p>English summary.</p></trans-abstract>
+      <trans-abstract><p>Inherited language.</p></trans-abstract>
+      <trans-abstract xml:lang="" lang="fr"><p>Unspecified language.</p></trans-abstract>
+      <abstract abstract-type="graphical"><p>Graphical abstract.</p></abstract>
+    </article-meta></front></article>"#,
+    )?;
+    let parts = article
+        .options
+        .parts
+        .as_ref()
+        .ok_or_eyre("missing translations")?;
+    assert_eq!(parts.len(), 4);
+    for (part, language) in parts.iter().zip([Some("en"), Some("pt"), None, None]) {
+        let CreativeWorkVariant::Article(part) = part else {
+            bail!("expected an article part")
+        };
+        assert_eq!(
+            part.options
+                .extra
+                .as_ref()
+                .and_then(|extra| extra.get("inLanguage")),
+            language
+                .map(|language| Primitive::String(language.into()))
+                .as_ref()
+        );
+    }
+    let CreativeWorkVariant::Article(part) = &parts[0] else {
+        bail!("expected an article part")
+    };
+    assert_eq!(
+        part.options.genre.as_deref(),
+        Some(["plain-language".into()].as_slice())
+    );
+    // An unnamespaced `lang` must not masquerade as `xml:lang`.
+    assert_eq!(
+        info.losses.iter().collect::<Vec<_>>(),
+        [("//article/front/article-meta/trans-abstract/@lang", 1)]
+    );
+    // The encoder puts every `<abstract>` before any `<trans-abstract>`, as JATS
+    // requires, so the parts round-trip once they are in that order
+    let (encoded, _) = encode(&Node::Article(article), None)?;
+    let (Node::Article(article), _) = decode(&encoded, None)? else {
+        bail!("expected an article")
+    };
+    assert_roundtrip(&article)
 }
 
 #[test]
@@ -146,6 +266,100 @@ fn reference_casrai_credit_role() -> Result<()> {
             info.losses.iter().collect::<Vec<_>>()
         );
     }
+    Ok(())
+}
+
+#[test]
+fn reference_translated_abstract_without_language() -> Result<()> {
+    // Without a primary abstract, a translation must not become the primary
+    // abstract when re-decoded, nor lose its id
+    for attrs in ["", r#" xml:lang="""#] {
+        let (article, info) = article(&format!(
+            r#"<article><front><article-meta>
+          <trans-abstract id="t"{attrs}><p>Summary.</p></trans-abstract>
+        </article-meta></front></article>"#
+        ))?;
+        assert!(article.r#abstract.is_none());
+        assert!(info.losses.is_empty());
+        let (encoded, info) = encode(&Node::Article(article.clone()), None)?;
+        assert!(encoded.contains(r#"<trans-abstract id="t">"#), "{encoded}");
+        assert!(info.losses.is_empty());
+        assert_roundtrip(&article)?;
+    }
+    Ok(())
+}
+
+#[test]
+fn encodes_abstracts_before_translated_abstracts() -> Result<()> {
+    let (article, _) = article(
+        r#"<article><front><article-meta>
+      <abstract><p>Main.</p></abstract>
+      <trans-abstract xml:lang="fr"><p>Résumé.</p></trans-abstract>
+      <abstract abstract-type="graphical"><p>Graphical.</p></abstract>
+    </article-meta></front></article>"#,
+    )?;
+    let (encoded, _) = encode(&Node::Article(article), None)?;
+    let graphical = encoded
+        .find(r#"abstract-type="graphical""#)
+        .ok_or_eyre("missing graphical abstract")?;
+    let translation = encoded
+        .find("<trans-abstract")
+        .ok_or_eyre("missing translation")?;
+    assert!(graphical < translation, "{encoded}");
+    Ok(())
+}
+
+#[test]
+fn sub_article_translated_abstracts() -> Result<()> {
+    let (article, info) = article(
+        r#"<article><front><article-meta><title-group><article-title>Main</article-title></title-group></article-meta></front>
+      <sub-article id="review" article-type="referee-report">
+        <front-stub>
+          <title-group><article-title>Review</article-title></title-group>
+          <abstract><p>Resumo.</p></abstract>
+          <trans-abstract id="review-en" xml:lang="en"><p>Summary.</p></trans-abstract>
+        </front-stub>
+        <body><p>Review text.</p></body>
+      </sub-article>
+    </article>"#,
+    )?;
+    assert!(
+        info.losses.is_empty(),
+        "{:?}",
+        info.losses.iter().collect::<Vec<_>>()
+    );
+    let (encoded, info) = encode(&Node::Article(article.clone()), None)?;
+    assert!(encoded.contains("Summary."), "{encoded}");
+    assert!(
+        info.losses.is_empty(),
+        "{:?}",
+        info.losses.iter().collect::<Vec<_>>()
+    );
+    assert_roundtrip(&article)
+}
+
+#[test]
+fn reports_extra_of_empty_abstract_parts() -> Result<()> {
+    let (mut article, _) = article(
+        r#"<article><front><article-meta>
+      <abstract><p>Main.</p></abstract>
+      <trans-abstract xml:lang="fr"><p>Résumé.</p></trans-abstract>
+    </article-meta></front></article>"#,
+    )?;
+    let Some(CreativeWorkVariant::Article(part)) = article
+        .options
+        .parts
+        .as_mut()
+        .and_then(|parts| parts.first_mut())
+    else {
+        bail!("expected an article part")
+    };
+    part.r#abstract = Some(Vec::new());
+    let (_, info) = encode(&Node::Article(article), None)?;
+    assert_eq!(
+        info.losses.iter().collect::<Vec<_>>(),
+        [("Article.extra", 1)]
+    );
     Ok(())
 }
 

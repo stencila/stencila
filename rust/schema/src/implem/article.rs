@@ -1468,36 +1468,47 @@ fn encode_contrib_group(
 }
 
 /// How a nested work in `Article.parts` is represented in JATS
+#[derive(Clone, Copy)]
 enum ArticlePart<'a> {
-    /// An additional `<abstract>`, e.g. a graphical or plain language abstract
+    /// An additional `<abstract>` or `<trans-abstract>`, e.g. a graphical, plain
+    /// language or translated abstract
     Abstract(&'a Article),
     /// A `<sub-article>`, e.g. a review or an editor's assessment
     SubArticle(&'a Article),
 }
 
-/// Classify the nested works of an article
-///
-/// A part that carries only an `abstract` came from an additional `<abstract>`
-/// element; any other nested article came from a `<sub-article>`. Parts that are
-/// neither are reported as lost.
+impl<'a> ArticlePart<'a> {
+    /// Classify a nested work
+    ///
+    /// A part that carries only an `abstract` came from an additional abstract
+    /// element; any other nested article came from a `<sub-article>`. Parts that
+    /// are neither have no representation.
+    fn of(part: &'a CreativeWorkVariant) -> Option<Self> {
+        let CreativeWorkVariant::Article(article) = part else {
+            return None;
+        };
+        Some(
+            if article.r#abstract.is_some() && article.content.is_empty() && article.title.is_none()
+            {
+                Self::Abstract(article)
+            } else {
+                Self::SubArticle(article)
+            },
+        )
+    }
+}
+
+/// Classify the nested works of an article, reporting those that cannot be
+/// represented as lost
 fn article_parts<'a>(
     article: &'a Article,
     context: &mut JatsEncodeContext,
 ) -> Vec<ArticlePart<'a>> {
     let mut parts = Vec::new();
     for part in article.options.parts.iter().flatten() {
-        match part {
-            CreativeWorkVariant::Article(article) => {
-                if article.r#abstract.is_some()
-                    && article.content.is_empty()
-                    && article.title.is_none()
-                {
-                    parts.push(ArticlePart::Abstract(article));
-                } else {
-                    parts.push(ArticlePart::SubArticle(article));
-                }
-            }
-            _ => {
+        match ArticlePart::of(part) {
+            Some(part) => parts.push(part),
+            None => {
                 context.add_loss("Article.parts");
             }
         }
@@ -1505,17 +1516,89 @@ fn article_parts<'a>(
     parts
 }
 
-/// Emit an additional `<abstract>` element for a nested work
-fn encode_extra_abstract(article: &Article, context: &mut JatsEncodeContext) {
+/// Whether an article has a non-empty abstract, and so emits one
+fn has_abstract(article: &Article) -> bool {
+    article
+        .r#abstract
+        .as_ref()
+        .is_some_and(|content| !content.is_empty())
+}
+
+/// The language of an abstract part, which makes it a translation
+fn abstract_language(article: &Article) -> Option<&str> {
+    article
+        .options
+        .extra
+        .as_ref()
+        .and_then(|extra| match extra.get("inLanguage") {
+            Some(Primitive::String(language)) if !language.is_empty() => Some(language.as_str()),
+            _ => None,
+        })
+}
+
+/// Whether an abstract part is emitted as a `<trans-abstract>`
+///
+/// A part with a language is a translation. So is a part with neither a
+/// language nor a type when the article has no primary abstract, because as an
+/// `<abstract>` it would be decoded as the primary abstract.
+fn is_trans_abstract(article: &Article, has_primary: bool) -> bool {
+    abstract_language(article).is_some()
+        || (!has_primary && article.options.genre.iter().flatten().next().is_none())
+}
+
+/// Emit the additional abstracts of an article
+///
+/// JATS requires every `<abstract>` to come before any `<trans-abstract>`, so the
+/// parts are emitted in that order, otherwise keeping their order.
+fn encode_extra_abstracts(
+    parts: &[ArticlePart],
+    has_primary: bool,
+    context: &mut JatsEncodeContext,
+) {
+    let (translations, abstracts): (Vec<_>, Vec<_>) = parts
+        .iter()
+        .filter_map(|part| match part {
+            ArticlePart::Abstract(article) => Some(*article),
+            ArticlePart::SubArticle(..) => None,
+        })
+        .partition(|article| is_trans_abstract(article, has_primary));
+    for article in abstracts.into_iter().chain(translations) {
+        add_article_losses(article, false, true, false, context);
+        encode_extra_abstract(article, has_primary, context);
+    }
+}
+
+/// Emit an additional abstract, using `<trans-abstract>` for a translation
+fn encode_extra_abstract(article: &Article, has_primary: bool, context: &mut JatsEncodeContext) {
     let Some(content) = article
         .r#abstract
         .as_ref()
         .filter(|content| !content.is_empty())
     else {
+        // Nothing is emitted, so any extra metadata, including a language, is lost
+        if article.options.extra.is_some() {
+            context.add_loss("Article.extra");
+        }
         return;
     };
 
-    context.enter_elem("abstract");
+    let language = abstract_language(article);
+    if article.options.extra.as_ref().is_some_and(|extra| {
+        extra
+            .keys()
+            .any(|key| key != "inLanguage" || language.is_none())
+    }) {
+        context.add_loss("Article.extra");
+    }
+
+    context.enter_elem(if is_trans_abstract(article, has_primary) {
+        "trans-abstract"
+    } else {
+        "abstract"
+    });
+    if let Some(language) = language {
+        context.push_attr("xml:lang", language);
+    }
     if let Some(id) = &article.id {
         context.push_attr("id", id);
     }
@@ -1531,6 +1614,7 @@ fn encode_extra_abstract(article: &Article, context: &mut JatsEncodeContext) {
 /// The nested work's own metadata goes in a `<front-stub>`, which is the
 /// article metadata of a sub-article.
 fn encode_sub_article(article: &Article, context: &mut JatsEncodeContext) {
+    context.merge_losses(lost_options_of!("Article", article.options, extra));
     context.enter_elem("sub-article");
     if let Some(id) = &article.id {
         context.push_attr("id", id);
@@ -1575,6 +1659,15 @@ fn encode_sub_article(article: &Article, context: &mut JatsEncodeContext) {
         content.to_jats(context);
         context.exit_elem_omit_empty();
     }
+    // Only abstracts can be nested in a sub-article, not further sub-articles
+    let parts = article_parts(article, context);
+    if parts
+        .iter()
+        .any(|part| matches!(part, ArticlePart::SubArticle(..)))
+    {
+        context.add_loss("Article.parts");
+    }
+    encode_extra_abstracts(&parts, has_abstract(article), context);
     context.exit_elem_omit_empty();
 
     context.enter_elem("body");
@@ -1648,7 +1741,6 @@ fn add_article_losses(
             about,
             licenses,
             version,
-            extra,
             editors,
             funders,
             funded_by
@@ -1753,20 +1845,35 @@ fn register_link_targets(
     }
     targets.walk(&article.r#abstract);
     targets.walk(&article.content);
+    register_part_link_targets(&mut targets, parts);
+}
+
+/// Register every addressable node of the nested works of an article
+fn register_part_link_targets(targets: &mut LinkTargets<'_>, parts: &[ArticlePart]) {
     for part in parts {
-        let (ArticlePart::Abstract(article) | ArticlePart::SubArticle(article)) = part;
+        let (ArticlePart::Abstract(article) | ArticlePart::SubArticle(article)) = *part;
         let is_emitted = match part {
-            ArticlePart::Abstract(article) => article
-                .r#abstract
-                .as_ref()
-                .is_some_and(|content| !content.is_empty()),
-            ArticlePart::SubArticle(_) => true,
+            ArticlePart::Abstract(..) => has_abstract(article),
+            ArticlePart::SubArticle(..) => true,
         };
         if is_emitted && let Some(id) = &article.id {
             targets.context.register_link_target(id, JatsRefType::Other);
         }
         targets.walk(&article.r#abstract);
         targets.walk(&article.content);
+
+        // A sub-article's abstract parts are emitted in its `<front-stub>`
+        if let ArticlePart::SubArticle(article) = part {
+            let abstracts = article
+                .options
+                .parts
+                .iter()
+                .flatten()
+                .filter_map(ArticlePart::of)
+                .filter(|part| matches!(part, ArticlePart::Abstract(..)))
+                .collect_vec();
+            register_part_link_targets(targets, &abstracts);
+        }
     }
 }
 
@@ -1973,12 +2080,7 @@ impl JatsCodec for Article {
             abstract_content.to_jats(context);
             context.exit_elem_omit_empty();
         }
-        for part in &parts {
-            if let ArticlePart::Abstract(article) = part {
-                add_article_losses(article, false, true, false, context);
-                encode_extra_abstract(article, context);
-            }
-        }
+        encode_extra_abstracts(&parts, has_abstract(self), context);
         if let Some(keywords) = self.options.keywords.as_ref() {
             context.enter_elem("kwd-group");
             for keyword in keywords
