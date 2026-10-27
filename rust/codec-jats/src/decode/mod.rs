@@ -1,17 +1,20 @@
 use std::path::Path;
 
-use roxmltree::{Document, ParsingOptions};
+use roxmltree::{Document, NS_XML_URI, ParsingOptions};
 
 use stencila_codec::{
     DecodeInfo, DecodeOptions,
     eyre::{OptionExt, Result},
-    stencila_schema::{Article, Block, CreativeWorkVariant, Node, Section},
+    stencila_schema::{
+        Article, ArticleOptions, Block, CreativeWorkVariant, Node, Object, Primitive, Section,
+    },
 };
 
 mod back;
 mod body;
 mod front;
 mod media;
+mod names;
 mod utilities;
 
 use media::DecodeContext;
@@ -35,8 +38,6 @@ pub(super) fn decode_with_directory(
     jats: &str,
     directory: Option<&Path>,
 ) -> Result<(Node, DecodeInfo)> {
-    let mut losses = DecodeContext::new(directory);
-
     let dom = Document::parse_with_options(
         jats,
         ParsingOptions {
@@ -45,16 +46,29 @@ pub(super) fn decode_with_directory(
         },
     )?;
 
+    let mut losses = DecodeContext::new(directory, &dom.root());
+
     // Find the <article> element
     let root = if dom.root_element().has_tag_name("article") {
         // <article> is the root node
         dom.root_element()
     } else {
-        // Search for <article> in DOM (e.g. within a <pmc-articleset>)
-        dom.root()
+        // Search for <article> in DOM (e.g. within a <pmc-articleset>). Only
+        // one article is decoded, so any others are lost.
+        let mut articles = dom
+            .root()
             .descendants()
-            .find(|elem| elem.tag_name().name() == "article")
-            .ok_or_eyre("XML document does not have an <article> element")?
+            .filter(|elem| elem.tag_name().name() == "article");
+        let first = articles
+            .next()
+            .ok_or_eyre("XML document does not have an <article> element")?;
+        for _ in articles {
+            losses.add(format!(
+                "//{}/article",
+                dom.root_element().tag_name().name()
+            ));
+        }
+        first
     };
 
     let article = decode_article("//article", &root, &mut losses);
@@ -74,10 +88,41 @@ pub(super) fn decode_with_directory(
 /// Used for both so that a sub-article gets the same front matter, body, back
 /// matter and nesting treatment as the article containing it.
 fn decode_article(path: &str, root: &roxmltree::Node, losses: &mut DecodeContext) -> Article {
+    // The JATS `article-type` is retained as the first `genre` of the article
+    // because the Stencila Schema has no equivalent property and the type (e.g.
+    // `research-article`, `referee-report`) is needed to encode it again
     let mut article = Article {
         id: root.attribute("id").map(String::from),
+        options: Box::new(ArticleOptions {
+            genre: root
+                .attribute("article-type")
+                .map(|article_type| vec![article_type.to_string()]),
+            extra: root
+                .attribute((NS_XML_URI, "lang"))
+                .filter(|language| !language.is_empty())
+                .map(|language| {
+                    Object::from([(
+                        "inLanguage",
+                        Primitive::String(language.to_ascii_lowercase()),
+                    )])
+                }),
+            ..Default::default()
+        }),
         ..Default::default()
     };
+
+    // The `dtd-version` describes the JATS rather than the article
+    record_attrs_lost(
+        path,
+        root,
+        ["id", "article-type", "lang", "dtd-version"],
+        losses,
+    );
+
+    // References are scoped to each article so that those of a sub-article are
+    // not mixed with those of the article containing it
+    let outer_references = std::mem::take(&mut losses.references);
+
     let mut content = Vec::new();
     let mut notes = Vec::new();
     let mut parts = Vec::new();
@@ -109,7 +154,7 @@ fn decode_article(path: &str, root: &roxmltree::Node, losses: &mut DecodeContext
                 notes.append(&mut article.content);
             }
             "sub-article" => {
-                parts.push(CreativeWorkVariant::Article(decode_sub_article(
+                parts.push(CreativeWorkVariant::Article(decode_article(
                     &child_path,
                     &child,
                     losses,
@@ -138,30 +183,16 @@ fn decode_article(path: &str, root: &roxmltree::Node, losses: &mut DecodeContext
     article.content = content;
 
     if !parts.is_empty() {
-        match &mut article.options.parts {
-            Some(existing) => existing.extend(parts),
-            None => article.options.parts = Some(parts),
-        }
+        article.options.parts.get_or_insert_default().extend(parts);
     }
 
-    article
-}
-
-/// Decode a `<sub-article>` element to a Stencila [`Article`]
-///
-/// The JATS `article-type` is retained as the first `genre` of the article
-/// because the Stencila Schema has no equivalent property and the type (e.g.
-/// `referee-report`, `author-comment`) is needed to encode the sub-article
-/// again.
-fn decode_sub_article(path: &str, node: &roxmltree::Node, losses: &mut DecodeContext) -> Article {
-    record_attrs_lost(path, node, ["id", "article-type"], losses);
-
-    let mut article = decode_article(path, node, losses);
-
-    article.id = node.attribute("id").map(String::from);
-    article.options.genre = node
-        .attribute("article-type")
-        .map(|article_type| vec![article_type.to_string()]);
+    let references = std::mem::replace(&mut losses.references, outer_references);
+    if !references.is_empty() {
+        article
+            .references
+            .get_or_insert_default()
+            .extend(references);
+    }
 
     article
 }

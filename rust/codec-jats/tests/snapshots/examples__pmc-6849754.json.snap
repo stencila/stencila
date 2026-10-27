@@ -1144,7 +1144,7 @@ expression: article
       "publisher": {
         "type": "Organization",
         "name": "University of Chicago Press",
-        "address": "Chicago and\n          London"
+        "address": "Chicago and London"
       }
     },
     {
@@ -21263,7 +21263,7 @@ expression: article
   "funders": [
     {
       "type": "Organization",
-      "name": "United States Department of Energy ",
+      "name": "United States Department of Energy",
       "identifiers": [
         {
           "type": "PropertyValue",
@@ -21274,7 +21274,7 @@ expression: article
     },
     {
       "type": "Organization",
-      "name": "The Fonds de recherché du Quebec – Nature et Technologies ",
+      "name": "The Fonds de recherché du Quebec – Nature et Technologies",
       "identifiers": [
         {
           "type": "PropertyValue",
@@ -21285,7 +21285,7 @@ expression: article
     },
     {
       "type": "Organization",
-      "name": "Laboratory Directed Research and Development ",
+      "name": "Laboratory Directed Research and Development",
       "identifiers": [
         {
           "type": "PropertyValue",
@@ -21296,7 +21296,7 @@ expression: article
     },
     {
       "type": "Organization",
-      "name": "Natural Sciences and Engineering Research Council of Canada ",
+      "name": "Natural Sciences and Engineering Research Council of Canada",
       "identifiers": [
         {
           "type": "PropertyValue",
@@ -21307,7 +21307,7 @@ expression: article
     },
     {
       "type": "Organization",
-      "name": "NASA ",
+      "name": "NASA",
       "identifiers": [
         {
           "type": "PropertyValue",
@@ -21318,7 +21318,7 @@ expression: article
     },
     {
       "type": "Organization",
-      "name": "USDA ",
+      "name": "USDA",
       "identifiers": [
         {
           "type": "PropertyValue",
@@ -21342,7 +21342,7 @@ expression: article
       "funders": [
         {
           "type": "Organization",
-          "name": "United States Department of Energy ",
+          "name": "United States Department of Energy",
           "identifiers": [
             {
               "type": "PropertyValue",
@@ -21366,7 +21366,7 @@ expression: article
       "funders": [
         {
           "type": "Organization",
-          "name": "The Fonds de recherché du Quebec – Nature et Technologies ",
+          "name": "The Fonds de recherché du Quebec – Nature et Technologies",
           "identifiers": [
             {
               "type": "PropertyValue",
@@ -21390,7 +21390,7 @@ expression: article
       "funders": [
         {
           "type": "Organization",
-          "name": "Natural Sciences and Engineering Research Council of Canada ",
+          "name": "Natural Sciences and Engineering Research Council of Canada",
           "identifiers": [
             {
               "type": "PropertyValue",
@@ -21401,6 +21401,9 @@ expression: article
         }
       ]
     }
+  ],
+  "genre": [
+    "letter"
   ],
   "keywords": [
     "Carbon cycle",

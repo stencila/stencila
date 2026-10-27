@@ -1,5 +1,6 @@
 ---
 source: rust/codec-pmc/tests/examples.rs
+assertion_line: 64
 expression: article
 ---
 {
@@ -2647,7 +2648,7 @@ expression: article
         "name": "Centers for Disease Control and Prevention",
         "address": "Fort Collins, CO, U.S.A"
       },
-      "text": "Biggerstaff, Brad J . PooledInfRate, Version 4.0: a Microsoft® Office Excel© Add-In to compute prevalence estimates from pooled samples. Centers for Disease Control and Prevention , Fort Collins, CO, U.S.A ., 2009 ."
+      "text": "Biggerstaff, Brad J. PooledInfRate, Version 4.0: a Microsoft® Office Excel© Add-In to compute prevalence estimates from pooled samples. Centers for Disease Control and Prevention, Fort Collins, CO, U.S.A., 2009."
     },
     {
       "type": "Reference",
@@ -4917,6 +4918,13 @@ expression: article
                     }
                   ]
                 }
+              ],
+              "images": [
+                {
+                  "type": "ImageObject",
+                  "contentUrl": "redacted",
+                  "mediaType": "image/jpeg"
+                }
               ]
             }
           ]
@@ -6089,6 +6097,13 @@ expression: article
                     }
                   ]
                 }
+              ],
+              "images": [
+                {
+                  "type": "ImageObject",
+                  "contentUrl": "redacted",
+                  "mediaType": "image/jpeg"
+                }
               ]
             },
             {
@@ -6799,6 +6814,13 @@ expression: article
                     }
                   ]
                 }
+              ],
+              "images": [
+                {
+                  "type": "ImageObject",
+                  "contentUrl": "redacted",
+                  "mediaType": "image/jpeg"
+                }
               ]
             },
             {
@@ -7434,6 +7456,13 @@ expression: article
                       "horizontalAlignment": "AlignLeft"
                     }
                   ]
+                }
+              ],
+              "images": [
+                {
+                  "type": "ImageObject",
+                  "contentUrl": "redacted",
+                  "mediaType": "image/jpeg"
                 }
               ]
             }
@@ -9269,20 +9298,19 @@ expression: article
           "labelAutomatically": false,
           "caption": [
             {
-              "type": "Heading",
-              "level": 1,
-              "content": [
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": "Agarose gel electrophoresis of LAMP products corresponding to Table 3."
-                  }
-                }
-              ]
-            },
-            {
               "type": "Paragraph",
               "content": [
+                {
+                  "type": "Strong",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "Agarose gel electrophoresis of LAMP products corresponding to Table 3. "
+                      }
+                    }
+                  ]
+                },
                 {
                   "type": "Text",
                   "value": {
@@ -9301,20 +9329,19 @@ expression: article
           "labelAutomatically": false,
           "caption": [
             {
-              "type": "Heading",
-              "level": 1,
-              "content": [
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": "Original blot and gel images contained in the manuscript’s figures."
-                  }
-                }
-              ]
-            },
-            {
               "type": "Paragraph",
               "content": [
+                {
+                  "type": "Strong",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "Original blot and gel images contained in the manuscript’s figures. "
+                      }
+                    }
+                  ]
+                },
                 {
                   "type": "Text",
                   "value": {
@@ -9331,22 +9358,22 @@ expression: article
           "id": "pone.0332245.s003",
           "label": "S2 Data",
           "labelAutomatically": false,
+          "workType": "Datatable",
           "caption": [
-            {
-              "type": "Heading",
-              "level": 1,
-              "content": [
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": "Excel file containing the raw data used to generate all figures and tables in the manuscript."
-                  }
-                }
-              ]
-            },
             {
               "type": "Paragraph",
               "content": [
+                {
+                  "type": "Strong",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "Excel file containing the raw data used to generate all figures and tables in the manuscript. "
+                      }
+                    }
+                  ]
+                },
                 {
                   "type": "Text",
                   "value": {
@@ -9952,6 +9979,9 @@ expression: article
       ]
     }
   ],
+  "genre": [
+    "research-article"
+  ],
   "isPartOf": {
     "type": "PublicationIssue",
     "isPartOf": {
@@ -9997,6 +10027,7 @@ expression: article
     "name": "Public Library of Science",
     "address": "San Francisco, CA USA"
   },
+  "inLanguage": "en",
   "publicationDates": [
     {
       "type": "epub",

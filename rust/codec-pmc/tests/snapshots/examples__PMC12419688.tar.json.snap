@@ -1,5 +1,6 @@
 ---
 source: rust/codec-pmc/tests/examples.rs
+assertion_line: 64
 expression: article
 ---
 {
@@ -1973,7 +1974,7 @@ expression: article
               ]
             }
           ],
-          "order": "Ascending"
+          "order": "Unordered"
         },
         {
           "type": "List",
@@ -2049,7 +2050,7 @@ expression: article
               ]
             }
           ],
-          "order": "Ascending"
+          "order": "Unordered"
         }
       ]
     }
@@ -2116,6 +2117,9 @@ expression: article
     "type": "DateTime",
     "value": "2025-08-06"
   },
+  "genre": [
+    "news"
+  ],
   "isPartOf": {
     "type": "PublicationIssue",
     "isPartOf": {
@@ -2167,6 +2171,7 @@ expression: article
     "name": "Oxford University Press",
     "address": "US"
   },
+  "inLanguage": "en",
   "publicationDates": [
     {
       "type": "collection",

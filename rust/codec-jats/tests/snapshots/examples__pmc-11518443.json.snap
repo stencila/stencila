@@ -392,6 +392,9 @@ expression: article
       "value": "AcademicSubjects/SOC02610"
     }
   ],
+  "genre": [
+    "abstract"
+  ],
   "isPartOf": {
     "type": "PublicationIssue",
     "isPartOf": {
@@ -468,6 +471,7 @@ expression: article
     "name": "Oxford University Press"
   },
   "version": "1",
+  "inLanguage": "en",
   "publicationDates": [
     {
       "type": "collection",

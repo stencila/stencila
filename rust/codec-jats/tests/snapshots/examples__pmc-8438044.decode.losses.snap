@@ -3,19 +3,16 @@ source: rust/codec-jats/tests/examples.rs
 expression: info.losses
 ---
 //article/back/notes/@id: 1
-//article/back/notes/p/@id: 1
+//article/back/notes/@notes-type: 2
 //article/back/ref-list/@id: 1
 //article/back/ref-list/ref/element-citation/article-title/italic/@toggle: 8
 //article/back/ref-list/ref/element-citation/person-group/etal: 10
-//article/back/ref-list/ref/element-citation/person-group/name/@name-style: 348
 //article/back/ref-list/ref/element-citation/person-group/name/suffix: 1
 //article/back/ref-list/ref/element-citation/pub-id/@assigning-authority: 2
 //article/back/ref-list/ref/mixed-citation/bold: 1
 //article/back/ref-list/ref/mixed-citation/italic: 12
 //article/back/ref-list/ref/mixed-citation/pub-id/@assigning-authority: 1
 //article/back/ref-list/title: 1
-//article/body/sec/p/@id: 7
-//article/body/sec/sec/p/@id: 47
 //article/body/sec/sec/p/fig/@orientation: 2
 //article/body/sec/sec/p/fig/@position: 2
 //article/body/sec/sec/p/fig/graphic/@id: 2
@@ -28,7 +25,6 @@ expression: info.losses
 //article/body/sec/sec/p/supplementary-material/@position: 11
 //article/body/sec/sec/p/supplementary-material/media/@orientation: 11
 //article/body/sec/sec/p/supplementary-material/media/@position: 11
-//article/body/sec/sec/sec/p/@id: 7
 //article/body/sec/sec/sec/p/fig/@orientation: 2
 //article/body/sec/sec/sec/p/fig/@position: 2
 //article/body/sec/sec/sec/p/fig/graphic/@id: 2
@@ -40,7 +36,6 @@ expression: info.losses
 //article/body/sec/sec/sec/p/table-wrap/@position: 1
 //article/body/sec/sec/sec/p/table-wrap/table-wrap-foot/p/italic/@toggle: 5
 //article/body/sec/sec/sec/p/table-wrap/table/tbody/tr/td/italic/@toggle: 58
-//article/front/article-meta/abstract/p/@id: 1
 //article/front/article-meta/article-version/@article-version-type: 1
 "//article/front/article-meta/custom-meta-group/custom-meta[meta-name='issue-copyright-statement']": 1
 "//article/front/article-meta/custom-meta-group/custom-meta[meta-name='pmc-license-ref']": 1
@@ -61,4 +56,5 @@ expression: info.losses
 "//article/front/article-meta/custom-meta-group/custom-meta[meta-name='pmc-status-qastatus']": 1
 "//article/front/article-meta/custom-meta-group/custom-meta[meta-name='pmc-status-released']": 1
 //article/front/article-meta/kwd-group/@kwd-group-type: 1
+//article/front/article-meta/kwd-group/title: 1
 //article/processing-meta: 1

@@ -1,5 +1,6 @@
 ---
 source: rust/codec-pmc/tests/examples.rs
+assertion_line: 64
 expression: article
 ---
 {
@@ -377,6 +378,9 @@ expression: article
       "value": "AcademicSubjects/SOC02610"
     }
   ],
+  "genre": [
+    "abstract"
+  ],
   "isPartOf": {
     "type": "PublicationIssue",
     "isPartOf": {
@@ -435,6 +439,7 @@ expression: article
     "type": "Organization",
     "name": "Oxford University Press"
   },
+  "inLanguage": "en",
   "publicationDates": [
     {
       "type": "collection",

@@ -7,18 +7,22 @@ use stencila_codec_text_trait::to_text;
 
 use stencila_codec::stencila_schema::{
     Array, Article, ArticleOptions, Author, AuthorRole, AuthorRoleName, Block, CreativeWorkVariant,
-    CreativeWorkVariantOrString, DateTime, GrantOrMonetaryGrant, Heading, IntegerOrString,
-    MonetaryGrant, Object, Organization, OrganizationOptions, Periodical, Person, PersonOptions,
-    PersonOrOrganization, PostalAddressOrString, Primitive, PropertyValue, PropertyValueOptions,
-    PropertyValueOrString, PublicationIssue, PublicationVolume, Section, SectionType,
-    StringOrNumber, ThingVariant, shortcuts::p,
+    CreativeWorkVariantOrString, DateTime, GrantOrMonetaryGrant, Heading, MonetaryGrant, Object,
+    Organization, OrganizationOptions, Periodical, Person, PersonOptions, PersonOrOrganization,
+    PostalAddressOrString, Primitive, PropertyValue, PropertyValueOptions, PropertyValueOrString,
+    PublicationIssue, PublicationVolume, Section, SectionType, StringOrNumber, ThingVariant,
+    shortcuts::p,
 };
 
 use super::{
-    body::{decode_blocks, decode_inlines},
-    utilities::{XLINK, extend_path, record_attrs_lost, record_node_lost},
+    body::{decode_blocks, decode_inlines, section_type},
+    names::{decode_collab, decode_person_name, is_name_element},
+    utilities::{
+        XLINK, extend_path, integer_or_string, non_empty_text, non_empty_text_deep,
+        record_attrs_lost, record_node_lost,
+    },
 };
-use stencila_codec_utils::{split_given_names, strip_doi_prefix, strip_ror_prefix};
+use stencila_codec_utils::{strip_doi_prefix, strip_ror_prefix};
 
 /// Decode the `<front>` of an `<article>`
 ///
@@ -43,17 +47,6 @@ pub(super) fn decode_front(
             _ => record_node_lost(path, &child, losses),
         };
     }
-}
-
-/// Get the trimmed text of an element, if it has any
-fn non_empty_text(node: &Node) -> Option<String> {
-    let text = node
-        .children()
-        .filter(Node::is_text)
-        .filter_map(|child| child.text())
-        .collect::<String>();
-    let text = text.trim();
-    (!text.is_empty()).then(|| text.to_string())
 }
 
 /// Get the normalized publication format of an element
@@ -296,19 +289,17 @@ fn decode_issn(
 fn decode_publisher(path: &str, node: &Node, article: &mut Article, losses: &mut DecodeContext) {
     record_attrs_lost(path, node, [], losses);
 
-    let name = node
-        .children()
-        .find(|child| child.tag_name().name() == "publisher-name")
-        .and_then(|child| child.text().map(String::from));
-
-    let address = node
-        .children()
-        .find(|child| child.tag_name().name() == "publisher-loc")
-        .and_then(|child| {
-            child
-                .text()
-                .map(|loc| PostalAddressOrString::String(loc.into()))
-        });
+    let mut name = None;
+    let mut address = None;
+    for child in node.children() {
+        match child.tag_name().name() {
+            "publisher-name" if name.is_none() => name = non_empty_text_deep(&child),
+            "publisher-loc" if address.is_none() => {
+                address = non_empty_text_deep(&child).map(PostalAddressOrString::String)
+            }
+            _ => record_node_lost(path, &child, losses),
+        }
+    }
 
     article.options.publisher = Some(PersonOrOrganization::Organization(Organization {
         name,
@@ -327,8 +318,8 @@ fn decode_publisher(path: &str, node: &Node, article: &mut Article, losses: &mut
 /// trip. See `Article::to_jats` for how each is emitted again.
 #[derive(Default)]
 struct ArticleMetaExtra {
-    /// Every `<pub-date>` as a `(pub-type, ISO 8601 date)` pair
-    pub_dates: Vec<(Option<String>, String)>,
+    /// Every `<pub-date>`
+    pub_dates: Vec<PubDate>,
 
     /// Every `<history>` `<date>` as a `(date-type, ISO 8601 date)` pair
     history_dates: Vec<(Option<String>, String)>,
@@ -348,28 +339,93 @@ struct ArticleMetaExtra {
 
     /// The `<fn>` elements of `<author-notes>`
     author_notes: Vec<Object>,
+
+    /// The first `<volume>` of the article
+    volume: Option<PublicationVolume>,
+
+    /// The issue described by `<issue>`, `<issue-id>` and `<issue-title>`
+    issue: Option<PublicationIssue>,
+}
+
+/// A `<pub-date>` of an article
+///
+/// JATS 1.1+ states the kind of publication event (`date-type`) separately
+/// from the format published in (`publication-format`), whereas the legacy
+/// `pub-type` conflates them (e.g. `epub`, `ppub`). Each is retained as it was
+/// stated so that it can be emitted again in the same style.
+struct PubDate {
+    /// The `date-type`, or a legacy `pub-type`
+    date_type: Option<String>,
+    /// The `publication-format`, only for a date without a legacy `pub-type`
+    format: Option<String>,
+    /// The ISO 8601 date
+    date: String,
+}
+
+impl PubDate {
+    /// Rank a date by how well it represents the date the article was published
+    ///
+    /// The kind of event is considered first, so that, for example, an
+    /// electronic collection date is not preferred over a print publication
+    /// date. Within an event, an electronic or unqualified date is preferred
+    /// over a print date, which is often only a year or a month.
+    fn rank(&self) -> (u8, u8) {
+        let (event, format) = match self.date_type.as_deref() {
+            Some("epub" | "electronic") => ("pub", Some("electronic")),
+            Some("ppub" | "print") => ("pub", Some("print")),
+            date_type => (date_type.unwrap_or("pub"), self.format.as_deref()),
+        };
+
+        let event = match event {
+            "pub" | "publication" => 3,
+            "epub-original" | "epreprint" | "preprint" => 2,
+            "collection" | "collected" => 1,
+            _ => 0,
+        };
+        let format = u8::from(format != Some("print"));
+
+        (event, format)
+    }
 }
 
 impl ArticleMetaExtra {
     /// Set the article's dates and add the retained metadata to `Article.extra`
     fn apply(self, article: &mut Article) {
-        if let Some((.., date)) = self
+        if let Some(PubDate { date, .. }) = self
             .pub_dates
             .iter()
             .enumerate()
-            .max_by_key(|(index, (pub_type, date))| {
+            .max_by_key(|(index, pub_date)| {
                 (
-                    pub_date_rank(pub_type.as_deref()),
-                    date.matches('-').count(),
+                    pub_date.rank(),
+                    pub_date.date.matches('-').count(),
                     // `max_by_key` returns the last maximum, so invert the
                     // index to keep the first of equally good dates
                     usize::MAX - index,
                 )
             })
-            .map(|(.., date)| date)
+            .map(|(.., pub_date)| pub_date)
         {
             article.date_published = Some(DateTime::new(date.clone()));
         }
+
+        // The publication is built from the journal outwards, once all of the
+        // article metadata has been seen, so that neither a repeated element
+        // nor the order of the elements changes its structure
+        let mut is_part_of = article.options.is_part_of.take();
+        if let Some(volume) = self.volume {
+            is_part_of = Some(CreativeWorkVariant::PublicationVolume(PublicationVolume {
+                is_part_of: is_part_of.map(Box::new),
+                ..volume
+            }));
+        }
+        if let Some(issue) = self.issue {
+            is_part_of = Some(CreativeWorkVariant::PublicationIssue(PublicationIssue {
+                is_part_of: is_part_of.map(Box::new),
+                ..issue
+            }));
+        }
+        article.options.is_part_of = is_part_of;
 
         let mut extra = Object::new();
 
@@ -379,11 +435,31 @@ impl ArticleMetaExtra {
             || self
                 .pub_dates
                 .iter()
-                .any(|(pub_type, ..)| pub_type.is_some())
+                .any(|pub_date| pub_date.date_type.is_some() || pub_date.format.is_some())
         {
+            let dates = self
+                .pub_dates
+                .into_iter()
+                .map(
+                    |PubDate {
+                         date_type,
+                         format,
+                         date,
+                     }| {
+                        let mut object = Object::new();
+                        for (key, value) in [("type", date_type), ("format", format)] {
+                            if let Some(value) = value {
+                                object.insert(key.to_string(), Primitive::String(value));
+                            }
+                        }
+                        object.insert("date".to_string(), Primitive::String(date));
+                        Primitive::Object(object)
+                    },
+                )
+                .collect();
             extra.insert(
                 "publicationDates".to_string(),
-                Primitive::Array(typed_dates(&self.pub_dates, "type")),
+                Primitive::Array(Array(dates)),
             );
         }
 
@@ -440,10 +516,11 @@ impl ArticleMetaExtra {
         }
 
         if !extra.is_empty() {
-            match &mut article.options.extra {
-                Some(existing) => existing.extend(extra.0),
-                None => article.options.extra = Some(extra),
-            }
+            article
+                .options
+                .extra
+                .get_or_insert_default()
+                .extend(extra.0);
         }
     }
 }
@@ -466,21 +543,6 @@ fn typed_dates(dates: &[(Option<String>, String)], type_key: &str) -> Array {
         .collect::<Vec<Primitive>>();
 
     Array(dates)
-}
-
-/// Rank a `<pub-date>` by how well it represents the date the article was published
-///
-/// Electronic and unqualified publication dates are preferred over print and
-/// collection dates, which are often only a year or a month, and over
-/// source-system dates such as when a preprint server ingested the article.
-fn pub_date_rank(pub_type: Option<&str>) -> u8 {
-    match pub_type.unwrap_or("pub") {
-        "epub" | "pub" | "publication" | "electronic" => 5,
-        "ppub" | "print" => 4,
-        "epub-original" | "epreprint" => 3,
-        "collection" | "collected" => 2,
-        _ => 1,
-    }
 }
 
 /// Decode an `<article-meta>` (or a sub-article's `<front-stub>`) tag to
@@ -506,10 +568,10 @@ pub(super) fn decode_article_meta(
             "pub-date" => decode_pub_date(&child_path, &child, &mut extra, losses),
             "history" => decode_history(&child_path, &child, article, &mut extra, losses),
             "pub-history" => decode_pub_history(&child_path, &child, &mut extra, losses),
-            "volume" => decode_volume(&child_path, &child, article, losses),
-            "issue" => decode_issue(&child_path, &child, article, losses),
-            "issue-id" => decode_issue_id(&child_path, &child, article, losses),
-            "issue-title" => decode_issue_title(&child_path, &child, article, losses),
+            "volume" => decode_volume(&child_path, &child, &mut extra, losses),
+            "issue" => decode_issue(&child_path, &child, &mut extra, losses),
+            "issue-id" => decode_issue_id(&child_path, &child, &mut extra, losses),
+            "issue-title" => decode_issue_title(&child_path, &child, &mut extra, losses),
             "fpage" => decode_fpage(&child_path, &child, article, losses),
             "lpage" => decode_lpage(&child_path, &child, article, losses),
             "page-range" => decode_page_range(&child_path, &child, article, losses),
@@ -755,10 +817,7 @@ fn decode_abstract(path: &str, node: &Node, article: &mut Article, losses: &mut 
         ..Default::default()
     });
 
-    match &mut article.options.parts {
-        Some(parts) => parts.push(part),
-        None => article.options.parts = Some(vec![part]),
-    }
+    article.options.parts.get_or_insert_default().push(part);
 }
 
 /// Decode an `<article-categories>` element
@@ -914,12 +973,20 @@ fn decode_elocation_id(path: &str, node: &Node, article: &mut Article, losses: &
 }
 
 /// Decode a `<title-group>` element
+///
+/// Only the `<article-title>` has a property to go to. A `<subtitle>`, and
+/// alternative and translated titles, are recorded as lost.
 fn decode_title_group(path: &str, node: &Node, article: &mut Article, losses: &mut DecodeContext) {
     record_attrs_lost(path, node, [], losses);
 
     for child in node.children() {
-        if child.tag_name().name() == "article-title" {
-            article.title = Some(decode_inlines(path, child.children(), losses));
+        let tag = child.tag_name().name();
+        if tag == "article-title" && article.title.is_none() {
+            let child_path = extend_path(path, tag);
+            record_attrs_lost(&child_path, &child, ["id"], losses);
+            article.title = Some(decode_inlines(&child_path, child.children(), losses));
+        } else {
+            record_node_lost(path, &child, losses);
         }
     }
 }
@@ -933,8 +1000,8 @@ fn decode_article_version(
 ) {
     record_attrs_lost(path, node, [], losses);
 
-    if let Some(version) = node.text() {
-        article.options.version = Some(StringOrNumber::String(version.into()))
+    if let Some(version) = non_empty_text_deep(node) {
+        article.options.version = Some(StringOrNumber::String(version))
     };
 }
 
@@ -949,11 +1016,13 @@ fn decode_pub_date(
     extra: &mut ArticleMetaExtra,
     losses: &mut DecodeContext,
 ) {
-    let pub_type = node
-        .attribute("pub-type")
-        .map(String::from)
-        .or_else(|| node.attribute("date-type").map(String::from))
-        .or_else(|| publication_format(node));
+    let (date_type, format) = match node.attribute("pub-type") {
+        Some(pub_type) => (Some(pub_type), None),
+        None => (
+            node.attribute("date-type"),
+            node.attribute("publication-format"),
+        ),
+    };
 
     record_attrs_lost(
         path,
@@ -968,7 +1037,11 @@ fn decode_pub_date(
     );
 
     if let Some(date) = date_element_to_date(node) {
-        extra.pub_dates.push((pub_type, date));
+        extra.pub_dates.push(PubDate {
+            date_type: date_type.map(String::from),
+            format: format.map(String::from),
+            date,
+        });
     }
 }
 
@@ -1162,69 +1235,63 @@ fn is_iso_date(date: &str) -> bool {
 }
 
 /// Decode a `<volume>` element
-fn decode_volume(path: &str, node: &Node, article: &mut Article, losses: &mut DecodeContext) {
-    record_attrs_lost(path, node, [], losses);
-
-    let Some(volume_number) = node.text() else {
+///
+/// JATS allows more than one volume, e.g. a print and an online volume number.
+/// The first is the volume the article is part of, and any others are lost.
+fn decode_volume(
+    path: &str,
+    node: &Node,
+    extra: &mut ArticleMetaExtra,
+    losses: &mut DecodeContext,
+) {
+    let Some(volume_number) = non_empty_text_deep(node) else {
+        record_attrs_lost(path, node, [], losses);
         return;
     };
 
-    let volume = PublicationVolume {
-        volume_number: Some(IntegerOrString::from(volume_number)),
+    if extra.volume.is_some() {
+        losses.add(path);
+        return;
+    }
+
+    record_attrs_lost(path, node, [], losses);
+
+    extra.volume = Some(PublicationVolume {
+        volume_number: Some(integer_or_string(&volume_number)),
         ..Default::default()
-    };
-
-    let work = match &article.options.is_part_of {
-        Some(CreativeWorkVariant::Periodical(periodical)) => {
-            // Make this volume part of the existing periodical
-            CreativeWorkVariant::PublicationVolume(PublicationVolume {
-                is_part_of: Some(Box::new(CreativeWorkVariant::Periodical(
-                    periodical.clone(),
-                ))),
-                ..volume
-            })
-        }
-        Some(CreativeWorkVariant::PublicationIssue(issue)) => {
-            // Make the existing issue part of this volume
-            CreativeWorkVariant::PublicationIssue(PublicationIssue {
-                is_part_of: Some(Box::new(CreativeWorkVariant::PublicationVolume(volume))),
-                ..issue.clone()
-            })
-        }
-        _ => {
-            // Use this volume
-            CreativeWorkVariant::PublicationVolume(volume)
-        }
-    };
-
-    article.options.is_part_of = Some(work);
+    });
 }
 
 /// Decode an `<issue>` element
-fn decode_issue(path: &str, node: &Node, article: &mut Article, losses: &mut DecodeContext) {
-    record_attrs_lost(path, node, [], losses);
-
-    let Some(issue_number) = node.text() else {
+fn decode_issue(path: &str, node: &Node, extra: &mut ArticleMetaExtra, losses: &mut DecodeContext) {
+    let Some(issue_number) = non_empty_text_deep(node) else {
+        record_attrs_lost(path, node, [], losses);
         return;
     };
 
-    // Use the article's existing issue, if any, so that an issue identifier or
-    // title decoded before the issue number is not discarded
-    article_issue(article).issue_number = Some(IntegerOrString::from(issue_number));
+    let issue = extra.issue.get_or_insert_default();
+    if issue.issue_number.is_some() {
+        losses.add(path);
+        return;
+    }
+
+    record_attrs_lost(path, node, [], losses);
+
+    issue.issue_number = Some(integer_or_string(&issue_number));
 }
 
 /// Decode an `<fpage>` element
 fn decode_fpage(path: &str, node: &Node, article: &mut Article, losses: &mut DecodeContext) {
     record_attrs_lost(path, node, [], losses);
 
-    article.options.page_start = node.text().map(IntegerOrString::from)
+    article.options.page_start = non_empty_text_deep(node).map(|page| integer_or_string(&page))
 }
 
 /// Decode an `<lpage>` element
 fn decode_lpage(path: &str, node: &Node, article: &mut Article, losses: &mut DecodeContext) {
     record_attrs_lost(path, node, [], losses);
 
-    article.options.page_end = node.text().map(IntegerOrString::from)
+    article.options.page_end = non_empty_text_deep(node).map(|page| integer_or_string(&page))
 }
 
 /// Decode a `<page-range>` element
@@ -1234,30 +1301,13 @@ fn decode_page_range(path: &str, node: &Node, article: &mut Article, losses: &mu
     article.options.pagination = non_empty_text(node)
 }
 
-/// Get the `PublicationIssue` that the article is part of, adding one if necessary
-///
-/// The issue that `<issue-id>` and `<issue-title>` describe is the one that the
-/// article is in, which may already be nested within a volume and periodical.
-fn article_issue(article: &mut Article) -> &mut PublicationIssue {
-    let is_part_of = &mut article.options.is_part_of;
-
-    if !matches!(is_part_of, Some(CreativeWorkVariant::PublicationIssue(..))) {
-        let issue = PublicationIssue {
-            is_part_of: is_part_of.take().map(Box::new),
-            ..Default::default()
-        };
-        *is_part_of = Some(CreativeWorkVariant::PublicationIssue(issue));
-    }
-
-    let Some(CreativeWorkVariant::PublicationIssue(issue)) = is_part_of else {
-        unreachable!("issue was just created")
-    };
-
-    issue
-}
-
 /// Decode an `<issue-id>` element
-fn decode_issue_id(path: &str, node: &Node, article: &mut Article, losses: &mut DecodeContext) {
+fn decode_issue_id(
+    path: &str,
+    node: &Node,
+    extra: &mut ArticleMetaExtra,
+    losses: &mut DecodeContext,
+) {
     let property_id = node.attribute("pub-id-type").map(String::from);
 
     record_attrs_lost(path, node, ["pub-id-type"], losses);
@@ -1266,7 +1316,7 @@ fn decode_issue_id(path: &str, node: &Node, article: &mut Article, losses: &mut 
         return;
     };
 
-    let issue = article_issue(article);
+    let issue = extra.issue.get_or_insert_default();
     if property_id.as_deref().map(str::to_lowercase).as_deref() == Some("doi") {
         issue.doi = Some(strip_doi_prefix(&value));
     } else {
@@ -1275,7 +1325,12 @@ fn decode_issue_id(path: &str, node: &Node, article: &mut Article, losses: &mut 
 }
 
 /// Decode an `<issue-title>` element
-fn decode_issue_title(path: &str, node: &Node, article: &mut Article, losses: &mut DecodeContext) {
+fn decode_issue_title(
+    path: &str,
+    node: &Node,
+    extra: &mut ArticleMetaExtra,
+    losses: &mut DecodeContext,
+) {
     record_attrs_lost(path, node, [], losses);
 
     let title = decode_inlines(path, node.children(), losses);
@@ -1283,7 +1338,7 @@ fn decode_issue_title(path: &str, node: &Node, article: &mut Article, losses: &m
         return;
     }
 
-    article_issue(article).options.title = Some(title);
+    extra.issue.get_or_insert_default().options.title = Some(title);
 }
 
 /// Decode a `<permissions>` element
@@ -1470,17 +1525,6 @@ fn decode_custom_meta_group(path: &str, node: &Node, losses: &mut DecodeContext)
     }
 }
 
-/// Get the trimmed text of an element and all of its descendants
-fn non_empty_text_deep(node: &Node) -> Option<String> {
-    let text = node
-        .descendants()
-        .filter(Node::is_text)
-        .filter_map(|descendant| descendant.text())
-        .collect::<String>();
-    let text = text.split_whitespace().collect::<Vec<_>>().join(" ");
-    (!text.is_empty()).then_some(text)
-}
-
 /// Decode a `<funding-group>` element
 ///
 /// Every organization that funded the article becomes one of its `funders`, and
@@ -1488,7 +1532,9 @@ fn non_empty_text_deep(node: &Node) -> Option<String> {
 /// keeps its identifier, its funding source and its recipients. A recipient is
 /// held as a `fundedItem` of the grant, which is what the schema has for the
 /// thing that a grant supports. Each `<funding-statement>` that has text becomes
-/// a funding section of the article's content.
+/// a funding section of the article's content: the schema has no property for
+/// the statement, so it is normalized into a [`SectionType::Funding`] section,
+/// which is encoded in the body rather than in a `<funding-group>`.
 fn decode_funding_group(
     path: &str,
     node: &Node,
@@ -1535,7 +1581,9 @@ fn decode_funding_group(
             let tag = grandchild.tag_name().name();
             match tag {
                 "funding-source" => {
-                    if let Some(funder) = decode_funding_source(&child_path, &grandchild, losses) {
+                    if let Some(funder) =
+                        decode_funding_source(&extend_path(&child_path, tag), &grandchild, losses)
+                    {
                         if !funders.contains(&funder) {
                             funders.push(funder.clone());
                         }
@@ -1553,14 +1601,17 @@ fn decode_funding_group(
                     }
                 }
                 "principal-award-recipient" | "principal-investigator" => {
-                    for name in grandchild.children().filter(|node| {
-                        node.has_tag_name("name") || node.has_tag_name("string-name")
-                    }) {
+                    let recipients = decode_award_recipients(
+                        &extend_path(&child_path, tag),
+                        &grandchild,
+                        losses,
+                    );
+                    if !recipients.is_empty() {
                         grant
                             .options
                             .funded_items
                             .get_or_insert_default()
-                            .push(ThingVariant::Person(decode_name(&name)));
+                            .extend(recipients);
                     }
                 }
                 "award-desc" => {
@@ -1599,40 +1650,39 @@ fn decode_funding_group(
     }
 }
 
-/// Decode a `<name>` or `<string-name>` element to a [`Person`]
-fn decode_name(node: &Node) -> Person {
-    let mut family_names = Vec::new();
-    let mut given_names = Vec::new();
-    for child in node.children().filter(Node::is_element) {
-        match child.tag_name().name() {
-            "surname" => {
-                if let Some(value) = child.text() {
-                    family_names.push(value.to_string());
-                }
+/// Decode the people and organizations of a `<principal-award-recipient>` or
+/// `<principal-investigator>`
+///
+/// A recipient that is not named by a name or an institution (e.g. one written
+/// as running text, or a `<contrib>`) is recorded as lost.
+fn decode_award_recipients(
+    path: &str,
+    node: &Node,
+    losses: &mut DecodeContext,
+) -> Vec<ThingVariant> {
+    record_attrs_lost(path, node, [], losses);
+
+    let mut recipients = Vec::new();
+    for child in node.children() {
+        let tag = child.tag_name().name();
+        let child_path = extend_path(path, tag);
+        if is_name_element(tag) {
+            if let Some(person) = decode_person_name(&child_path, &child, losses) {
+                recipients.push(ThingVariant::Person(person));
             }
-            "given-names" => {
-                if let Some(value) = child.text() {
-                    given_names.append(&mut split_given_names(value));
-                }
-            }
-            _ => {}
+        } else if tag == "institution"
+            && let Some(name) = non_empty_text_deep(&child)
+        {
+            record_attrs_lost(&child_path, &child, [], losses);
+            recipients.push(ThingVariant::Organization(Organization {
+                name: Some(name),
+                ..Default::default()
+            }));
+        } else {
+            record_node_lost(path, &child, losses);
         }
     }
-
-    // A name written as running text has no parts to separate
-    let name = (family_names.is_empty() && given_names.is_empty())
-        .then(|| non_empty_text_deep(node))
-        .flatten();
-
-    Person {
-        family_names: (!family_names.is_empty()).then_some(family_names),
-        given_names: (!given_names.is_empty()).then_some(given_names),
-        options: Box::new(PersonOptions {
-            name,
-            ..Default::default()
-        }),
-        ..Default::default()
-    }
+    recipients
 }
 
 /// Decode a `<funding-source>` element
@@ -1641,7 +1691,15 @@ fn decode_funding_source(
     node: &Node,
     losses: &mut DecodeContext,
 ) -> Option<PersonOrOrganization> {
-    record_attrs_lost(path, node, [], losses);
+    // A link is often to the funder's entry in a registry, but not always, so
+    // it is kept as the funder's URL rather than as an identifier of some kind
+    let url = node
+        .attribute((XLINK, "href"))
+        .map(str::trim)
+        .filter(|url| !url.is_empty())
+        .map(String::from);
+
+    record_attrs_lost(path, node, ["href"], losses);
 
     let mut name = None;
     let mut ror = None;
@@ -1650,7 +1708,9 @@ fn decode_funding_source(
     for child in node.descendants() {
         let tag = child.tag_name().name();
         if tag == "institution" {
-            name = child.text().map(String::from);
+            if name.is_none() {
+                name = non_empty_text_deep(&child);
+            }
         } else if tag == "institution-id"
             && let Some(value) = non_empty_text_deep(&child)
         {
@@ -1666,16 +1726,25 @@ fn decode_funding_source(
         }
     }
 
-    if name.is_none()
-        && let Some(text) = node.text()
-    {
-        let text = text.trim();
-        if !text.is_empty() {
-            name = Some(text.to_string());
-        }
+    // A funder named as running text, possibly with formatting, rather than
+    // as an `<institution>`
+    if name.is_none() {
+        let text = node
+            .descendants()
+            .filter(|descendant| {
+                descendant.is_text()
+                    && !descendant
+                        .ancestors()
+                        .take_while(|ancestor| ancestor != node)
+                        .any(|ancestor| ancestor.has_tag_name("institution-id"))
+            })
+            .filter_map(|descendant| descendant.text())
+            .collect::<String>();
+        let text = text.split_whitespace().collect::<Vec<_>>().join(" ");
+        name = (!text.is_empty()).then_some(text);
     }
 
-    if name.is_none() && ror.is_none() && identifiers.is_none() {
+    if name.is_none() && ror.is_none() && identifiers.is_none() && url.is_none() {
         return None;
     }
 
@@ -1684,13 +1753,42 @@ fn decode_funding_source(
         ror,
         options: Box::new(OrganizationOptions {
             identifiers,
+            url,
             ..Default::default()
         }),
         ..Default::default()
     }))
 }
 
+/// The role of a contributor, as far as the schema can represent it
+#[derive(Clone, Copy, PartialEq, Eq)]
+enum ContribRole {
+    Author,
+    Editor,
+}
+
+impl ContribRole {
+    /// Parse a `contrib-type`, or the `content-type` of a `<contrib-group>`
+    ///
+    /// Allows for variants such as `senior_editor`.
+    fn parse(value: &str) -> Option<Self> {
+        let value = value.to_lowercase();
+        if value.contains("author") {
+            Some(Self::Author)
+        } else if value.contains("editor") {
+            Some(Self::Editor)
+        } else {
+            None
+        }
+    }
+}
+
 /// Decode a `<contrib-group>` element
+///
+/// An `<aff>` within the group is decoded onto each contributor that refers to
+/// it. JATS4R allows those references to be omitted when a group has a single
+/// affiliation that applies to all of its contributors, so such an affiliation
+/// is given to each contributor in the group that has none of its own.
 fn decode_contrib_group(
     path: &str,
     node: &Node,
@@ -1707,99 +1805,123 @@ fn decode_contrib_group(
         .then_some("content-type");
     record_attrs_lost(path, node, handled, losses);
 
+    let group_affs = node
+        .children()
+        .filter(|child| child.has_tag_name("aff"))
+        .collect::<Vec<_>>();
+    let group_affiliation = match group_affs.as_slice() {
+        [aff]
+            if !node.descendants().any(|descendant| {
+                descendant.has_tag_name("xref") && descendant.attribute("ref-type") == Some("aff")
+            }) && !affiliations.is_referenced(aff.attribute("id").unwrap_or_default()) =>
+        {
+            Some(decode_aff(aff))
+        }
+        _ => None,
+    };
+
     let mut authors = Vec::new();
     let mut editors = Vec::new();
     for child in node.children().filter(Node::is_element) {
         let tag = child.tag_name().name();
-        if tag == "aff" {
-            // Decoded onto each contributor that refers to it
-            if !affiliations.is_referenced(child.attribute("id").unwrap_or_default()) {
-                record_node_lost(path, &child, losses);
-            }
-            continue;
-        }
-        if tag != "contrib" {
-            record_node_lost(path, &child, losses);
-            continue;
-        }
-
-        // A contributor that is neither an author nor an editor has nowhere to
-        // go, so is reported as one loss rather than as each of its parts
-        let contrib_type = contrib_type(&child);
-        if !is_contrib_role(&contrib_type) {
-            record_node_lost(path, &child, losses);
-            continue;
-        }
-
-        let (contributor, credit_roles) = decode_contrib(
-            &extend_path(path, tag),
-            &child,
-            correspondence_emails,
-            affiliations,
-            losses,
-        );
-        if contrib_type.contains("author") {
-            if credit_roles.is_empty() {
-                let author = match contributor {
-                    PersonOrOrganization::Person(person) => Author::Person(person),
-                    PersonOrOrganization::Organization(org) => Author::Organization(org),
-                };
-                authors.push(author);
-            } else {
-                // A contributor with CRediT roles becomes one `AuthorRole`
-                // per role, each sharing the same author
-                for role_name in credit_roles {
-                    let author_role = match &contributor {
-                        PersonOrOrganization::Person(person) => {
-                            AuthorRole::person(person.clone(), role_name)
-                        }
-                        PersonOrOrganization::Organization(org) => {
-                            AuthorRole::org(org.clone(), role_name)
-                        }
-                    };
-                    authors.push(Author::AuthorRole(author_role));
+        match tag {
+            "aff" => {
+                // Decoded onto each contributor that refers to it
+                if group_affiliation.is_none()
+                    && !affiliations.is_referenced(child.attribute("id").unwrap_or_default())
+                {
+                    record_node_lost(path, &child, losses);
                 }
             }
-        } else {
-            // Allows for variants such as "senior_editor"
-            match contributor {
-                PersonOrOrganization::Person(person) => editors.push(person),
-                // `CreativeWork.editors` is a list of people
-                PersonOrOrganization::Organization(..) => record_node_lost(path, &child, losses),
+            "contrib" => {
+                // A contributor that is neither an author nor an editor has
+                // nowhere to go, so is reported as one loss rather than as each
+                // of its parts
+                let Some(role) = contrib_role(&child) else {
+                    record_node_lost(path, &child, losses);
+                    continue;
+                };
+
+                let (mut contributor, credit_roles) = decode_contrib(
+                    &extend_path(path, tag),
+                    &child,
+                    role,
+                    correspondence_emails,
+                    affiliations,
+                    losses,
+                );
+
+                // A contributor with nothing at all to say about them is not
+                // added as an empty placeholder
+                if matches!(&contributor, PersonOrOrganization::Person(person) if *person == Person::default())
+                {
+                    record_node_lost(path, &child, losses);
+                    continue;
+                }
+
+                if let Some(affiliation) = &group_affiliation
+                    && let PersonOrOrganization::Person(person) = &mut contributor
+                    && person.affiliations.is_none()
+                {
+                    person.affiliations = Some(vec![affiliation.clone()]);
+                }
+
+                match role {
+                    ContribRole::Author if credit_roles.is_empty() => {
+                        authors.push(match contributor {
+                            PersonOrOrganization::Person(person) => Author::Person(person),
+                            PersonOrOrganization::Organization(org) => Author::Organization(org),
+                        })
+                    }
+                    // A contributor with CRediT roles becomes one `AuthorRole`
+                    // per role, each sharing the same author
+                    ContribRole::Author => {
+                        authors.extend(credit_roles.into_iter().map(|role_name| {
+                            Author::AuthorRole(match &contributor {
+                                PersonOrOrganization::Person(person) => {
+                                    AuthorRole::person(person.clone(), role_name)
+                                }
+                                PersonOrOrganization::Organization(org) => {
+                                    AuthorRole::org(org.clone(), role_name)
+                                }
+                            })
+                        }))
+                    }
+                    ContribRole::Editor => match contributor {
+                        PersonOrOrganization::Person(person) => editors.push(person),
+                        // `CreativeWork.editors` is a list of people
+                        PersonOrOrganization::Organization(..) => {
+                            record_node_lost(path, &child, losses)
+                        }
+                    },
+                }
             }
+            _ => record_node_lost(path, &child, losses),
         }
     }
 
     if !authors.is_empty() {
-        match &mut article.authors {
-            Some(existing) => existing.extend(authors),
-            None => article.authors = Some(authors),
-        }
+        article.authors.get_or_insert_default().extend(authors);
     }
 
     if !editors.is_empty() {
-        match &mut article.options.editors {
-            Some(existing) => existing.extend(editors),
-            None => article.options.editors = Some(editors),
-        }
+        article
+            .options
+            .editors
+            .get_or_insert_default()
+            .extend(editors);
     }
-}
-
-/// Whether a contributor type or group type is a role that can be decoded
-fn is_contrib_role(value: &str) -> bool {
-    value.contains("author") || value.contains("editor")
 }
 
 /// The role declared by a `<contrib>`'s enclosing `<contrib-group>`, if any
 ///
 /// Groups with other, free-form, classifications (e.g. `section`) do not
 /// declare a role and so do not override the default authorship.
-fn contrib_group_role(node: &Node) -> Option<String> {
+fn contrib_group_role(node: &Node) -> Option<ContribRole> {
     node.parent()
         .filter(|parent| parent.has_tag_name("contrib-group"))
         .and_then(|parent| parent.attribute("content-type"))
-        .map(str::to_lowercase)
-        .filter(|group_type| is_contrib_role(group_type))
+        .and_then(ContribRole::parse)
 }
 
 /// Whether a `contrib-type` describes the kind of entity rather than a role
@@ -1811,15 +1933,19 @@ fn is_contrib_entity(contrib_type: &str) -> bool {
 /// when the type describes an entity (`person` or `organization`). Explicit
 /// contributor roles always take precedence over the group, and only groups
 /// that declare a role are inherited from.
-fn contrib_type(node: &Node) -> String {
+///
+/// Returns `None` for a contributor that is neither an author nor an editor.
+fn contrib_role(node: &Node) -> Option<ContribRole> {
     let contrib_type = node.attribute("contrib-type").map(str::to_lowercase);
     if contrib_type.as_deref().is_none_or(is_contrib_entity)
         && let Some(group_role) = contrib_group_role(node)
     {
-        return group_role;
+        return Some(group_role);
     }
 
-    contrib_type.unwrap_or_else(|| "author".to_string())
+    contrib_type.map_or(Some(ContribRole::Author), |contrib_type| {
+        ContribRole::parse(&contrib_type)
+    })
 }
 
 /// Decode a `<contrib>` element
@@ -1831,6 +1957,7 @@ fn contrib_type(node: &Node) -> String {
 fn decode_contrib(
     path: &str,
     node: &Node,
+    role: ContribRole,
     correspondence_emails: &BTreeMap<String, Vec<String>>,
     article_affiliations: &Affiliations,
     losses: &mut DecodeContext,
@@ -1840,7 +1967,6 @@ fn decode_contrib(
     // assessed against the contributor's own `contrib-type`: an entity type
     // superseded by its group's role is redundant, and any normalization of
     // that role is reported on the group instead.
-    let is_author = contrib_type(node).contains("author");
     let contrib_type_handled = node
         .attribute("contrib-type")
         .map(str::to_lowercase)
@@ -1855,9 +1981,9 @@ fn decode_contrib(
     };
     record_attrs_lost(path, node, not_lost.iter().copied(), losses);
 
-    let mut family_names = Vec::new();
-    let mut given_names = Vec::new();
-    let mut name = None;
+    let mut person: Option<Person> = None;
+    let mut collab_name = None;
+    let mut members = Vec::new();
     let mut orcid = None;
     let mut identifiers = None;
     let mut emails = Vec::new();
@@ -1868,122 +1994,170 @@ fn decode_contrib(
 
     for child in node.children() {
         let tag = child.tag_name().name();
-        if tag == "name" {
-            for grandchild in child.children() {
-                let grandchild_tag = grandchild.tag_name().name();
-                if grandchild_tag == "surname" {
-                    if let Some(value) = grandchild.text() {
-                        family_names.push(value.to_string());
-                    }
-                } else if grandchild_tag == "given-names"
-                    && let Some(value) = grandchild.text()
-                {
-                    given_names.append(&mut split_given_names(value));
+        let child_path = extend_path(path, tag);
+        match tag {
+            _ if is_name_element(tag) && person.is_none() => {
+                person = decode_person_name(&child_path, &child, losses);
+            }
+            "collab" if collab_name.is_none() && members.is_empty() => {
+                let (name, groups) = decode_collab(&child_path, &child, losses);
+                collab_name = name;
+                for group in groups {
+                    members.extend(decode_collab_members(
+                        &extend_path(&child_path, "contrib-group"),
+                        &group,
+                        correspondence_emails,
+                        article_affiliations,
+                        losses,
+                    ));
                 }
             }
-        } else if tag == "collab" {
-            name = non_empty_text_deep(&child);
-        } else if (tag == "contrib-id" && child.attribute("contrib-id-type") == Some("orcid"))
-            || (tag == "uri" && child.attribute("content-type") == Some("orcid"))
-        {
-            if orcid.is_none() {
-                orcid = decode_orcid(path, &child, losses);
+            "contrib-id" | "uri"
+                if child.attribute("contrib-id-type") == Some("orcid")
+                    || (tag == "uri" && child.attribute("content-type") == Some("orcid")) =>
+            {
+                if orcid.is_none() {
+                    orcid = decode_orcid(path, &child, losses);
+                }
             }
-        } else if tag == "contrib-id" {
-            // A contributor identifier of any other kind, e.g. a Scopus id
-            push_identifier(
-                &mut identifiers,
-                child.attribute("contrib-id-type").map(String::from),
-                None,
-                &non_empty_text_deep(&child).unwrap_or_default(),
-            );
-        } else if tag == "role" {
-            let role = is_author.then(|| decode_credit_role(&child)).flatten();
-            let handled_attrs = if role.is_some() {
-                handled_credit_role_attrs(&child)
-            } else {
-                Default::default()
-            };
-            record_attrs_lost(&extend_path(path, tag), &child, handled_attrs, losses);
+            "contrib-id" => {
+                // A contributor identifier of any other kind, e.g. a Scopus id
+                push_identifier(
+                    &mut identifiers,
+                    child.attribute("contrib-id-type").map(String::from),
+                    None,
+                    &non_empty_text_deep(&child).unwrap_or_default(),
+                );
+            }
+            "role" => {
+                let credit_role = (role == ContribRole::Author)
+                    .then(|| decode_credit_role(&child))
+                    .flatten();
+                let handled_attrs = if credit_role.is_some() {
+                    handled_credit_role_attrs(&child)
+                } else {
+                    Default::default()
+                };
+                record_attrs_lost(&child_path, &child, handled_attrs, losses);
 
-            if let Some(role) = role {
-                credit_roles.push(role);
-            } else if job_title.is_none() {
-                job_title = non_empty_text_deep(&child);
-            } else {
-                record_node_lost(path, &child, losses);
+                if let Some(credit_role) = credit_role {
+                    credit_roles.push(credit_role);
+                } else if job_title.is_none() {
+                    job_title = non_empty_text_deep(&child);
+                } else {
+                    record_node_lost(path, &child, losses);
+                }
             }
-        } else if tag == "address" {
-            address = non_empty_text_deep(&child).map(PostalAddressOrString::String);
-        } else if tag == "object-id" && orcid.is_none() {
-            orcid = child.attribute((XLINK, "href")).and_then(normalize_orcid);
-        } else if tag == "email" {
-            if let Some(value) = child.text() {
-                emails.push(value.into());
+            "address" => {
+                address = non_empty_text_deep(&child).map(PostalAddressOrString::String);
             }
-        } else if tag == "aff" {
-            affiliations.push(decode_aff(&child))
-        } else if tag == "xref"
-            && matches!(child.attribute("ref-type"), Some("aff"))
-            && let Some(ids) = child.attribute("rid")
-        {
-            for id in ids.split_whitespace() {
-                match article_affiliations.get(id) {
-                    Some(affiliation) => affiliations.push(affiliation.clone()),
-                    // An affiliation that the article does not define
+            "object-id" if orcid.is_none() => {
+                orcid = child.attribute((XLINK, "href")).and_then(normalize_orcid);
+            }
+            "email" => emails.extend(non_empty_text_deep(&child)),
+            "aff" => affiliations.push(decode_aff(&child)),
+            "xref" if child.attribute("ref-type") == Some("aff") => {
+                let ids = child.attribute("rid").unwrap_or_default();
+                for id in ids.split_whitespace() {
+                    match article_affiliations.get(id) {
+                        Some(affiliation) => affiliations.push(affiliation.clone()),
+                        // An affiliation that the article does not define
+                        None => record_node_lost(path, &child, losses),
+                    }
+                }
+            }
+            "xref" if child.attribute("ref-type") == Some("corresp") => {
+                match child
+                    .attribute("rid")
+                    .and_then(|id| correspondence_emails.get(id))
+                {
+                    Some(correspondence) => emails.extend(correspondence.iter().cloned()),
                     None => record_node_lost(path, &child, losses),
                 }
             }
-        } else if tag == "xref"
-            && matches!(child.attribute("ref-type"), Some("corresp"))
-            && let Some(id) = child.attribute("rid")
-            && let Some(correspondence) = correspondence_emails.get(id)
-        {
-            emails.extend(correspondence.iter().cloned());
-        } else {
-            record_node_lost(path, &child, losses);
+            _ => record_node_lost(path, &child, losses),
         }
     }
 
-    let family_names = (!family_names.is_empty()).then_some(family_names);
-    let given_names = (!given_names.is_empty()).then_some(given_names);
     let emails = (!emails.is_empty()).then_some(emails);
     let affiliations = (!affiliations.is_empty()).then_some(affiliations);
+    let members = (!members.is_empty()).then_some(members);
 
     // A `<collab>` names a group rather than a person, and is the only kind of
     // contributor that JATS writes without a personal name
-    if family_names.is_none() && given_names.is_none() && name.is_some() {
+    let Some(person) =
+        person.or_else(|| (collab_name.is_none() && members.is_none()).then(Person::default))
+    else {
         return (
             PersonOrOrganization::Organization(Organization {
-                name,
+                name: collab_name,
                 options: Box::new(OrganizationOptions {
                     identifiers,
+                    members,
                     ..Default::default()
                 }),
                 ..Default::default()
             }),
             credit_roles,
         );
+    };
+
+    // A collaboration named as well as a person can not be both
+    if collab_name.is_some() || members.is_some() {
+        losses.add(extend_path(path, "collab"));
     }
 
     (
         PersonOrOrganization::Person(Person {
             orcid,
-            family_names,
-            given_names,
             affiliations,
             options: Box::new(PersonOptions {
-                name,
                 identifiers,
                 emails,
                 address,
                 job_title,
-                ..Default::default()
+                ..*person.options
             }),
-            ..Default::default()
+            ..person
         }),
         credit_roles,
     )
+}
+
+/// Decode the members of a `<collab>`, from a `<contrib-group>` within it
+fn decode_collab_members(
+    path: &str,
+    node: &Node,
+    correspondence_emails: &BTreeMap<String, Vec<String>>,
+    affiliations: &Affiliations,
+    losses: &mut DecodeContext,
+) -> Vec<PersonOrOrganization> {
+    record_attrs_lost(path, node, [], losses);
+
+    let mut members = Vec::new();
+    for child in node.children() {
+        let tag = child.tag_name().name();
+        if tag != "contrib" {
+            record_node_lost(path, &child, losses);
+            continue;
+        }
+
+        let child_path = extend_path(path, tag);
+        let (member, credit_roles) = decode_contrib(
+            &child_path,
+            &child,
+            ContribRole::Author,
+            correspondence_emails,
+            affiliations,
+            losses,
+        );
+        // Roles are of the authors of the article, not of members of a group
+        if !credit_roles.is_empty() {
+            losses.add(extend_path(&child_path, "role"));
+        }
+        members.push(member);
+    }
+    members
 }
 
 /// Decode a `<role>` element as a CRediT contributor role, if it is one
@@ -2321,39 +2495,30 @@ fn trim_aff_text(text: &str) -> Option<String> {
 }
 
 /// Decode a `<kwd-group>` element
+///
+/// Each `<kwd>` becomes a keyword of all of its text, so that formatting
+/// within it (e.g. an italicized species name) does not lose any words.
 fn decode_kwd_group(path: &str, node: &Node, article: &mut Article, losses: &mut DecodeContext) {
     record_attrs_lost(path, node, [], losses);
 
-    let mut keywords = node
-        .children()
-        .filter(|child| child.tag_name().name() == "kwd")
-        .map(|child| decode_kwd(path, &child, losses))
-        .collect();
-
-    if let Some(ref mut vector) = article.options.keywords {
-        vector.append(&mut keywords);
-    } else {
-        article.options.keywords = Some(keywords);
-    }
-}
-
-/// Decode a `<kwd>` element
-fn decode_kwd(path: &str, node: &Node, losses: &mut DecodeContext) -> String {
-    record_attrs_lost(path, node, [], losses);
-
-    let mut keyword = String::new();
-
+    let mut keywords = Vec::new();
     for child in node.children() {
-        if node.text().is_none() {
-            keyword.push_str(&decode_kwd(path, &child, losses))
-        } else if let Some(text) = child.text()
-            && !text.trim().is_empty()
-        {
-            keyword.push_str(text)
+        let tag = child.tag_name().name();
+        if tag == "kwd" {
+            record_attrs_lost(&extend_path(path, tag), &child, [], losses);
+            keywords.extend(non_empty_text_deep(&child));
+        } else {
+            record_node_lost(path, &child, losses);
         }
     }
 
-    keyword
+    if !keywords.is_empty() {
+        article
+            .options
+            .keywords
+            .get_or_insert_default()
+            .extend(keywords);
+    }
 }
 
 /// Decode a `<notes>` element to blocks that will be appended to the content of
@@ -2364,17 +2529,7 @@ fn decode_kwd(path: &str, node: &Node, losses: &mut DecodeContext) -> String {
 /// child. Such a wrapper is transparent: its supported descendants are decoded
 /// in place rather than the whole wrapper being discarded.
 pub fn decode_notes(path: &str, node: &Node, article: &mut Article, losses: &mut DecodeContext) {
-    let section_type = node
-        .attribute("notes-type")
-        .and_then(|value| SectionType::from_text(value).ok())
-        .or_else(|| {
-            node.children()
-                .find(|child| child.tag_name().name() == "title")
-                .and_then(|node| node.text())
-                .and_then(|value| SectionType::from_text(value).ok())
-        });
-
-    record_attrs_lost(path, node, ["notes-type"], losses);
+    let section_type = section_type(path, node, "notes-type", [], losses);
 
     if section_type.is_none() {
         for child in node.children() {

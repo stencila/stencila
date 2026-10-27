@@ -1,5 +1,6 @@
 ---
 source: rust/codec-pmc/tests/examples.rs
+assertion_line: 67
 expression: info.losses
 ---
 //article/back/ref-list/ref/mixed-citation/etal: 17
@@ -9,6 +10,8 @@ expression: info.losses
 //article/body/sec/sec/fig/graphic/@position: 4
 //article/body/sec/sec/p/italic/@toggle: 8
 //article/body/sec/sec/table-wrap/@position: 4
+//article/body/sec/sec/table-wrap/graphic/@id: 4
+//article/body/sec/sec/table-wrap/graphic/@position: 4
 //article/body/sec/sec/table-wrap/table/colgroup: 4
 //article/body/sec/supplementary-material/@content-type: 3
 //article/body/sec/supplementary-material/@position: 3
@@ -18,5 +21,7 @@ expression: info.losses
 //article/front/article-meta/counts/page-count: 1
 //article/front/article-meta/counts/table-count: 1
 "//article/front/article-meta/custom-meta-group/custom-meta[meta-name='Data Availability']": 1
-//article/front/article-meta/title-group/italic/@toggle: 1
+//article/front/article-meta/funding-group/award-group/principal-award-recipient/contrib-id: 5
+//article/front/article-meta/title-group/alt-title: 1
+//article/front/article-meta/title-group/article-title/italic/@toggle: 1
 //article/processing-meta: 1

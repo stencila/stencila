@@ -6,7 +6,10 @@ use std::{
 
 use glob::glob;
 
-use stencila_codec::{EncodeOptions, Losses, eyre::Result};
+use stencila_codec::{
+    EncodeOptions, Losses,
+    eyre::{OptionExt, Result},
+};
 
 use insta::{assert_json_snapshot, assert_snapshot, assert_yaml_snapshot};
 use stencila_codec_jats::{classify, decode, encode};
@@ -30,7 +33,7 @@ fn examples() -> Result<()> {
             .file_name()
             .map(|name| name.to_string_lossy())
             .and_then(|name| name.strip_suffix(".jats.xml").map(String::from))
-            .expect("should have .jats.xml suffix");
+            .ok_or_eyre("should have .jats.xml suffix")?;
 
         let original = read_to_string(path)?;
 
@@ -64,6 +67,13 @@ fn examples() -> Result<()> {
             semantic_summary(&compact_jats)?,
             semantic_summary(&jats)?,
             "compact and pretty encodings have different semantics for {name}"
+        );
+
+        // Indentation must not become content anywhere, including in elements
+        // that the prose comparison above does not consider
+        assert!(
+            decode(&compact_jats, None)?.0 == decode(&jats, None)?.0,
+            "compact and pretty encodings decode differently for {name}"
         );
 
         // Content structures recovered by the decoder must survive another
@@ -282,6 +292,7 @@ fn prose_blocks(document: &roxmltree::Document) -> Vec<(String, String)> {
         .map(|node| {
             let text = node
                 .descendants()
+                .filter(roxmltree::Node::is_text)
                 .filter_map(|descendant| descendant.text())
                 .collect::<String>();
             (node.tag_name().name().to_string(), text)

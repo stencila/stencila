@@ -7680,8 +7680,7 @@ expression: article
                   "workType": "Dataset",
                   "caption": [
                     {
-                      "type": "Heading",
-                      "level": 0,
+                      "type": "Paragraph",
                       "content": [
                         {
                           "type": "Text",
@@ -7721,8 +7720,7 @@ expression: article
                   "workType": "Dataset",
                   "caption": [
                     {
-                      "type": "Heading",
-                      "level": 0,
+                      "type": "Paragraph",
                       "content": [
                         {
                           "type": "Text",
@@ -7762,8 +7760,7 @@ expression: article
                   "workType": "Dataset",
                   "caption": [
                     {
-                      "type": "Heading",
-                      "level": 0,
+                      "type": "Paragraph",
                       "content": [
                         {
                           "type": "Text",
@@ -7803,8 +7800,7 @@ expression: article
                   "workType": "Dataset",
                   "caption": [
                     {
-                      "type": "Heading",
-                      "level": 0,
+                      "type": "Paragraph",
                       "content": [
                         {
                           "type": "Text",
@@ -8880,39 +8876,38 @@ expression: article
                   "workType": "Dataset",
                   "caption": [
                     {
-                      "type": "Heading",
-                      "level": 0,
+                      "type": "Paragraph",
                       "content": [
                         {
-                          "type": "Text",
-                          "value": {
-                            "string": "Original membranes corresponding to "
-                          }
-                        },
-                        {
-                          "type": "Link",
+                          "type": "Strong",
                           "content": [
                             {
                               "type": "Text",
                               "value": {
-                                "string": "Figure 2A"
+                                "string": "Original membranes corresponding to "
+                              }
+                            },
+                            {
+                              "type": "Link",
+                              "content": [
+                                {
+                                  "type": "Text",
+                                  "value": {
+                                    "string": "Figure 2A"
+                                  }
+                                }
+                              ],
+                              "target": "#fig2",
+                              "jatsRefType": "fig"
+                            },
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": ". "
                               }
                             }
-                          ],
-                          "target": "#fig2",
-                          "jatsRefType": "fig"
+                          ]
                         },
-                        {
-                          "type": "Text",
-                          "value": {
-                            "string": "."
-                          }
-                        }
-                      ]
-                    },
-                    {
-                      "type": "Paragraph",
-                      "content": [
                         {
                           "type": "Text",
                           "value": {
@@ -8932,8 +8927,7 @@ expression: article
                   "workType": "Dataset",
                   "caption": [
                     {
-                      "type": "Heading",
-                      "level": 0,
+                      "type": "Paragraph",
                       "content": [
                         {
                           "type": "Text",
@@ -8973,8 +8967,7 @@ expression: article
                   "workType": "Dataset",
                   "caption": [
                     {
-                      "type": "Heading",
-                      "level": 0,
+                      "type": "Paragraph",
                       "content": [
                         {
                           "type": "Text",
@@ -9014,8 +9007,7 @@ expression: article
                   "workType": "Dataset",
                   "caption": [
                     {
-                      "type": "Heading",
-                      "level": 0,
+                      "type": "Paragraph",
                       "content": [
                         {
                           "type": "Text",
@@ -9055,8 +9047,7 @@ expression: article
                   "workType": "Dataset",
                   "caption": [
                     {
-                      "type": "Heading",
-                      "level": 0,
+                      "type": "Paragraph",
                       "content": [
                         {
                           "type": "Text",
@@ -9096,8 +9087,7 @@ expression: article
                   "workType": "Dataset",
                   "caption": [
                     {
-                      "type": "Heading",
-                      "level": 0,
+                      "type": "Paragraph",
                       "content": [
                         {
                           "type": "Text",
@@ -9137,8 +9127,7 @@ expression: article
                   "workType": "Dataset",
                   "caption": [
                     {
-                      "type": "Heading",
-                      "level": 0,
+                      "type": "Paragraph",
                       "content": [
                         {
                           "type": "Text",
@@ -9178,8 +9167,7 @@ expression: article
                   "workType": "Dataset",
                   "caption": [
                     {
-                      "type": "Heading",
-                      "level": 0,
+                      "type": "Paragraph",
                       "content": [
                         {
                           "type": "Text",
@@ -9786,8 +9774,7 @@ expression: article
                   "workType": "Dataset",
                   "caption": [
                     {
-                      "type": "Heading",
-                      "level": 0,
+                      "type": "Paragraph",
                       "content": [
                         {
                           "type": "Text",
@@ -9827,8 +9814,7 @@ expression: article
                   "workType": "Dataset",
                   "caption": [
                     {
-                      "type": "Heading",
-                      "level": 0,
+                      "type": "Paragraph",
                       "content": [
                         {
                           "type": "Text",
@@ -9868,8 +9854,7 @@ expression: article
                   "workType": "Dataset",
                   "caption": [
                     {
-                      "type": "Heading",
-                      "level": 0,
+                      "type": "Paragraph",
                       "content": [
                         {
                           "type": "Text",
@@ -9909,8 +9894,7 @@ expression: article
                   "workType": "Dataset",
                   "caption": [
                     {
-                      "type": "Heading",
-                      "level": 0,
+                      "type": "Paragraph",
                       "content": [
                         {
                           "type": "Text",
@@ -9950,8 +9934,7 @@ expression: article
                   "workType": "Dataset",
                   "caption": [
                     {
-                      "type": "Heading",
-                      "level": 0,
+                      "type": "Paragraph",
                       "content": [
                         {
                           "type": "Text",
@@ -9991,8 +9974,7 @@ expression: article
                   "workType": "Dataset",
                   "caption": [
                     {
-                      "type": "Heading",
-                      "level": 0,
+                      "type": "Paragraph",
                       "content": [
                         {
                           "type": "Text",
@@ -10032,8 +10014,7 @@ expression: article
                   "workType": "Dataset",
                   "caption": [
                     {
-                      "type": "Heading",
-                      "level": 0,
+                      "type": "Paragraph",
                       "content": [
                         {
                           "type": "Text",
@@ -10073,8 +10054,7 @@ expression: article
                   "workType": "Dataset",
                   "caption": [
                     {
-                      "type": "Heading",
-                      "level": 0,
+                      "type": "Paragraph",
                       "content": [
                         {
                           "type": "Text",
@@ -10114,8 +10094,7 @@ expression: article
                   "workType": "Dataset",
                   "caption": [
                     {
-                      "type": "Heading",
-                      "level": 0,
+                      "type": "Paragraph",
                       "content": [
                         {
                           "type": "Text",
@@ -10155,8 +10134,7 @@ expression: article
                   "workType": "Dataset",
                   "caption": [
                     {
-                      "type": "Heading",
-                      "level": 0,
+                      "type": "Paragraph",
                       "content": [
                         {
                           "type": "Text",
@@ -11022,8 +11000,7 @@ expression: article
                   "workType": "Dataset",
                   "caption": [
                     {
-                      "type": "Heading",
-                      "level": 0,
+                      "type": "Paragraph",
                       "content": [
                         {
                           "type": "Text",
@@ -11063,8 +11040,7 @@ expression: article
                   "workType": "Dataset",
                   "caption": [
                     {
-                      "type": "Heading",
-                      "level": 0,
+                      "type": "Paragraph",
                       "content": [
                         {
                           "type": "Text",
@@ -11104,8 +11080,7 @@ expression: article
                   "workType": "Dataset",
                   "caption": [
                     {
-                      "type": "Heading",
-                      "level": 0,
+                      "type": "Paragraph",
                       "content": [
                         {
                           "type": "Text",
@@ -11145,8 +11120,7 @@ expression: article
                   "workType": "Dataset",
                   "caption": [
                     {
-                      "type": "Heading",
-                      "level": 0,
+                      "type": "Paragraph",
                       "content": [
                         {
                           "type": "Text",
@@ -11186,8 +11160,7 @@ expression: article
                   "workType": "Dataset",
                   "caption": [
                     {
-                      "type": "Heading",
-                      "level": 0,
+                      "type": "Paragraph",
                       "content": [
                         {
                           "type": "Text",
@@ -11227,8 +11200,7 @@ expression: article
                   "workType": "Dataset",
                   "caption": [
                     {
-                      "type": "Heading",
-                      "level": 0,
+                      "type": "Paragraph",
                       "content": [
                         {
                           "type": "Text",
@@ -11268,8 +11240,7 @@ expression: article
                   "workType": "Dataset",
                   "caption": [
                     {
-                      "type": "Heading",
-                      "level": 0,
+                      "type": "Paragraph",
                       "content": [
                         {
                           "type": "Text",
@@ -11309,8 +11280,7 @@ expression: article
                   "workType": "Dataset",
                   "caption": [
                     {
-                      "type": "Heading",
-                      "level": 0,
+                      "type": "Paragraph",
                       "content": [
                         {
                           "type": "Text",
@@ -11350,8 +11320,7 @@ expression: article
                   "workType": "Dataset",
                   "caption": [
                     {
-                      "type": "Heading",
-                      "level": 0,
+                      "type": "Paragraph",
                       "content": [
                         {
                           "type": "Text",
@@ -11391,8 +11360,7 @@ expression: article
                   "workType": "Dataset",
                   "caption": [
                     {
-                      "type": "Heading",
-                      "level": 0,
+                      "type": "Paragraph",
                       "content": [
                         {
                           "type": "Text",
@@ -11554,8 +11522,7 @@ expression: article
                   "workType": "Dataset",
                   "caption": [
                     {
-                      "type": "Heading",
-                      "level": 0,
+                      "type": "Paragraph",
                       "content": [
                         {
                           "type": "Text",
@@ -11595,8 +11562,7 @@ expression: article
                   "workType": "Dataset",
                   "caption": [
                     {
-                      "type": "Heading",
-                      "level": 0,
+                      "type": "Paragraph",
                       "content": [
                         {
                           "type": "Text",
@@ -12375,8 +12341,7 @@ expression: article
                   "workType": "Dataset",
                   "caption": [
                     {
-                      "type": "Heading",
-                      "level": 0,
+                      "type": "Paragraph",
                       "content": [
                         {
                           "type": "Text",
@@ -12416,8 +12381,7 @@ expression: article
                   "workType": "Dataset",
                   "caption": [
                     {
-                      "type": "Heading",
-                      "level": 0,
+                      "type": "Paragraph",
                       "content": [
                         {
                           "type": "Text",
@@ -12457,8 +12421,7 @@ expression: article
                   "workType": "Dataset",
                   "caption": [
                     {
-                      "type": "Heading",
-                      "level": 0,
+                      "type": "Paragraph",
                       "content": [
                         {
                           "type": "Text",
@@ -12498,8 +12461,7 @@ expression: article
                   "workType": "Dataset",
                   "caption": [
                     {
-                      "type": "Heading",
-                      "level": 0,
+                      "type": "Paragraph",
                       "content": [
                         {
                           "type": "Text",
@@ -12539,8 +12501,7 @@ expression: article
                   "workType": "Dataset",
                   "caption": [
                     {
-                      "type": "Heading",
-                      "level": 0,
+                      "type": "Paragraph",
                       "content": [
                         {
                           "type": "Text",
@@ -12580,8 +12541,7 @@ expression: article
                   "workType": "Dataset",
                   "caption": [
                     {
-                      "type": "Heading",
-                      "level": 0,
+                      "type": "Paragraph",
                       "content": [
                         {
                           "type": "Text",
@@ -13120,39 +13080,38 @@ expression: article
                   "workType": "Dataset",
                   "caption": [
                     {
-                      "type": "Heading",
-                      "level": 0,
+                      "type": "Paragraph",
                       "content": [
                         {
-                          "type": "Text",
-                          "value": {
-                            "string": "Original membranes corresponding to "
-                          }
-                        },
-                        {
-                          "type": "Link",
+                          "type": "Strong",
                           "content": [
                             {
                               "type": "Text",
                               "value": {
-                                "string": "Figure 5A"
+                                "string": "Original membranes corresponding to "
+                              }
+                            },
+                            {
+                              "type": "Link",
+                              "content": [
+                                {
+                                  "type": "Text",
+                                  "value": {
+                                    "string": "Figure 5A"
+                                  }
+                                }
+                              ],
+                              "target": "#fig5",
+                              "jatsRefType": "fig"
+                            },
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": ". "
                               }
                             }
-                          ],
-                          "target": "#fig5",
-                          "jatsRefType": "fig"
+                          ]
                         },
-                        {
-                          "type": "Text",
-                          "value": {
-                            "string": "."
-                          }
-                        }
-                      ]
-                    },
-                    {
-                      "type": "Paragraph",
-                      "content": [
                         {
                           "type": "Text",
                           "value": {
@@ -13172,8 +13131,7 @@ expression: article
                   "workType": "Dataset",
                   "caption": [
                     {
-                      "type": "Heading",
-                      "level": 0,
+                      "type": "Paragraph",
                       "content": [
                         {
                           "type": "Text",
@@ -13213,8 +13171,7 @@ expression: article
                   "workType": "Dataset",
                   "caption": [
                     {
-                      "type": "Heading",
-                      "level": 0,
+                      "type": "Paragraph",
                       "content": [
                         {
                           "type": "Text",
@@ -13254,8 +13211,7 @@ expression: article
                   "workType": "Dataset",
                   "caption": [
                     {
-                      "type": "Heading",
-                      "level": 0,
+                      "type": "Paragraph",
                       "content": [
                         {
                           "type": "Text",
@@ -13295,8 +13251,7 @@ expression: article
                   "workType": "Dataset",
                   "caption": [
                     {
-                      "type": "Heading",
-                      "level": 0,
+                      "type": "Paragraph",
                       "content": [
                         {
                           "type": "Text",
@@ -13336,8 +13291,7 @@ expression: article
                   "workType": "Dataset",
                   "caption": [
                     {
-                      "type": "Heading",
-                      "level": 0,
+                      "type": "Paragraph",
                       "content": [
                         {
                           "type": "Text",
@@ -13377,8 +13331,7 @@ expression: article
                   "workType": "Dataset",
                   "caption": [
                     {
-                      "type": "Heading",
-                      "level": 0,
+                      "type": "Paragraph",
                       "content": [
                         {
                           "type": "Text",
@@ -13418,8 +13371,7 @@ expression: article
                   "workType": "Dataset",
                   "caption": [
                     {
-                      "type": "Heading",
-                      "level": 0,
+                      "type": "Paragraph",
                       "content": [
                         {
                           "type": "Text",
@@ -13530,8 +13482,7 @@ expression: article
                   "workType": "Dataset",
                   "caption": [
                     {
-                      "type": "Heading",
-                      "level": 0,
+                      "type": "Paragraph",
                       "content": [
                         {
                           "type": "Text",
@@ -13571,8 +13522,7 @@ expression: article
                   "workType": "Dataset",
                   "caption": [
                     {
-                      "type": "Heading",
-                      "level": 0,
+                      "type": "Paragraph",
                       "content": [
                         {
                           "type": "Text",
@@ -13612,8 +13562,7 @@ expression: article
                   "workType": "Dataset",
                   "caption": [
                     {
-                      "type": "Heading",
-                      "level": 0,
+                      "type": "Paragraph",
                       "content": [
                         {
                           "type": "Text",
@@ -13653,8 +13602,7 @@ expression: article
                   "workType": "Dataset",
                   "caption": [
                     {
-                      "type": "Heading",
-                      "level": 0,
+                      "type": "Paragraph",
                       "content": [
                         {
                           "type": "Text",
@@ -18114,8 +18062,7 @@ expression: article
                   "workType": "Dataset",
                   "caption": [
                     {
-                      "type": "Heading",
-                      "level": 0,
+                      "type": "Paragraph",
                       "content": [
                         {
                           "type": "Text",
@@ -18155,8 +18102,7 @@ expression: article
                   "workType": "Dataset",
                   "caption": [
                     {
-                      "type": "Heading",
-                      "level": 0,
+                      "type": "Paragraph",
                       "content": [
                         {
                           "type": "Text",
@@ -18196,8 +18142,7 @@ expression: article
                   "workType": "Dataset",
                   "caption": [
                     {
-                      "type": "Heading",
-                      "level": 0,
+                      "type": "Paragraph",
                       "content": [
                         {
                           "type": "Text",
@@ -18237,8 +18182,7 @@ expression: article
                   "workType": "Dataset",
                   "caption": [
                     {
-                      "type": "Heading",
-                      "level": 0,
+                      "type": "Paragraph",
                       "content": [
                         {
                           "type": "Text",
@@ -18522,8 +18466,7 @@ expression: article
                   "workType": "Dataset",
                   "caption": [
                     {
-                      "type": "Heading",
-                      "level": 0,
+                      "type": "Paragraph",
                       "content": [
                         {
                           "type": "Text",
@@ -18563,8 +18506,7 @@ expression: article
                   "workType": "Dataset",
                   "caption": [
                     {
-                      "type": "Heading",
-                      "level": 0,
+                      "type": "Paragraph",
                       "content": [
                         {
                           "type": "Text",
@@ -18604,8 +18546,7 @@ expression: article
                   "workType": "Dataset",
                   "caption": [
                     {
-                      "type": "Heading",
-                      "level": 0,
+                      "type": "Paragraph",
                       "content": [
                         {
                           "type": "Text",
@@ -18645,8 +18586,7 @@ expression: article
                   "workType": "Dataset",
                   "caption": [
                     {
-                      "type": "Heading",
-                      "level": 0,
+                      "type": "Paragraph",
                       "content": [
                         {
                           "type": "Text",
@@ -18808,8 +18748,7 @@ expression: article
                   "workType": "Dataset",
                   "caption": [
                     {
-                      "type": "Heading",
-                      "level": 0,
+                      "type": "Paragraph",
                       "content": [
                         {
                           "type": "Text",
@@ -18849,8 +18788,7 @@ expression: article
                   "workType": "Dataset",
                   "caption": [
                     {
-                      "type": "Heading",
-                      "level": 0,
+                      "type": "Paragraph",
                       "content": [
                         {
                           "type": "Text",
@@ -19393,8 +19331,7 @@ expression: article
                   "workType": "Dataset",
                   "caption": [
                     {
-                      "type": "Heading",
-                      "level": 0,
+                      "type": "Paragraph",
                       "content": [
                         {
                           "type": "Text",
@@ -19434,8 +19371,7 @@ expression: article
                   "workType": "Dataset",
                   "caption": [
                     {
-                      "type": "Heading",
-                      "level": 0,
+                      "type": "Paragraph",
                       "content": [
                         {
                           "type": "Text",
@@ -19475,8 +19411,7 @@ expression: article
                   "workType": "Dataset",
                   "caption": [
                     {
-                      "type": "Heading",
-                      "level": 0,
+                      "type": "Paragraph",
                       "content": [
                         {
                           "type": "Text",
@@ -19516,8 +19451,7 @@ expression: article
                   "workType": "Dataset",
                   "caption": [
                     {
-                      "type": "Heading",
-                      "level": 0,
+                      "type": "Paragraph",
                       "content": [
                         {
                           "type": "Text",
@@ -19866,8 +19800,7 @@ expression: article
                   "workType": "Dataset",
                   "caption": [
                     {
-                      "type": "Heading",
-                      "level": 0,
+                      "type": "Paragraph",
                       "content": [
                         {
                           "type": "Text",
@@ -19907,8 +19840,7 @@ expression: article
                   "workType": "Dataset",
                   "caption": [
                     {
-                      "type": "Heading",
-                      "level": 0,
+                      "type": "Paragraph",
                       "content": [
                         {
                           "type": "Text",
@@ -19948,8 +19880,7 @@ expression: article
                   "workType": "Dataset",
                   "caption": [
                     {
-                      "type": "Heading",
-                      "level": 0,
+                      "type": "Paragraph",
                       "content": [
                         {
                           "type": "Text",
@@ -19989,8 +19920,7 @@ expression: article
                   "workType": "Dataset",
                   "caption": [
                     {
-                      "type": "Heading",
-                      "level": 0,
+                      "type": "Paragraph",
                       "content": [
                         {
                           "type": "Text",
@@ -22748,20 +22678,19 @@ expression: article
           "labelAutomatically": false,
           "caption": [
             {
-              "type": "Heading",
-              "level": 1,
-              "content": [
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": "Strains and Primers used in this study."
-                  }
-                }
-              ]
-            },
-            {
               "type": "Paragraph",
               "content": [
+                {
+                  "type": "Strong",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "Strains and Primers used in this study. "
+                      }
+                    }
+                  ]
+                },
                 {
                   "type": "Text",
                   "value": {
@@ -34842,6 +34771,9 @@ expression: article
       ]
     }
   ],
+  "genre": [
+    "research-article"
+  ],
   "keywords": [
     "double-strand break",
     "DSB",
@@ -34849,7 +34781,7 @@ expression: article
     "DDC",
     "spindle assembly 3 checkpoint",
     "SAC",
-    "S. cerevisiae",
+    "S. cerevisiae budding yeast",
     "auxin-inducible degron",
     "HO endonuclease",
     "S. cerevisiae"
@@ -36475,6 +36407,7 @@ expression: article
   "publicationDates": [
     {
       "type": "publication",
+      "format": "electronic",
       "date": "2024-12-10"
     }
   ],

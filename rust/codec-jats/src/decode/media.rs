@@ -1,12 +1,17 @@
-use std::path::{Path, PathBuf};
+use std::{
+    collections::HashMap,
+    path::{Path, PathBuf},
+};
 
 use derive_more::{Deref, DerefMut};
 use roxmltree::Node;
-use stencila_codec::Losses;
+use stencila_codec::{Losses, stencila_schema::Reference};
 use stencila_codec_jats_trait::has_uri_scheme;
 
 use super::utilities::XLINK;
 
+/// The state of decoding a JATS document
+///
 /// File context is present only for path decoding. String decoding does not
 /// assume that relative references name files in the process's working directory.
 #[derive(Default, Deref, DerefMut)]
@@ -15,14 +20,38 @@ pub(super) struct DecodeContext {
     #[deref_mut]
     pub losses: Losses,
     directory: Option<PathBuf>,
+
+    /// The tag name of each element with an id, by that id, used to resolve
+    /// the target of a cross-reference that does not state its type
+    ids: HashMap<String, String>,
+
+    /// The references of the article being decoded, from each `<ref-list>`
+    /// wherever it is in the article
+    pub references: Vec<Reference>,
 }
 
 impl DecodeContext {
-    pub fn new(directory: Option<&Path>) -> Self {
+    pub fn new(directory: Option<&Path>, root: &Node) -> Self {
+        let ids = root
+            .descendants()
+            .filter_map(|node| {
+                Some((
+                    node.attribute("id")?.to_string(),
+                    node.tag_name().name().to_string(),
+                ))
+            })
+            .collect();
+
         Self {
             directory: directory.map(Path::to_path_buf),
+            ids,
             ..Default::default()
         }
+    }
+
+    /// Get the tag name of the element with an id
+    pub fn tag_of(&self, id: &str) -> Option<&str> {
+        self.ids.get(id).map(String::as_str)
     }
 
     /// Resolve an exact file first, then files whose stem is the entire href

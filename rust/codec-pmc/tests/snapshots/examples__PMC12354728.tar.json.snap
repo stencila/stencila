@@ -1,5 +1,6 @@
 ---
 source: rust/codec-pmc/tests/examples.rs
+assertion_line: 64
 expression: article
 ---
 {
@@ -8,6 +9,7 @@ expression: article
   "abstract": [
     {
       "type": "Paragraph",
+      "id": "Par1",
       "content": [
         {
           "type": "Text",
@@ -633,7 +635,7 @@ expression: article
         "type": "Date",
         "value": "2016"
       },
-      "text": "Bogdan, V., Jůnek, T. & Vymyslická, P. J. Temporal overlaps of feral cats with prey and competitors in primary and human-altered habitats on Bohol Island. Philippines PeerJ 4 , e2288 (2016)."
+      "text": "Bogdan, V., Jůnek, T. & Vymyslická, P. J. Temporal overlaps of feral cats with prey and competitors in primary and human-altered habitats on Bohol Island. Philippines PeerJ4, e2288 (2016)."
     },
     {
       "type": "Reference",
@@ -909,7 +911,7 @@ expression: article
         "type": "Date",
         "value": "2025"
       },
-      "text": "Wilting, A. et al. Prionailurus planiceps. IUCN Red List. Threatened Species . e.T18148A50662095 10.2305/IUCN.UK.2015-2.RLTS.T18148A50662095.en (Accessed 4 Apr 2025) (2015)."
+      "text": "Wilting, A. et al. Prionailurus planiceps. IUCN Red List. Threatened Species. e.T18148A50662095 10.2305/IUCN.UK.2015-2.RLTS.T18148A50662095.en (Accessed 4 Apr 2025) (2015)."
     },
     {
       "type": "Reference",
@@ -951,7 +953,7 @@ expression: article
         "type": "Date",
         "value": "2025"
       },
-      "text": "Mukherjee, S. et al. Prionailurus viverrinus. IUCN Red List. Threatened Species . e.T18150A268618387 10.2305/IUCN.UK.2015-2.RLTS.T18148A50662095.en (Accessed 4 Apr 2025) (2025)."
+      "text": "Mukherjee, S. et al. Prionailurus viverrinus. IUCN Red List. Threatened Species. e.T18150A268618387 10.2305/IUCN.UK.2015-2.RLTS.T18148A50662095.en (Accessed 4 Apr 2025) (2025)."
     },
     {
       "type": "Reference",
@@ -972,7 +974,7 @@ expression: article
         "type": "Date",
         "value": "2025"
       },
-      "text": "Petersen, W. J. et al. Catopuma temminckii . The IUCN Red List of Threatened Species e.T4038A245236583 (Accessed 4 Apr 2025) (2025)."
+      "text": "Petersen, W. J. et al. Catopuma temminckii. The IUCN Red List of Threatened Species e.T4038A245236583 (Accessed 4 Apr 2025) (2025)."
     },
     {
       "type": "Reference",
@@ -992,7 +994,7 @@ expression: article
         "type": "Date",
         "value": "2025"
       },
-      "text": "Chiaverini, L. et al. Identifying gaps in the conservation of small wild cats of Southeast Asia. Biodivers. Conserv. 2025 , 1–25 (2025)."
+      "text": "Chiaverini, L. et al. Identifying gaps in the conservation of small wild cats of Southeast Asia. Biodivers. Conserv.2025, 1–25 (2025)."
     },
     {
       "type": "Reference",
@@ -2073,7 +2075,7 @@ expression: article
         "type": "Date",
         "value": "2014"
       },
-      "text": "Borries, C., Primeau, Z. M., Ossi-Lupo, K., Dtubpraserit, S. & Koenig, A. Possible predation attempt by a marbled cat on a juvenile Phayre’s leaf monkey. Raffles Bull. Zool 62 , (2014)."
+      "text": "Borries, C., Primeau, Z. M., Ossi-Lupo, K., Dtubpraserit, S. & Koenig, A. Possible predation attempt by a marbled cat on a juvenile Phayre’s leaf monkey. Raffles Bull. Zool62, (2014)."
     },
     {
       "type": "Reference",
@@ -2094,7 +2096,7 @@ expression: article
         "type": "Date",
         "value": "2025"
       },
-      "text": "Ross, J. et al. Pardofelis marmorata. IUCN Red List. Threatened Species . e.T16218A97164299 10.2305/IUCN.UK.2016-1.RLTS.T16218A97164299.en (Accessed 6 Apr 2025) (2016)."
+      "text": "Ross, J. et al. Pardofelis marmorata. IUCN Red List. Threatened Species. e.T16218A97164299 10.2305/IUCN.UK.2016-1.RLTS.T16218A97164299.en (Accessed 6 Apr 2025) (2016)."
     },
     {
       "type": "Reference",
@@ -2241,7 +2243,7 @@ expression: article
         "type": "Date",
         "value": "2019"
       },
-      "text": "Nijhawan, S., Mitapo, I., Pulu, J., Carbone, C. & Rowcliffe, J. M. Does polymorphism make the Asiatic golden cat the most adaptable predator in the Eastern Himalayas? Ecology 100 , e02768 (2019)."
+      "text": "Nijhawan, S., Mitapo, I., Pulu, J., Carbone, C. & Rowcliffe, J. M. Does polymorphism make the Asiatic golden cat the most adaptable predator in the Eastern Himalayas? Ecology100, e02768 (2019)."
     },
     {
       "type": "Reference",
@@ -2479,7 +2481,7 @@ expression: article
         "type": "Date",
         "value": "1792"
       },
-      "text": "Chua, M. A. H. Ecology and conservation of the leopard cat Prionailurus bengalensis (Kerr, 1792) (Mammalia: Carnivora: Felidae) in Singapore . MSc thesis, National University of Singapore (2013)."
+      "text": "Chua, M. A. H. Ecology and conservation of the leopard cat Prionailurus bengalensis (Kerr, 1792) (Mammalia: Carnivora: Felidae) in Singapore. MSc thesis, National University of Singapore (2013)."
     },
     {
       "type": "Reference",
@@ -3456,7 +3458,7 @@ expression: article
         "type": "Date",
         "value": "2022"
       },
-      "text": "Ghimirey, Y. et al. Prionailurus bengalensis (amended version of 2022 assessment). IUCN Red List. Threatened Species . e.T223138747A226150742 10.2305/IUCN.UK.2023-1.RLTS.T223138747A226150742.en (2023). (accessed 4 Apr 2025)."
+      "text": "Ghimirey, Y. et al. Prionailurus bengalensis (amended version of 2022 assessment). IUCN Red List. Threatened Species. e.T223138747A226150742 10.2305/IUCN.UK.2023-1.RLTS.T223138747A226150742.en (2023). (accessed 4 Apr 2025)."
     }
   ],
   "title": [
@@ -3487,6 +3489,7 @@ expression: article
         },
         {
           "type": "Paragraph",
+          "id": "Par2",
           "content": [
             {
               "type": "Text",
@@ -4103,6 +4106,7 @@ expression: article
         },
         {
           "type": "Paragraph",
+          "id": "Par3",
           "content": [
             {
               "type": "Text",
@@ -4232,6 +4236,7 @@ expression: article
         },
         {
           "type": "Paragraph",
+          "id": "Par4",
           "content": [
             {
               "type": "Text",
@@ -4443,6 +4448,7 @@ expression: article
         },
         {
           "type": "Paragraph",
+          "id": "Par5",
           "content": [
             {
               "type": "Text",
@@ -4489,6 +4495,7 @@ expression: article
             },
             {
               "type": "Paragraph",
+              "id": "Par6",
               "content": [
                 {
                   "type": "Text",
@@ -4554,6 +4561,7 @@ expression: article
             },
             {
               "type": "Paragraph",
+              "id": "Par7",
               "content": [
                 {
                   "type": "Text",
@@ -8098,6 +8106,7 @@ expression: article
             },
             {
               "type": "Paragraph",
+              "id": "Par10",
               "content": [
                 {
                   "type": "Text",
@@ -8290,6 +8299,7 @@ expression: article
             },
             {
               "type": "Paragraph",
+              "id": "Par12",
               "content": [
                 {
                   "type": "Text",
@@ -17112,6 +17122,7 @@ expression: article
             },
             {
               "type": "Paragraph",
+              "id": "Par14",
               "content": [
                 {
                   "type": "Text",
@@ -17328,6 +17339,7 @@ expression: article
             },
             {
               "type": "Paragraph",
+              "id": "Par15",
               "content": [
                 {
                   "type": "Text",
@@ -17446,6 +17458,7 @@ expression: article
             },
             {
               "type": "Paragraph",
+              "id": "Par16",
               "content": [
                 {
                   "type": "Text",
@@ -17583,6 +17596,7 @@ expression: article
             },
             {
               "type": "Paragraph",
+              "id": "Par17",
               "content": [
                 {
                   "type": "Text",
@@ -17909,6 +17923,7 @@ expression: article
             },
             {
               "type": "Paragraph",
+              "id": "Par18",
               "content": [
                 {
                   "type": "Text",
@@ -18130,6 +18145,7 @@ expression: article
             },
             {
               "type": "Paragraph",
+              "id": "Par19",
               "content": [
                 {
                   "type": "Text",
@@ -18610,6 +18626,9 @@ expression: article
     "type": "DateTime",
     "value": "2025-08-07"
   },
+  "genre": [
+    "research-article"
+  ],
   "keywords": [
     "Competition",
     "Conservation",

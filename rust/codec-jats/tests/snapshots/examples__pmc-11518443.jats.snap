@@ -2,7 +2,7 @@
 source: rust/codec-jats/tests/examples.rs
 expression: jats
 ---
-<article dtd-version="1.4" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:mml="http://www.w3.org/1998/Math/MathML">
+<article dtd-version="1.4" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:mml="http://www.w3.org/1998/Math/MathML" article-type="abstract" xml:lang="en">
   <front>
     <journal-meta>
       <journal-id journal-id-type="nlm-ta">Eur J Public Health</journal-id>

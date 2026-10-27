@@ -3,28 +3,28 @@ source: rust/codec-jats/tests/examples.rs
 expression: categories
 ---
 biorxiv-465267 decode:
-  content: 20
-  link-or-identifier: 649
-  metadata: 40
-  presentation: 1458
+  content: 21
+  link-or-identifier: 575
+  metadata: 41
+  presentation: 1160
 biorxiv-465267 encode: {}
 biorxiv-573522 decode:
   content: 1
-  link-or-identifier: 372
-  metadata: 36
-  presentation: 782
+  link-or-identifier: 329
+  metadata: 37
+  presentation: 549
 biorxiv-573522 encode: {}
 biorxiv-630838 decode:
-  content: 210
-  link-or-identifier: 691
-  metadata: 78
-  presentation: 1226
+  content: 1
+  link-or-identifier: 602
+  metadata: 79
+  presentation: 936
 biorxiv-630838 encode: {}
 elife-94334-v1 decode:
-  content: 21
+  content: 22
   link-or-identifier: 34
   metadata: 6
-  presentation: 109
+  presentation: 111
 elife-94334-v1 encode:
   metadata: 4
 pmc-11518443 decode:
@@ -32,33 +32,34 @@ pmc-11518443 decode:
   presentation: 2
 pmc-11518443 encode: {}
 pmc-12354728 decode:
-  content: 2
-  link-or-identifier: 65
+  content: 4
+  link-or-identifier: 50
   metadata: 55
-  presentation: 203
+  presentation: 115
 pmc-12354728 encode:
   link-or-identifier: 3
 pmc-12431436 decode:
   content: 1
-  metadata: 43
-  presentation: 198
+  link-or-identifier: 9
+  metadata: 44
+  presentation: 69
 pmc-12431436 encode: {}
 pmc-6849754 decode:
-  content: 301
+  content: 1
   link-or-identifier: 109
-  metadata: 39
+  metadata: 40
   presentation: 112
 pmc-6849754 encode: {}
 pmc-8438044 decode:
-  content: 1
-  link-or-identifier: 69
+  content: 2
+  link-or-identifier: 6
   metadata: 43
-  presentation: 543
+  presentation: 197
 pmc-8438044 encode:
   link-or-identifier: 14
 pmc-9786276 decode:
   content: 3
   link-or-identifier: 82
-  metadata: 39
-  presentation: 774
+  metadata: 42
+  presentation: 632
 pmc-9786276 encode: {}

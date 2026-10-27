@@ -2,7 +2,7 @@
 source: rust/codec-jats/tests/examples.rs
 expression: jats
 ---
-<article dtd-version="1.4" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:mml="http://www.w3.org/1998/Math/MathML">
+<article dtd-version="1.4" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:mml="http://www.w3.org/1998/Math/MathML" article-type="letter">
   <front>
     <journal-meta>
       <journal-id journal-id-type="doi">10.1111/(ISSN)1461-0248</journal-id>
@@ -400,55 +400,25 @@ expression: jats
       </kwd-group>
       <funding-group>
         <award-group id="funding-0001">
-          <funding-source>
-            <institution-wrap>
-              <institution>United States Department of Energy</institution>
-              <institution-id institution-id-type="open-funder-registry">10.13039/100000015</institution-id>
-            </institution-wrap>
-          </funding-source>
+          <funding-source><institution-wrap><institution>United States Department of Energy</institution><institution-id institution-id-type="open-funder-registry">10.13039/100000015</institution-id></institution-wrap></funding-source>
           <award-id>DE‐SC0012704</award-id>
         </award-group>
         <award-group id="funding-0002">
-          <funding-source>
-            <institution-wrap>
-              <institution>The Fonds de recherché du Quebec – Nature et Technologies</institution>
-              <institution-id institution-id-type="open-funder-registry">10.13039/501100003151</institution-id>
-            </institution-wrap>
-          </funding-source>
+          <funding-source><institution-wrap><institution>The Fonds de recherché du Quebec – Nature et Technologies</institution><institution-id institution-id-type="open-funder-registry">10.13039/501100003151</institution-id></institution-wrap></funding-source>
           <award-id>FRQNT‐2017‐NC‐198009</award-id>
         </award-group>
         <award-group id="funding-0004">
-          <funding-source>
-            <institution-wrap>
-              <institution>Natural Sciences and Engineering Research Council of Canada</institution>
-              <institution-id institution-id-type="open-funder-registry">10.13039/501100000038</institution-id>
-            </institution-wrap>
-          </funding-source>
+          <funding-source><institution-wrap><institution>Natural Sciences and Engineering Research Council of Canada</institution><institution-id institution-id-type="open-funder-registry">10.13039/501100000038</institution-id></institution-wrap></funding-source>
           <award-id>NSERC‐Discovery‐2016‐05716</award-id>
         </award-group>
         <award-group>
-          <funding-source>
-            <institution-wrap>
-              <institution>Laboratory Directed Research and Development</institution>
-              <institution-id institution-id-type="open-funder-registry">10.13039/100007000</institution-id>
-            </institution-wrap>
-          </funding-source>
+          <funding-source><institution-wrap><institution>Laboratory Directed Research and Development</institution><institution-id institution-id-type="open-funder-registry">10.13039/100007000</institution-id></institution-wrap></funding-source>
         </award-group>
         <award-group>
-          <funding-source>
-            <institution-wrap>
-              <institution>NASA</institution>
-              <institution-id institution-id-type="open-funder-registry">10.13039/100000104</institution-id>
-            </institution-wrap>
-          </funding-source>
+          <funding-source><institution-wrap><institution>NASA</institution><institution-id institution-id-type="open-funder-registry">10.13039/100000104</institution-id></institution-wrap></funding-source>
         </award-group>
         <award-group>
-          <funding-source>
-            <institution-wrap>
-              <institution>USDA</institution>
-              <institution-id institution-id-type="open-funder-registry">10.13039/100000199</institution-id>
-            </institution-wrap>
-          </funding-source>
+          <funding-source><institution-wrap><institution>USDA</institution><institution-id institution-id-type="open-funder-registry">10.13039/100000199</institution-id></institution-wrap></funding-source>
         </award-group>
       </funding-group>
     </article-meta>
@@ -3070,7 +3040,7 @@ expression: jats
             </name>
           </person-group>
           <source>Ratio Correlation: A Manual for Students of Petrology and Geochemistry</source>
-          <publisher-loc>Chicago and&#10;          London</publisher-loc>
+          <publisher-loc>Chicago and London</publisher-loc>
           <publisher-name>University of Chicago Press</publisher-name>
           <year>1971</year>
         </element-citation>

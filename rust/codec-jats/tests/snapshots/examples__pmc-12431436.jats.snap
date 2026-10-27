@@ -2,7 +2,7 @@
 source: rust/codec-jats/tests/examples.rs
 expression: jats
 ---
-<article dtd-version="1.4" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:mml="http://www.w3.org/1998/Math/MathML">
+<article dtd-version="1.4" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:mml="http://www.w3.org/1998/Math/MathML" article-type="research-article" xml:lang="en">
   <front>
     <journal-meta>
       <journal-id journal-id-type="nlm-ta">PLoS One</journal-id>
@@ -496,12 +496,7 @@ expression: jats
       </abstract>
       <funding-group>
         <award-group id="award001">
-          <funding-source>
-            <institution-wrap>
-              <institution>Japan Agency for Medical Research and Development</institution>
-              <institution-id institution-id-type="funder-id">http://dx.doi.org/10.13039/100009619</institution-id>
-            </institution-wrap>
-          </funding-source>
+          <funding-source><institution-wrap><institution>Japan Agency for Medical Research and Development</institution><institution-id institution-id-type="funder-id">http://dx.doi.org/10.13039/100009619</institution-id></institution-wrap></funding-source>
           <award-id>JP17jm0510002h0003</award-id>
           <principal-award-recipient>
             <name>
@@ -511,12 +506,7 @@ expression: jats
           </principal-award-recipient>
         </award-group>
         <award-group id="award002">
-          <funding-source>
-            <institution-wrap>
-              <institution>Japan Agency for Medical Research and Development</institution>
-              <institution-id institution-id-type="funder-id">http://dx.doi.org/10.13039/100009619</institution-id>
-            </institution-wrap>
-          </funding-source>
+          <funding-source><institution-wrap><institution>Japan Agency for Medical Research and Development</institution><institution-id institution-id-type="funder-id">http://dx.doi.org/10.13039/100009619</institution-id></institution-wrap></funding-source>
           <award-id>JP22wm0225026h0001</award-id>
           <principal-award-recipient>
             <name>
@@ -526,11 +516,7 @@ expression: jats
           </principal-award-recipient>
         </award-group>
         <award-group id="award003">
-          <funding-source>
-            <institution-wrap>
-              <institution>Jikei University</institution>
-            </institution-wrap>
-          </funding-source>
+          <funding-source><institution-wrap><institution>Jikei University</institution></institution-wrap></funding-source>
           <award-id>Jikei University Research Grant for the Career Development of Female Researchers with Children</award-id>
           <principal-award-recipient>
             <name>
@@ -540,12 +526,7 @@ expression: jats
           </principal-award-recipient>
         </award-group>
         <award-group id="award004">
-          <funding-source>
-            <institution-wrap>
-              <institution>Kurozumi Medical Foundation</institution>
-              <institution-id institution-id-type="funder-id">http://dx.doi.org/10.13039/501100008660</institution-id>
-            </institution-wrap>
-          </funding-source>
+          <funding-source><institution-wrap><institution>Kurozumi Medical Foundation</institution><institution-id institution-id-type="funder-id">http://dx.doi.org/10.13039/501100008660</institution-id></institution-wrap></funding-source>
           <award-id>NA</award-id>
           <principal-award-recipient>
             <name>
@@ -555,11 +536,7 @@ expression: jats
           </principal-award-recipient>
         </award-group>
         <award-group id="award005">
-          <funding-source>
-            <institution-wrap>
-              <institution>Jikei University</institution>
-            </institution-wrap>
-          </funding-source>
+          <funding-source><institution-wrap><institution>Jikei University</institution></institution-wrap></funding-source>
           <award-id>The Jikei University Graduate Research Fund</award-id>
           <principal-award-recipient>
             <name>
@@ -602,56 +579,7 @@ expression: jats
           <caption>
             <p>vDNA detection by LAMP in C6/36 cells at each day post-infection of DENV-2.</p>
           </caption>
-          <table>
-            <thead>
-              <tr>
-                <th align="left"></th>
-                <th colspan="2" align="left"><p>MOI of DENV-2</p></th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td align="left"><p>dpi</p></td>
-                <td align="left"><p>1 × 10<sup>−4</sup></p></td>
-                <td align="left"><p>1 × 10<sup>−2</sup></p></td>
-              </tr>
-              <tr>
-                <td align="left"><p>1</p></td>
-                <td align="left"><p>&#10;                      – – –&#10;                    </p></td>
-                <td align="left"><p>&#10;                      – – –&#10;                    </p></td>
-              </tr>
-              <tr>
-                <td align="left"><p>2</p></td>
-                <td align="left"><p>&#10;                      – – –&#10;                    </p></td>
-                <td align="left"><p>&#10;                      – – –&#10;                    </p></td>
-              </tr>
-              <tr>
-                <td align="left"><p>3</p></td>
-                <td align="left"><p>&#10;                      – – –&#10;                    </p></td>
-                <td align="left"><p>&#10;                      – – –&#10;                    </p></td>
-              </tr>
-              <tr>
-                <td align="left"><p>4</p></td>
-                <td align="left"><p>&#10;                      – – –&#10;                    </p></td>
-                <td align="left"><p>+ – –</p></td>
-              </tr>
-              <tr>
-                <td align="left"><p>5</p></td>
-                <td align="left"><p>&#10;                      – – –&#10;                    </p></td>
-                <td align="left"><p>+ – –</p></td>
-              </tr>
-              <tr>
-                <td align="left"><p>6</p></td>
-                <td align="left"><p>&#10;                      – – –&#10;                    </p></td>
-                <td align="left"><p>+ – –</p></td>
-              </tr>
-              <tr>
-                <td align="left"><p>7</p></td>
-                <td align="left"><p>+ – –</p></td>
-                <td align="left"><p>+ – –</p></td>
-              </tr>
-            </tbody>
-          </table>
+          <alternatives><graphic xlink:href="pone.0332245.t003.jpg"></graphic><table><thead><tr><th align="left"></th><th colspan="2" align="left"><p>MOI of DENV-2</p></th></tr></thead><tbody><tr><td align="left"><p>dpi</p></td><td align="left"><p>1 × 10<sup>−4</sup></p></td><td align="left"><p>1 × 10<sup>−2</sup></p></td></tr><tr><td align="left"><p>1</p></td><td align="left"><p>&#10;                      – – –&#10;                    </p></td><td align="left"><p>&#10;                      – – –&#10;                    </p></td></tr><tr><td align="left"><p>2</p></td><td align="left"><p>&#10;                      – – –&#10;                    </p></td><td align="left"><p>&#10;                      – – –&#10;                    </p></td></tr><tr><td align="left"><p>3</p></td><td align="left"><p>&#10;                      – – –&#10;                    </p></td><td align="left"><p>&#10;                      – – –&#10;                    </p></td></tr><tr><td align="left"><p>4</p></td><td align="left"><p>&#10;                      – – –&#10;                    </p></td><td align="left"><p>+ – –</p></td></tr><tr><td align="left"><p>5</p></td><td align="left"><p>&#10;                      – – –&#10;                    </p></td><td align="left"><p>+ – –</p></td></tr><tr><td align="left"><p>6</p></td><td align="left"><p>&#10;                      – – –&#10;                    </p></td><td align="left"><p>+ – –</p></td></tr><tr><td align="left"><p>7</p></td><td align="left"><p>+ – –</p></td><td align="left"><p>+ – –</p></td></tr></tbody></table></alternatives>
           <table-wrap-foot>
             <p><fn fn-type="custom" id="t003fn001" custom-type="Footnote"><p>The number of symbols [+ and –]: the number of samples examined. + : detected, –: not detected. dpi: days post-infection. MOI: multiplicity of infection.</p></fn></p>
           </table-wrap-foot>
@@ -666,80 +594,7 @@ expression: jats
           <caption>
             <p>Sensitivity of LAMP and qPCR in detecting DENV-2 RNA and vDNA.</p>
           </caption>
-          <table>
-            <thead>
-              <tr>
-                <th align="left"></th>
-                <th colspan="2" align="left"><p>RNA</p></th>
-                <th colspan="2" align="left"><p>vDNA</p></th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td align="left"><p>MOI of DENV-2</p></td>
-                <td align="left"><p>RT-qPCR</p></td>
-                <td align="left"><p>RT-LAMP</p></td>
-                <td align="left"><p>qPCR</p></td>
-                <td align="left"><p>LAMP</p></td>
-              </tr>
-              <tr>
-                <td align="left"><p>1 × 10<sup>−1</sup></p></td>
-                <td align="left"><p>+ + +</p></td>
-                <td align="left"><p>+ + +</p></td>
-                <td align="left"><p>+ + –</p></td>
-                <td align="left"><p>+ + (+)</p></td>
-              </tr>
-              <tr>
-                <td align="left"><p>1 × 10<sup>−2</sup></p></td>
-                <td align="left"><p>+ + +</p></td>
-                <td align="left"><p>+ + +</p></td>
-                <td align="left"><p>+ – –</p></td>
-                <td align="left"><p>+ + (+)</p></td>
-              </tr>
-              <tr>
-                <td align="left"><p>1 × 10<sup>−3</sup></p></td>
-                <td align="left"><p>+ + +</p></td>
-                <td align="left"><p>+ + +</p></td>
-                <td align="left"><p>+ + –</p></td>
-                <td align="left"><p>+ + (+)</p></td>
-              </tr>
-              <tr>
-                <td align="left"><p>1 × 10<sup>−4</sup></p></td>
-                <td align="left"><p>+ + +</p></td>
-                <td align="left"><p>+ + +</p></td>
-                <td align="left"><p>&#10;                      – – –&#10;                    </p></td>
-                <td align="left"><p>+ + +</p></td>
-              </tr>
-              <tr>
-                <td align="left"><p>1 × 10<sup>−5</sup></p></td>
-                <td align="left"><p>+ + –</p></td>
-                <td align="left"><p>+ + –</p></td>
-                <td align="left"><p>&#10;                      – – –&#10;                    </p></td>
-                <td align="left"><p>&#10;                      – – –&#10;                    </p></td>
-              </tr>
-              <tr>
-                <td align="left"><p>1 × 10<sup>−6</sup></p></td>
-                <td align="left"><p>&#10;                      – – –&#10;                    </p></td>
-                <td align="left"><p>(+) – –</p></td>
-                <td align="left"><p>&#10;                      – – –&#10;                    </p></td>
-                <td align="left"><p>(+) – –</p></td>
-              </tr>
-              <tr>
-                <td align="left"><p>1 × 10<sup>−7</sup></p></td>
-                <td align="left"><p>&#10;                      – – –&#10;                    </p></td>
-                <td align="left"><p>(+) – –</p></td>
-                <td align="left"><p>&#10;                      – – –&#10;                    </p></td>
-                <td align="left"><p>&#10;                      – – –&#10;                    </p></td>
-              </tr>
-              <tr>
-                <td align="left"><p>1 × 10<sup>−8</sup></p></td>
-                <td align="left"><p>&#10;                      – – –&#10;                    </p></td>
-                <td align="left"><p>(+) – –</p></td>
-                <td align="left"><p>&#10;                      – – –&#10;                    </p></td>
-                <td align="left"><p>&#10;                      – – –&#10;                    </p></td>
-              </tr>
-            </tbody>
-          </table>
+          <alternatives><graphic xlink:href="pone.0332245.t002.jpg"></graphic><table><thead><tr><th align="left"></th><th colspan="2" align="left"><p>RNA</p></th><th colspan="2" align="left"><p>vDNA</p></th></tr></thead><tbody><tr><td align="left"><p>MOI of DENV-2</p></td><td align="left"><p>RT-qPCR</p></td><td align="left"><p>RT-LAMP</p></td><td align="left"><p>qPCR</p></td><td align="left"><p>LAMP</p></td></tr><tr><td align="left"><p>1 × 10<sup>−1</sup></p></td><td align="left"><p>+ + +</p></td><td align="left"><p>+ + +</p></td><td align="left"><p>+ + –</p></td><td align="left"><p>+ + (+)</p></td></tr><tr><td align="left"><p>1 × 10<sup>−2</sup></p></td><td align="left"><p>+ + +</p></td><td align="left"><p>+ + +</p></td><td align="left"><p>+ – –</p></td><td align="left"><p>+ + (+)</p></td></tr><tr><td align="left"><p>1 × 10<sup>−3</sup></p></td><td align="left"><p>+ + +</p></td><td align="left"><p>+ + +</p></td><td align="left"><p>+ + –</p></td><td align="left"><p>+ + (+)</p></td></tr><tr><td align="left"><p>1 × 10<sup>−4</sup></p></td><td align="left"><p>+ + +</p></td><td align="left"><p>+ + +</p></td><td align="left"><p>&#10;                      – – –&#10;                    </p></td><td align="left"><p>+ + +</p></td></tr><tr><td align="left"><p>1 × 10<sup>−5</sup></p></td><td align="left"><p>+ + –</p></td><td align="left"><p>+ + –</p></td><td align="left"><p>&#10;                      – – –&#10;                    </p></td><td align="left"><p>&#10;                      – – –&#10;                    </p></td></tr><tr><td align="left"><p>1 × 10<sup>−6</sup></p></td><td align="left"><p>&#10;                      – – –&#10;                    </p></td><td align="left"><p>(+) – –</p></td><td align="left"><p>&#10;                      – – –&#10;                    </p></td><td align="left"><p>(+) – –</p></td></tr><tr><td align="left"><p>1 × 10<sup>−7</sup></p></td><td align="left"><p>&#10;                      – – –&#10;                    </p></td><td align="left"><p>(+) – –</p></td><td align="left"><p>&#10;                      – – –&#10;                    </p></td><td align="left"><p>&#10;                      – – –&#10;                    </p></td></tr><tr><td align="left"><p>1 × 10<sup>−8</sup></p></td><td align="left"><p>&#10;                      – – –&#10;                    </p></td><td align="left"><p>(+) – –</p></td><td align="left"><p>&#10;                      – – –&#10;                    </p></td><td align="left"><p>&#10;                      – – –&#10;                    </p></td></tr></tbody></table></alternatives>
           <table-wrap-foot>
             <p><fn fn-type="custom" id="t002fn001" custom-type="Footnote"><p>The number of symbols [+, (+), and –]: the number of samples examined. + : detected in all three repeated reactions per one sample, (+): detected only once or twice in three repeated reactions per one sample, –: not detected in three repeated reactions per one sample. MOI: multiplicity of infection.</p></fn></p>
           </table-wrap-foot>
@@ -750,57 +605,7 @@ expression: jats
           <caption>
             <p>Infection rates by location of mosquito collection.</p>
           </caption>
-          <table>
-            <thead>
-              <tr>
-                <th align="left"><p>Location of collection</p></th>
-                <th align="left"><p>Houses</p></th>
-                <th align="left"><p>Mosquitoes</p></th>
-                <th align="left"><p>Pools</p></th>
-                <th align="left"><p>Pool size</p></th>
-                <th align="left"><p>Positive pools</p></th>
-                <th align="left"><p>Infection rate* (95%CI)</p></th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td align="left"><p>1200 logements</p></td>
-                <td align="left"><p>70</p></td>
-                <td align="left"><p>228</p></td>
-                <td align="left"><p>112</p></td>
-                <td align="left"><p>1-13</p></td>
-                <td align="left"><p>6</p></td>
-                <td align="left"><p>26.52  (11.06–53.82)</p></td>
-              </tr>
-              <tr>
-                <td align="left"><p>Tabtenga</p></td>
-                <td align="left"><p>61</p></td>
-                <td align="left"><p>139</p></td>
-                <td align="left"><p>95</p></td>
-                <td align="left"><p>1-10</p></td>
-                <td align="left"><p>5</p></td>
-                <td align="left"><p>36.18  (13.70–77.61)</p></td>
-              </tr>
-              <tr>
-                <td align="left"><p>Goundry</p></td>
-                <td align="left"><p>13</p></td>
-                <td align="left"><p>30</p></td>
-                <td align="left"><p>19</p></td>
-                <td align="left"><p>1-5</p></td>
-                <td align="left"><p>1</p></td>
-                <td align="left"><p>33.24  (1.94–150.42)</p></td>
-              </tr>
-              <tr>
-                <td align="left"><p>Total</p></td>
-                <td align="left"><p>144</p></td>
-                <td align="left"><p>397</p></td>
-                <td align="left"><p>226</p></td>
-                <td align="left"></td>
-                <td align="left"><p>12</p></td>
-                <td align="left"></td>
-              </tr>
-            </tbody>
-          </table>
+          <alternatives><graphic xlink:href="pone.0332245.t004.jpg"></graphic><table><thead><tr><th align="left"><p>Location of collection</p></th><th align="left"><p>Houses</p></th><th align="left"><p>Mosquitoes</p></th><th align="left"><p>Pools</p></th><th align="left"><p>Pool size</p></th><th align="left"><p>Positive pools</p></th><th align="left"><p>Infection rate* (95%CI)</p></th></tr></thead><tbody><tr><td align="left"><p>1200 logements</p></td><td align="left"><p>70</p></td><td align="left"><p>228</p></td><td align="left"><p>112</p></td><td align="left"><p>1-13</p></td><td align="left"><p>6</p></td><td align="left"><p>26.52  (11.06–53.82)</p></td></tr><tr><td align="left"><p>Tabtenga</p></td><td align="left"><p>61</p></td><td align="left"><p>139</p></td><td align="left"><p>95</p></td><td align="left"><p>1-10</p></td><td align="left"><p>5</p></td><td align="left"><p>36.18  (13.70–77.61)</p></td></tr><tr><td align="left"><p>Goundry</p></td><td align="left"><p>13</p></td><td align="left"><p>30</p></td><td align="left"><p>19</p></td><td align="left"><p>1-5</p></td><td align="left"><p>1</p></td><td align="left"><p>33.24  (1.94–150.42)</p></td></tr><tr><td align="left"><p>Total</p></td><td align="left"><p>144</p></td><td align="left"><p>397</p></td><td align="left"><p>226</p></td><td align="left"></td><td align="left"><p>12</p></td><td align="left"></td></tr></tbody></table></alternatives>
           <table-wrap-foot>
             <p><fn fn-type="custom" id="t004fn001" custom-type="Footnote"><p>* Infection rate was shown as per 1,000 mosquitoes.</p></fn></p>
             <p><fn fn-type="custom" id="t004fn002" custom-type="Footnote"><p>CI: Confidence Interval.</p></fn></p>
@@ -848,40 +653,7 @@ expression: jats
           <caption>
             <p>Sequences of LAMP primers targeting DENV-2 NS5 region. Primers were designed based on the genome sequences of 40 variations of DENV-2.</p>
           </caption>
-          <table>
-            <thead>
-              <tr>
-                <th align="left"><p>Primer</p></th>
-                <th align="left"><p>Sequence (5’ → 3’)</p></th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td align="left"><p>F3</p></td>
-                <td align="left"><p>CATAGGGGAGTCGTCACC</p></td>
-              </tr>
-              <tr>
-                <td align="left"><p>B3</p></td>
-                <td align="left"><p>TTGGATACCCAGTACATCTC</p></td>
-              </tr>
-              <tr>
-                <td align="left"><p>FIP (F1c-F2)</p></td>
-                <td align="left"><p>CAAAATTGGATGTTGTTGTTCAACCTAGAAGCAGGACGAACACT</p></td>
-              </tr>
-              <tr>
-                <td align="left"><p>BIP (B1c-B2)</p></td>
-                <td align="left"><p>ATGCCCTCAGTCATAGAAAAAATGGAGTTTCGTGAGAGTGGATT</p></td>
-              </tr>
-              <tr>
-                <td align="left"><p>LF</p></td>
-                <td align="left"><p>TTTTCCACTAAGTTGAGGACTCTG</p></td>
-              </tr>
-              <tr>
-                <td align="left"><p>LB</p></td>
-                <td align="left"><p>AAGCACTACAAAGGAAATATGGAGG</p></td>
-              </tr>
-            </tbody>
-          </table>
+          <alternatives><graphic xlink:href="pone.0332245.t001.jpg"></graphic><table><thead><tr><th align="left"><p>Primer</p></th><th align="left"><p>Sequence (5’ → 3’)</p></th></tr></thead><tbody><tr><td align="left"><p>F3</p></td><td align="left"><p>CATAGGGGAGTCGTCACC</p></td></tr><tr><td align="left"><p>B3</p></td><td align="left"><p>TTGGATACCCAGTACATCTC</p></td></tr><tr><td align="left"><p>FIP (F1c-F2)</p></td><td align="left"><p>CAAAATTGGATGTTGTTGTTCAACCTAGAAGCAGGACGAACACT</p></td></tr><tr><td align="left"><p>BIP (B1c-B2)</p></td><td align="left"><p>ATGCCCTCAGTCATAGAAAAAATGGAGTTTCGTGAGAGTGGATT</p></td></tr><tr><td align="left"><p>LF</p></td><td align="left"><p>TTTTCCACTAAGTTGAGGACTCTG</p></td></tr><tr><td align="left"><p>LB</p></td><td align="left"><p>AAGCACTACAAAGGAAATATGGAGG</p></td></tr></tbody></table></alternatives>
         </table-wrap>
       </sec>
       <sec id="sec009">
@@ -945,24 +717,21 @@ expression: jats
       <supplementary-material id="pone.0332245.s001">
         <label>S1 Fig</label>
         <caption>
-          <title level="1">Agarose gel electrophoresis of LAMP products corresponding to Table 3.</title>
-          <p>(PDF)</p>
+          <p><bold>Agarose gel electrophoresis of LAMP products corresponding to Table 3. </bold>(PDF)</p>
         </caption>
         <media xlink:href="pone.0332245.s001.pdf"></media>
       </supplementary-material>
       <supplementary-material id="pone.0332245.s002">
         <label>S1 Raw Images</label>
         <caption>
-          <title level="1">Original blot and gel images contained in the manuscript’s figures.</title>
-          <p>(PDF)</p>
+          <p><bold>Original blot and gel images contained in the manuscript’s figures. </bold>(PDF)</p>
         </caption>
         <media xlink:href="pone.0332245.s002.pdf"></media>
       </supplementary-material>
-      <supplementary-material id="pone.0332245.s003">
+      <supplementary-material id="pone.0332245.s003" content-type="Datatable">
         <label>S2 Data</label>
         <caption>
-          <title level="1">Excel file containing the raw data used to generate all figures and tables in the manuscript.</title>
-          <p>(XLSX)</p>
+          <p><bold>Excel file containing the raw data used to generate all figures and tables in the manuscript. </bold>(XLSX)</p>
         </caption>
         <media xlink:href="pone.0332245.s003.xlsx"></media>
       </supplementary-material>
@@ -1710,7 +1479,7 @@ expression: jats
             <publisher-name>Centers for Disease Control and Prevention</publisher-name>
             <year>2009</year>
           </element-citation>
-          <mixed-citation publication-type="book">Biggerstaff, Brad J . PooledInfRate, Version 4.0: a Microsoft® Office Excel© Add-In to compute prevalence estimates from pooled samples. Centers for Disease Control and Prevention , Fort Collins, CO, U.S.A ., 2009 .</mixed-citation>
+          <mixed-citation publication-type="book">Biggerstaff, Brad J. PooledInfRate, Version 4.0: a Microsoft® Office Excel© Add-In to compute prevalence estimates from pooled samples. Centers for Disease Control and Prevention, Fort Collins, CO, U.S.A., 2009.</mixed-citation>
         </citation-alternatives>
       </ref>
       <ref id="pone.0332245.ref027">

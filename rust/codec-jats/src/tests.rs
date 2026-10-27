@@ -1,6 +1,6 @@
 use pretty_assertions::assert_eq;
 use stencila_codec::Losses;
-use stencila_codec::eyre::bail;
+use stencila_codec::eyre::{OptionExt, bail};
 use stencila_codec::stencila_schema::{
     Article, Author, AuthorRoleAuthor, AuthorRoleName, Block, CompilationDigest, CreativeWorkType,
     CreativeWorkVariant, CreativeWorkVariantOrString, Date, DateTime, Figure, FigureOptions,
@@ -325,7 +325,7 @@ async fn contributors_and_affiliations_roundtrip() -> Result<()> {
     };
 
     // A `<collab>` names a group rather than a person
-    let authors = article.authors.as_ref().expect("should have authors");
+    let authors = article.authors.as_ref().ok_or_eyre("should have authors")?;
     assert!(matches!(authors[1], Author::Organization(..)));
 
     // An affiliation that stands on its own is still resolved by the
@@ -333,7 +333,7 @@ async fn contributors_and_affiliations_roundtrip() -> Result<()> {
     let Author::Person(person) = &authors[0] else {
         bail!("expected a person author")
     };
-    let affiliation = &person.affiliations.as_ref().expect("affiliated")[0];
+    let affiliation = &person.affiliations.as_ref().ok_or_eyre("affiliated")?[0];
     assert_eq!(affiliation.name.as_deref(), Some("Example University"));
     assert_eq!(affiliation.ror.as_deref(), Some("03yrm5c26"));
 
@@ -342,7 +342,7 @@ async fn contributors_and_affiliations_roundtrip() -> Result<()> {
         .options
         .editors
         .as_ref()
-        .expect("should have editors");
+        .ok_or_eyre("should have editors")?;
     assert_eq!(
         editors[0].options.job_title.as_deref(),
         Some("Reviewing Editor")
@@ -521,13 +521,13 @@ async fn funding_and_awards_roundtrip() -> Result<()> {
         .options
         .funders
         .as_ref()
-        .expect("should have funders");
+        .ok_or_eyre("should have funders")?;
     assert_eq!(funders.len(), 1);
     let grants = article
         .options
         .funded_by
         .as_ref()
-        .expect("should have grants");
+        .ok_or_eyre("should have grants")?;
     assert_eq!(grants.len(), 1);
 
     let (jats, ..) = JatsCodec
@@ -1222,7 +1222,8 @@ async fn encoding_reports_unsupported_article_properties() -> Result<()> {
     let mut article = Article::new(vec![p([t("Body")])]);
     article.options.url = Some("https://example.org/article".into());
     article.options.date_modified = Some(DateTime::new("2025-06-07".into()));
-    article.options.genre = Some(vec!["Research Article".into()]);
+    // Only the first genre is emitted, as the `article-type`
+    article.options.genre = Some(vec!["research-article".into(), "Research Article".into()]);
     article.options.description = Some("A description".into());
 
     let (.., info) = JatsCodec

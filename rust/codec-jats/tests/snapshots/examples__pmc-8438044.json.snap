@@ -8,6 +8,7 @@ expression: article
   "abstract": [
     {
       "type": "Paragraph",
+      "id": "Par1",
       "content": [
         {
           "type": "Text",
@@ -953,7 +954,7 @@ expression: article
         "type": "Date",
         "value": "2019"
       },
-      "text": "Dagosta F. C. P. & de Pinna, M. C. C. The fishes of the Amazon: Distribution and biogeographical patterns, with a comprehensive list of species. Bull. Am. Mus. Nat. Hist, 431 , 1–163 (2019)."
+      "text": "Dagosta F. C. P. & de Pinna, M. C. C. The fishes of the Amazon: Distribution and biogeographical patterns, with a comprehensive list of species. Bull. Am. Mus. Nat. Hist,431, 1–163 (2019)."
     },
     {
       "type": "Reference",
@@ -7159,7 +7160,7 @@ expression: article
         "value": "2020"
       },
       "url": "https://www.Rproject.org/",
-      "text": "R Core Team. R: A Language and Environment for Statistical Computing. (R Foundation for Statistical Computing, 2020). https://www.Rproject.org/ ."
+      "text": "R Core Team. R: A Language and Environment for Statistical Computing. (R Foundation for Statistical Computing, 2020). https://www.Rproject.org/."
     },
     {
       "type": "Reference",
@@ -7229,7 +7230,7 @@ expression: article
         "type": "Date",
         "value": "2013"
       },
-      "text": "Oksanen, J., Kindt, R. & O’Hara, B. Package VEGAN. Community Ecology Package , Version 2 (2013)."
+      "text": "Oksanen, J., Kindt, R. & O’Hara, B. Package VEGAN. Community Ecology Package, Version 2 (2013)."
     },
     {
       "type": "Reference",
@@ -7404,7 +7405,7 @@ expression: article
         "type": "Date",
         "value": "2019"
       },
-      "text": "Schiettekatte, N. M. D., Brandl, S. J. & Casey, J. M. Fishualize: Color Palettes Based On Fish Species . CRAN version 0.2.0 (2019)."
+      "text": "Schiettekatte, N. M. D., Brandl, S. J. & Casey, J. M. Fishualize: Color Palettes Based On Fish Species. CRAN version 0.2.0 (2019)."
     },
     {
       "type": "Reference",
@@ -7487,7 +7488,7 @@ expression: article
         "type": "Date",
         "value": "2020"
       },
-      "text": "Hsieh T. C., Ma, K. H. & Chao, A. iNEXT: Interpolation and Extrapolation for Species Diversity . R package version 2.0.20 (2020)."
+      "text": "Hsieh T. C., Ma, K. H. & Chao, A. iNEXT: Interpolation and Extrapolation for Species Diversity. R package version 2.0.20 (2020)."
     },
     {
       "type": "Reference",
@@ -7818,6 +7819,7 @@ expression: article
         },
         {
           "type": "Paragraph",
+          "id": "Par2",
           "content": [
             {
               "type": "Text",
@@ -7899,6 +7901,7 @@ expression: article
         },
         {
           "type": "Paragraph",
+          "id": "Par3",
           "content": [
             {
               "type": "Text",
@@ -7998,6 +8001,7 @@ expression: article
         },
         {
           "type": "Paragraph",
+          "id": "Par4",
           "content": [
             {
               "type": "Text",
@@ -8325,6 +8329,7 @@ expression: article
         },
         {
           "type": "Paragraph",
+          "id": "Par5",
           "content": [
             {
               "type": "Text",
@@ -8471,6 +8476,7 @@ expression: article
         },
         {
           "type": "Paragraph",
+          "id": "Par6",
           "content": [
             {
               "type": "Text",
@@ -8681,6 +8687,7 @@ expression: article
         },
         {
           "type": "Paragraph",
+          "id": "Par7",
           "content": [
             {
               "type": "Text",
@@ -8885,6 +8892,7 @@ expression: article
         },
         {
           "type": "Paragraph",
+          "id": "Par8",
           "content": [
             {
               "type": "Text",
@@ -9043,6 +9051,7 @@ expression: article
             },
             {
               "type": "Paragraph",
+              "id": "Par9",
               "content": [
                 {
                   "type": "Text",
@@ -9073,6 +9082,7 @@ expression: article
             },
             {
               "type": "Paragraph",
+              "id": "Par10",
               "content": [
                 {
                   "type": "Text",
@@ -9606,6 +9616,7 @@ expression: article
                 },
                 {
                   "type": "Paragraph",
+                  "id": "Par11",
                   "content": [
                     {
                       "type": "Text",
@@ -9718,6 +9729,7 @@ expression: article
                 },
                 {
                   "type": "Paragraph",
+                  "id": "Par12",
                   "content": [
                     {
                       "type": "Text",
@@ -17692,6 +17704,7 @@ expression: article
             },
             {
               "type": "Paragraph",
+              "id": "Par13",
               "content": [
                 {
                   "type": "Text",
@@ -17868,6 +17881,7 @@ expression: article
             },
             {
               "type": "Paragraph",
+              "id": "Par14",
               "content": [
                 {
                   "type": "Text",
@@ -17969,6 +17983,7 @@ expression: article
             },
             {
               "type": "Paragraph",
+              "id": "Par15",
               "content": [
                 {
                   "type": "Text",
@@ -18071,6 +18086,7 @@ expression: article
                 },
                 {
                   "type": "Paragraph",
+                  "id": "Par16",
                   "content": [
                     {
                       "type": "Text",
@@ -18339,6 +18355,7 @@ expression: article
                 },
                 {
                   "type": "Paragraph",
+                  "id": "Par17",
                   "content": [
                     {
                       "type": "Text",
@@ -18484,6 +18501,7 @@ expression: article
             },
             {
               "type": "Paragraph",
+              "id": "Par18",
               "content": [
                 {
                   "type": "Text",
@@ -18495,6 +18513,7 @@ expression: article
             },
             {
               "type": "Paragraph",
+              "id": "Par19",
               "content": [
                 {
                   "type": "Text",
@@ -18541,6 +18560,7 @@ expression: article
             },
             {
               "type": "Paragraph",
+              "id": "Par20",
               "content": [
                 {
                   "type": "Text",
@@ -18657,6 +18677,7 @@ expression: article
             },
             {
               "type": "Paragraph",
+              "id": "Par21",
               "content": [
                 {
                   "type": "Text",
@@ -18843,6 +18864,7 @@ expression: article
             },
             {
               "type": "Paragraph",
+              "id": "Par22",
               "content": [
                 {
                   "type": "Text",
@@ -18907,6 +18929,7 @@ expression: article
             },
             {
               "type": "Paragraph",
+              "id": "Par23",
               "content": [
                 {
                   "type": "Text",
@@ -19063,6 +19086,7 @@ expression: article
                 },
                 {
                   "type": "Paragraph",
+                  "id": "Par24",
                   "content": [
                     {
                       "type": "Text",
@@ -19108,6 +19132,7 @@ expression: article
                 },
                 {
                   "type": "Paragraph",
+                  "id": "Par25",
                   "content": [
                     {
                       "type": "Text",
@@ -19230,6 +19255,7 @@ expression: article
                 },
                 {
                   "type": "Paragraph",
+                  "id": "Par26",
                   "content": [
                     {
                       "type": "Text",
@@ -19261,6 +19287,7 @@ expression: article
             },
             {
               "type": "Paragraph",
+              "id": "Par27",
               "content": [
                 {
                   "type": "Text",
@@ -19341,6 +19368,7 @@ expression: article
             },
             {
               "type": "Paragraph",
+              "id": "Par28",
               "content": [
                 {
                   "type": "Text",
@@ -19798,6 +19826,7 @@ expression: article
             },
             {
               "type": "Paragraph",
+              "id": "Par29",
               "content": [
                 {
                   "type": "Text",
@@ -19827,6 +19856,7 @@ expression: article
             },
             {
               "type": "Paragraph",
+              "id": "Par30",
               "content": [
                 {
                   "type": "Text",
@@ -19938,6 +19968,7 @@ expression: article
             },
             {
               "type": "Paragraph",
+              "id": "Par31",
               "content": [
                 {
                   "type": "Text",
@@ -20037,6 +20068,7 @@ expression: article
             },
             {
               "type": "Paragraph",
+              "id": "Par32",
               "content": [
                 {
                   "type": "Text",
@@ -20194,6 +20226,7 @@ expression: article
             },
             {
               "type": "Paragraph",
+              "id": "Par33",
               "content": [
                 {
                   "type": "Text",
@@ -20277,6 +20310,7 @@ expression: article
             },
             {
               "type": "Paragraph",
+              "id": "Par34",
               "content": [
                 {
                   "type": "Text",
@@ -20325,6 +20359,7 @@ expression: article
             },
             {
               "type": "Paragraph",
+              "id": "Par35",
               "content": [
                 {
                   "type": "Text",
@@ -20371,6 +20406,7 @@ expression: article
             },
             {
               "type": "Paragraph",
+              "id": "Par36",
               "content": [
                 {
                   "type": "Text",
@@ -20438,6 +20474,7 @@ expression: article
             },
             {
               "type": "Paragraph",
+              "id": "Par37",
               "content": [
                 {
                   "type": "Text",
@@ -20504,6 +20541,7 @@ expression: article
             },
             {
               "type": "Paragraph",
+              "id": "Par38",
               "content": [
                 {
                   "type": "Text",
@@ -20515,6 +20553,7 @@ expression: article
             },
             {
               "type": "Paragraph",
+              "id": "Par39",
               "content": [
                 {
                   "type": "Text",
@@ -20544,6 +20583,7 @@ expression: article
             },
             {
               "type": "Paragraph",
+              "id": "Par40",
               "content": [
                 {
                   "type": "Text",
@@ -20555,6 +20595,7 @@ expression: article
             },
             {
               "type": "Paragraph",
+              "id": "Par41",
               "content": [
                 {
                   "type": "Text",
@@ -20601,6 +20642,7 @@ expression: article
             },
             {
               "type": "Paragraph",
+              "id": "Par42",
               "content": [
                 {
                   "type": "Text",
@@ -20629,6 +20671,7 @@ expression: article
             },
             {
               "type": "Paragraph",
+              "id": "Par43",
               "content": [
                 {
                   "type": "Text",
@@ -20657,6 +20700,7 @@ expression: article
             },
             {
               "type": "Paragraph",
+              "id": "Par44",
               "content": [
                 {
                   "type": "Text",
@@ -20685,6 +20729,7 @@ expression: article
             },
             {
               "type": "Paragraph",
+              "id": "Par45",
               "content": [
                 {
                   "type": "Text",
@@ -20714,6 +20759,7 @@ expression: article
             },
             {
               "type": "Paragraph",
+              "id": "Par46",
               "content": [
                 {
                   "type": "Text",
@@ -20725,6 +20771,7 @@ expression: article
             },
             {
               "type": "Paragraph",
+              "id": "Par47",
               "content": [
                 {
                   "type": "Text",
@@ -20788,6 +20835,7 @@ expression: article
             },
             {
               "type": "Paragraph",
+              "id": "Par48",
               "content": [
                 {
                   "type": "Text",
@@ -20816,6 +20864,7 @@ expression: article
             },
             {
               "type": "Paragraph",
+              "id": "Par49",
               "content": [
                 {
                   "type": "Text",
@@ -20827,6 +20876,7 @@ expression: article
             },
             {
               "type": "Paragraph",
+              "id": "Par50",
               "content": [
                 {
                   "type": "Text",
@@ -20838,6 +20888,7 @@ expression: article
             },
             {
               "type": "Paragraph",
+              "id": "Par51",
               "content": [
                 {
                   "type": "Text",
@@ -20866,6 +20917,7 @@ expression: article
             },
             {
               "type": "Paragraph",
+              "id": "Par52",
               "content": [
                 {
                   "type": "Text",
@@ -20877,6 +20929,7 @@ expression: article
             },
             {
               "type": "Paragraph",
+              "id": "Par53",
               "content": [
                 {
                   "type": "Text",
@@ -20923,6 +20976,7 @@ expression: article
             },
             {
               "type": "Paragraph",
+              "id": "Par54",
               "content": [
                 {
                   "type": "Text",
@@ -21192,6 +21246,7 @@ expression: article
             },
             {
               "type": "Paragraph",
+              "id": "Par55",
               "content": [
                 {
                   "type": "Text",
@@ -21203,6 +21258,7 @@ expression: article
             },
             {
               "type": "Paragraph",
+              "id": "Par56",
               "content": [
                 {
                   "type": "Text",
@@ -21459,6 +21515,7 @@ expression: article
             },
             {
               "type": "Paragraph",
+              "id": "Par57",
               "content": [
                 {
                   "type": "Text",
@@ -21470,6 +21527,7 @@ expression: article
             },
             {
               "type": "Paragraph",
+              "id": "Par58",
               "content": [
                 {
                   "type": "Text",
@@ -21572,6 +21630,7 @@ expression: article
             },
             {
               "type": "Paragraph",
+              "id": "Par59",
               "content": [
                 {
                   "type": "Text",
@@ -21636,6 +21695,7 @@ expression: article
             },
             {
               "type": "Paragraph",
+              "id": "Par60",
               "content": [
                 {
                   "type": "Text",
@@ -21647,6 +21707,7 @@ expression: article
             },
             {
               "type": "Paragraph",
+              "id": "Par61",
               "content": [
                 {
                   "type": "Text",
@@ -21932,6 +21993,7 @@ expression: article
             },
             {
               "type": "Paragraph",
+              "id": "Par62",
               "content": [
                 {
                   "type": "Text",
@@ -22633,6 +22695,7 @@ expression: article
         },
         {
           "type": "Paragraph",
+          "id": "Par63",
           "content": [
             {
               "type": "Text",
@@ -22893,6 +22956,9 @@ expression: article
       ]
     }
   ],
+  "genre": [
+    "research-article"
+  ],
   "keywords": [
     "Ecology",
     "Biodiversity"
@@ -22953,6 +23019,7 @@ expression: article
     "name": "Nature Publishing Group"
   },
   "version": "1",
+  "inLanguage": "en",
   "publicationDates": [
     {
       "type": "epub",

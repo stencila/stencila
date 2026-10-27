@@ -203,22 +203,44 @@ impl BufferedXmlNode {
 }
 
 /// Return whether a JATS element has a mixed-content content model.
+///
+/// An element that is not listed here is only treated as mixed content when it
+/// has text of its own, so an element that may have formatting with no text
+/// around it (e.g. `<source><italic>Nature</italic></source>`) must be listed.
 fn is_mixed_content_element(name: &[u8]) -> bool {
     is_inline_element(name)
         || matches!(
             name,
-            b"article-title"
+            b"alt-text"
                 | b"alt-title"
+                | b"article-title"
+                | b"attrib"
+                | b"award-id"
+                | b"chapter-title"
+                | b"collab"
+                | b"comment"
+                | b"data-title"
+                | b"funding-source"
+                | b"funding-statement"
+                | b"given-names"
+                | b"institution"
+                | b"issue-title"
                 | b"kwd"
                 | b"label"
                 | b"license-p"
                 | b"mixed-citation"
                 | b"p"
+                | b"part-title"
+                | b"publisher-loc"
+                | b"publisher-name"
+                | b"source"
                 | b"subject"
                 | b"subtitle"
+                | b"surname"
                 | b"td"
                 | b"th"
                 | b"title"
+                | b"trans-source"
                 | b"trans-title"
         )
 }
@@ -411,6 +433,14 @@ mod tests {
     #[test]
     fn preserves_punctuation_adjacent_to_inline_elements() -> Result<()> {
         assert_mixed_content_unchanged("<p>text (<italic>x</italic>), text.</p>")
+    }
+
+    #[test]
+    fn preserves_formatting_only_metadata() -> Result<()> {
+        assert_mixed_content_unchanged("<source><italic>Nature</italic></source>")?;
+        assert_mixed_content_unchanged(
+            "<funding-statement><bold>Funded</bold><italic>by</italic></funding-statement>",
+        )
     }
 
     #[test]

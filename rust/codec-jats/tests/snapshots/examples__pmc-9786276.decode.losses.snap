@@ -9,9 +9,7 @@ expression: info.losses
 //article/back/ref-list/ref/mixed-citation/article-title/italic/@toggle: 27
 //article/back/ref-list/ref/mixed-citation/italic: 3
 //article/back/ref-list/ref/mixed-citation/part-title/italic/@toggle: 1
-//article/back/ref-list/ref/mixed-citation/person-group/string-name/@name-style: 10
 //article/back/ref-list/ref/mixed-citation/pub-id/@assigning-authority: 25
-//article/back/ref-list/ref/mixed-citation/string-name/@name-style: 132
 //article/back/ref-list/ref/mixed-citation/string-name/suffix: 3
 //article/back/ref-list/title: 1
 //article/body/sec/fig/@fig-type: 2
@@ -34,6 +32,7 @@ expression: info.losses
 //article/body/sec/sec/table-wrap/@content-type: 1
 //article/body/sec/sec/table-wrap/@orientation: 1
 //article/body/sec/sec/table-wrap/@position: 1
+//article/body/sec/sec/table-wrap/permissions: 1
 //article/body/sec/sec/table-wrap/table/col: 4
 //article/body/sec/sec/table-wrap/table/tbody/tr/td/italic/@toggle: 4
 //article/body/sec/sec/table-wrap/table/thead/@style: 1
@@ -78,8 +77,9 @@ expression: info.losses
 "//article/front/article-meta/custom-meta-group/custom-meta[meta-name='pmc-status-released']": 1
 "//article/front/article-meta/custom-meta-group/custom-meta[meta-name='source-schema-version-number']": 1
 //article/front/article-meta/issue/@seq: 1
-//article/front/article-meta/kwd-group/@id: 4
 //article/front/article-meta/kwd-group/@kwd-group-type: 1
+//article/front/article-meta/kwd-group/kwd/@id: 4
+//article/front/article-meta/title-group/alt-title: 2
 "//article/front/journal-meta/custom-meta-group/custom-meta[meta-name='pmc-collection-title']": 1
 "//article/front/journal-meta/custom-meta-group/custom-meta[meta-name='pmc-is-collection-domain']": 1
 //article/front/notes/p/@content-type: 1

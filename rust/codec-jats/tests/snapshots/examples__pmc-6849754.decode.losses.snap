@@ -8,7 +8,6 @@ expression: info.losses
 //article/back/ref-list/ref/mixed-citation/italic: 30
 //article/back/ref-list/ref/mixed-citation/source/@lang: 67
 //article/back/ref-list/ref/mixed-citation/string-name/suffix: 1
-//article/back/ref-list/ref/mixed-citation/string-name/text(): 300
 //article/back/ref-list/title: 1
 //article/back/sec/p/ext-link/@specific-use: 2
 //article/body/sec/fig/@fig-type: 1
@@ -34,5 +33,6 @@ expression: info.losses
 "//article/front/article-meta/custom-meta-group/custom-meta[meta-name='cover-date']": 1
 "//article/front/article-meta/custom-meta-group/custom-meta[meta-name='details-of-publishers-convertor']": 1
 "//article/front/article-meta/custom-meta-group/custom-meta[meta-name='source-schema-version-number']": 1
-//article/front/article-meta/kwd-group/@id: 10
 //article/front/article-meta/kwd-group/@kwd-group-type: 1
+//article/front/article-meta/kwd-group/kwd/@id: 10
+//article/front/article-meta/title-group/alt-title: 1

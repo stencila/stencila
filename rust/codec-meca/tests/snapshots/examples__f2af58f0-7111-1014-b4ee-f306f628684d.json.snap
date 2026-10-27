@@ -1,5 +1,6 @@
 ---
 source: rust/codec-meca/tests/examples.rs
+assertion_line: 38
 expression: article
 ---
 {
@@ -2881,6 +2882,9 @@ expression: article
       ]
     }
   ],
+  "genre": [
+    "article"
+  ],
   "isPartOf": {
     "type": "Periodical",
     "name": "bioRxiv",
@@ -2900,6 +2904,7 @@ expression: article
     "name": "Cold Spring Harbor Laboratory"
   },
   "version": "1.1",
+  "inLanguage": "en",
   "publicationDates": [
     {
       "type": "epub",

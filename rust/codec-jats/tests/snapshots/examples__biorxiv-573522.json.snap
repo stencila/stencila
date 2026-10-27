@@ -8,6 +8,7 @@ expression: article
   "abstract": [
     {
       "type": "Paragraph",
+      "id": "p-2",
       "content": [
         {
           "type": "Text",
@@ -36,6 +37,7 @@ expression: article
         },
         {
           "type": "Paragraph",
+          "id": "p-3",
           "content": [
             {
               "type": "Text",
@@ -3610,6 +3612,7 @@ expression: article
         },
         {
           "type": "Paragraph",
+          "id": "p-5",
           "content": [
             {
               "type": "Text",
@@ -3837,6 +3840,7 @@ expression: article
         },
         {
           "type": "Paragraph",
+          "id": "p-6",
           "content": [
             {
               "type": "Text",
@@ -4028,6 +4032,7 @@ expression: article
         },
         {
           "type": "Paragraph",
+          "id": "p-7",
           "content": [
             {
               "type": "Text",
@@ -4147,6 +4152,7 @@ expression: article
         },
         {
           "type": "Paragraph",
+          "id": "p-8",
           "content": [
             {
               "type": "Text",
@@ -4248,6 +4254,7 @@ expression: article
         },
         {
           "type": "Paragraph",
+          "id": "p-9",
           "content": [
             {
               "type": "Text",
@@ -4278,6 +4285,7 @@ expression: article
         },
         {
           "type": "Paragraph",
+          "id": "p-10",
           "content": [
             {
               "type": "Text",
@@ -4305,6 +4313,7 @@ expression: article
             },
             {
               "type": "Paragraph",
+              "id": "p-11",
               "content": [
                 {
                   "type": "Text",
@@ -4405,6 +4414,7 @@ expression: article
             },
             {
               "type": "Paragraph",
+              "id": "p-12",
               "content": [
                 {
                   "type": "Text",
@@ -4462,6 +4472,7 @@ expression: article
             },
             {
               "type": "Paragraph",
+              "id": "p-13",
               "content": [
                 {
                   "type": "Text",
@@ -4557,6 +4568,7 @@ expression: article
                 },
                 {
                   "type": "Paragraph",
+                  "id": "p-14",
                   "content": [
                     {
                       "type": "Text",
@@ -4773,6 +4785,7 @@ expression: article
                 },
                 {
                   "type": "Paragraph",
+                  "id": "p-15",
                   "content": [
                     {
                       "type": "Text",
@@ -4784,6 +4797,7 @@ expression: article
                 },
                 {
                   "type": "Paragraph",
+                  "id": "p-16",
                   "content": [
                     {
                       "type": "Text",
@@ -4815,6 +4829,7 @@ expression: article
             },
             {
               "type": "Paragraph",
+              "id": "p-17",
               "content": [
                 {
                   "type": "Text",
@@ -4881,6 +4896,7 @@ expression: article
             },
             {
               "type": "Paragraph",
+              "id": "p-18",
               "content": [
                 {
                   "type": "Text",
@@ -5175,6 +5191,7 @@ expression: article
               "caption": [
                 {
                   "type": "Paragraph",
+                  "id": "p-19",
                   "content": [
                     {
                       "type": "Strong",
@@ -5341,6 +5358,7 @@ expression: article
               "caption": [
                 {
                   "type": "Paragraph",
+                  "id": "p-20",
                   "content": [
                     {
                       "type": "Strong",
@@ -5451,6 +5469,7 @@ expression: article
             },
             {
               "type": "Paragraph",
+              "id": "p-21",
               "content": [
                 {
                   "type": "Text",
@@ -5488,6 +5507,7 @@ expression: article
               "caption": [
                 {
                   "type": "Paragraph",
+                  "id": "p-22",
                   "content": [
                     {
                       "type": "Strong",
@@ -5698,6 +5718,7 @@ expression: article
                 },
                 {
                   "type": "Paragraph",
+                  "id": "p-23",
                   "content": [
                     {
                       "type": "Text",
@@ -5709,6 +5730,7 @@ expression: article
                 },
                 {
                   "type": "Paragraph",
+                  "id": "p-24",
                   "content": [
                     {
                       "type": "Text",
@@ -5898,6 +5920,7 @@ expression: article
                 },
                 {
                   "type": "Paragraph",
+                  "id": "p-25",
                   "content": [
                     {
                       "type": "Text",
@@ -5927,6 +5950,7 @@ expression: article
                 },
                 {
                   "type": "Paragraph",
+                  "id": "p-26",
                   "content": [
                     {
                       "type": "Text",
@@ -5978,6 +6002,7 @@ expression: article
                 },
                 {
                   "type": "Paragraph",
+                  "id": "p-27",
                   "content": [
                     {
                       "type": "Text",
@@ -5989,6 +6014,7 @@ expression: article
                 },
                 {
                   "type": "Paragraph",
+                  "id": "p-28",
                   "content": [
                     {
                       "type": "Text",
@@ -6158,6 +6184,7 @@ expression: article
                 },
                 {
                   "type": "Paragraph",
+                  "id": "p-29",
                   "content": [
                     {
                       "type": "Text",
@@ -6187,6 +6214,7 @@ expression: article
                 },
                 {
                   "type": "Paragraph",
+                  "id": "p-30",
                   "content": [
                     {
                       "type": "Text",
@@ -6364,6 +6392,7 @@ expression: article
                   "caption": [
                     {
                       "type": "Paragraph",
+                      "id": "p-31",
                       "content": [
                         {
                           "type": "Strong",
@@ -6575,6 +6604,7 @@ expression: article
                 },
                 {
                   "type": "Paragraph",
+                  "id": "p-32",
                   "content": [
                     {
                       "type": "Text",
@@ -6712,6 +6742,7 @@ expression: article
                   "caption": [
                     {
                       "type": "Paragraph",
+                      "id": "p-33",
                       "content": [
                         {
                           "type": "Strong",
@@ -6889,6 +6920,7 @@ expression: article
                 },
                 {
                   "type": "Paragraph",
+                  "id": "p-34",
                   "content": [
                     {
                       "type": "Text",
@@ -7006,6 +7038,7 @@ expression: article
                   "caption": [
                     {
                       "type": "Paragraph",
+                      "id": "p-35",
                       "content": [
                         {
                           "type": "Strong",
@@ -7183,6 +7216,7 @@ expression: article
                 },
                 {
                   "type": "Paragraph",
+                  "id": "p-36",
                   "content": [
                     {
                       "type": "Text",
@@ -7194,6 +7228,7 @@ expression: article
                 },
                 {
                   "type": "Paragraph",
+                  "id": "p-37",
                   "content": [
                     {
                       "type": "Text",
@@ -7331,6 +7366,7 @@ expression: article
                   "caption": [
                     {
                       "type": "Paragraph",
+                      "id": "p-38",
                       "content": [
                         {
                           "type": "Strong",
@@ -7508,6 +7544,7 @@ expression: article
                 },
                 {
                   "type": "Paragraph",
+                  "id": "p-39",
                   "content": [
                     {
                       "type": "Text",
@@ -7542,6 +7579,7 @@ expression: article
         },
         {
           "type": "Paragraph",
+          "id": "p-40",
           "content": [
             {
               "type": "Text",
@@ -7553,6 +7591,7 @@ expression: article
         },
         {
           "type": "Paragraph",
+          "id": "p-41",
           "content": [
             {
               "type": "Text",
@@ -7725,6 +7764,7 @@ expression: article
         },
         {
           "type": "Paragraph",
+          "id": "p-42",
           "content": [
             {
               "type": "Text",
@@ -7862,6 +7902,7 @@ expression: article
         },
         {
           "type": "Paragraph",
+          "id": "p-43",
           "content": [
             {
               "type": "Text",
@@ -8035,6 +8076,7 @@ expression: article
         },
         {
           "type": "Paragraph",
+          "id": "p-44",
           "content": [
             {
               "type": "Text",
@@ -8068,7 +8110,7 @@ expression: article
           "id": "DC1",
           "label": "1",
           "labelAutomatically": false,
-          "workType": "Table",
+          "workType": "Datatable",
           "target": "supplements/573522_file02.xlsx"
         }
       ]
@@ -8091,6 +8133,7 @@ expression: article
         },
         {
           "type": "Paragraph",
+          "id": "p-4",
           "content": [
             {
               "type": "Text",
@@ -8165,6 +8208,9 @@ expression: article
     "type": "DateTime",
     "value": "2024-01-01"
   },
+  "genre": [
+    "article"
+  ],
   "isPartOf": {
     "type": "Periodical",
     "name": "bioRxiv",
@@ -8189,6 +8235,7 @@ expression: article
     "name": "Cold Spring Harbor Laboratory"
   },
   "version": "1.1",
+  "inLanguage": "en",
   "publicationDates": [
     {
       "type": "epub-original",

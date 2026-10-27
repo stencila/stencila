@@ -1,7 +1,9 @@
 ---
 source: rust/codec-pmc/tests/examples.rs
+assertion_line: 67
 expression: info.losses
 ---
+//article/back/notes/@notes-type: 1
 //article/back/notes/notes: 1
 //article/back/ref-list/@id: 1
 //article/back/ref-list/ref/element-citation/@id: 43
@@ -9,12 +11,11 @@ expression: info.losses
 //article/back/ref-list/ref/mixed-citation/bold: 4
 //article/back/ref-list/ref/mixed-citation/italic: 15
 //article/back/ref-list/title: 1
-//article/body/sec/p/@id: 4
 //article/body/sec/p/supplementary-material/@content-type: 1
-//article/body/sec/sec/p/@id: 14
+//article/body/sec/sec/p/@id: 4
 //article/body/sec/sec/p/fig/graphic/@id: 2
-//article/front/article-meta/abstract/p/@id: 1
 "//article/front/article-meta/custom-meta-group/custom-meta[meta-name='issue-copyright-statement']": 1
 //article/front/article-meta/kwd-group/@kwd-group-type: 1
 //article/front/article-meta/kwd-group/@lang: 1
+//article/front/article-meta/kwd-group/title: 2
 //article/processing-meta: 1

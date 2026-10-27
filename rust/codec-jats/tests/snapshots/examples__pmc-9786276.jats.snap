@@ -2,7 +2,7 @@
 source: rust/codec-jats/tests/examples.rs
 expression: jats
 ---
-<article dtd-version="1.4" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:mml="http://www.w3.org/1998/Math/MathML" id="inz212599">
+<article dtd-version="1.4" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:mml="http://www.w3.org/1998/Math/MathML" id="inz212599" article-type="research-article" xml:lang="en">
   <front>
     <journal-meta>
       <journal-id journal-id-type="nlm-ta">Integr Zool</journal-id>
@@ -732,61 +732,61 @@ expression: jats
     </sec>
     <sec sec-type="SupplementaryMaterials">
       <title level="1">Supporting information</title>
-      <supplementary-material id="inz212599-supitem-0001">
+      <supplementary-material id="inz212599-supitem-0001" content-type="VideoObject">
         <caption>
           <p>&#10;<bold>Supporting video S1</bold> Species – probably hybrid of introduced <italic>Clarias gariepinus</italic> with native <italic>C. batrachus</italic>. Size – body length 26.5 cm, body mass 135 g. Substrate – clay. Record speed – 100 fps. View – close‐up. Locomotion technique – axial‐based, oscillatory, with prevalence of prolocomotor propulsion. Rare case of circular traveling route. Trackway production is visible (cf. Fig. 4A in the main text).</p>
         </caption>
         <media xlink:href="INZ2-17-849-s003.mov"></media>
       </supplementary-material>
-      <supplementary-material id="inz212599-supitem-0002">
+      <supplementary-material id="inz212599-supitem-0002" content-type="VideoObject">
         <caption>
           <p>&#10;<bold>Supporting video S2</bold> Species – probably hybrid of introduced <italic>Clarias gariepinus</italic> with native <italic>C. batrachus</italic>. Abnormal individual lacking pectoral fins (amelia). Size – body length 33 cm, body mass 220 g. Substrate – cement. Record speed – 50 fps. View – close‐up. Locomotion technique – axial‐based, irregular wriggling intermediate between undulatory and oscillatory. Note an attempt to get support with the chin.</p>
         </caption>
         <media xlink:href="INZ2-17-849-s005.mov"></media>
       </supplementary-material>
-      <supplementary-material id="inz212599-supitem-0003">
+      <supplementary-material id="inz212599-supitem-0003" content-type="VideoObject">
         <caption>
           <p>&#10;<bold>Supporting video S3</bold> Species – <italic>Monopterus albus</italic>. Size – body length 47 cm, body mass 105 g. Substrate – clay. Record speed – 50 fps. View – close‐up from side. Locomotion technique – axial‐based, undulatory, sidewinding. A gentle vertical wave passing from head to tail is visible, which makes every part of the belly alternately raise and lay down on the ground.</p>
         </caption>
         <media xlink:href="INZ2-17-849-s009.mov"></media>
       </supplementary-material>
-      <supplementary-material id="inz212599-supitem-0004">
+      <supplementary-material id="inz212599-supitem-0004" content-type="VideoObject">
         <caption>
           <p>&#10;<bold>Supporting video S4</bold> Species – <italic>Monopterus albus</italic>. Size – body length 60 cm, body mass 225 g. Substrate – clay and grass. Record speed – 50 fps. View – close‐up from top. Locomotion technique – axial‐based, undulatory, sidewinding on clay or serpentine crawling on grass.</p>
         </caption>
         <media xlink:href="INZ2-17-849-s001.mov"></media>
       </supplementary-material>
-      <supplementary-material id="inz212599-supitem-0005">
+      <supplementary-material id="inz212599-supitem-0005" content-type="VideoObject">
         <caption>
           <p>&#10;<bold>Supporting video S5</bold> Species – <italic>Anabas testudineus</italic>. Size – body length 12 cm, body mass 26.5 g. Substrate – soft clay. Record speed – 100 fps. View – close‐up. Locomotion technique – axial‐based, oscillatory, with prolocomotor propulsion. Trackway production is visible.</p>
         </caption>
         <media xlink:href="INZ2-17-849-s007.mov"></media>
       </supplementary-material>
-      <supplementary-material id="inz212599-supitem-0006">
+      <supplementary-material id="inz212599-supitem-0006" content-type="VideoObject">
         <caption>
           <p>&#10;<bold>Supporting video S6</bold> Species – <italic>Channa striata</italic>. Size – body length 50 cm, body mass 1180 g. Substrate – clay. Record speed – 50 fps. View – close‐up from side. Locomotion technique – axial‐based, oscillatory, with metalocomotor propulsion. Frames from this sequences are selected to illustrate propulsive action of the anal fin in Fig. 5 in the main text.</p>
         </caption>
         <media xlink:href="INZ2-17-849-s004.mov"></media>
       </supplementary-material>
-      <supplementary-material id="inz212599-supitem-0007">
+      <supplementary-material id="inz212599-supitem-0007" content-type="VideoObject">
         <caption>
           <p>&#10;<bold>Supporting video S7</bold> Species – <italic>Channa striata</italic>. Size – body length 45.5 cm, body mass 900 g. Substrate – clay. Record speed – 50 fps for top view (used in Fig. 4F in the main text), 100 fps for side view. Locomotion technique – axial‐based, oscillatory, with metalocomotor propulsion.</p>
         </caption>
         <media xlink:href="INZ2-17-849-s008.mov"></media>
       </supplementary-material>
-      <supplementary-material id="inz212599-supitem-0008">
+      <supplementary-material id="inz212599-supitem-0008" content-type="VideoObject">
         <caption>
           <p>&#10;<bold>Supporting video S8</bold> Species – <italic>Channa striata</italic>. Size – body length 45.5 cm, body mass 900 g. Substrate – grass. Record speed – 50 fps. View – close‐up from top. Locomotion technique – axial‐based, oscillatory, with metalocomotor propulsion.</p>
         </caption>
         <media xlink:href="INZ2-17-849-s006.mov"></media>
       </supplementary-material>
-      <supplementary-material id="inz212599-supitem-0009">
+      <supplementary-material id="inz212599-supitem-0009" content-type="VideoObject">
         <caption>
           <p>&#10;<bold>Supporting video S9</bold> Species – <italic>Channa striata</italic>. Size – body length 38 cm, body mass 590 g. Substrate – clay. Record speed – 50 fps. View – close‐up from top. Locomotion technique – axial‐based, oscillatory, with metalocomotor propulsion.</p>
         </caption>
         <media xlink:href="INZ2-17-849-s002.mov"></media>
       </supplementary-material>
-      <supplementary-material id="inz212599-supitem-0010">
+      <supplementary-material id="inz212599-supitem-0010" content-type="VideoObject">
         <caption>
           <p>&#10;<bold>Supporting video S10</bold> Species – <italic>Channa striata</italic>. Size – body length 28.5 cm, body mass 180 g. Substrate – clay. Record speed – 50 fps. View – close‐up. Locomotion technique – axial‐appendage‐based, oscillatory, with dilocomotor propulsion. Coupled propulsive activity of two pectoral fins is visible.</p>
         </caption>
@@ -1160,7 +1160,7 @@ expression: jats
             </person-group>
             <year>2004</year>
           </element-citation>
-          <mixed-citation>Courtenay WR Jr , Williams JD ( 2004 ). Snakeheads (Pisces, Channidae): A biological synopsis and risk assessment. Circular 1251. US Geological Survey, Reston, VA, 143 pp.</mixed-citation>
+          <mixed-citation>Courtenay WR Jr, Williams JD (2004). Snakeheads (Pisces, Channidae): A biological synopsis and risk assessment. Circular 1251. US Geological Survey, Reston, VA, 143 pp.</mixed-citation>
         </citation-alternatives>
       </ref>
       <ref id="inz212599-bib-0017">

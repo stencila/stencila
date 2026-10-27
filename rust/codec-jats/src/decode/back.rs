@@ -9,7 +9,7 @@ use stencila_codec::stencila_schema::{
     PropertyValueOrString, Reference, ReferenceOptions, Section, SectionType, StringOrNumber,
 };
 use stencila_codec_biblio::decode::text_to_reference;
-use stencila_codec_utils::split_given_names;
+use stencila_codec_utils::strip_doi_prefix;
 
 use crate::decode::{
     body::{decode_blocks, decode_sec},
@@ -18,7 +18,11 @@ use crate::decode::{
 
 use super::{
     body::decode_inlines,
-    utilities::{XLINK, extend_path, record_attrs_lost, record_node_lost},
+    names::{decode_collab, decode_person_name, is_name_element},
+    utilities::{
+        XLINK, extend_path, integer_or_string, non_empty_text_deep, record_attrs_lost,
+        record_node_lost,
+    },
 };
 
 /// Decode the `<back>` of an `<article>`
@@ -41,7 +45,7 @@ pub(super) fn decode_back(
                 article.content.extend(sections);
             }
             "notes" => decode_notes(&child_path, &child, article, losses),
-            "ref-list" => decode_ref_list(&child_path, &child, article, losses),
+            "ref-list" => decode_ref_list(&child_path, &child, losses),
             "fn-group" => {
                 let mut blocks = decode_blocks(path, std::iter::once(child), losses, 1);
                 article.content.append(&mut blocks);
@@ -136,24 +140,32 @@ fn decode_app(path: &str, node: &Node, losses: &mut DecodeContext) -> Block {
 /// Fields decoded from elements are authoritative. Parsing the text of a
 /// citation only fills in fields that no element supplied, and the text itself
 /// is kept only when the reference can not be rendered without it.
-fn decode_ref_list(path: &str, ref_list: &Node, article: &mut Article, losses: &mut DecodeContext) {
+///
+/// A `<ref-list>` may be in a section or appendix as well as in the back
+/// matter, and may be nested within another. Wherever they are, the references
+/// are added to those of the article being decoded, in document order.
+pub(super) fn decode_ref_list(path: &str, ref_list: &Node, losses: &mut DecodeContext) {
     record_attrs_lost(path, ref_list, [], losses);
 
-    let mut references = Vec::new();
     for ref_elem in ref_list.children() {
-        if ref_elem.tag_name().name() != "ref" {
-            record_node_lost(path, &ref_elem, losses);
-            continue;
+        match ref_elem.tag_name().name() {
+            "ref" => {}
+            "ref-list" => {
+                decode_ref_list(&extend_path(path, "ref-list"), &ref_elem, losses);
+                continue;
+            }
+            _ => {
+                record_node_lost(path, &ref_elem, losses);
+                continue;
+            }
         }
 
         let ref_path = &extend_path(path, "ref");
         record_attrs_lost(ref_path, &ref_elem, ["id"], losses);
 
-        let Some(id) = ref_elem.attribute("id") else {
-            // Without an ID the reference cannot be the target of a citation
-            losses.add(format!("{ref_path}/@id"));
-            continue;
-        };
+        // A reference without an id can not be the target of a citation, but
+        // is still part of the bibliography
+        let id = ref_elem.attribute("id");
 
         // The <ref> may have <citation>, <element-citation> and/or
         // <mixed-citation> elements within it, or those elements may be nested
@@ -165,24 +177,20 @@ fn decode_ref_list(path: &str, ref_list: &Node, article: &mut Article, losses: &
             .filter(|elem| {
                 matches!(
                     elem.tag_name().name(),
-                    "element-citation" | "citation" | "mixed-citation"
+                    "element-citation" | "citation" | "nlm-citation" | "mixed-citation"
                 )
             })
             .collect_vec();
 
-        let structured = citations
-            .iter()
-            .find(|elem| elem.tag_name().name() == "element-citation")
-            .or_else(|| {
-                citations
-                    .iter()
-                    .find(|elem| elem.tag_name().name() == "citation")
-            })
-            .or_else(|| {
-                citations
-                    .iter()
-                    .find(|elem| elem.tag_name().name() == "mixed-citation")
-            });
+        // The deprecated <nlm-citation> is as structured as an <element-citation>
+        let structured = [
+            "element-citation",
+            "nlm-citation",
+            "citation",
+            "mixed-citation",
+        ]
+        .iter()
+        .find_map(|tag| citations.iter().find(|elem| elem.has_tag_name(*tag)));
 
         let Some(structured) = structured.copied() else {
             losses.add(ref_path.clone());
@@ -209,14 +217,7 @@ fn decode_ref_list(path: &str, ref_list: &Node, article: &mut Article, losses: &
         // surrounding <ref>
         let citation_path = &extend_path(ref_path, structured.tag_name().name());
         let reference = decode_citation(citation_path, id, &structured, &raw_text, losses);
-        references.push(reference);
-    }
-
-    if !references.is_empty() {
-        article
-            .references
-            .get_or_insert_default()
-            .extend(references);
+        losses.references.push(reference);
     }
 }
 
@@ -247,6 +248,8 @@ struct CitationFields {
     publisher_name: Option<String>,
     publisher_location: Option<String>,
     identifiers: Option<Vec<PropertyValueOrString>>,
+    /// A translation of the title, which is only used if there is no title
+    trans_title: Option<Vec<Inline>>,
 }
 
 /// How an explicit citation title relates to its source
@@ -257,19 +260,6 @@ enum CitationTitleKind {
     Work,
     /// The title is a part of a book, such as a chapter
     BookPart,
-}
-
-/// Convert the text of a citation element into an integer or a string
-///
-/// Only uses an integer when doing so does not change the value, so that a
-/// value such as the page "056708" keeps its leading zero.
-fn integer_or_string(value: &str) -> IntegerOrString {
-    match IntegerOrString::from(value) {
-        IntegerOrString::Integer(integer) if integer.to_string() == value => {
-            IntegerOrString::Integer(integer)
-        }
-        _ => IntegerOrString::String(value.to_string()),
-    }
 }
 
 /// Map a citation's `publication-type` to the type of work referenced
@@ -289,7 +279,8 @@ fn work_type(publication_type: &str, title_kind: CitationTitleKind) -> Option<Cr
     })
 }
 
-/// Decode a `<citation>`, `<element-citation>` or `<mixed-citation>` element
+/// Decode a `<citation>`, `<element-citation>`, `<nlm-citation>` or
+/// `<mixed-citation>` element
 ///
 /// `text_node` is the citation element to fall back to for raw citation text.
 /// It is usually `node` itself but, when a `<citation-alternatives>` pairs a
@@ -300,12 +291,13 @@ fn work_type(publication_type: &str, title_kind: CitationTitleKind) -> Option<Cr
 /// fill in fields that no element supplied.
 fn decode_citation(
     path: &str,
-    id: &str,
+    id: Option<&str>,
     node: &Node,
     text_node: &Node,
     losses: &mut DecodeContext,
 ) -> Reference {
-    record_attrs_lost(path, node, ["publication-type"], losses);
+    // An <nlm-citation> states its type as a `citation-type`
+    record_attrs_lost(path, node, ["publication-type", "citation-type"], losses);
 
     let mut fields = CitationFields::default();
     for child in node.children() {
@@ -317,13 +309,26 @@ fn decode_citation(
         decode_citation_child(path, &child, &mut fields, losses);
     }
 
-    if let Some(publication_type) = node.attribute("publication-type") {
+    if let Some((attribute, publication_type)) = ["publication-type", "citation-type"]
+        .into_iter()
+        .find_map(|attribute| Some((attribute, node.attribute(attribute)?)))
+    {
         fields.work_type = work_type(publication_type, fields.title_kind);
         // A type that says the work is of no particular type is not a loss
         if fields.work_type.is_none()
             && !matches!(publication_type, "other" | "miscellaneous" | "unknown" | "")
         {
-            losses.add(format!("{path}/@publication-type"));
+            losses.add(format!("{path}/@{attribute}"));
+        }
+    }
+
+    // A translated title is only the title of the reference if there is no
+    // title in the original language
+    if let Some(trans_title) = fields.trans_title.take() {
+        if fields.title.is_none() {
+            fields.title = Some(trans_title);
+        } else {
+            losses.add(extend_path(path, "trans-title"));
         }
     }
 
@@ -332,17 +337,7 @@ fn decode_citation(
     // Fields that no element supplied may still be recoverable from the text of
     // the citation, which for a <mixed-citation> is a complete rendering of the
     // reference. Nothing already decoded is overwritten by the weaker result.
-    let text = text_node
-        .descendants()
-        .filter_map(|node| {
-            if !node.is_text() {
-                return None;
-            }
-            let text = node.text()?;
-            Some(text.split_whitespace().join(" "))
-        })
-        .filter(|text| !text.is_empty())
-        .join(" ");
+    let text = citation_text(text_node);
 
     if !text.is_empty() {
         let parsed = text_to_reference(&text);
@@ -362,6 +357,94 @@ fn decode_citation(
     reference
 }
 
+/// Get the text of a citation, for parsing
+///
+/// The text within inline formatting is joined as it is, so that markup within
+/// a word (e.g. `<italic>Guideline</italic>s`) does not split it. The text of
+/// each bibliographic field (e.g. `<surname>` and `<given-names>`) is kept
+/// apart, because a structured citation may have no whitespace between them,
+/// but not from punctuation that surrounds the field.
+///
+/// People other than authors are left out, because names parsed from the text
+/// are taken to be those of the authors.
+fn citation_text(node: &Node) -> String {
+    fn collect(node: &Node, text: &mut String) {
+        for child in node.children() {
+            if child.is_text() {
+                text.push_str(child.text().unwrap_or_default());
+            } else if child.has_tag_name("person-group")
+                && !matches!(
+                    PersonGroupRole::parse(child.attribute("person-group-type")),
+                    Some((PersonGroupRole::Authors, ..))
+                )
+            {
+                continue;
+            } else if child.is_element() {
+                let is_field = !matches!(
+                    child.tag_name().name(),
+                    "bold"
+                        | "italic"
+                        | "monospace"
+                        | "named-content"
+                        | "overline"
+                        | "roman"
+                        | "sans-serif"
+                        | "sc"
+                        | "styled-content"
+                        | "sub"
+                        | "sup"
+                        | "underline"
+                );
+                if is_field {
+                    text.push(' ');
+                }
+                collect(&child, text);
+                if is_field {
+                    text.push(' ');
+                }
+            }
+        }
+    }
+
+    let mut text = String::new();
+    collect(node, &mut text);
+
+    let mut normalized = String::with_capacity(text.len());
+    for word in text.split_whitespace() {
+        let is_punctuation = word.starts_with([',', '.', ';', ':', ')']);
+        if !normalized.is_empty() && !is_punctuation && !normalized.ends_with('(') {
+            normalized.push(' ');
+        }
+        normalized.push_str(word);
+    }
+    normalized
+}
+
+/// The role of the people in a `<person-group>`, as far as a [`Reference`] can
+/// represent it
+#[derive(Clone, Copy, PartialEq, Eq)]
+enum PersonGroupRole {
+    Authors,
+    Editors,
+}
+
+impl PersonGroupRole {
+    /// Parse a `person-group-type`, which is author when absent
+    ///
+    /// Returns the role, and whether the type is exactly that role rather than
+    /// a more specific variant of it (e.g. `guest-editor`). Other types, such
+    /// as `translator` and `inventor`, have no equivalent.
+    fn parse(value: Option<&str>) -> Option<(Self, bool)> {
+        Some(match value {
+            None | Some("author") => (Self::Authors, true),
+            Some("allauthors" | "contrib-author") => (Self::Authors, false),
+            Some("editor") => (Self::Editors, true),
+            Some("guest-editor") => (Self::Editors, false),
+            Some(_) => return None,
+        })
+    }
+}
+
 /// Decode one child element of a citation element into [`CitationFields`]
 fn decode_citation_child(
     path: &str,
@@ -372,22 +455,19 @@ fn decode_citation_child(
     let tag = child.tag_name().name();
     let child_path = &extend_path(path, tag);
 
-    let text = || child.text().map(str::trim).filter(|text| !text.is_empty());
+    let text = || non_empty_text_deep(child);
 
     match tag {
-        "name" | "string-name" => {
-            let person = decode_person(child_path, child, losses);
-            fields.authors.push(Author::Person(person));
+        _ if is_name_element(tag) => {
+            if let Some(person) = decode_person_name(child_path, child, losses) {
+                fields.authors.push(Author::Person(person));
+            }
         }
         "collab" => {
             // A collaboration is a group, rather than a person, that authored
             // the work
-            record_attrs_lost(child_path, child, [], losses);
-            if let Some(name) = text() {
-                fields.authors.push(Author::Organization(Organization {
-                    name: Some(name.to_string()),
-                    ..Default::default()
-                }));
+            if let Some(author) = decode_citation_collab(child_path, child, losses) {
+                fields.authors.push(author);
             }
         }
         "etal" => {
@@ -397,44 +477,56 @@ fn decode_citation_child(
             losses.add(child_path.clone());
         }
         "person-group" => {
-            record_attrs_lost(child_path, child, ["person-group-type"], losses);
+            // People in a role that a reference has no property for are lost,
+            // rather than being made authors or editors
+            let Some((role, exact)) = PersonGroupRole::parse(child.attribute("person-group-type"))
+            else {
+                record_node_lost(path, child, losses);
+                return;
+            };
+            record_attrs_lost(
+                child_path,
+                child,
+                exact.then_some("person-group-type"),
+                losses,
+            );
 
-            let is_authors = matches!(child.attribute("person-group-type"), Some("author") | None);
             for grandchild in child.children() {
                 if !grandchild.is_element() {
                     continue;
                 }
-                match grandchild.tag_name().name() {
-                    "name" | "string-name" => {
-                        let grandchild_path =
-                            &extend_path(child_path, grandchild.tag_name().name());
-                        let person = decode_person(grandchild_path, &grandchild, losses);
-                        if is_authors {
-                            fields.authors.push(Author::Person(person))
-                        } else {
-                            fields.editors.push(person)
+                let grandchild_tag = grandchild.tag_name().name();
+                let grandchild_path = &extend_path(child_path, grandchild_tag);
+                match grandchild_tag {
+                    _ if is_name_element(grandchild_tag) => {
+                        let Some(person) = decode_person_name(grandchild_path, &grandchild, losses)
+                        else {
+                            continue;
+                        };
+                        match role {
+                            PersonGroupRole::Authors => fields.authors.push(Author::Person(person)),
+                            PersonGroupRole::Editors => fields.editors.push(person),
                         }
                     }
-                    "collab" if is_authors => {
-                        let grandchild_path = &extend_path(child_path, "collab");
-                        record_attrs_lost(grandchild_path, &grandchild, [], losses);
-                        if let Some(name) =
-                            grandchild.text().map(str::trim).filter(|it| !it.is_empty())
+                    "collab" if role == PersonGroupRole::Authors => {
+                        if let Some(author) =
+                            decode_citation_collab(grandchild_path, &grandchild, losses)
                         {
-                            fields.authors.push(Author::Organization(Organization {
-                                name: Some(name.to_string()),
-                                ..Default::default()
-                            }));
+                            fields.authors.push(author);
                         }
                     }
-                    "etal" => losses.add(extend_path(child_path, "etal")),
+                    "etal" => losses.add(grandchild_path.clone()),
                     _ => record_node_lost(child_path, &grandchild, losses),
                 }
             }
         }
-        "article-title" | "trans-title" => {
+        "article-title" => {
             record_attrs_lost(child_path, child, [], losses);
             fields.title = Some(decode_inlines(child_path, child.children(), losses));
+        }
+        "trans-title" => {
+            record_attrs_lost(child_path, child, [], losses);
+            fields.trans_title = Some(decode_inlines(child_path, child.children(), losses));
         }
         "chapter-title" | "part-title" | "data-title" => {
             record_attrs_lost(child_path, child, [], losses);
@@ -450,7 +542,7 @@ fn decode_citation_child(
             fields.date = child
                 .attribute("iso-8601-date")
                 .map(String::from)
-                .or_else(|| text().map(String::from))
+                .or_else(&text)
                 .map(Date::new);
         }
         "volume" | "issue" | "fpage" | "lpage" | "page-range" | "edition" | "publisher-name"
@@ -458,14 +550,14 @@ fn decode_citation_child(
             record_attrs_lost(child_path, child, [], losses);
             let Some(value) = text() else { return };
             match tag {
-                "volume" => fields.volume_number = Some(integer_or_string(value)),
-                "issue" => fields.issue_number = Some(integer_or_string(value)),
-                "fpage" => fields.page_start = Some(integer_or_string(value)),
-                "lpage" => fields.page_end = Some(integer_or_string(value)),
-                "page-range" => fields.pagination = Some(value.to_string()),
-                "edition" => fields.version = Some(StringOrNumber::String(value.to_string())),
-                "publisher-name" => fields.publisher_name = Some(value.to_string()),
-                _ => fields.publisher_location = Some(value.to_string()),
+                "volume" => fields.volume_number = Some(integer_or_string(&value)),
+                "issue" => fields.issue_number = Some(integer_or_string(&value)),
+                "fpage" => fields.page_start = Some(integer_or_string(&value)),
+                "lpage" => fields.page_end = Some(integer_or_string(&value)),
+                "page-range" => fields.pagination = Some(value),
+                "edition" => fields.version = Some(StringOrNumber::String(value)),
+                "publisher-name" => fields.publisher_name = Some(value),
+                _ => fields.publisher_location = Some(value),
             }
         }
         "elocation-id" => {
@@ -477,7 +569,7 @@ fn decode_citation_child(
                     &mut fields.identifiers,
                     Some("elocation-id".to_string()),
                     None,
-                    value,
+                    &value,
                 );
             }
         }
@@ -486,13 +578,13 @@ fn decode_citation_child(
             let Some(value) = text() else { return };
             match child.attribute("pub-id-type") {
                 Some(id_type) if id_type.eq_ignore_ascii_case("doi") => {
-                    fields.doi = Some(value.to_string())
+                    fields.doi = Some(strip_doi_prefix(&value))
                 }
                 property_id => push_identifier(
                     &mut fields.identifiers,
                     property_id.map(String::from),
                     child.attribute("specific-use").map(String::from),
-                    value,
+                    &value,
                 ),
             }
         }
@@ -504,7 +596,7 @@ fn decode_citation_child(
                 .map(str::trim)
                 .filter(|url| !url.is_empty())
                 .map(String::from)
-                .or_else(|| text().map(String::from));
+                .or_else(text);
             if fields.url.is_none() {
                 fields.url = url;
             }
@@ -533,7 +625,7 @@ fn decode_citation_child(
 /// volume and issue of the journal that an article appeared in, is placed on
 /// `isPartOf`. When the citation is of a whole work, so that `<source>` is the
 /// title of the reference itself, that metadata stays on the reference.
-fn assemble_reference(id: &str, fields: CitationFields) -> Reference {
+fn assemble_reference(id: Option<&str>, fields: CitationFields) -> Reference {
     let CitationFields {
         work_type,
         doi,
@@ -553,6 +645,7 @@ fn assemble_reference(id: &str, fields: CitationFields) -> Reference {
         publisher_name,
         publisher_location,
         identifiers,
+        trans_title: _,
     } = fields;
 
     let authors = (!authors.is_empty()).then_some(authors);
@@ -572,7 +665,7 @@ fn assemble_reference(id: &str, fields: CitationFields) -> Reference {
     });
 
     let mut reference = Reference {
-        id: Some(id.into()),
+        id: id.map(String::from),
         work_type,
         doi,
         authors,
@@ -691,34 +784,17 @@ fn fill_missing(reference: &mut Reference, parsed: Reference) {
     }
 }
 
-/// Decode a `<name>` or `<string-name>`
-fn decode_person(path: &str, node: &Node, losses: &mut DecodeContext) -> Person {
-    record_attrs_lost(path, node, [], losses);
-
-    let mut family_names = Vec::new();
-    let mut given_names = Vec::new();
-
-    for child in node.children() {
-        let tag = child.tag_name().name();
-        if tag == "surname" {
-            if let Some(value) = child.text() {
-                family_names.push(value.to_string());
-            }
-        } else if tag == "given-names" {
-            if let Some(value) = child.text() {
-                given_names.append(&mut split_given_names(value));
-            }
-        } else {
-            record_node_lost(path, &child, losses);
-        }
+/// Decode a `<collab>` in a citation as an author
+///
+/// The members of a collaboration are not part of a citation, so are lost.
+fn decode_citation_collab(path: &str, node: &Node, losses: &mut DecodeContext) -> Option<Author> {
+    let (name, groups) = decode_collab(path, node, losses);
+    for group in groups {
+        record_node_lost(path, &group, losses);
     }
 
-    let family_names = (!family_names.is_empty()).then_some(family_names);
-    let given_names = (!given_names.is_empty()).then_some(given_names);
-
-    Person {
-        family_names,
-        given_names,
+    Some(Author::Organization(Organization {
+        name: Some(name?),
         ..Default::default()
-    }
+    }))
 }

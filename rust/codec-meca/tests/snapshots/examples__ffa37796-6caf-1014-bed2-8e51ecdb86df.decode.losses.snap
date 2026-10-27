@@ -1,7 +1,9 @@
 ---
 source: rust/codec-meca/tests/examples.rs
+assertion_line: 42
 expression: info.losses
 ---
+//article/@specific-use: 1
 //article/back/ack/label: 1
 //article/back/glossary: 1
 //article/back/ref-list/label: 1

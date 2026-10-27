@@ -1439,7 +1439,7 @@ expression: article
         "type": "Date",
         "value": "2004"
       },
-      "text": "Courtenay WR Jr , Williams JD ( 2004 ). Snakeheads (Pisces, Channidae): A biological synopsis and risk assessment. Circular 1251. US Geological Survey, Reston, VA, 143 pp."
+      "text": "Courtenay WR Jr, Williams JD (2004). Snakeheads (Pisces, Channidae): A biological synopsis and risk assessment. Circular 1251. US Geological Survey, Reston, VA, 143 pp."
     },
     {
       "type": "Reference",
@@ -20602,6 +20602,9 @@ expression: article
       "value": "Special subsection: Ecology and evolution"
     }
   ],
+  "genre": [
+    "research-article"
+  ],
   "keywords": [
     "fish‐tetrapod transition",
     "metalocomotor propulsion",
@@ -20708,6 +20711,7 @@ expression: article
   "version": "1",
   "pageStart": 849,
   "pageEnd": 878,
+  "inLanguage": "en",
   "publicationDates": [
     {
       "type": "epub",

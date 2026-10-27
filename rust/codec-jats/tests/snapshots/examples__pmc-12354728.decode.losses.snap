@@ -2,25 +2,24 @@
 source: rust/codec-jats/tests/examples.rs
 expression: info.losses
 ---
+//article/back/notes/@notes-type: 1
 //article/back/notes/notes: 1
 //article/back/ref-list/@id: 1
 //article/back/ref-list/ref/element-citation/@id: 43
 //article/back/ref-list/ref/element-citation/article-title/italic/@toggle: 16
 //article/back/ref-list/ref/element-citation/person-group/etal: 18
-//article/back/ref-list/ref/element-citation/person-group/name/@name-style: 89
 //article/back/ref-list/ref/element-citation/pub-id/@assigning-authority: 18
 //article/back/ref-list/ref/mixed-citation/bold: 4
 //article/back/ref-list/ref/mixed-citation/italic: 15
 //article/back/ref-list/ref/mixed-citation/pub-id/@assigning-authority: 2
 //article/back/ref-list/title: 1
-//article/body/sec/p/@id: 4
 //article/body/sec/p/italic/@toggle: 14
 //article/body/sec/p/supplementary-material/@content-type: 1
 //article/body/sec/p/supplementary-material/@orientation: 1
 //article/body/sec/p/supplementary-material/@position: 1
 //article/body/sec/p/supplementary-material/media/@orientation: 1
 //article/body/sec/p/supplementary-material/media/@position: 1
-//article/body/sec/sec/p/@id: 14
+//article/body/sec/sec/p/@id: 4
 //article/body/sec/sec/p/fig/@orientation: 2
 //article/body/sec/sec/p/fig/@position: 2
 //article/body/sec/sec/p/fig/graphic/@id: 2
@@ -31,7 +30,6 @@ expression: info.losses
 //article/body/sec/sec/p/table-wrap/@orientation: 2
 //article/body/sec/sec/p/table-wrap/@position: 2
 //article/body/sec/sec/p/table-wrap/caption/p/italic/@toggle: 16
-//article/front/article-meta/abstract/p/@id: 1
 //article/front/article-meta/article-version/@article-version-type: 1
 "//article/front/article-meta/custom-meta-group/custom-meta[meta-name='issue-copyright-statement']": 1
 "//article/front/article-meta/custom-meta-group/custom-meta[meta-name='pmc-prop-has-pdf']": 1
@@ -52,4 +50,5 @@ expression: info.losses
 "//article/front/article-meta/custom-meta-group/custom-meta[meta-name='pmc-status-released']": 1
 //article/front/article-meta/kwd-group/@kwd-group-type: 1
 //article/front/article-meta/kwd-group/@lang: 1
+//article/front/article-meta/kwd-group/title: 2
 //article/processing-meta: 1
