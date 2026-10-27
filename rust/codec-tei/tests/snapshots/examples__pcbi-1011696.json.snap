@@ -9340,13 +9340,6 @@ expression: article
       ]
     }
   ],
-  "identifiers": [
-    {
-      "type": "PropertyValue",
-      "propertyId": "MD5",
-      "value": "C3A1B3EF72AD4AA6ADA0299963E736E3"
-    }
-  ],
   "funders": [
     {
       "type": "Organization",

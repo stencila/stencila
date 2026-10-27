@@ -8,8 +8,8 @@ use stencila_codec::{
     stencila_schema::{
         Article, Author, Block, CreativeWorkType, CreativeWorkVariant, Figure,
         GrantOrMonetaryGrant, Inline, InspectNode, IntegerOrString, MathBlock, Node, Note,
-        NoteType, Paragraph, PropertyValueOrString, Reference, Section, SectionType, Table,
-        TableCellType,
+        NoteType, Paragraph, PersonOrOrganization, PostalAddressOrString, PropertyValueOrString,
+        Reference, Section, SectionType, Table, TableCellType,
     },
 };
 use stencila_codec_text_trait::TextCodec;
@@ -1057,27 +1057,39 @@ fn reference_urls() -> Result<()> {
 
 #[test]
 fn reference_published_date() -> Result<()> {
-    for (dates, expected) in [
+    // An earlier date of the same priority that differs is lost
+    let overwritten: &[&str] = &["//TEI/text/back/listBibl/biblStruct/monogr/imprint/date"];
+    for (dates, expected, lost) in [
         (
             r#"<date type="published" when="2015"/><date when="2023"/>"#,
             "2015",
+            &[][..],
         ),
         (
             r#"<date when="2023"/><date type="published" when="2015"/>"#,
             "2015",
+            &[],
         ),
         (
             r#"<date type="published">2015</date><date type="accessed" when="2023"/>"#,
             "2015",
+            &[],
         ),
-        (r#"<date when="2015"/><date when="2023"/>"#, "2023"),
+        (
+            r#"<date when="2015"/><date when="2023"/>"#,
+            "2023",
+            overwritten,
+        ),
+        (r#"<date when="2015"/><date when="2015"/>"#, "2015", &[]),
         (
             r#"<date when="2023"/><date type="published" when=" "/>"#,
             "2023",
+            &[],
         ),
         (
             r#"<date type="published" when="2015"/><date type="published" when=" "/>"#,
             "2015",
+            &[],
         ),
     ] {
         let (article, losses) = decode_article(&tei(
@@ -1095,7 +1107,7 @@ fn reference_published_date() -> Result<()> {
             Some(expected),
             "{dates}"
         );
-        assert!(labels(&losses).is_empty(), "{:?}", labels(&losses));
+        assert_eq!(labels(&losses), lost, "{dates}");
     }
 
     Ok(())
@@ -2679,6 +2691,242 @@ fn back_matter_divisions_are_nested() -> Result<()> {
 }
 
 #[test]
+fn container_metadata_is_on_the_container() -> Result<()> {
+    let (article, ..) = decode_article(&tei(
+        "",
+        "",
+        r#"<listBibl><biblStruct>
+            <analytic><author><persName><surname>ChapterAuthor</surname></persName></author><title>Chapter</title></analytic>
+            <monogr><author><persName><surname>BookAuthor</surname></persName></author><title level="m">Book</title><idno type="DOI">10.1234/book</idno></monogr>
+        </biblStruct><biblStruct>
+            <monogr><author><persName><surname>BookAuthor</surname></persName></author><title level="m">Book</title><idno type="DOI">10.1234/book</idno></monogr>
+        </biblStruct></listBibl>"#,
+    ))?;
+
+    let Some([chapter, book]) = article.references.as_deref() else {
+        bail!("expected two references")
+    };
+    assert_eq!(chapter.authors.as_ref().map(Vec::len), Some(1));
+    assert_eq!(chapter.doi, None);
+    let Some(container) = &chapter.is_part_of else {
+        bail!("expected a container")
+    };
+    assert_eq!(container.authors.as_ref().map(Vec::len), Some(1));
+    assert_eq!(container.doi.as_deref(), Some("10.1234/book"));
+
+    // Without an analytic title, the monograph is the cited work
+    assert_eq!(book.authors.as_ref().map(Vec::len), Some(1));
+    assert_eq!(book.doi.as_deref(), Some("10.1234/book"));
+
+    Ok(())
+}
+
+#[test]
+fn only_the_first_personal_name_is_decoded() -> Result<()> {
+    let (article, losses) = decode_article(&tei(
+        r#"<fileDesc><sourceDesc><biblStruct><analytic>
+        <author><persName><forename type="first">Jane</forename><surname>Doe</surname></persName><persName/></author>
+        <author><persName><surname>Roe</surname></persName><persName><surname>Ρόη</surname></persName></author>
+        </analytic></biblStruct></sourceDesc></fileDesc>"#,
+        "",
+        "",
+    ))?;
+
+    let Some([Author::Person(doe), Author::Person(roe)]) = article.authors.as_deref() else {
+        bail!("expected two people: {:?}", article.authors)
+    };
+    assert_eq!(doe.family_names, Some(vec!["Doe".to_string()]));
+    assert_eq!(roe.family_names, Some(vec!["Roe".to_string()]));
+    assert!(
+        labels(&losses)
+            .contains(&"//TEI/teiHeader/fileDesc/sourceDesc/biblStruct/analytic/author/persName")
+    );
+
+    Ok(())
+}
+
+#[test]
+fn organization_author_keeps_emails() -> Result<()> {
+    let (article, losses) = decode_article(&tei(
+        r#"<fileDesc><sourceDesc><biblStruct><analytic>
+        <author><orgName type="consortium">ENCODE Consortium</orgName><orgName>Other</orgName>
+            <email>enc@example.org</email>
+            <affiliation key="aff0"><orgName type="institution">Stanford</orgName></affiliation></author>
+        </analytic></biblStruct></sourceDesc></fileDesc>"#,
+        "",
+        "",
+    ))?;
+
+    let Some([Author::Organization(organization)]) = article.authors.as_deref() else {
+        bail!("expected an organization: {:?}", article.authors)
+    };
+    assert_eq!(organization.name.as_deref(), Some("ENCODE Consortium"));
+    let emails = organization
+        .options
+        .contact_points
+        .iter()
+        .flatten()
+        .flat_map(|point| point.emails.iter().flatten())
+        .collect::<Vec<_>>();
+    assert_eq!(emails, vec!["enc@example.org"]);
+
+    let labels = labels(&losses);
+    for label in [
+        "//TEI/teiHeader/fileDesc/sourceDesc/biblStruct/analytic/author/affiliation",
+        "//TEI/teiHeader/fileDesc/sourceDesc/biblStruct/analytic/author/orgName",
+    ] {
+        assert!(labels.contains(&label), "{label} not in {labels:?}");
+    }
+
+    Ok(())
+}
+
+#[test]
+fn reference_metadata_is_not_overwritten_silently() -> Result<()> {
+    let (article, losses) = decode_article(&tei(
+        "",
+        "",
+        r#"<listBibl><biblStruct>
+            <monogr><title>Collected works</title><imprint><publisher>Press</publisher><publisher/><pubPlace>Boston</pubPlace><pubPlace>Berlin</pubPlace></imprint></monogr>
+            <note type="raw_reference">Collected works, second edition</note>
+        </biblStruct></listBibl>"#,
+    ))?;
+
+    let Some([reference]) = article.references.as_deref() else {
+        bail!("expected one reference")
+    };
+    let Some(PersonOrOrganization::Organization(publisher)) = &reference.options.publisher else {
+        bail!("expected a publisher")
+    };
+    assert_eq!(publisher.name.as_deref(), Some("Press"));
+    assert_eq!(reference.options.text, None);
+
+    let labels = labels(&losses);
+    for label in [
+        "//TEI/text/back/listBibl/biblStruct/monogr/imprint/pubPlace",
+        "//TEI/text/back/listBibl/biblStruct/note[@type='raw_reference'] (redundant with fields)",
+    ] {
+        assert!(labels.contains(&label), "{label} not in {labels:?}");
+    }
+
+    Ok(())
+}
+
+#[test]
+fn reference_to_untitled_article_in_journal() -> Result<()> {
+    let (article, ..) = decode_article(&tei(
+        "",
+        "",
+        r#"<listBibl><biblStruct>
+            <analytic><author><persName><surname>Smith</surname></persName></author><title level="a"><hi rend="italic">E. coli</hi> growth</title></analytic>
+            <monogr><title level="j">Nature</title></monogr>
+        </biblStruct><biblStruct>
+            <analytic><author><persName><surname>Smith</surname></persName></author></analytic>
+            <monogr><title level="j">Nature</title><imprint><biblScope unit="volume">409</biblScope><biblScope unit="issue" from="3" to="4"/></imprint></monogr>
+        </biblStruct></listBibl>"#,
+    ))?;
+
+    let Some([titled, untitled]) = article.references.as_deref() else {
+        bail!("expected two references")
+    };
+
+    // The formatting of a title is kept
+    assert!(matches!(
+        titled.title.as_deref().and_then(<[Inline]>::first),
+        Some(Inline::Emphasis(..))
+    ));
+
+    assert_eq!(untitled.work_type, Some(CreativeWorkType::Article));
+    assert_eq!(untitled.title, None);
+    let Some(journal) = &untitled.is_part_of else {
+        bail!("expected a journal")
+    };
+    assert_eq!(journal.work_type, Some(CreativeWorkType::Periodical));
+    assert_eq!(
+        journal.title.as_ref().map(to_text).as_deref(),
+        Some("Nature")
+    );
+    assert_eq!(
+        journal.options.volume_number,
+        Some(IntegerOrString::Integer(409))
+    );
+    assert_eq!(
+        journal.options.issue_number,
+        Some(IntegerOrString::String("3-4".into()))
+    );
+
+    Ok(())
+}
+
+#[test]
+fn header_checksums_funders_and_keywords() -> Result<()> {
+    let (article, losses) = decode_article(&tei(
+        r#"<fileDesc>
+            <titleStmt>
+                <funder>National Science Foundation</funder>
+                <funder><orgName type="abbreviated">NIH</orgName></funder>
+            </titleStmt>
+            <sourceDesc><biblStruct><idno type="MD5">8BC4CB67C6D9E750B2E3370AF72FFB2F</idno></biblStruct></sourceDesc>
+        </fileDesc>
+        <profileDesc><textClass><keywords><term>one</term>, <term>two</term> stray words</keywords></textClass></profileDesc>"#,
+        "",
+        "",
+    ))?;
+
+    assert_eq!(article.options.identifiers, None);
+    let names = article
+        .options
+        .funders
+        .iter()
+        .flatten()
+        .filter_map(|funder| match funder {
+            PersonOrOrganization::Organization(organization) => organization.name.as_deref(),
+            _ => None,
+        })
+        .collect::<Vec<_>>();
+    assert_eq!(names, vec!["National Science Foundation", "NIH"]);
+    assert_eq!(
+        article.options.keywords,
+        Some(vec!["one".to_string(), "two".to_string()])
+    );
+
+    let labels = labels(&losses);
+    for label in [
+        "//TEI/teiHeader/fileDesc/sourceDesc/biblStruct/idno[@type='MD5']",
+        "//TEI/teiHeader/profileDesc/textClass/keywords/text()",
+    ] {
+        assert!(labels.contains(&label), "{label} not in {labels:?}");
+    }
+
+    Ok(())
+}
+
+#[test]
+fn affiliation_with_text_beside_its_name() -> Result<()> {
+    let (article, ..) = decode_article(&tei(
+        r#"<fileDesc><sourceDesc><biblStruct><analytic>
+        <author><persName><surname>Doe</surname></persName><affiliation><orgName>University</orgName>, Boston, USA</affiliation></author>
+        </analytic></biblStruct></sourceDesc></fileDesc>"#,
+        "",
+        "",
+    ))?;
+
+    let Some([Author::Person(doe)]) = article.authors.as_deref() else {
+        bail!("expected a person")
+    };
+    let Some([affiliation]) = doe.affiliations.as_deref() else {
+        bail!("expected an affiliation")
+    };
+    assert_eq!(affiliation.name.as_deref(), Some("University"));
+    assert_eq!(
+        affiliation.options.address,
+        Some(PostalAddressOrString::String("Boston, USA".into()))
+    );
+
+    Ok(())
+}
+
+#[test]
 fn only_funding_organizations_are_grants() -> Result<()> {
     let (article, losses) = decode_article(&tei(
         "",
@@ -2773,6 +3021,29 @@ fn table_cells_with_blocks_spans_and_roles() -> Result<()> {
     for label in [
         "//TEI/text/body/figure/table/row/cell/@rows",
         "//TEI/text/body/figure/table/row/cell/@cols",
+    ] {
+        assert!(labels.contains(&label), "{label} not in {labels:?}");
+    }
+
+    Ok(())
+}
+
+#[test]
+fn smaller_silent_losses_are_recorded() -> Result<()> {
+    let (.., losses) = decode_article(&tei(
+        r#"<fileDesc><sourceDesc><biblStruct><analytic>
+        <author><persName><surname>Smith</surname>, Jr.</persName></author>
+        </analytic></biblStruct></sourceDesc></fileDesc>"#,
+        r#"<p>where <formula xml:id="formula_1">E = mc 2<label>(2)</label></formula> holds.</p>
+        <list type="gloss"><item>Term</item></list>"#,
+        "",
+    ))?;
+
+    let labels = labels(&losses);
+    for label in [
+        "//TEI/teiHeader/fileDesc/sourceDesc/biblStruct/analytic/author/persName/text()",
+        "//TEI/text/body/p/formula/label",
+        "//TEI/text/body/list[@type='gloss']",
     ] {
         assert!(labels.contains(&label), "{label} not in {labels:?}");
     }

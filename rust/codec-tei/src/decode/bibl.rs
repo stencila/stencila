@@ -1,14 +1,18 @@
 use roxmltree::Node;
 
 use stencila_codec::stencila_schema::{
-    Author, CreativeWorkType, Date, Inline, IntegerOrString, Organization, OrganizationOptions,
-    Person, PersonOrOrganization, PostalAddressOrString, Primitive, PropertyValue,
-    PropertyValueOptions, PropertyValueOrString, Reference, ReferenceOptions, shortcuts::t,
+    Author, ContactPoint, CreativeWorkType, Date, Inline, IntegerOrString, Organization,
+    OrganizationOptions, Person, PersonOrOrganization, PostalAddressOrString, Primitive,
+    PropertyValue, PropertyValueOptions, PropertyValueOrString, Reference, ReferenceOptions,
 };
 
 use stencila_codec_utils::{split_given_names, strip_doi_prefix, strip_ror_prefix};
 
-use super::{Context, collapse_whitespace, non_empty_text, path, text::normalize, text_of, xml_id};
+use super::{
+    Context, child, collapse_whitespace, non_empty_text, path,
+    text::{decode_inlines, normalize},
+    text_of, typed_path, xml_id,
+};
 
 /// Decode a `<listBibl>` to a list of [`Reference`]s
 pub(super) fn decode_list_bibl(node: &Node, context: &mut Context) -> Vec<Reference> {
@@ -32,9 +36,12 @@ pub(super) fn decode_list_bibl(node: &Node, context: &mut Context) -> Vec<Refere
 /// when decoding a JATS citation.
 #[derive(Default)]
 struct BiblFields {
-    doi: Option<String>,
-    url: Option<String>,
-    authors: Vec<Author>,
+    /// The fields of the cited work
+    cited: WorkFields,
+    /// The fields of the work that the cited work is part of, if it is
+    container: WorkFields,
+    /// Whether there is an `<analytic>`, even if it has no title
+    has_analytic: bool,
     editors: Vec<Person>,
     date: Option<Date>,
     title: Option<Vec<Inline>>,
@@ -44,8 +51,35 @@ struct BiblFields {
     scope: Scope,
     publisher_name: Option<String>,
     publisher_location: Option<String>,
-    identifiers: Option<Vec<PropertyValueOrString>>,
     text: Option<String>,
+}
+
+/// The fields of a work that the `<analytic>` and the `<monogr>` of a
+/// `<biblStruct>` can each have
+#[derive(Default)]
+struct WorkFields {
+    authors: Vec<Author>,
+    doi: Option<String>,
+    url: Option<String>,
+    identifiers: Option<Vec<PropertyValueOrString>>,
+}
+
+/// Which of the works of a `<biblStruct>` a field is of
+#[derive(Clone, Copy)]
+enum Work {
+    /// The cited work
+    Cited,
+    /// The work that the cited work is part of
+    Container,
+}
+
+impl BiblFields {
+    fn work(&mut self, work: Work) -> &mut WorkFields {
+        match work {
+            Work::Cited => &mut self.cited,
+            Work::Container => &mut self.container,
+        }
+    }
 }
 
 /// The bibliographic level of the title of the `<monogr>` of a `<biblStruct>`
@@ -74,7 +108,8 @@ enum SourceLevel {
 /// | `monogr/title`, with no analytic title | `title`                                |
 /// | `monogr/title[@level='j']`             | `workType` article, part of a periodical |
 /// | `monogr/title[@level='m']`             | `workType` chapter, part of a book (unless of a meeting) |
-/// | `author`                               | `authors`                              |
+/// | `analytic/author`                      | `authors`                              |
+/// | `monogr/author`, `idno`, `ptr`         | container's, with an analytic title, else the reference's |
 /// | `editor`                               | `editors`, of the container for a book |
 /// | `biblScope[@unit='volume' or 'issue']` | container's, else the reference's      |
 /// | `biblScope[@unit='page']`              | `pageStart`, `pageEnd`                 |
@@ -84,54 +119,89 @@ enum SourceLevel {
 /// | other `idno`s                          | `identifiers`, keyed by their type     |
 /// | `ptr/@target`, `ref[@type='url']` (its target, else its text) | `url`, the first |
 /// | `note[@type='raw_reference']`          | `text`, only if there is no title      |
+///
+/// A raw reference that is not kept, because the reference has a title, is
+/// recorded as lost (counted rather than reported for each reference).
 pub(super) fn decode_bibl_struct(node: &Node, context: &mut Context) -> Reference {
     context.lost_attrs(node, &["id", "coords", "status", "type"]);
+
+    // The `<monogr>` is of a container only when both it and the `<analytic>`
+    // have a title, as in `assemble_reference`
+    let has_title = |tag: &str| {
+        child(node, tag).is_some_and(|work| {
+            work.children()
+                .any(|child| child.has_tag_name("title") && non_empty_text(&child).is_some())
+        })
+    };
+    let monogr_work = if has_title("analytic") && has_title("monogr") {
+        Work::Container
+    } else {
+        Work::Cited
+    };
 
     let mut fields = BiblFields::default();
     for child in node.children().filter(Node::is_element) {
         match child.tag_name().name() {
             "analytic" => decode_analytic(&child, &mut fields, context),
-            "monogr" => decode_monogr(&child, &mut fields, context),
-            "idno" => decode_idno(&child, &mut fields.doi, &mut fields.identifiers, context),
-            "ptr" => decode_url(&child, &mut fields.url, context),
-            "ref" if child.attribute("type") == Some("url") => {
-                decode_url(&child, &mut fields.url, context)
-            }
+            "monogr" => decode_monogr(&child, &mut fields, monogr_work, context),
+            "idno" | "ptr" | "ref" => decode_work_child(&child, &mut fields.cited, context),
             "note" if child.attribute("type") == Some("raw_reference") => {
-                fields.text = non_empty_text(&child);
+                if fields.text.is_some() {
+                    context.lost(&child);
+                } else {
+                    fields.text = non_empty_text(&child);
+                }
             }
-            "note" => context.lost_label(note_label(&child)),
+            "note" => context.lost_label(typed_path(&child, "type")),
             _ => context.lost(&child),
         }
     }
 
+    let has_text = fields.text.is_some();
     let reference = assemble_reference(xml_id(node).map(String::from), fields);
+    if has_text && reference.options.text.is_none() {
+        context.lost_label(format!(
+            "{}/note[@type='raw_reference'] (redundant with fields)",
+            path(node)
+        ));
+    }
+
     context.located(node, reference)
+}
+
+/// Decode a child of a `<biblStruct>`, `<analytic>` or `<monogr>` that is an
+/// identifier or URL of a work, recording any other child as lost
+fn decode_work_child(node: &Node, work: &mut WorkFields, context: &mut Context) {
+    match node.tag_name().name() {
+        "idno" => decode_idno(node, &mut work.doi, &mut work.identifiers, context),
+        "ptr" => decode_url(node, &mut work.url, context),
+        "ref" if node.attribute("type") == Some("url") => decode_url(node, &mut work.url, context),
+        _ => context.lost(node),
+    }
 }
 
 /// Decode the `<analytic>` of a `<biblStruct>`: the cited work when it is a
 /// part of another work, such as an article in a journal
 fn decode_analytic(node: &Node, fields: &mut BiblFields, context: &mut Context) {
     context.lost_attrs(node, &[]);
+    fields.has_analytic = true;
 
     for child in node.children().filter(Node::is_element) {
         match child.tag_name().name() {
             "title" => decode_title(&child, &mut fields.title, context),
-            "author" => fields.authors.extend(decode_author(&child, context)),
+            "author" => fields.cited.authors.extend(decode_author(&child, context)),
             "editor" => fields.editors.extend(decode_editor(&child, context)),
-            "idno" => decode_idno(&child, &mut fields.doi, &mut fields.identifiers, context),
-            "ptr" => decode_url(&child, &mut fields.url, context),
-            "ref" if child.attribute("type") == Some("url") => {
-                decode_url(&child, &mut fields.url, context)
-            }
-            _ => context.lost(&child),
+            _ => decode_work_child(&child, &mut fields.cited, context),
         }
     }
 }
 
 /// Decode the `<monogr>` of a `<biblStruct>`: the work that the cited work is
 /// part of, or the cited work itself when there is no `<analytic>`
-fn decode_monogr(node: &Node, fields: &mut BiblFields, context: &mut Context) {
+///
+/// The authors, identifiers and URLs of the `<monogr>` are of the work given
+/// by `work`, because they are of the container only when there is one.
+fn decode_monogr(node: &Node, fields: &mut BiblFields, work: Work, context: &mut Context) {
     context.lost_attrs(node, &[]);
 
     for child in node.children().filter(Node::is_element) {
@@ -149,13 +219,12 @@ fn decode_monogr(node: &Node, fields: &mut BiblFields, context: &mut Context) {
                 };
                 decode_title(&child, &mut fields.source, context);
             }
-            "author" => fields.authors.extend(decode_author(&child, context)),
+            "author" => fields
+                .work(work)
+                .authors
+                .extend(decode_author(&child, context)),
             "editor" => fields.editors.extend(decode_editor(&child, context)),
-            "idno" => decode_idno(&child, &mut fields.doi, &mut fields.identifiers, context),
-            "ptr" => decode_url(&child, &mut fields.url, context),
-            "ref" if child.attribute("type") == Some("url") => {
-                decode_url(&child, &mut fields.url, context)
-            }
+            "idno" | "ptr" | "ref" => decode_work_child(&child, fields.work(work), context),
             "meeting" => {
                 // The name and place of a meeting has nowhere to go other than
                 // the title of the proceedings, which GROBID gives separately
@@ -171,7 +240,9 @@ fn decode_monogr(node: &Node, fields: &mut BiblFields, context: &mut Context) {
 /// Decode the `<imprint>` of a `<monogr>`
 ///
 /// Prefer a publication date to other dates, retaining the last non-empty
-/// date when there is more than one with the same priority.
+/// date when there is more than one with the same priority, and recording an
+/// earlier, different one as lost. Only the first publisher and place of
+/// publication are kept.
 fn decode_imprint(node: &Node, fields: &mut BiblFields, context: &mut Context) {
     context.lost_attrs(node, &[]);
 
@@ -187,23 +258,40 @@ fn decode_imprint(node: &Node, fields: &mut BiblFields, context: &mut Context) {
                     } else {
                         &mut fallback_date
                     };
-                    *target = Some(Date::new(date));
+                    if let Some((previous, element)) = target.replace((date.clone(), child))
+                        && previous != date
+                    {
+                        context.lost(&element);
+                    }
                 }
             }
             "publisher" => {
                 context.lost_attrs(&child, &[]);
-                fields.publisher_name = non_empty_text(&child);
+                keep_first(&mut fields.publisher_name, &child, context);
             }
             "pubPlace" => {
                 context.lost_attrs(&child, &[]);
-                fields.publisher_location = non_empty_text(&child);
+                keep_first(&mut fields.publisher_location, &child, context);
             }
             _ => context.lost(&child),
         }
     }
 
-    if let Some(date) = published_date.or(fallback_date) {
-        fields.date = Some(date);
+    if let Some((date, ..)) = published_date.or(fallback_date) {
+        fields.date = Some(Date::new(date));
+    }
+}
+
+/// Keep the text of an element in a field, unless it is empty or the field
+/// already has text, in which case different text is recorded as lost
+fn keep_first(field: &mut Option<String>, node: &Node, context: &mut Context) {
+    let Some(text) = non_empty_text(node) else {
+        return;
+    };
+    match field {
+        None => *field = Some(text),
+        Some(kept) if *kept != text => context.lost(node),
+        Some(..) => {}
     }
 }
 
@@ -242,19 +330,23 @@ pub(super) fn decode_bibl_scope(node: &Node, scope: &mut Scope, context: &mut Co
         }
     };
 
+    // A volume or issue is in the text or, if there is none, in `from` and
+    // `to` (e.g. a combined issue "3-4")
+    let number = text.clone().or_else(|| match (from, to) {
+        (Some(from), Some(to)) if from != to => Some([from, "-", to].concat()),
+        (Some(from), _) => Some(from.to_string()),
+        (None, to) => to.map(String::from),
+    });
+
     match unit {
-        Some("volume") => set(&mut scope.volume_number, text.as_deref()),
-        Some("issue") => set(&mut scope.issue_number, text.as_deref()),
+        Some("volume") => set(&mut scope.volume_number, number.as_deref()),
+        Some("issue") => set(&mut scope.issue_number, number.as_deref()),
         Some("page") => {
             set(&mut scope.page_start, start);
             set(&mut scope.page_end, end);
         }
         _ => {
-            context.lost_label(format!(
-                "{}[@unit='{}']",
-                path(node),
-                unit.unwrap_or_default()
-            ));
+            context.lost_label(typed_path(node, "unit"));
             return;
         }
     }
@@ -265,20 +357,22 @@ pub(super) fn decode_bibl_scope(node: &Node, scope: &mut Scope, context: &mut Co
 /// Decode a `<title>` to inlines, if it has any text
 ///
 /// A title that is not the main title (e.g. `type="sub"`) when there already is
-/// one is recorded as lost.
+/// one is recorded as lost. Whether a title is kept is decided before its
+/// content is decoded, so that nothing within it, such as a footnote, is
+/// decoded only to be dropped.
 fn decode_title(node: &Node, title: &mut Option<Vec<Inline>>, context: &mut Context) {
     context.lost_attrs(node, &["level", "type"]);
 
-    let Some(text) = non_empty_text(node) else {
+    if non_empty_text(node).is_none() {
         return;
-    };
+    }
 
     if title.is_some() {
         context.lost(node);
         return;
     }
 
-    *title = Some(normalize(vec![t(text)]));
+    *title = Some(normalize(decode_inlines(node.children(), context)));
 }
 
 /// Decode an `<idno>` as a DOI, or as another identifier keyed by its type
@@ -301,6 +395,20 @@ pub(super) fn decode_idno(
     }
 
     push_identifier(identifiers, id_type.map(String::from), &value);
+}
+
+/// Decode an `<idno>` as an identifier keyed by its type, including a DOI,
+/// for things that have no `doi` property
+pub(super) fn decode_idno_as_identifier(
+    node: &Node,
+    identifiers: &mut Option<Vec<PropertyValueOrString>>,
+    context: &mut Context,
+) {
+    let mut doi = None;
+    decode_idno(node, &mut doi, identifiers, context);
+    if let Some(doi) = doi {
+        push_identifier(identifiers, Some("DOI".into()), &doi);
+    }
 }
 
 /// Decode a `<ptr>` or `<ref type="url">` as a URL, keeping the first
@@ -376,12 +484,14 @@ pub(super) fn decode_date(node: &Node, context: &mut Context) -> Option<String> 
 /// article appeared in, is placed on `isPartOf`. When the work is not part of
 /// another (there is no `<analytic>` title) that metadata stays on the
 /// reference. GROBID does not say what type a monograph is, so a reference
-/// with only a monograph title has no `workType`.
+/// with only a monograph title has no `workType`. A reference with an
+/// `<analytic>` but only a journal title is of an article, whose title is not
+/// known, in that journal.
 fn assemble_reference(id: Option<String>, fields: BiblFields) -> Reference {
     let BiblFields {
-        doi,
-        url,
-        authors,
+        cited,
+        container,
+        has_analytic,
         editors,
         date,
         title,
@@ -397,11 +507,9 @@ fn assemble_reference(id: Option<String>, fields: BiblFields) -> Reference {
             },
         publisher_name,
         publisher_location,
-        identifiers,
         text,
     } = fields;
 
-    let authors = (!authors.is_empty()).then_some(authors);
     let editors = (!editors.is_empty()).then_some(editors);
 
     let publisher = (publisher_name.is_some() || publisher_location.is_some()).then(|| {
@@ -417,18 +525,11 @@ fn assemble_reference(id: Option<String>, fields: BiblFields) -> Reference {
 
     let mut reference = Reference {
         id,
-        doi,
-        authors,
         date,
-        url,
-        options: Box::new(ReferenceOptions {
-            page_start,
-            page_end,
-            identifiers,
-            ..Default::default()
-        }),
-        ..Default::default()
+        ..cited.into_reference()
     };
+    reference.options.page_start = page_start;
+    reference.options.page_end = page_end;
 
     match (title, source) {
         // A part of a container work is being referenced
@@ -440,15 +541,37 @@ fn assemble_reference(id: Option<String>, fields: BiblFields) -> Reference {
                 SourceLevel::Monograph => None,
             };
             reference.title = Some(title);
-            reference.is_part_of = Some(Box::new(Reference {
+
+            // Editors of a book edited the container, not the chapter
+            let (container_editors, editors) = if is_book {
+                (editors, None)
+            } else {
+                (None, editors)
+            };
+            reference.options.editors = editors;
+
+            let mut part_of = Reference {
                 work_type: Some(match source_level {
                     SourceLevel::Journal => CreativeWorkType::Periodical,
                     SourceLevel::Monograph => CreativeWorkType::Book,
                 }),
                 title: Some(source),
+                ..container.into_reference()
+            };
+            part_of.options.editors = container_editors;
+            part_of.options.publisher = publisher;
+            part_of.options.volume_number = volume_number;
+            part_of.options.issue_number = issue_number;
+            reference.is_part_of = Some(Box::new(part_of));
+        }
+        // An article, without a title, in a journal is being referenced
+        (None, Some(source)) if has_analytic && source_level == SourceLevel::Journal => {
+            reference.work_type = Some(CreativeWorkType::Article);
+            reference.options.editors = editors;
+            reference.is_part_of = Some(Box::new(Reference {
+                work_type: Some(CreativeWorkType::Periodical),
+                title: Some(source),
                 options: Box::new(ReferenceOptions {
-                    // Editors of a book edited the container, not the chapter
-                    editors: if is_book { editors.clone() } else { None },
                     publisher,
                     volume_number,
                     issue_number,
@@ -456,9 +579,6 @@ fn assemble_reference(id: Option<String>, fields: BiblFields) -> Reference {
                 }),
                 ..Default::default()
             }));
-            if !is_book {
-                reference.options.editors = editors;
-            }
         }
         // A whole work is being referenced
         (title, source) => {
@@ -479,11 +599,29 @@ fn assemble_reference(id: Option<String>, fields: BiblFields) -> Reference {
     reference
 }
 
+impl WorkFields {
+    /// Create a reference to a work with these fields
+    fn into_reference(self) -> Reference {
+        Reference {
+            authors: (!self.authors.is_empty()).then_some(self.authors),
+            doi: self.doi,
+            url: self.url,
+            options: Box::new(ReferenceOptions {
+                identifiers: self.identifiers,
+                ..Default::default()
+            }),
+            ..Default::default()
+        }
+    }
+}
+
 /// Decode an `<author>` to an [`Author`]
 ///
 /// A person's names are in `<persName>`, along with their `<email>`, ORCID
-/// (`<idno type="ORCID">`) and `<affiliation>`s. An author with no personal
-/// name but an `<orgName>` is an organization, such as a consortium.
+/// (`<idno type="ORCID">`) and `<affiliation>`s. Only the first `<persName>`
+/// with a name is decoded: others, such as a transliteration, are recorded as
+/// lost. An author with no personal name but an `<orgName>` is an
+/// organization, such as a consortium.
 /// GROBID's dummy authors are omitted, with each orphan affiliation reported
 /// as a named loss because it has no person to attach to.
 pub(super) fn decode_author(node: &Node, context: &mut Context) -> Option<Author> {
@@ -527,7 +665,7 @@ pub(super) fn decode_author(node: &Node, context: &mut Context) -> Option<Author
         ..Default::default()
     };
     let mut pers_names = Vec::new();
-    let mut org_name = None;
+    let mut org_names = Vec::new();
     for child in node.children() {
         if !child.is_element() {
             context.lost(&child);
@@ -535,8 +673,14 @@ pub(super) fn decode_author(node: &Node, context: &mut Context) -> Option<Author
         }
         match child.tag_name().name() {
             "persName" => {
-                decode_pers_name(&child, &mut person, context);
-                pers_names.push(child);
+                if !has_name(&person) {
+                    decode_pers_name(&child, &mut person, context);
+                    pers_names.push(child);
+                } else if non_empty_text(&child).is_some() {
+                    context.lost(&child);
+                } else {
+                    context.lost_attrs(&child, &[]);
+                }
             }
             "email" => {
                 context.lost_attrs(&child, &[]);
@@ -557,71 +701,59 @@ pub(super) fn decode_author(node: &Node, context: &mut Context) -> Option<Author
                         .to_string()
                 });
             }
-            "idno" => {
-                let mut doi = None;
-                decode_idno(&child, &mut doi, &mut person.options.identifiers, context);
-                if let Some(doi) = doi {
-                    push_identifier(&mut person.options.identifiers, Some("DOI".into()), &doi);
-                }
-            }
+            "idno" => decode_idno_as_identifier(&child, &mut person.options.identifiers, context),
             "affiliation" => person
                 .affiliations
                 .get_or_insert_default()
                 .push(decode_affiliation(&child, context)),
             "orgName" => {
                 context.lost_attrs(&child, &["id", "coords", "type"]);
-                org_name = Some(child);
+                org_names.push(child);
             }
             _ => context.lost(&child),
         }
     }
 
-    let has_name = person.family_names.is_some()
-        || person.given_names.is_some()
-        || person.options.name.is_some();
-
-    // The `orgName` is the name of the author only when it has no personal
+    // An `orgName` is the name of the author only when it has no personal
     // name, so its id and coordinates are only kept then
-    if !has_name {
+    if !has_name(&person) {
         // Any `persName`s are empty, so nothing has their ids or coordinates
         for pers_name in &pers_names {
             context.lost_attrs_named(pers_name, &["id", "coords"]);
         }
 
-        let Some((org_name, name)) = org_name
-            .as_ref()
-            .and_then(|org_name| Some((org_name, non_empty_text(org_name)?)))
-        else {
-            // An author with no name of either kind is not decoded
-            if let Some(org_name) = &org_name {
-                context.lost_attrs_named(org_name, &["id", "coords"]);
+        // The first `orgName` with text is the name, and others are lost
+        let mut org_names = org_names.into_iter();
+        let mut named = None;
+        for org_name in org_names.by_ref() {
+            if let Some(name) = non_empty_text(&org_name) {
+                named = Some((org_name, name));
+                break;
             }
+            context.lost_attrs_named(&org_name, &["id", "coords"]);
+        }
+        for org_name in org_names {
+            context.lost(&org_name);
+        }
+
+        let Some((org_name, name)) = named else {
+            // An author with no name of either kind is not decoded
             context.lost(node);
             return None;
         };
 
         if person.id.is_some() {
-            context.lost_attrs_named(org_name, &["id"]);
+            context.lost_attrs_named(&org_name, &["id"]);
         }
 
-        let organization = context.located(
-            node,
-            Organization {
-                id: person.id.or_else(|| xml_id(org_name).map(String::from)),
-                name: Some(name),
-                options: Box::new(OrganizationOptions {
-                    identifiers: person.options.identifiers,
-                    ..Default::default()
-                }),
-                ..Default::default()
-            },
-        );
-        context.locate(org_name, &organization, Some("orgName"));
+        let organization = person_to_organization(person, &org_name, name, node, context);
+        let organization = context.located(node, organization);
+        context.locate(&org_name, &organization, Some("orgName"));
 
         return Some(Author::Organization(organization));
     }
 
-    if org_name.is_some() {
+    if !org_names.is_empty() {
         context.lost_label([&path(node), "/orgName"].concat());
     }
 
@@ -644,6 +776,58 @@ pub(super) fn decode_author(node: &Node, context: &mut Context) -> Option<Author
     }
 
     Some(Author::Person(person))
+}
+
+/// Whether a person has a name
+fn has_name(person: &Person) -> bool {
+    person.family_names.is_some() || person.given_names.is_some() || person.options.name.is_some()
+}
+
+/// Convert a person, decoded from an `<author>` with no personal name, into
+/// an organization, named by one of its `<orgName>`s
+///
+/// Only what an organization can have is transferred: its emails become a
+/// contact point. A person's affiliations and ORCID have nowhere to go, so
+/// are recorded as lost.
+fn person_to_organization(
+    person: Person,
+    org_name: &Node,
+    name: String,
+    author: &Node,
+    context: &mut Context,
+) -> Organization {
+    let Person {
+        id,
+        affiliations,
+        orcid,
+        options,
+        ..
+    } = person;
+
+    for _ in affiliations.iter().flatten() {
+        context.lost_label([&path(author), "/affiliation"].concat());
+    }
+    if orcid.is_some() {
+        context.lost_label([&path(author), "/idno[@type='ORCID']"].concat());
+    }
+
+    let contact_points = options.emails.map(|emails| {
+        vec![ContactPoint {
+            emails: Some(emails),
+            ..Default::default()
+        }]
+    });
+
+    Organization {
+        id: id.or_else(|| xml_id(org_name).map(String::from)),
+        name: Some(name),
+        options: Box::new(OrganizationOptions {
+            identifiers: options.identifiers,
+            contact_points,
+            ..Default::default()
+        }),
+        ..Default::default()
+    }
 }
 
 /// Decode an `<editor>` to a [`Person`]
@@ -681,14 +865,16 @@ fn decode_pers_name(node: &Node, person: &mut Person, context: &mut Context) {
 
     let mut given_names = Vec::new();
     let mut family_names = Vec::new();
-    for child in node.children() {
-        if !child.is_element() {
+    for child in node.children().filter(Node::is_element) {
+        let tag = child.tag_name().name();
+        if !matches!(tag, "forename" | "surname" | "roleName" | "genName") {
+            context.lost(&child);
             continue;
         }
         let Some(text) = non_empty_text(&child) else {
             continue;
         };
-        match child.tag_name().name() {
+        match tag {
             "forename" => {
                 context.lost_attrs(&child, &["type"]);
                 given_names.append(&mut split_given_names(&text));
@@ -712,6 +898,12 @@ fn decode_pers_name(node: &Node, person: &mut Person, context: &mut Context) {
     if given_names.is_empty() && family_names.is_empty() {
         // A name written as running text has no parts to separate
         person.options.name = non_empty_text(node);
+    } else {
+        // Text between the parts of a structured name (e.g. the ", Jr." of
+        // `<surname>Smith</surname>, Jr.`) is not in any of them
+        for child in node.children().filter(Node::is_text) {
+            context.lost(&child);
+        }
     }
 
     person.given_names = (!given_names.is_empty()).then_some(given_names);
@@ -722,7 +914,9 @@ fn decode_pers_name(node: &Node, person: &mut Person, context: &mut Context) {
 ///
 /// As when decoding a JATS `<aff>`, the names of the organization and its
 /// divisions (`<orgName>`s, in the order given) are joined to form its name,
-/// and the parts of its `<address>` are joined to form its address.
+/// and the parts of its `<address>` are joined to form its address. Text
+/// directly within the affiliation is its name if it has no `<orgName>`, else
+/// its address if it has no `<address>`, else it is recorded as lost.
 pub(super) fn decode_affiliation(node: &Node, context: &mut Context) -> Organization {
     // The `key` (e.g. "aff0") only identifies the affiliation within the TEI
     context.lost_attrs(node, &["id", "coords", "key"]);
@@ -793,14 +987,21 @@ pub(super) fn decode_affiliation(node: &Node, context: &mut Context) -> Organiza
     name.retain(|name| !name.is_empty());
     address.retain(|part| !part.is_empty());
 
-    if name.is_empty() && address.is_empty() && raw.is_none() {
-        // An affiliation written as plain text
-        let text = node
-            .children()
-            .filter(Node::is_text)
-            .filter_map(|child| child.text())
-            .collect::<String>();
-        raw = Some(trim_part(&text)).filter(|text| !text.is_empty());
+    let text = node
+        .children()
+        .filter(Node::is_text)
+        .filter_map(|child| child.text())
+        .collect::<String>();
+    let text = trim_part(&text);
+    if !text.is_empty() {
+        if name.is_empty() && raw.is_none() {
+            // An affiliation written as plain text
+            raw = Some(text);
+        } else if address.is_empty() {
+            address.push(text);
+        } else {
+            context.lost_label([&path(node), "/text()"].concat());
+        }
     }
 
     let name = if name.is_empty() {
@@ -829,14 +1030,6 @@ pub(super) fn decode_affiliation(node: &Node, context: &mut Context) -> Organiza
     }
 
     organization
-}
-
-/// The loss label for a note, including its type, if any
-fn note_label(node: &Node) -> String {
-    match node.attribute("type") {
-        Some(note_type) => format!("{}[@type='{note_type}']", path(node)),
-        None => path(node),
-    }
 }
 
 /// Add a typed identifier to a list of identifiers

@@ -5,6 +5,7 @@ expression: info.losses
 //TEI/facsimile: 1
 //TEI/teiHeader/@lang: 1
 //TEI/teiHeader/encodingDesc: 1
+"//TEI/teiHeader/fileDesc/sourceDesc/biblStruct/idno[@type='MD5']": 1
 "//TEI/teiHeader/fileDesc/sourceDesc/biblStruct/note[@type='submission']": 1
 //TEI/text/@lang: 1
 "//TEI/text/back/div/div/p/ref[@type='figure'] (unresolved)": 1

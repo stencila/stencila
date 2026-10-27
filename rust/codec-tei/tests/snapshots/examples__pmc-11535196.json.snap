@@ -347,12 +347,5 @@ expression: article
         }
       ]
     }
-  ],
-  "identifiers": [
-    {
-      "type": "PropertyValue",
-      "propertyId": "MD5",
-      "value": "8BC4CB67C6D9E750B2E3370AF72FFB2F"
-    }
   ]
 }

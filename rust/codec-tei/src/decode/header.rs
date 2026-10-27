@@ -9,9 +9,13 @@ use stencila_codec_text_trait::to_text;
 
 use super::{
     Context,
-    bibl::{Scope, decode_author, decode_bibl_scope, decode_date, decode_idno, push_identifier},
-    fragment_ids, non_empty_text, path,
+    bibl::{
+        Scope, decode_author, decode_bibl_scope, decode_date, decode_idno,
+        decode_idno_as_identifier,
+    },
+    collapse_whitespace, fragment_ids, non_empty_text, path,
     text::{Divisions, decode_divisions, decode_inlines, normalize},
+    text_of, trim_xml_whitespace, typed_path,
 };
 
 /// Decode the `<teiHeader>` of a `<TEI>` onto an [`Article`]
@@ -71,21 +75,25 @@ fn decode_title_stmt(node: &Node, article: &mut Article, context: &mut Context) 
 ///
 /// GROBID gives the title in both the `<titleStmt>` and the `<analytic>` of
 /// the `<sourceDesc>`, so a title that is the same as the one already decoded
-/// is not a loss. A subtitle, or a different title, is.
+/// is not a loss. A subtitle, or a different title, is. Whether a title is
+/// kept is decided before its content is decoded, so that nothing within it,
+/// such as a footnote, is decoded only to be dropped.
 fn decode_title(node: &Node, article: &mut Article, context: &mut Context) {
     context.lost_attrs(node, &["level", "type"]);
 
-    let title = normalize(decode_inlines(node.children(), context));
-    if title.is_empty() {
-        return;
-    }
-
     match &article.title {
         None if matches!(node.attribute("type"), None | Some("main")) => {
-            article.title = Some(title)
+            let title = normalize(decode_inlines(node.children(), context));
+            if !title.is_empty() {
+                article.title = Some(title)
+            }
         }
-        Some(existing) if to_text(existing) == to_text(&title) => {}
-        _ => context.lost(node),
+        Some(existing) if to_text(existing) == text_of(node) => {}
+        _ => {
+            if !text_of(node).is_empty() {
+                context.lost(node)
+            }
+        }
     }
 }
 
@@ -94,13 +102,25 @@ fn decode_title(node: &Node, article: &mut Article, context: &mut Context) {
 /// A funder may refer (`ref`) to an `<org>` in the `<listOrg>` of the back
 /// matter which has the numbers of the grants that it funded. The reference
 /// is kept so that those grants can be attributed to the funder.
+///
+/// The name of the funder is its first `<orgName>` that is not an
+/// abbreviation, else its text (e.g. `<funder>National Science
+/// Foundation</funder>`), else its first abbreviated name.
 fn decode_funder(node: &Node, article: &mut Article, context: &mut Context) {
     context.lost_attrs(node, &["ref"]);
 
     let mut name = None;
     let mut alternate_names = Vec::new();
     let mut identifiers = None;
-    for child in node.children().filter(Node::is_element) {
+    let mut text = String::new();
+    for child in node.children() {
+        if child.is_text() {
+            text.push_str(child.text().unwrap_or_default());
+            continue;
+        }
+        if !child.is_element() {
+            continue;
+        }
         match child.tag_name().name() {
             "orgName" => {
                 context.lost_attrs(&child, &["type"]);
@@ -113,15 +133,21 @@ fn decode_funder(node: &Node, article: &mut Article, context: &mut Context) {
                     _ => alternate_names.push(text),
                 }
             }
-            "idno" => {
-                let mut doi = None;
-                decode_idno(&child, &mut doi, &mut identifiers, context);
-                if let Some(doi) = doi {
-                    push_identifier(&mut identifiers, Some("DOI".into()), &doi);
-                }
-            }
+            "idno" => decode_idno_as_identifier(&child, &mut identifiers, context),
             _ => context.lost(&child),
         }
+    }
+
+    let text = trim_xml_whitespace(&collapse_whitespace(&text)).to_string();
+    if !text.is_empty() {
+        if name.is_none() {
+            name = Some(text);
+        } else {
+            context.lost_label([&path(node), "/text()"].concat());
+        }
+    }
+    if name.is_none() && !alternate_names.is_empty() {
+        name = Some(alternate_names.remove(0));
     }
 
     if name.is_none() && identifiers.is_none() {
@@ -178,12 +204,7 @@ fn decode_publication_stmt(node: &Node, article: &mut Article, context: &mut Con
                 }
             }
             "date" => decode_date_published(&child, article, context),
-            "idno" => decode_idno(
-                &child,
-                &mut article.doi,
-                &mut article.options.identifiers,
-                context,
-            ),
+            "idno" => decode_source_idno(&child, article, context),
             _ => context.lost(&child),
         }
     }
@@ -212,17 +233,44 @@ fn decode_licence(node: &Node, article: &mut Article, context: &mut Context) {
 }
 
 /// Decode a `<date>` as the date the article was published
+///
+/// Only the first is kept, and a later, different one is recorded as lost.
 fn decode_date_published(node: &Node, article: &mut Article, context: &mut Context) {
     if !matches!(node.attribute("type"), None | Some("published")) {
         context.lost(node);
         return;
     }
 
-    if let Some(date) = decode_date(node, context)
-        && article.date_published.is_none()
-    {
-        article.date_published = Some(DateTime::new(date));
+    let Some(date) = decode_date(node, context) else {
+        return;
+    };
+    match &article.date_published {
+        None => article.date_published = Some(DateTime::new(date)),
+        Some(published) if published.value != date => context.lost(node),
+        Some(..) => {}
     }
+}
+
+/// Decode an `<idno>` of the article
+///
+/// GROBID's `type="MD5"` is a checksum of the PDF that the TEI was extracted
+/// from, not an identifier of the work, so is recorded as lost, as the rest of
+/// the `<encodingDesc>` describing the processing is.
+fn decode_source_idno(node: &Node, article: &mut Article, context: &mut Context) {
+    if node
+        .attribute("type")
+        .is_some_and(|id_type| id_type.eq_ignore_ascii_case("md5"))
+    {
+        context.lost_label(typed_path(node, "type"));
+        return;
+    }
+
+    decode_idno(
+        node,
+        &mut article.doi,
+        &mut article.options.identifiers,
+        context,
+    )
 }
 
 /// Decode the `<biblStruct>` of the `<sourceDesc>`: the bibliographic record
@@ -247,29 +295,14 @@ fn decode_source(node: &Node, article: &mut Article, context: &mut Context) {
                             }
                         }
                         "title" => decode_title(&grandchild, article, context),
-                        "idno" => decode_idno(
-                            &grandchild,
-                            &mut article.doi,
-                            &mut article.options.identifiers,
-                            context,
-                        ),
+                        "idno" => decode_source_idno(&grandchild, article, context),
                         _ => context.lost(&grandchild),
                     }
                 }
             }
             "monogr" => decode_source_monogr(&child, article, context),
-            "idno" => decode_idno(
-                &child,
-                &mut article.doi,
-                &mut article.options.identifiers,
-                context,
-            ),
-            "note" => match child.attribute("type") {
-                Some(note_type) => {
-                    context.lost_label(format!("{}[@type='{note_type}']", path(&child)))
-                }
-                None => context.lost(&child),
-            },
+            "idno" => decode_source_idno(&child, article, context),
+            "note" => context.lost_label(typed_path(&child, "type")),
             _ => context.lost(&child),
         }
     }
@@ -318,12 +351,7 @@ fn decode_source_monogr(node: &Node, article: &mut Article, context: &mut Contex
                         .push(issn);
                 }
             }
-            "idno" => decode_idno(
-                &child,
-                &mut article.doi,
-                &mut article.options.identifiers,
-                context,
-            ),
+            "idno" => decode_source_idno(&child, article, context),
             "imprint" => {
                 context.lost_attrs(&child, &[]);
                 for grandchild in child.children() {
@@ -517,7 +545,8 @@ fn decode_abstract(node: &Node, context: &mut Context) -> Vec<Block> {
 /// Decode a `<keywords>`
 ///
 /// Each `<term>` is a keyword. Keywords given as text, without terms, are kept
-/// as a single keyword rather than guessing how they are separated.
+/// as a single keyword rather than guessing how they are separated. Words
+/// beside terms are recorded as lost.
 fn decode_keywords(node: &Node, article: &mut Article, context: &mut Context) {
     context.lost_attrs(node, &[]);
 
@@ -532,6 +561,16 @@ fn decode_keywords(node: &Node, article: &mut Article, context: &mut Context) {
     }
     if keywords.is_empty() {
         keywords.extend(non_empty_text(node));
+    } else {
+        // Punctuation between terms only separates them
+        for child in node.children().filter(|child| {
+            child.is_text()
+                && child
+                    .text()
+                    .is_some_and(|text| text.chars().any(char::is_alphanumeric))
+        }) {
+            context.lost(&child);
+        }
     }
 
     if !keywords.is_empty() {
