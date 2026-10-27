@@ -647,7 +647,22 @@ pub(super) fn decode_author(node: &Node, context: &mut Context) -> Option<Author
 }
 
 /// Decode an `<editor>` to a [`Person`]
+///
+/// Keep an unstructured editor's text as its name, as for an unstructured
+/// `<persName>`. It may contain several names, whose boundaries are ambiguous.
 fn decode_editor(node: &Node, context: &mut Context) -> Option<Person> {
+    if !node.children().any(|child| child.is_element())
+        && let Some(name) = non_empty_text(node)
+    {
+        context.lost_attrs(node, &["id", "coords"]);
+        let mut person = Person {
+            id: xml_id(node).map(String::from),
+            ..Default::default()
+        };
+        person.options.name = Some(name);
+        return Some(context.located(node, person));
+    }
+
     match decode_author(node, context)? {
         Author::Person(person) => Some(person),
         _ => {

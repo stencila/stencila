@@ -1101,6 +1101,69 @@ fn reference_published_date() -> Result<()> {
 }
 
 #[test]
+fn reference_plain_text_editors() -> Result<()> {
+    for location in ["analytic", "monogr"] {
+        let (article, losses, page_map) = decode_article_with_page_map(&tei(
+            "",
+            "",
+            &format!(
+                r#"<listBibl><biblStruct><{location}>
+                <editor xml:id="ed1" coords="1,2,3,4,5"> O'Donovan MJ, Falgairolle M </editor>
+                <editor><persName><forename>A</forename><surname>Editor</surname></persName></editor>
+            </{location}></biblStruct></listBibl>"#
+            ),
+        ))?;
+        let Some([reference]) = article.references.as_deref() else {
+            bail!("expected one reference")
+        };
+        let Some([plain, structured]) = reference.options.editors.as_deref() else {
+            bail!("expected plain text and structured editors")
+        };
+        assert_eq!(
+            plain.options.name.as_deref(),
+            Some("O'Donovan MJ, Falgairolle M")
+        );
+        assert_eq!(plain.id.as_deref(), Some("ed1"));
+        assert_eq!(boxes(&page_map, plain)?, vec![(None, "1,2,3,4,5".into())]);
+        assert_eq!(structured.given_names, Some(vec!["A".into()]));
+        assert_eq!(structured.family_names, Some(vec!["Editor".into()]));
+        assert!(labels(&losses).is_empty(), "{:?}", labels(&losses));
+    }
+
+    // The editors of a chapter's book are the book's
+    let (article, losses, page_map) = decode_article_with_page_map(&tei(
+        "",
+        "",
+        r#"<listBibl><biblStruct>
+            <analytic><title level="a">A chapter</title></analytic>
+            <monogr>
+                <title level="m">A book</title>
+                <editor coords="1,2,3,4,5">O'Donovan MJ, Falgairolle M</editor>
+            </monogr>
+        </biblStruct></listBibl>"#,
+    ))?;
+    let Some([reference]) = article.references.as_deref() else {
+        bail!("expected one reference")
+    };
+    assert_eq!(reference.options.editors, None);
+    let Some([editor]) = reference
+        .is_part_of
+        .as_ref()
+        .and_then(|book| book.options.editors.as_deref())
+    else {
+        bail!("expected one editor of the book")
+    };
+    assert_eq!(
+        editor.options.name.as_deref(),
+        Some("O'Donovan MJ, Falgairolle M")
+    );
+    assert_eq!(boxes(&page_map, editor)?, vec![(None, "1,2,3,4,5".into())]);
+    assert!(labels(&losses).is_empty(), "{:?}", labels(&losses));
+
+    Ok(())
+}
+
+#[test]
 fn chapter_in_book() -> Result<()> {
     let (article, ..) = decode_article(&tei(
         "",
