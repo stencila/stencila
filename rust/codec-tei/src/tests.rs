@@ -3050,3 +3050,14 @@ fn smaller_silent_losses_are_recorded() -> Result<()> {
 
     Ok(())
 }
+
+#[tokio::test]
+async fn non_utf8_bytes_are_an_error() -> Result<()> {
+    let bytes = b"<?xml version=\"1.0\" encoding=\"ISO-8859-1\"?><TEI><text><body><p>caf\xe9</p></body></text></TEI>";
+    let Err(error) = TeiCodec.from_bytes(bytes, None).await else {
+        bail!("expected an error")
+    };
+    assert!(error.to_string().contains("UTF-8"), "{error}");
+
+    Ok(())
+}

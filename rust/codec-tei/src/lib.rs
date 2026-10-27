@@ -19,8 +19,10 @@ use std::io::Read;
 use flate2::read::GzDecoder;
 
 use stencila_codec::{
-    Codec, DecodeInfo, DecodeOptions, StructuringOptions, async_trait, eyre::Result,
-    stencila_format::Format, stencila_schema::Node,
+    Codec, DecodeInfo, DecodeOptions, StructuringOptions, async_trait,
+    eyre::{Result, WrapErr},
+    stencila_format::Format,
+    stencila_schema::Node,
 };
 
 mod decode;
@@ -68,14 +70,17 @@ impl Codec for TeiCodec {
         options: Option<DecodeOptions>,
     ) -> Result<(Node, DecodeInfo)> {
         // GROBID TEI is often distributed gzip compressed (OpenAlex serves it
-        // that way) so decompress it here rather than requiring a separate step
-        let tei = if bytes.starts_with(&[0x1f, 0x8b]) {
-            let mut tei = String::new();
-            GzDecoder::new(bytes).read_to_string(&mut tei)?;
-            tei
+        // that way) so decompress it here rather than requiring a separate step.
+        // Only UTF-8 is supported, which is what GROBID and ScienceBeam write.
+        const NOT_UTF8: &str = "Unable to decode TEI: only UTF-8 encoded TEI is supported";
+        let bytes = if bytes.starts_with(&[0x1f, 0x8b]) {
+            let mut decompressed = Vec::new();
+            GzDecoder::new(bytes).read_to_end(&mut decompressed)?;
+            decompressed
         } else {
-            String::from_utf8(bytes.to_vec())?
+            bytes.to_vec()
         };
+        let tei = String::from_utf8(bytes).wrap_err(NOT_UTF8)?;
 
         decode(&tei, options)
     }
