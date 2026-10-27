@@ -21,11 +21,15 @@ impl AuthorRoleName {
     /// The term may be the canonical role name (e.g. "Writing – original
     /// draft"), the URI slug (e.g. "writing-original-draft"), or the variant
     /// name (e.g. "WritingOriginalDraft"), compared leniently with respect to
-    /// case, dash characters, and "&" versus "and".
+    /// case, dash characters, and "&" versus "and". The older name
+    /// "Writing – original draft preparation" is also accepted.
     pub fn from_credit(term: &str) -> Option<Self> {
         let term = normalize(term);
         if term.is_empty() {
             return None;
+        }
+        if term == "writingoriginaldraftpreparation" {
+            return Some(Self::WritingOriginalDraft);
         }
 
         Self::CREDIT_METADATA
@@ -113,6 +117,21 @@ mod tests {
         assert_eq!(AuthorRoleName::from_credit("Senior Editor"), None);
         assert_eq!(AuthorRoleName::from_credit(""), None);
         Ok(())
+    }
+
+    #[test]
+    fn from_credit_accepts_original_draft_preparation() {
+        for term in [
+            "Writing – Original Draft Preparation",
+            "Writing - original draft preparation",
+            "WRITING — ORIGINAL DRAFT PREPARATION",
+        ] {
+            assert_eq!(
+                AuthorRoleName::from_credit(term),
+                Some(AuthorRoleName::WritingOriginalDraft),
+                "term: {term}"
+            );
+        }
     }
 
     #[test]

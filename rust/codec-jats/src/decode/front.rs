@@ -2010,11 +2010,20 @@ fn handled_credit_role_attrs(node: &Node) -> Vec<&'static str> {
     {
         handled.push("vocab-term-identifier");
     }
-    if node
-        .attribute("content-type")
-        .and_then(AuthorRoleName::from_credit_uri)
-        .is_some()
-    {
+    if node.attribute("content-type").is_some_and(|value| {
+        AuthorRoleName::from_credit_uri(value).is_some()
+            || matches!(
+                value
+                    .trim()
+                    .trim_end_matches('/')
+                    .to_ascii_lowercase()
+                    .as_str(),
+                "http://credit.niso.org"
+                    | "https://credit.niso.org"
+                    | "http://credit.casrai.org"
+                    | "https://credit.casrai.org"
+            )
+    }) {
         handled.push("content-type");
     }
     if node

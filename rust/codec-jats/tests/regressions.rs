@@ -1,7 +1,7 @@
 use stencila_codec::{
     DecodeInfo, EncodeOptions,
     eyre::{OptionExt, Result, bail},
-    stencila_schema::{Article, Block, Inline, Node},
+    stencila_schema::{Article, Author, AuthorRoleAuthor, AuthorRoleName, Block, Inline, Node},
 };
 use stencila_codec_jats::{decode, encode};
 use stencila_codec_text_trait::to_text;
@@ -26,6 +26,63 @@ fn assert_roundtrip(article: &Article) -> Result<()> {
         )?;
         let (actual, _) = decode(&encoded, None)?;
         assert_eq!(actual, expected, "compact={compact}: {encoded}");
+    }
+    Ok(())
+}
+
+#[test]
+fn reference_ore_credit_role() -> Result<()> {
+    let (article, info) = article(
+        r#"<article><front><article-meta><contrib-group>
+      <contrib contrib-type="author">
+        <name><surname>Doe</surname><given-names>Jane</given-names></name>
+        <role content-type="http://credit.niso.org/">Writing – Original Draft Preparation</role>
+      </contrib>
+    </contrib-group></article-meta></front></article>"#,
+    )?;
+    let authors = article.authors.as_ref().ok_or_eyre("missing author")?;
+    assert_eq!(authors.len(), 1);
+    let Author::AuthorRole(role) = &authors[0] else {
+        bail!("expected a CRediT author role")
+    };
+    assert_eq!(role.role_name, AuthorRoleName::WritingOriginalDraft);
+    let AuthorRoleAuthor::Person(person) = &role.author else {
+        bail!("expected a person")
+    };
+    assert_eq!(
+        person.family_names.as_deref(),
+        Some(["Doe".into()].as_slice())
+    );
+    assert!(person.options.job_title.is_none());
+    assert!(
+        info.losses.is_empty(),
+        "{:?}",
+        info.losses.iter().collect::<Vec<_>>()
+    );
+    assert_roundtrip(&article)
+}
+
+#[test]
+fn reference_casrai_credit_role() -> Result<()> {
+    for base in ["http://credit.casrai.org/", "https://credit.casrai.org"] {
+        let (article, info) = article(&format!(
+            r#"<article><front><article-meta><contrib-group>
+          <contrib contrib-type="author">
+            <name><surname>Doe</surname><given-names>Jane</given-names></name>
+            <role content-type="{base}">Writing – Original Draft Preparation</role>
+          </contrib>
+        </contrib-group></article-meta></front></article>"#
+        ))?;
+        let authors = article.authors.as_ref().ok_or_eyre("missing author")?;
+        let Author::AuthorRole(role) = &authors[0] else {
+            bail!("expected a CRediT author role")
+        };
+        assert_eq!(role.role_name, AuthorRoleName::WritingOriginalDraft);
+        assert!(
+            info.losses.is_empty(),
+            "{:?}",
+            info.losses.iter().collect::<Vec<_>>()
+        );
     }
     Ok(())
 }
