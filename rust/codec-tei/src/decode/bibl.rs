@@ -432,7 +432,35 @@ fn assemble_reference(id: Option<String>, fields: BiblFields) -> Reference {
 /// A person's names are in `<persName>`, along with their `<email>`, ORCID
 /// (`<idno type="ORCID">`) and `<affiliation>`s. An author with no personal
 /// name but an `<orgName>` is an organization, such as a consortium.
+/// GROBID's dummy authors are omitted, with each orphan affiliation reported
+/// as a named loss because it has no person to attach to.
 pub(super) fn decode_author(node: &Node, context: &mut Context) -> Option<Author> {
+    if node
+        .children()
+        .any(|child| child.has_tag_name("note") && child.attribute("type") == Some("dummy_author"))
+    {
+        context.lost_attrs(node, &[]);
+        for child in node.children() {
+            match child.tag_name().name() {
+                "note" if child.attribute("type") == Some("dummy_author") => {
+                    context.lost_attrs(&child, &["type"]);
+                }
+                "affiliation" => {
+                    // Decoded, though never kept, so that it is named as it
+                    // would be for a person, and its id and coordinates are
+                    // recorded as lost
+                    let label = match decode_affiliation(&child, context).name {
+                        Some(name) => format!("{} (orphan affiliation: {name})", path(&child)),
+                        None => format!("{} (orphan affiliation)", path(&child)),
+                    };
+                    context.lost_label(label);
+                }
+                _ => context.lost(&child),
+            }
+        }
+        return None;
+    }
+
     // The corresponding author is marked with `role="corresp"`, which says no
     // more than their email address already does
     let decoded: &[&str] = if node.attribute("role") == Some("corresp") {

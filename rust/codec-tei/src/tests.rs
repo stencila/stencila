@@ -152,6 +152,193 @@ fn authors_with_affiliations() -> Result<()> {
 }
 
 #[test]
+fn dummy_author_reports_orphan_affiliations() -> Result<()> {
+    // Reproduce the brief's nine author elements: eight real authors and a
+    // dummy author with two orphan affiliations, without relying on the full
+    // ScienceBeam document.
+    let authors = (1..=8)
+        .map(|index| {
+            format!("<author><persName><surname>Author {index}</surname></persName></author>")
+        })
+        .collect::<String>();
+    let (article, losses) = decode_article(&tei(
+        &format!(
+            r#"<fileDesc><sourceDesc><biblStruct><analytic>
+                {authors}
+                <author>
+                    <note type="dummy_author">Dummy author for orphan affiliations</note>
+                    <affiliation><orgName type="institution">University of Auckland</orgName></affiliation>
+                    <affiliation><orgName type="institution">University of Tasmania</orgName></affiliation>
+                </author>
+            </analytic></biblStruct></sourceDesc></fileDesc>"#,
+        ),
+        "",
+        "",
+    ))?;
+
+    let authors = article.authors.ok_or_eyre("expected authors")?;
+    assert_eq!(authors.len(), 8);
+    for (index, author) in authors.iter().enumerate() {
+        let Author::Person(person) = author else {
+            bail!("expected a person")
+        };
+        assert_eq!(
+            person.family_names,
+            Some(vec![format!("Author {}", index + 1)])
+        );
+        assert_eq!(person.affiliations, None);
+    }
+    assert_eq!(
+        losses.iter().collect::<Vec<_>>(),
+        vec![
+            (
+                "//TEI/teiHeader/fileDesc/sourceDesc/biblStruct/analytic/author/affiliation (orphan affiliation: University of Auckland)",
+                1
+            ),
+            (
+                "//TEI/teiHeader/fileDesc/sourceDesc/biblStruct/analytic/author/affiliation (orphan affiliation: University of Tasmania)",
+                1
+            ),
+        ]
+    );
+
+    Ok(())
+}
+
+#[test]
+fn dummy_author_reports_raw_and_empty_affiliations() -> Result<()> {
+    let (article, losses, page_map) = decode_article_with_page_map(&tei(
+        r#"<fileDesc><sourceDesc><biblStruct><analytic>
+            <author>
+                <affiliation xml:id="aff0" coords="1,1,2,3,4">
+                    <note type="raw_affiliation">University of Auckland,
+                        New Zealand</note>
+                </affiliation>
+                <affiliation> </affiliation>
+                <affiliation/>
+                <note type="dummy_author"/>
+                <note type="other">Other information</note>
+            </author>
+        </analytic></biblStruct></sourceDesc></fileDesc>"#,
+        "",
+        "",
+    ))?;
+
+    assert!(article.authors.is_none());
+    assert!(page_map.entries().is_empty());
+    assert_eq!(
+        losses.iter().collect::<Vec<_>>(),
+        vec![
+            (
+                "//TEI/teiHeader/fileDesc/sourceDesc/biblStruct/analytic/author/affiliation (orphan affiliation)",
+                2
+            ),
+            (
+                "//TEI/teiHeader/fileDesc/sourceDesc/biblStruct/analytic/author/affiliation (orphan affiliation: University of Auckland, New Zealand)",
+                1
+            ),
+            (
+                "//TEI/teiHeader/fileDesc/sourceDesc/biblStruct/analytic/author/affiliation/@coords",
+                1
+            ),
+            (
+                "//TEI/teiHeader/fileDesc/sourceDesc/biblStruct/analytic/author/affiliation/@id",
+                1
+            ),
+            (
+                "//TEI/teiHeader/fileDesc/sourceDesc/biblStruct/analytic/author/note",
+                1
+            ),
+        ]
+    );
+
+    Ok(())
+}
+
+#[test]
+fn dummy_author_names_orphan_affiliations_as_decoded() -> Result<()> {
+    // Structured as by ScienceBeam and GROBID, and compact, so that the text of
+    // the parts would run together if not joined as when decoded for a person
+    let (article, losses, page_map) = decode_article_with_page_map(&tei(
+        r#"<fileDesc><sourceDesc><biblStruct><analytic>
+            <author><note type="dummy_author">Dummy author for orphan affiliations</note><affiliation key="aff1"><note type="raw_affiliation"><label>1</label> Institute for Marine and Antarctic Studies, University of Tasmania, Hobart, Australia</note><orgName type="department" coords="1,10,20,30,5">Institute for Marine and Antarctic Studies</orgName><orgName type="institution">University of Tasmania</orgName><address><settlement>Hobart</settlement><country key="AU">Australia</country></address></affiliation><affiliation><address><settlement>Auckland</settlement><country>New Zealand</country></address></affiliation></author>
+        </analytic></biblStruct></sourceDesc></fileDesc>"#,
+        "",
+        "",
+    ))?;
+
+    assert!(article.authors.is_none());
+    assert!(page_map.entries().is_empty());
+    assert_eq!(
+        losses.iter().collect::<Vec<_>>(),
+        vec![
+            (
+                "//TEI/teiHeader/fileDesc/sourceDesc/biblStruct/analytic/author/affiliation (orphan affiliation: Auckland, New Zealand)",
+                1
+            ),
+            (
+                "//TEI/teiHeader/fileDesc/sourceDesc/biblStruct/analytic/author/affiliation (orphan affiliation: Institute for Marine and Antarctic Studies, University of Tasmania)",
+                1
+            ),
+            (
+                "//TEI/teiHeader/fileDesc/sourceDesc/biblStruct/analytic/author/affiliation/orgName/@coords",
+                1
+            ),
+        ]
+    );
+
+    Ok(())
+}
+
+#[test]
+fn dummy_author_is_recognized_by_its_note_type() -> Result<()> {
+    let (article, losses) = decode_article(&tei(
+        r#"<fileDesc><sourceDesc><biblStruct><analytic>
+            <author>
+                <persName><surname>Doe</surname></persName>
+                <note type="other">Dummy author for orphan affiliations</note>
+            </author>
+            <author>
+                <orgName>Consortium</orgName>
+                <note type="dummy_author_extra"/>
+            </author>
+            <author>
+                <persName>Placeholder</persName>
+                <note type="dummy_author"/>
+            </author>
+        </analytic></biblStruct></sourceDesc></fileDesc>"#,
+        "",
+        "",
+    ))?;
+
+    let Some([Author::Person(person), Author::Organization(organization)]) =
+        article.authors.as_deref()
+    else {
+        bail!(
+            "expected a person and an organization: {:?}",
+            article.authors
+        )
+    };
+    assert_eq!(person.family_names, Some(vec!["Doe".into()]));
+    assert_eq!(organization.name.as_deref(), Some("Consortium"));
+    assert_eq!(
+        losses.iter().collect::<Vec<_>>(),
+        vec![
+            (
+                "//TEI/teiHeader/fileDesc/sourceDesc/biblStruct/analytic/author/note",
+                2
+            ),
+            (
+                "//TEI/teiHeader/fileDesc/sourceDesc/biblStruct/analytic/author/persName",
+                1
+            ),
+        ]
+    );
+
+    Ok(())
+}
+
+#[test]
 fn citation_resolves_to_reference() -> Result<()> {
     let (article, losses) = decode_article(&tei(
         "",
