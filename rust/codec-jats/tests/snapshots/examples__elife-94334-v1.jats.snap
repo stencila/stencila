@@ -1295,6 +1295,9 @@ expression: jats
         <p>Graphs were prepared using GraphPad Prism 10 (Dotmatics). Statistical analysis for differences in the percentage of large budded (G<sub>2</sub>/M-arrested) cells at different timepoints listed in <xref ref-type="table" rid="table1">Table 1</xref> was done using a one-way ANOVA in GraphPad Prism 10. Protein quantification of Ddc2-myc blots was done using ImageLab 6.1 (Bio-Rad). To categorize DAPI-stained cells based on their morphology and number of DAPI signals, images were captured as described above and viewed using ImageJ with the Fiji addon.</p>
       </sec>
     </sec>
+    <sec sec-type="Funding">
+      <p>The funders had no role in study design, data collection and interpretation, or the decision to submit the work for publication.</p>
+    </sec>
     <sec id="s5">
       <title level="1">Additional information</title>
       <sec sec-type="CompetingInterests">

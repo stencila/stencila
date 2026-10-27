@@ -11,7 +11,7 @@ use stencila_codec::stencila_schema::{
     MonetaryGrant, Object, Organization, OrganizationOptions, Periodical, Person, PersonOptions,
     PersonOrOrganization, PostalAddressOrString, Primitive, PropertyValue, PropertyValueOptions,
     PropertyValueOrString, PublicationIssue, PublicationVolume, Section, SectionType,
-    StringOrNumber, ThingVariant,
+    StringOrNumber, ThingVariant, shortcuts::p,
 };
 
 use super::{
@@ -1487,7 +1487,8 @@ fn non_empty_text_deep(node: &Node) -> Option<String> {
 /// each `<award-group>` also becomes a grant in `fundedBy` so that an award
 /// keeps its identifier, its funding source and its recipients. A recipient is
 /// held as a `fundedItem` of the grant, which is what the schema has for the
-/// thing that a grant supports.
+/// thing that a grant supports. Each `<funding-statement>` that has text becomes
+/// a funding section of the article's content.
 fn decode_funding_group(
     path: &str,
     node: &Node,
@@ -1501,6 +1502,24 @@ fn decode_funding_group(
     for child in node.children().filter(Node::is_element) {
         let tag = child.tag_name().name();
         let child_path = extend_path(path, tag);
+        if tag == "funding-statement" {
+            record_attrs_lost(&child_path, &child, ["id"], losses);
+            let content = decode_inlines(&child_path, child.children(), losses);
+            if to_text(&content).trim().is_empty() {
+                // An empty statement is not kept, but an id on it is lost
+                if child.has_attribute("id") {
+                    record_node_lost(path, &child, losses);
+                }
+                continue;
+            }
+            article.content.push(Block::Section(Section {
+                id: child.attribute("id").map(String::from),
+                section_type: Some(SectionType::Funding),
+                content: vec![p(content)],
+                ..Default::default()
+            }));
+            continue;
+        }
         if tag != "award-group" {
             record_node_lost(path, &child, losses);
             continue;

@@ -10339,6 +10339,23 @@ expression: article
     },
     {
       "type": "Section",
+      "sectionType": "Funding",
+      "content": [
+        {
+          "type": "Paragraph",
+          "content": [
+            {
+              "type": "Text",
+              "value": {
+                "string": "This work was supported by The Jikei University Research Grant for the Career Development of Female Researchers with Children (HA), Kurozumi Medical Foundation (HA), The Jikei University Graduate Research Fund (HK), and the Japan Agency for Medical Research and Development, AMED (JP17jm0510002h0003 and JP22wm0225026h0001) (HK). The funding agencies had no role in the design and conduct of the study, collection, management, analysis, interpretation of the data, preparation, review, or approval of the manuscript."
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "Section",
       "sectionType": "DataAvailability",
       "content": [
         {

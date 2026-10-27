@@ -42,6 +42,5 @@ expression: info.losses
 "//article/front/article-meta/custom-meta-group/custom-meta[meta-name='pmc-status-live']": 1
 "//article/front/article-meta/custom-meta-group/custom-meta[meta-name='pmc-status-qastatus']": 1
 "//article/front/article-meta/custom-meta-group/custom-meta[meta-name='pmc-status-released']": 1
-//article/front/article-meta/funding-group/funding-statement: 1
 //article/front/article-meta/title-group/italic/@toggle: 1
 //article/processing-meta: 1

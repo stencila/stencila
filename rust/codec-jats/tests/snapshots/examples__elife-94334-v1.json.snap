@@ -22567,6 +22567,23 @@ expression: article
     },
     {
       "type": "Section",
+      "sectionType": "Funding",
+      "content": [
+        {
+          "type": "Paragraph",
+          "content": [
+            {
+              "type": "Text",
+              "value": {
+                "string": "The funders had no role in study design, data collection and interpretation, or the decision to submit the work for publication."
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "Section",
       "id": "s5",
       "content": [
         {

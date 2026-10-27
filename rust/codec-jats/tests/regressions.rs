@@ -3,7 +3,7 @@ use stencila_codec::{
     eyre::{OptionExt, Result, bail},
     stencila_schema::{
         Article, Author, AuthorRoleAuthor, AuthorRoleName, Block, CreativeWorkVariant, Inline,
-        Node, Primitive,
+        Node, Primitive, SectionType,
     },
 };
 use stencila_codec_jats::{decode, encode};
@@ -242,6 +242,80 @@ fn reference_orcid_uri_without_id() -> Result<()> {
         [("//article/front/article-meta/contrib-group/contrib/uri", 1)]
     );
     Ok(())
+}
+
+#[test]
+fn reference_funding_statements() -> Result<()> {
+    let (article, info) = article(
+        r#"<article><front><article-meta>
+      <funding-group>
+        <award-group><funding-source>Research Council</funding-source><award-id>123</award-id></award-group>
+        <funding-statement id="funding">Supported by <italic>Research Council</italic>.</funding-statement>
+      </funding-group>
+      <funding-group><funding-statement>The funders had no role in the study.</funding-statement></funding-group>
+    </article-meta></front><body><p>Body text.</p></body></article>"#,
+    )?;
+    assert_eq!(article.content.len(), 3);
+    assert_eq!(to_text(&article.content[0]).trim(), "Body text.");
+    for (block, id, text) in [
+        (
+            &article.content[1],
+            Some("funding"),
+            "Supported by Research Council.",
+        ),
+        (
+            &article.content[2],
+            None,
+            "The funders had no role in the study.",
+        ),
+    ] {
+        let Block::Section(section) = block else {
+            bail!("expected a funding section")
+        };
+        assert_eq!(section.section_type, Some(SectionType::Funding));
+        assert_eq!(section.id.as_deref(), id);
+        assert_eq!(to_text(&section.content).trim(), text);
+    }
+    assert_eq!(article.options.funders.as_ref().map(Vec::len), Some(1));
+    assert_eq!(article.options.funded_by.as_ref().map(Vec::len), Some(1));
+    let Block::Section(section) = &article.content[1] else {
+        bail!("expected a funding section")
+    };
+    let Block::Paragraph(paragraph) = &section.content[0] else {
+        bail!("expected a funding paragraph")
+    };
+    assert!(matches!(
+        paragraph.content.get(1),
+        Some(Inline::Emphasis(..))
+    ));
+    assert!(
+        info.losses.is_empty(),
+        "{:?}",
+        info.losses.iter().collect::<Vec<_>>()
+    );
+    assert_roundtrip(&article)
+}
+
+#[test]
+fn reference_empty_funding_statements() -> Result<()> {
+    let (article, info) = article(
+        r#"<article><front><article-meta><funding-group>
+      <funding-statement/>
+      <funding-statement id="empty"> </funding-statement>
+      <funding-statement>Funded.</funding-statement>
+    </funding-group></article-meta></front></article>"#,
+    )?;
+    assert_eq!(article.content.len(), 1);
+    assert_eq!(to_text(&article.content[0]).trim(), "Funded.");
+    // Only an empty statement with an id loses anything
+    assert_eq!(
+        info.losses.iter().collect::<Vec<_>>(),
+        [(
+            "//article/front/article-meta/funding-group/funding-statement",
+            1
+        )]
+    );
+    assert_roundtrip(&article)
 }
 
 #[test]

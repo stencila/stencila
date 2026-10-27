@@ -967,6 +967,9 @@ expression: jats
         <media xlink:href="pone.0332245.s003.xlsx"></media>
       </supplementary-material>
     </sec>
+    <sec sec-type="Funding">
+      <p>This work was supported by The Jikei University Research Grant for the Career Development of Female Researchers with Children (HA), Kurozumi Medical Foundation (HA), The Jikei University Graduate Research Fund (HK), and the Japan Agency for Medical Research and Development, AMED (JP17jm0510002h0003 and JP22wm0225026h0001) (HK). The funding agencies had no role in the design and conduct of the study, collection, management, analysis, interpretation of the data, preparation, review, or approval of the manuscript.</p>
+    </sec>
     <sec sec-type="DataAvailability">
       <title level="1">Data Availability</title>
       <p>All relevant data are within the manuscript and its <xref ref-type="sec" rid="sec020">Supporting Information</xref> files. In the data for <xref ref-type="fig" rid="pone.0332245.g004">Fig 4</xref> included in <xref ref-type="sec" rid="sec020">Supporting Information</xref>, mosquito sample IDs were anonymized. GPS data representing individual households cannot be made publicly available in accordance with the participants’ consent process, in which participants have not given approval to share their households’ GPS location data.</p>

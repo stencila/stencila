@@ -23,7 +23,7 @@ biorxiv-630838 encode: {}
 elife-94334-v1 decode:
   content: 21
   link-or-identifier: 34
-  metadata: 7
+  metadata: 6
   presentation: 109
 elife-94334-v1 encode:
   metadata: 4
@@ -40,7 +40,7 @@ pmc-12354728 encode:
   link-or-identifier: 3
 pmc-12431436 decode:
   content: 1
-  metadata: 44
+  metadata: 43
   presentation: 198
 pmc-12431436 encode: {}
 pmc-6849754 decode:
