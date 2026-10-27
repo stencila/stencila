@@ -498,6 +498,138 @@ fn figure_without_image_is_a_loss() -> Result<()> {
 }
 
 #[test]
+fn figure_notes_follow_images() -> Result<()> {
+    let (article, losses) = decode_article(&tei(
+        "",
+        r#"<figure>
+            <figDesc>Results.</figDesc>
+            <note place="foot">First <hi rend="italic">note</hi>.</note>
+            <graphic url="first.png"/>
+            <note><p>Second note.</p><list><item>Detail.</item></list></note>
+            <graphic url="second.png"/>
+        </figure>"#,
+        "",
+    ))?;
+
+    let [Block::Figure(figure)] = article.content.as_slice() else {
+        bail!("expected only a figure: {:?}", article.content)
+    };
+    let [
+        Block::ImageObject(first_image),
+        Block::ImageObject(second_image),
+        Block::Paragraph(first_note),
+        Block::Paragraph(second_note),
+        Block::List(list),
+    ] = figure.content.as_slice()
+    else {
+        bail!(
+            "expected images followed by note blocks: {:?}",
+            figure.content
+        )
+    };
+    assert_eq!(first_image.content_url, "first.png");
+    assert_eq!(second_image.content_url, "second.png");
+    assert_eq!(to_text(first_note), "First note.");
+    assert!(matches!(
+        first_note.content.get(1),
+        Some(Inline::Emphasis(_))
+    ));
+    assert_eq!(to_text(second_note), "Second note.");
+    assert_eq!(
+        list.items.iter().map(to_text).collect::<Vec<_>>(),
+        ["Detail."]
+    );
+    assert_eq!(
+        figure.caption.as_ref().map(to_text).as_deref(),
+        Some("Results.")
+    );
+    assert!(losses.is_empty(), "{:?}", labels(&losses));
+
+    Ok(())
+}
+
+#[test]
+fn figure_notes_without_image_preserve_text_and_report_missing_image() -> Result<()> {
+    let (article, losses) = decode_article(&tei(
+        "",
+        r#"<figure xml:id="fig_0">
+            <graphic type="bitmap"/>
+            <note type="&lt;content&gt;">Induction and Antiviral Response 8,84E00 5,93E-02 DDX58, IFIH1</note>
+            <note place="foot">Values from the results table.</note>
+        </figure>"#,
+        "",
+    ))?;
+
+    let [Block::Figure(figure)] = article.content.as_slice() else {
+        bail!("expected only a figure: {:?}", article.content)
+    };
+    let [Block::Paragraph(content), Block::Paragraph(note)] = figure.content.as_slice() else {
+        bail!("expected two paragraphs: {:?}", figure.content)
+    };
+    assert_eq!(
+        to_text(content),
+        "Induction and Antiviral Response 8,84E00 5,93E-02 DDX58, IFIH1"
+    );
+    assert_eq!(to_text(note), "Values from the results table.");
+    assert_eq!(
+        labels(&losses),
+        vec![
+            "//TEI/text/body/figure/note/@type",
+            "//TEI/text/body/figure[@xml:id='fig_0'] (no image)"
+        ]
+    );
+
+    Ok(())
+}
+
+#[test]
+fn figure_note_ids_and_blocks_are_preserved() -> Result<()> {
+    let (article, losses, page_map) = decode_article_with_page_map(&tei(
+        "",
+        r##"<figure xml:id="fig_0">
+            <figDesc>See <ref type="foot" target="#fn1">a</ref> and <ref type="foot" target="#fn2">b</ref>.</figDesc>
+            <graphic url="figure.png"/>
+            <note xml:id="fn1" place="foot" coords="1,10,20,30,40"><p>First note.</p><p>Continued.</p></note>
+            <note id="fn2" place="foot">Second note.</note>
+        </figure>"##,
+        "",
+    ))?;
+
+    let [Block::Figure(figure)] = article.content.as_slice() else {
+        bail!("expected only a figure: {:?}", article.content)
+    };
+    let [
+        Block::ImageObject(_),
+        Block::Paragraph(first),
+        Block::Paragraph(second),
+    ] = figure.content.as_slice()
+    else {
+        bail!(
+            "expected an image followed by two notes: {:?}",
+            figure.content
+        )
+    };
+    let ([Inline::Note(first)], [Inline::Note(second)]) =
+        (first.content.as_slice(), second.content.as_slice())
+    else {
+        bail!("expected identified figure notes")
+    };
+    assert_eq!(first.id.as_deref(), Some("fn1"));
+    assert_eq!(second.id.as_deref(), Some("fn2"));
+    assert_eq!(
+        first.content.iter().map(to_text).collect::<Vec<_>>(),
+        ["First note.", "Continued."]
+    );
+    assert_eq!(to_text(&second.content), "Second note.");
+    assert_eq!(
+        boxes(&page_map, first)?,
+        vec![(None, "1,10,20,30,40".into())]
+    );
+    assert!(losses.is_empty(), "{:?}", labels(&losses));
+    assert_jats_link_targets(article, &["fn1", "fn2"])
+}
+
+#[test]
 fn table_from_cells() -> Result<()> {
     let (article, losses) = decode_article(&tei(
         "",

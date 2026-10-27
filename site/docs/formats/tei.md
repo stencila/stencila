@@ -44,7 +44,7 @@ stencila compare reference.jats.xml parse.tei.xml comparison.json
 
 # Limitations
 
-- GROBID gives no image files for figures, only the coordinates of each figure on the pages of the PDF. Figures are decoded without content, with the coordinates in the page map, and each missing image is reported as a loss.
+- GROBID gives no image files for figures, only the coordinates of each figure on the pages of the PDF. Figures are decoded without an image, with the coordinates in the page map, and each missing image is reported as a loss. A figure's notes are kept after its images.
 - GROBID gives formulas as the text extracted from the PDF, not TeX or MathML. Formulas are decoded as math with the language `text`, and reported as a loss.
 - The quality of the decoded article depends on GROBID's extraction from the PDF, which can, for example, take lines of a figure or table to be headings, or miss tables.
 - Export (encoding) to TEI is not supported.

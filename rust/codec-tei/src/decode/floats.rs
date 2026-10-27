@@ -23,9 +23,10 @@ pub(super) const FORMULA_LANGUAGE: &str = "text";
 ///
 /// GROBID gives no image files for figures, only the coordinates of the
 /// figure, and of its graphic, on the pages of the PDF. So each figure is
-/// decoded without content, its coordinates are kept in the page map, and its
+/// decoded without an image, its coordinates are kept in the page map, and its
 /// missing image is recorded as a loss (with the figure's id so that each
 /// is reported). A `<graphic>` that does have a `url` becomes the image.
+/// Notes are kept after the images in the figure's content.
 pub(super) fn decode_figure(node: &Node, context: &mut Context) -> Block {
     if node.attribute("type") == Some("table") {
         return decode_table(node, context);
@@ -38,6 +39,7 @@ pub(super) fn decode_figure(node: &Node, context: &mut Context) -> Block {
 
     let mut graphics = Vec::new();
     let mut content = Vec::new();
+    let mut notes = Vec::new();
     for child in node.children().filter(Node::is_element) {
         match child.tag_name().name() {
             "head" | "label" | "figDesc" => {}
@@ -51,6 +53,7 @@ pub(super) fn decode_figure(node: &Node, context: &mut Context) -> Block {
                     }));
                 }
             }
+            "note" => notes.extend(decode_float_note(&child, context)),
             _ => context.lost(&child),
         }
     }
@@ -58,6 +61,7 @@ pub(super) fn decode_figure(node: &Node, context: &mut Context) -> Block {
     if content.is_empty() {
         context.lost_label(missing(node, "no image"));
     }
+    content.extend(notes);
 
     let figure = context.located(
         node,
@@ -106,16 +110,7 @@ fn decode_table(node: &Node, context: &mut Context) -> Block {
                     }
                 }
             }
-            "note" => {
-                if xml_id(&child).is_some() {
-                    // Keep an identified note addressable by references from
-                    // the cells, without moving it into the article footnotes.
-                    notes.push(p([Inline::Note(decode_note(&child, context))]));
-                } else {
-                    context.lost_attrs(&child, &["place"]);
-                    notes.append(&mut decode_blocks(child.children(), 0, context));
-                }
-            }
+            "note" => notes.extend(decode_float_note(&child, context)),
             _ => context.lost(&child),
         }
     }
@@ -141,6 +136,19 @@ fn decode_table(node: &Node, context: &mut Context) -> Block {
     }
 
     Block::Table(table)
+}
+
+/// Decode a figure or table note
+///
+/// A note with an id is kept as a note, in place, so that references can
+/// still address it. A note without an id is unwrapped into its blocks.
+fn decode_float_note(node: &Node, context: &mut Context) -> Vec<Block> {
+    if xml_id(node).is_some() {
+        vec![p([Inline::Note(decode_note(node, context))])]
+    } else {
+        context.lost_attrs(node, &["place"]);
+        decode_blocks(node.children(), 0, context)
+    }
 }
 
 /// Decode a `<row>` to a [`TableRow`]
