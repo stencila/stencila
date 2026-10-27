@@ -185,12 +185,12 @@ expression: article
         {
           "type": "Organization",
           "name": "Department of Biological Sciences, Texas Tech University",
-          "address": "Lubbock, USA"
+          "address": "Lubbock, TX, USA"
         },
         {
           "type": "Organization",
           "name": "Climate and Ecosystem Sciences Division, Lawrence Berkeley National Laboratory",
-          "address": "Berkeley, USA"
+          "address": "Berkeley, CA, USA"
         }
       ],
       "familyNames": [
@@ -208,12 +208,12 @@ expression: article
         {
           "type": "Organization",
           "name": "Climate and Ecosystem Sciences Division, Lawrence Berkeley National Laboratory",
-          "address": "Berkeley, USA"
+          "address": "Berkeley, CA, USA"
         },
         {
           "type": "Organization",
-          "name": "Department of Environmental Science, Policy and\n          Management, UC Berkeley",
-          "address": "Berkeley, USA"
+          "name": "Department of Environmental Science, Policy and Management, UC Berkeley",
+          "address": "Berkeley, CA, USA"
         }
       ],
       "familyNames": [
@@ -240,7 +240,7 @@ expression: article
         {
           "type": "Organization",
           "name": "Department of Biological Sciences, Macquarie University",
-          "address": "Australia"
+          "address": "NSW, 2109, Australia"
         },
         {
           "type": "Organization",
@@ -277,7 +277,7 @@ expression: article
         {
           "type": "Organization",
           "name": "Department of Biological Sciences, Macquarie University",
-          "address": "Australia"
+          "address": "NSW, 2109, Australia"
         }
       ],
       "familyNames": [
@@ -326,7 +326,7 @@ expression: article
       "affiliations": [
         {
           "type": "Organization",
-          "name": "Departamento de Biologia, Faculdade de Filosofia, Ciências e Letras de Ribeirão Preto ‐ University of São\n          Paulo",
+          "name": "Departamento de Biologia, Faculdade de Filosofia, Ciências e Letras de Ribeirão Preto ‐ University of São Paulo",
           "address": "São Paulo, Brazil"
         }
       ],
@@ -343,8 +343,8 @@ expression: article
       "affiliations": [
         {
           "type": "Organization",
-          "name": "Center for Ecological Research and Forestry\n          Applications, Universidad Autonoma de Barcelona",
-          "address": "Cerdanyola, Spain"
+          "name": "Center for Ecological Research and Forestry Applications, Universidad Autonoma de Barcelona",
+          "address": "Cerdanyola, Barcelona, Spain"
         },
         {
           "type": "Organization",
@@ -364,7 +364,7 @@ expression: article
       "affiliations": [
         {
           "type": "Organization",
-          "name": "Centre for Tropical Environmental and Sustainability\n          Science, College of Science and Engineering, James Cook University",
+          "name": "Centre for Tropical Environmental and Sustainability Science, College of Science and Engineering, James Cook University",
           "address": "Cairns, Australia"
         }
       ],
@@ -385,7 +385,7 @@ expression: article
         },
         {
           "type": "Organization",
-          "name": "German Center for Integrative Biodiversity Research\n          Halle‐Jena‐Leipzig",
+          "name": "German Center for Integrative Biodiversity Research Halle‐Jena‐Leipzig",
           "address": "Leipzig, Germany"
         }
       ],
@@ -403,7 +403,7 @@ expression: article
         {
           "type": "Organization",
           "name": "Department of Forest and Wildlife Ecology, University of Wisconsin – Madison",
-          "address": "Madison, USA"
+          "address": "Madison, Wisconsin, USA"
         }
       ],
       "familyNames": [
@@ -420,7 +420,7 @@ expression: article
         {
           "type": "Organization",
           "name": "Département des sciences de l'environnement, Université du Québec à Trois",
-          "address": "Rivières, Canada"
+          "address": "Rivières, Trois Rivières, Canada"
         }
       ],
       "familyNames": [
@@ -437,7 +437,7 @@ expression: article
         {
           "type": "Organization",
           "name": "Environmental and Climate Sciences Department, Brookhaven National Laboratory",
-          "address": "Upton, USA"
+          "address": "Upton, NY, USA"
         }
       ],
       "familyNames": [
@@ -454,7 +454,7 @@ expression: article
         {
           "type": "Organization",
           "name": "Environmental and Climate Sciences Department, Brookhaven National Laboratory",
-          "address": "Upton, USA"
+          "address": "Upton, NY, USA"
         }
       ],
       "familyNames": [
@@ -487,7 +487,7 @@ expression: article
         {
           "type": "Organization",
           "name": "Department of Biological Sciences, Macquarie University",
-          "address": "Australia"
+          "address": "NSW, 2109, Australia"
         }
       ],
       "familyNames": [
@@ -504,7 +504,7 @@ expression: article
         {
           "type": "Organization",
           "name": "Department of Forest and Wildlife Ecology, University of Wisconsin – Madison",
-          "address": "Madison, USA"
+          "address": "Madison, Wisconsin, USA"
         }
       ],
       "familyNames": [
@@ -526,7 +526,7 @@ expression: article
         },
         {
           "type": "Organization",
-          "name": "State Environmental Protection Key Laboratory of Wetland Ecology and Vegetation\n          Restoration, Northeast Normal University",
+          "name": "State Environmental Protection Key Laboratory of Wetland Ecology and Vegetation Restoration, Northeast Normal University",
           "address": "Changchun, China"
         }
       ],
@@ -565,7 +565,7 @@ expression: article
         {
           "type": "Organization",
           "name": "Department of Biological Sciences, Macquarie University",
-          "address": "Australia"
+          "address": "NSW, 2109, Australia"
         },
         {
           "type": "Organization",

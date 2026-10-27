@@ -90,14 +90,14 @@ expression: jats
             <institution>Department of Biology and Rosenstiel Basic Medical Sciences Research Center, Brandeis University</institution>
             <institution-id institution-id-type="ror">https://ror.org/05abbep66</institution-id>
           </institution-wrap>
-          <addr-line>United States</addr-line>
+          <addr-line>Waltham, United States</addr-line>
         </aff>
         <aff id="aff2">
           <institution-wrap>
             <institution>Department of Molecular Genetics &amp; Cell Biology, University of Chicago</institution>
             <institution-id institution-id-type="ror">https://ror.org/024mw5h28</institution-id>
           </institution-wrap>
-          <addr-line>United States</addr-line>
+          <addr-line>Chicago, United States</addr-line>
         </aff>
       </contrib-group>
       <contrib-group content-type="editor">
@@ -4340,7 +4340,7 @@ expression: jats
           <institution-wrap>
             <institution>Brandeis University</institution>
           </institution-wrap>
-          <addr-line>United States</addr-line>
+          <addr-line>Waltham, United States</addr-line>
         </aff>
       </contrib-group>
     </front-stub>

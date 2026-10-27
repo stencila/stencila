@@ -202,19 +202,19 @@ expression: jats
           <institution-wrap>
             <institution>Department of Biological Sciences, Texas Tech University</institution>
           </institution-wrap>
-          <addr-line>Lubbock, USA</addr-line>
+          <addr-line>Lubbock, TX, USA</addr-line>
         </aff>
         <aff id="aff2">
           <institution-wrap>
             <institution>Climate and Ecosystem Sciences Division, Lawrence Berkeley National Laboratory</institution>
           </institution-wrap>
-          <addr-line>Berkeley, USA</addr-line>
+          <addr-line>Berkeley, CA, USA</addr-line>
         </aff>
         <aff id="aff3">
           <institution-wrap>
-            <institution>Department of Environmental Science, Policy and&#10;          Management, UC Berkeley</institution>
+            <institution>Department of Environmental Science, Policy and Management, UC Berkeley</institution>
           </institution-wrap>
-          <addr-line>Berkeley, USA</addr-line>
+          <addr-line>Berkeley, CA, USA</addr-line>
         </aff>
         <aff id="aff4">
           <institution-wrap>
@@ -232,7 +232,7 @@ expression: jats
           <institution-wrap>
             <institution>Department of Biological Sciences, Macquarie University</institution>
           </institution-wrap>
-          <addr-line>Australia</addr-line>
+          <addr-line>NSW, 2109, Australia</addr-line>
         </aff>
         <aff id="aff7">
           <institution-wrap>
@@ -254,15 +254,15 @@ expression: jats
         </aff>
         <aff id="aff10">
           <institution-wrap>
-            <institution>Departamento de Biologia, Faculdade de Filosofia, Ciências e Letras de Ribeirão Preto ‐ University of São&#10;          Paulo</institution>
+            <institution>Departamento de Biologia, Faculdade de Filosofia, Ciências e Letras de Ribeirão Preto ‐ University of São Paulo</institution>
           </institution-wrap>
           <addr-line>São Paulo, Brazil</addr-line>
         </aff>
         <aff id="aff11">
           <institution-wrap>
-            <institution>Center for Ecological Research and Forestry&#10;          Applications, Universidad Autonoma de Barcelona</institution>
+            <institution>Center for Ecological Research and Forestry Applications, Universidad Autonoma de Barcelona</institution>
           </institution-wrap>
-          <addr-line>Cerdanyola, Spain</addr-line>
+          <addr-line>Cerdanyola, Barcelona, Spain</addr-line>
         </aff>
         <aff id="aff12">
           <institution-wrap>
@@ -272,7 +272,7 @@ expression: jats
         </aff>
         <aff id="aff13">
           <institution-wrap>
-            <institution>Centre for Tropical Environmental and Sustainability&#10;          Science, College of Science and Engineering, James Cook University</institution>
+            <institution>Centre for Tropical Environmental and Sustainability Science, College of Science and Engineering, James Cook University</institution>
           </institution-wrap>
           <addr-line>Cairns, Australia</addr-line>
         </aff>
@@ -284,7 +284,7 @@ expression: jats
         </aff>
         <aff id="aff15">
           <institution-wrap>
-            <institution>German Center for Integrative Biodiversity Research&#10;          Halle‐Jena‐Leipzig</institution>
+            <institution>German Center for Integrative Biodiversity Research Halle‐Jena‐Leipzig</institution>
           </institution-wrap>
           <addr-line>Leipzig, Germany</addr-line>
         </aff>
@@ -292,19 +292,19 @@ expression: jats
           <institution-wrap>
             <institution>Department of Forest and Wildlife Ecology, University of Wisconsin – Madison</institution>
           </institution-wrap>
-          <addr-line>Madison, USA</addr-line>
+          <addr-line>Madison, Wisconsin, USA</addr-line>
         </aff>
         <aff id="aff17">
           <institution-wrap>
             <institution>Département des sciences de l&apos;environnement, Université du Québec à Trois</institution>
           </institution-wrap>
-          <addr-line>Rivières, Canada</addr-line>
+          <addr-line>Rivières, Trois Rivières, Canada</addr-line>
         </aff>
         <aff id="aff18">
           <institution-wrap>
             <institution>Environmental and Climate Sciences Department, Brookhaven National Laboratory</institution>
           </institution-wrap>
-          <addr-line>Upton, USA</addr-line>
+          <addr-line>Upton, NY, USA</addr-line>
         </aff>
         <aff id="aff19">
           <institution-wrap>
@@ -314,7 +314,7 @@ expression: jats
         </aff>
         <aff id="aff20">
           <institution-wrap>
-            <institution>State Environmental Protection Key Laboratory of Wetland Ecology and Vegetation&#10;          Restoration, Northeast Normal University</institution>
+            <institution>State Environmental Protection Key Laboratory of Wetland Ecology and Vegetation Restoration, Northeast Normal University</institution>
           </institution-wrap>
           <addr-line>Changchun, China</addr-line>
         </aff>

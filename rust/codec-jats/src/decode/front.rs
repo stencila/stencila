@@ -2115,98 +2115,23 @@ fn normalize_orcid(value: &str) -> Option<String> {
 }
 
 /// Decode an `<aff>` element
+///
+/// Join institutions and divisions into the name, and address parts into the
+/// address, as for a TEI affiliation. Read descendant text so that inline
+/// formatting does not lose text, but skip footnotes and reference markers.
+/// Each address field, including those within an `<addr-line>`, is a separate
+/// part of the address, and other text is a part up to the next field.
 fn decode_aff(node: &Node) -> Organization {
-    const TRIM_CHARS: &[char] = &[',', '.', ' ', '\n'];
-
-    let mut ror = None;
-    let mut identifiers = None;
-    let mut name = Vec::new();
-    let mut address = Vec::new();
-    for child in node.children() {
-        let tag = child.tag_name().name();
-        match tag {
-            "institution-id" if matches!(child.attribute("institution-id-type"), Some("ror")) => {
-                ror = child.text().map(String::from);
-            }
-            "institution-id" => {
-                if let Some(value) = non_empty_text_deep(&child) {
-                    push_identifier(
-                        &mut identifiers,
-                        child.attribute("institution-id-type").map(String::from),
-                        None,
-                        &value,
-                    );
-                }
-            }
-
-            "named-content"
-                if matches!(
-                    child.attribute("content-type"),
-                    Some("organisation-division")
-                ) =>
-            {
-                if let Some(text) = child.text() {
-                    name.push(text.trim_matches(TRIM_CHARS))
-                }
-            }
-            "institution" => {
-                if let Some(text) = child.text() {
-                    name.push(text.trim_matches(TRIM_CHARS))
-                }
-            }
-            "institution-wrap" => {
-                for grandchild in child.children() {
-                    let tag_name = grandchild.tag_name().name();
-                    if tag_name == "institution-id"
-                        && matches!(grandchild.attribute("institution-id-type"), Some("ror"))
-                    {
-                        ror = grandchild.text().map(String::from);
-                    } else if tag_name == "institution-id" {
-                        if let Some(value) = non_empty_text_deep(&grandchild) {
-                            push_identifier(
-                                &mut identifiers,
-                                grandchild
-                                    .attribute("institution-id-type")
-                                    .map(String::from),
-                                None,
-                                &value,
-                            );
-                        }
-                    } else if tag_name == "institution"
-                        && let Some(text) = grandchild.text()
-                    {
-                        name.push(text.trim_matches(TRIM_CHARS))
-                    }
-                }
-            }
-
-            "addr-line" | "city" | "state" | "country" => {
-                if let Some(text) = child.text() {
-                    address.push(text.trim_matches(TRIM_CHARS))
-                }
-            }
-            "named-content"
-                if matches!(
-                    child.attribute("content-type"),
-                    Some("street" | "city" | "county-part" | "country")
-                ) =>
-            {
-                if let Some(text) = child.text() {
-                    address.push(text.trim_matches(TRIM_CHARS))
-                }
-            }
-
-            _ => {
-                if child.is_text()
-                    && let Some(text) = child.text()
-                {
-                    address.push(text.trim_matches(TRIM_CHARS))
-                }
-            }
-        };
-    }
-    name.retain(|name| !name.is_empty());
-    address.retain(|name| !name.is_empty());
+    let mut parts = AffParts::default();
+    parts.decode_children(node);
+    parts.flush_text();
+    let AffParts {
+        ror,
+        identifiers,
+        name,
+        mut address,
+        ..
+    } = parts;
 
     let ror = ror.map(|ror| strip_ror_prefix(&ror));
 
@@ -2235,6 +2160,164 @@ fn decode_aff(node: &Node) -> Organization {
         }),
         ..Default::default()
     }
+}
+
+/// The parts of an `<aff>` collected while decoding it
+#[derive(Default)]
+struct AffParts {
+    ror: Option<String>,
+    identifiers: Option<Vec<PropertyValueOrString>>,
+    name: Vec<String>,
+    address: Vec<String>,
+    /// Text, and inline formatting, not yet added to the address
+    text: String,
+}
+
+impl AffParts {
+    /// Decode the children of an `<aff>` or `<addr-line>`
+    fn decode_children(&mut self, parent: &Node) {
+        for child in parent.children() {
+            if child.is_text() {
+                self.text.push_str(child.text().unwrap_or_default());
+                continue;
+            }
+            // Comments and processing instructions do not split text
+            if !child.is_element() || is_aff_marker(&child) {
+                continue;
+            }
+
+            match child.tag_name().name() {
+                "institution-id" => self.push_identifier(&child),
+                "named-content"
+                    if matches!(
+                        child.attribute("content-type"),
+                        Some("organisation-division")
+                    ) =>
+                {
+                    self.push_name(&child)
+                }
+                "institution" => self.push_name(&child),
+                "institution-wrap" => {
+                    for grandchild in child.children() {
+                        match grandchild.tag_name().name() {
+                            "institution-id" => self.push_identifier(&grandchild),
+                            "institution" => self.push_name(&grandchild),
+                            _ => {}
+                        }
+                    }
+                }
+
+                "addr-line" => {
+                    self.flush_text();
+                    self.decode_children(&child);
+                    self.flush_text();
+                }
+                "city" | "state" | "postal-code" | "country" => self.push_address(&child),
+                "named-content"
+                    if matches!(
+                        child.attribute("content-type"),
+                        Some("street" | "city" | "country-part" | "county-part" | "country")
+                    ) =>
+                {
+                    self.push_address(&child)
+                }
+
+                // A superscript before any other content is a label
+                "sup" if self.is_empty() => {}
+                "italic" | "bold" | "sup" | "sub" | "sc" | "underline" | "overline"
+                | "monospace" | "roman" | "sans-serif" | "styled-content" | "named-content"
+                | "abbrev" => aff_text_raw(&child, &mut self.text),
+
+                // Other elements, such as <break>, <email> and <phone>, end the text
+                _ => self.flush_text(),
+            }
+        }
+    }
+
+    /// Whether nothing has been collected for the name or address yet
+    fn is_empty(&self) -> bool {
+        self.name.is_empty() && self.address.is_empty() && self.text.trim().is_empty()
+    }
+
+    fn push_identifier(&mut self, node: &Node) {
+        let id_type = node.attribute("institution-id-type");
+        if matches!(id_type, Some("ror")) {
+            self.ror = node.text().map(String::from);
+        } else if let Some(value) = non_empty_text_deep(node) {
+            push_identifier(
+                &mut self.identifiers,
+                id_type.map(String::from),
+                None,
+                &value,
+            );
+        }
+    }
+
+    fn push_name(&mut self, node: &Node) {
+        self.flush_text();
+        if let Some(text) = aff_text(node) {
+            self.name.push(text);
+        }
+    }
+
+    fn push_address(&mut self, node: &Node) {
+        self.flush_text();
+        if let Some(text) = aff_text(node) {
+            self.address.push(text);
+        }
+    }
+
+    /// Add any pending text to the address
+    fn flush_text(&mut self) {
+        if let Some(text) = trim_aff_text(&std::mem::take(&mut self.text)) {
+            self.address.push(text);
+        }
+    }
+}
+
+/// Whether a node within an `<aff>` is a footnote, or a marker, whose text is
+/// not part of the affiliation
+fn is_aff_marker(node: &Node) -> bool {
+    match node.tag_name().name() {
+        "label" | "fn" | "index-term" | "target" => true,
+        "xref" => matches!(
+            node.attribute("ref-type"),
+            Some("fn" | "table-fn" | "author-notes" | "aff" | "corresp")
+        ),
+        _ => false,
+    }
+}
+
+/// Collect the text of a node within an `<aff>`, skipping markers
+fn aff_text_raw(node: &Node, text: &mut String) {
+    if node.is_text() {
+        text.push_str(node.text().unwrap_or_default());
+    } else if node.has_tag_name("alternatives") {
+        // Alternatives are the same content in different forms
+        if let Some(first) = node.children().find(Node::is_element) {
+            aff_text_raw(&first, text);
+        }
+    } else if !is_aff_marker(node) {
+        for child in node.children() {
+            aff_text_raw(&child, text);
+        }
+    }
+}
+
+/// Get the text of a node within an `<aff>`, skipping markers
+fn aff_text(node: &Node) -> Option<String> {
+    let mut text = String::new();
+    aff_text_raw(node, &mut text);
+    trim_aff_text(&text)
+}
+
+/// Collapse whitespace, and trim separators, in a part of an `<aff>`
+fn trim_aff_text(text: &str) -> Option<String> {
+    const TRIM_CHARS: &[char] = &[',', '.', ';', ' '];
+
+    let text = text.split_whitespace().collect::<Vec<_>>().join(" ");
+    let text = text.trim_matches(TRIM_CHARS);
+    (!text.is_empty()).then(|| text.to_string())
 }
 
 /// Decode a `<kwd-group>` element
