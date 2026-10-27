@@ -1,4 +1,4 @@
-use std::collections::{HashMap, HashSet};
+use std::collections::{HashMap, HashSet, hash_map::Entry};
 
 use itertools::Itertools;
 use roxmltree::{Document, NS_XML_URI, Node, NodeId, ParsingOptions};
@@ -17,6 +17,7 @@ mod bibl;
 mod coords;
 mod floats;
 mod header;
+mod resolve;
 mod text;
 
 use back::decode_back;
@@ -58,7 +59,8 @@ pub fn decode(tei: &str, _options: Option<DecodeOptions>) -> Result<(SchemaNode,
     };
 
     let mut context = Context::new(&root);
-    let article = decode_tei(&root, &mut context);
+    let mut article = decode_tei(&root, &mut context);
+    resolve::remove_dangling_refs(&mut article, &mut context);
 
     // Only nodes that are in the article are mapped, not any that were decoded
     // but then dropped
@@ -140,6 +142,17 @@ fn decode_tei(root: &Node, context: &mut Context) -> Article {
         }
     }
 
+    // Footnotes decoded within content that was then dropped, such as a
+    // duplicate title, are not placed after all
+    if !context.placed_footnotes.is_empty() {
+        let mut kept = HashSet::new();
+        coords::node_ids(&article, &mut kept);
+        for block in body.iter().chain(&back) {
+            coords::node_ids(block, &mut kept);
+        }
+        context.unplace_unkept_footnotes(&kept);
+    }
+
     // Footnotes that are not referenced from the text go at the end of the
     // body, before the back matter, as a JATS <fn-group> would be
     body.append(&mut decode_unplaced_footnotes(context));
@@ -165,6 +178,10 @@ pub(super) struct Context<'a, 'input> {
     /// The ids of all elements, used to check that the target of a reference exists
     ids: HashSet<String>,
 
+    /// The ids of the `<biblStruct>`s, the only elements that a citation can
+    /// be of
+    bibl_ids: HashSet<String>,
+
     /// The footnotes of the text
     ///
     /// GROBID puts footnotes at the end of the body, so each is decoded where
@@ -173,8 +190,11 @@ pub(super) struct Context<'a, 'input> {
     footnotes: Vec<Node<'a, 'input>>,
 
     /// The footnotes that have been decoded where they are referenced, or
-    /// where they are, if within a paragraph
-    placed_footnotes: HashSet<NodeId>,
+    /// where they are, if within a paragraph, with the id of the decoded note
+    ///
+    /// The note may be within content that is then dropped, in which case the
+    /// footnote is decoded again with those that were not referenced.
+    placed_footnotes: HashMap<NodeId, Option<SchemaNodeId>>,
 
     /// The funders of the header, by the id of each grant `<org>` that they
     /// refer to, so that the grants of the back matter can name their funders
@@ -194,6 +214,10 @@ pub(super) struct Context<'a, 'input> {
     ///
     /// Used to record the attributes as lost if those nodes are later dropped.
     carriers: Vec<Carrier>,
+
+    /// The links and citations to elements in the document, with the label
+    /// of the loss to record if their target is not decoded to a kept node
+    internal_refs: HashMap<SchemaNodeId, String>,
 }
 
 /// An element whose `id` or `coords` were given to a decoded node
@@ -244,6 +268,13 @@ impl<'a, 'input> Context<'a, 'input> {
             .map(String::from)
             .collect();
 
+        let bibl_ids = root
+            .descendants()
+            .filter(|node| node.has_tag_name("biblStruct"))
+            .filter_map(|node| xml_id(&node))
+            .map(String::from)
+            .collect();
+
         let footnotes = root
             .descendants()
             .filter(|node| {
@@ -257,18 +288,33 @@ impl<'a, 'input> Context<'a, 'input> {
         Self {
             losses: Losses::none(),
             ids,
+            bibl_ids,
             footnotes,
-            placed_footnotes: HashSet::new(),
+            placed_footnotes: HashMap::new(),
             funders: Vec::new(),
             references: Vec::new(),
             page_map: PageMap::none(),
             carriers: Vec::new(),
+            internal_refs: HashMap::new(),
         }
     }
 
     /// Whether an element with an id exists
     fn has_id(&self, id: &str) -> bool {
         self.ids.contains(id)
+    }
+
+    /// Whether a `<biblStruct>` with an id exists
+    fn has_bibl_id(&self, id: &str) -> bool {
+        self.bibl_ids.contains(id)
+    }
+
+    /// Record a link or citation to elements in the document, so that it can
+    /// be checked that they were decoded to kept nodes
+    fn internal_ref(&mut self, node: &dyn InspectNode, label: String) {
+        if let Some(node_id) = node.node_id() {
+            self.internal_refs.insert(node_id, label);
+        }
     }
 
     /// Record that a decoded node, or a part of it, is where an element is on
@@ -359,21 +405,46 @@ impl<'a, 'input> Context<'a, 'input> {
             .find(|note| xml_id(note) == Some(id))
             .copied()?;
 
-        self.placed_footnotes.insert(note.id()).then_some(note)
+        self.placed_footnote(&note).then_some(note)
     }
 
-    /// Record that a footnote is being decoded where it is
+    /// Record that a footnote is being decoded
     ///
-    /// Returns `false` if it has already been decoded at a reference to it.
+    /// Returns `false` if it has already been decoded elsewhere.
     fn placed_footnote(&mut self, note: &Node) -> bool {
-        self.placed_footnotes.insert(note.id())
+        match self.placed_footnotes.entry(note.id()) {
+            Entry::Occupied(..) => false,
+            Entry::Vacant(entry) => {
+                entry.insert(None);
+                true
+            }
+        }
     }
 
-    /// Take the footnotes that have not been decoded elsewhere
-    fn take_unplaced_footnotes(&mut self) -> Vec<Node<'a, 'input>> {
-        std::mem::take(&mut self.footnotes)
-            .into_iter()
-            .filter(|note| !self.placed_footnotes.contains(&note.id()))
+    /// Record the note that a footnote was decoded to
+    fn decoded_footnote(&mut self, note: &Node, decoded: &dyn InspectNode) {
+        if let Some(placed) = self.placed_footnotes.get_mut(&note.id()) {
+            *placed = decoded.node_id();
+        }
+    }
+
+    /// Forget the placement of footnotes whose decoded notes were not kept,
+    /// given the ids of the nodes that were, so that they are decoded again
+    /// with those that were not referenced
+    fn unplace_unkept_footnotes(&mut self, kept: &HashSet<SchemaNodeId>) {
+        self.placed_footnotes.retain(|_, node_id| {
+            node_id
+                .as_ref()
+                .is_none_or(|node_id| kept.contains(node_id))
+        });
+    }
+
+    /// The footnotes that have not been decoded elsewhere, in document order
+    fn unplaced_footnotes(&self) -> Vec<Node<'a, 'input>> {
+        self.footnotes
+            .iter()
+            .filter(|note| !self.placed_footnotes.contains_key(&note.id()))
+            .copied()
             .collect()
     }
 
@@ -389,10 +460,7 @@ impl<'a, 'input> Context<'a, 'input> {
         if node.is_element() {
             self.losses.add(path(node))
         } else if node.is_text()
-            && !node
-                .text()
-                .map(|text| text.trim().is_empty())
-                .unwrap_or(true)
+            && !node.text().is_none_or(|text| text.trim().is_empty())
             && let Some(parent) = node.parent_element()
         {
             self.losses.add([&path(&parent), "/text()"].concat())
@@ -444,6 +512,17 @@ fn path(node: &Node) -> String {
     ["//", &names.into_iter().rev().join("/")].concat()
 }
 
+/// Get the path of an element with the value of one of its attributes, if
+/// it has it, used as the label of a loss
+///
+/// For example `//TEI/text/body/div/p/rs[@type='funder']`.
+fn typed_path(node: &Node, attribute: &str) -> String {
+    match node.attribute(attribute) {
+        Some(value) => format!("{}[@{attribute}='{value}']", path(node)),
+        None => path(node),
+    }
+}
+
 /// Get the id of an element
 ///
 /// GROBID uses `xml:id` but older output, and other producers, use `id`.
@@ -469,7 +548,20 @@ fn fragment_ids(uris: Option<&str>) -> Vec<String> {
         .collect()
 }
 
-/// Collapse each run of whitespace in a string to a single space
+/// Whether a character is XML whitespace
+///
+/// Only spaces, tabs and line breaks are: other Unicode spaces, such as
+/// no-break and thin spaces, are significant typography, not indentation.
+pub(super) fn is_xml_whitespace(char: char) -> bool {
+    matches!(char, ' ' | '\t' | '\n' | '\r')
+}
+
+/// Trim XML whitespace from both ends of a string
+pub(super) fn trim_xml_whitespace(text: &str) -> &str {
+    text.trim_matches(is_xml_whitespace)
+}
+
+/// Collapse each run of XML whitespace in a string to a single space
 ///
 /// TEI prose is not whitespace sensitive and GROBID's older output is
 /// indented, so line breaks and indentation within it are not significant.
@@ -477,7 +569,7 @@ pub(super) fn collapse_whitespace(text: &str) -> String {
     let mut collapsed = String::with_capacity(text.len());
     let mut in_whitespace = false;
     for char in text.chars() {
-        if char.is_whitespace() {
+        if is_xml_whitespace(char) {
             if !in_whitespace {
                 collapsed.push(' ');
             }
@@ -497,7 +589,7 @@ pub(super) fn text_of(node: &Node) -> String {
         .filter(Node::is_text)
         .filter_map(|node| node.text())
         .collect::<String>();
-    collapse_whitespace(&text).trim().to_string()
+    trim_xml_whitespace(&collapse_whitespace(&text)).to_string()
 }
 
 /// Get the text within an element if it has any

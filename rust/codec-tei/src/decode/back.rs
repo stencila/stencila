@@ -3,15 +3,15 @@ use std::iter::once;
 use roxmltree::Node;
 
 use stencila_codec::stencila_schema::{
-    Article, Block, GrantOrMonetaryGrant, MonetaryGrant, MonetaryGrantOptions, Section, SectionType,
+    Article, Block, GrantOrMonetaryGrant, MonetaryGrant, MonetaryGrantOptions, Section,
 };
 
 use super::{
     Context,
     bibl::{decode_list_bibl, push_identifier},
-    non_empty_text, path,
-    text::{Divisions, decode_blocks, decode_divisions},
-    xml_id,
+    non_empty_text,
+    text::{Divisions, decode_blocks, decode_divisions, section_type_of},
+    typed_path, xml_id,
 };
 
 /// Decode the `<back>` of a `<text>`
@@ -22,7 +22,24 @@ pub(super) fn decode_back(node: &Node, article: &mut Article, context: &mut Cont
     context.lost_attrs(node, &[]);
 
     let mut blocks = Vec::new();
+
+    // Runs of untyped divisions are decoded together, as those of the body
+    // are, so that their sections are nested by their numbering
+    let mut divs = Vec::new();
     for child in node.children() {
+        if child.has_tag_name("div") && child.attribute("type").is_none() {
+            divs.push(child);
+            continue;
+        }
+        if child.is_element() {
+            blocks.append(&mut decode_divisions(
+                divs.drain(..),
+                0,
+                Divisions::Sections,
+                context,
+            ));
+        }
+
         match child.tag_name().name() {
             "div" if child.attribute("type") == Some("references") => {
                 decode_references(&child, context)
@@ -33,34 +50,26 @@ pub(super) fn decode_back(node: &Node, article: &mut Article, context: &mut Cont
             _ => context.lost(&child),
         }
     }
+    blocks.append(&mut decode_divisions(
+        divs.into_iter(),
+        0,
+        Divisions::Sections,
+        context,
+    ));
 
     blocks
 }
 
-/// Decode a `<div>` of the back matter
+/// Decode a typed `<div>` of the back matter
 ///
 /// GROBID types the divisions of the back matter, and each typed division
 /// becomes a [`Section`] of the corresponding type, holding the headings and
 /// content of the divisions within it, as the back matter sections decoded
-/// from JATS do. An untyped division is decoded as a division of the body is.
+/// from JATS do. (Untyped divisions are decoded as those of the body are.)
 fn decode_back_div(node: &Node, context: &mut Context) -> Vec<Block> {
-    let Some(div_type) = node.attribute("type") else {
-        return decode_divisions(once(*node), 0, Divisions::Sections, context);
-    };
-
-    let section_type = match div_type {
-        "acknowledgement" | "acknowledgment" | "acknowledgements" => {
-            Some(SectionType::Acknowledgements)
-        }
-        "annex" => Some(SectionType::Appendix),
-        "availability" => Some(SectionType::DataAvailability),
-        "conflict" => Some(SectionType::CompetingInterests),
-        "contribution" => Some(SectionType::AuthorContributions),
-        "funding" => Some(SectionType::Funding),
-        _ => SectionType::from_text(div_type).ok(),
-    };
+    let section_type = node.attribute("type").and_then(section_type_of);
     if section_type.is_none() {
-        context.lost_label(format!("{}[@type='{div_type}']", path(node)));
+        context.lost_label(typed_path(node, "type"));
     }
 
     context.lost_attrs(node, &["id", "coords", "type"]);
@@ -106,7 +115,14 @@ fn decode_references(node: &Node, context: &mut Context) {
 /// Each `<org>` is a grant, with its number in an `<idno type="grant-number">`,
 /// kept as an `award-id` identifier as it is when decoding a JATS `<award-id>`.
 /// The funders of a grant are those `<funder>`s of the header that refer to it.
+/// A list of other organizations (e.g. `type="infrastructure"`) is recorded
+/// as lost.
 fn decode_list_org(node: &Node, article: &mut Article, context: &mut Context) {
+    if !matches!(node.attribute("type"), None | Some("funding")) {
+        context.lost_label(typed_path(node, "type"));
+        return;
+    }
+
     context.lost_attrs(node, &["type"]);
 
     for child in node.children() {

@@ -8,7 +8,7 @@ use stencila_codec::{
     stencila_schema::{
         Article, Author, Block, CreativeWorkType, CreativeWorkVariant, Figure,
         GrantOrMonetaryGrant, Inline, InspectNode, IntegerOrString, MathBlock, Node, Note,
-        Paragraph, PropertyValueOrString, Reference, Section, SectionType, Table,
+        NoteType, Paragraph, PropertyValueOrString, Reference, Section, SectionType, Table,
     },
 };
 use stencila_codec_text_trait::TextCodec;
@@ -2405,5 +2405,288 @@ fn author_ids_are_from_the_author_or_its_name() -> Result<()> {
     ] {
         assert!(labels.contains(&label), "{label} not in {labels:?}");
     }
+    Ok(())
+}
+
+/// Get the inlines of a paragraph
+fn paragraph_content(block: Option<&Block>) -> Result<&[Inline]> {
+    match block {
+        Some(Block::Paragraph(Paragraph { content, .. })) => Ok(content),
+        block => bail!("expected a paragraph: {block:?}"),
+    }
+}
+
+/// Describe inlines, as their type and text (not trimmed), to compare them
+fn describe(inlines: &[Inline]) -> Vec<String> {
+    inlines
+        .iter()
+        .map(|inline| {
+            format!(
+                "{}:{}",
+                inline.node_type(),
+                stencila_codec_text_trait::to_text(inline)
+            )
+        })
+        .collect()
+}
+
+#[test]
+fn whitespace_is_moved_out_of_inlines() -> Result<()> {
+    let (article, ..) = decode_article(&tei(
+        "",
+        "<p>See<ref target=\"https://example.org\"> this </ref>now. He said <hi rend=\"bold\">
+           strong  </hi> words<lb/>here, <hi rend=\"italic\">co</hi>efficient, <hi rend=\"bold\">A<lb/>B</hi>, 10\u{a0}mg.</p>",
+        "",
+    ))?;
+
+    assert_eq!(
+        describe(paragraph_content(article.content.first())?),
+        vec![
+            "Text:See ",
+            "Link:this",
+            "Text: now. He said ",
+            "Strong:strong",
+            "Text: words here, ",
+            "Emphasis:co",
+            "Text:efficient, ",
+            "Strong:A B",
+            "Text:, 10\u{a0}mg.",
+        ]
+    );
+
+    // Adjacent text within a mark is merged into one
+    let Some(Inline::Strong(strong)) = paragraph_content(article.content.first())?.get(7) else {
+        bail!("expected strong")
+    };
+    assert_eq!(strong.content.len(), 1);
+
+    Ok(())
+}
+
+#[test]
+fn notes_are_decoded_by_their_place() -> Result<()> {
+    let (article, losses) = decode_article(&tei(
+        "",
+        r#"<div><p>He said to me<note place="end">An endnote</note>.</p><note place="margin">Side</note><p>Kept <note place="inline">inline</note> text.</p></div>"#,
+        "",
+    ))?;
+
+    let [
+        Block::Paragraph(first),
+        Block::Paragraph(second),
+        Block::Paragraph(third),
+    ] = article.content.as_slice()
+    else {
+        bail!("expected three paragraphs: {:?}", article.content)
+    };
+    let Some(Inline::Note(endnote)) = first.content.get(1) else {
+        bail!("expected a note: {:?}", first.content)
+    };
+    assert_eq!(endnote.note_type, NoteType::Endnote);
+    assert_eq!(to_text(&endnote.content), "An endnote");
+
+    let Some(Inline::Note(sidenote)) = second.content.first() else {
+        bail!("expected a note: {:?}", second.content)
+    };
+    assert_eq!(sidenote.note_type, NoteType::Sidenote);
+
+    // A note with a place that is not a kind of note is kept as text
+    assert_eq!(to_text(third), "Kept inline text.");
+    assert!(labels(&losses).contains(&"//TEI/text/body/div/p/note"));
+
+    Ok(())
+}
+
+#[test]
+fn references_that_partially_or_do_not_resolve() -> Result<()> {
+    let (article, losses) = decode_article(&tei(
+        "",
+        r##"<div><p>Cited <ref type="bibr" target="#b0 #missing">[1,2]</ref>. See <ref target="#x">here</ref>. A <ref type="bibr" target="#fig_0">figure</ref>.</p>
+        <p><s xml:id="x">Target sentence.</s></p>
+        <figure xml:id="fig_0"><graphic url="a.png"/></figure></div>"##,
+        r#"<listBibl><biblStruct xml:id="b0"><monogr><title>Book</title></monogr></biblStruct></listBibl>"#,
+    ))?;
+
+    let content = paragraph_content(article.content.first())?;
+    let Some(Inline::Citation(citation)) = content.get(1) else {
+        bail!("expected a citation: {content:?}")
+    };
+    assert_eq!(citation.target, "b0");
+
+    // A link to a sentence, which is unwrapped, is replaced by its content
+    assert_eq!(
+        describe(content),
+        vec![
+            "Text:Cited ",
+            "Citation:[1,2]",
+            "Text:. See here. A ",
+            "Link:figure",
+            "Text:."
+        ]
+    );
+    let Some(Inline::Link(link)) = content.get(3) else {
+        bail!("expected a link")
+    };
+    assert_eq!(link.target, "#fig_0");
+
+    let labels = labels(&losses);
+    for label in [
+        "//TEI/text/body/div/p/ref[@type='bibr'] (partially unresolved)",
+        "//TEI/text/body/div/p/ref (unresolved)",
+    ] {
+        assert!(labels.contains(&label), "{label} not in {labels:?}");
+    }
+
+    Ok(())
+}
+
+#[test]
+fn nested_footnote_is_decoded_once() -> Result<()> {
+    let (article, ..) = decode_article(&tei(
+        "",
+        r#"<div><p>Text.</p></div>
+        <note place="foot" xml:id="outer"><p>Outer<note place="foot" xml:id="inner">Inner</note></p></note>"#,
+        "",
+    ))?;
+
+    let json = serde_json::to_string(&article)?;
+    assert_eq!(json.matches(r#""id":"inner""#).count(), 1, "{json}");
+    assert_eq!(json.matches(r#""id":"outer""#).count(), 1, "{json}");
+
+    Ok(())
+}
+
+#[test]
+fn footnote_in_dropped_title_is_not_lost() -> Result<()> {
+    let (article, losses) = decode_article(&tei(
+        r##"<fileDesc><titleStmt><title level="a" type="main">Title</title>
+        <title level="a" type="sub">Subtitle<ref type="foot" target="#foot_0">1</ref></title></titleStmt></fileDesc>"##,
+        r#"<div><p>Text.</p></div><note place="foot" xml:id="foot_0"><p>The note.</p></note>"#,
+        "",
+    ))?;
+
+    let Some(Block::Paragraph(last)) = article.content.last() else {
+        bail!("expected a paragraph")
+    };
+    let Some(Inline::Note(note)) = last.content.first() else {
+        bail!("expected a note: {:?}", last.content)
+    };
+    assert_eq!(note.id.as_deref(), Some("foot_0"));
+    assert!(labels(&losses).contains(&"//TEI/teiHeader/fileDesc/titleStmt/title"));
+
+    Ok(())
+}
+
+#[test]
+fn inline_urls_renditions_and_quotes() -> Result<()> {
+    let (article, losses) = decode_article(&tei(
+        "",
+        r#"<p>At <ref type="url">https://example.org</ref>, <hi rend="bold italic">both</hi> and <hi rend="bold shadow">one</hi>. He said <quote>hello</quote> to me.</p>"#,
+        "",
+    ))?;
+
+    let content = paragraph_content(article.content.first())?;
+    assert_eq!(article.content.len(), 1, "{:?}", article.content);
+    assert_eq!(
+        describe(content),
+        vec![
+            "Text:At ",
+            "Link:https://example.org",
+            "Text:, ",
+            "Strong:both",
+            "Text: and ",
+            "Strong:one",
+            "Text:. He said ",
+            "QuoteInline:hello",
+            "Text: to me.",
+        ]
+    );
+    let Some(Inline::Strong(strong)) = content.get(3) else {
+        bail!("expected strong")
+    };
+    assert!(matches!(strong.content.first(), Some(Inline::Emphasis(..))));
+    assert!(labels(&losses).contains(&"//TEI/text/body/p/hi[@rend='shadow']"));
+
+    Ok(())
+}
+
+#[test]
+fn typed_division_without_heading_loses_its_type() -> Result<()> {
+    let (.., losses) = decode_article(&tei(
+        "",
+        r#"<div type="methods"><p>Untitled typed div.</p></div>"#,
+        "",
+    ))?;
+    assert!(labels(&losses).contains(&"//TEI/text/body/div/@type"));
+
+    Ok(())
+}
+
+#[test]
+fn content_between_numbered_divisions() -> Result<()> {
+    let (article, ..) = decode_article(&tei(
+        "",
+        r#"<div><head n="1">Intro</head><p>A</p></div>
+        <formula xml:id="formula_0">x=1</formula>
+        <div><head n="1.1">Sub</head><p>B</p></div>"#,
+        "",
+    ))?;
+
+    // The content is within the section that the subsection after it is in
+    let [Block::Section(intro)] = article.content.as_slice() else {
+        bail!("expected one section: {:?}", article.content)
+    };
+    assert!(matches!(intro.content.get(2), Some(Block::MathBlock(..))));
+    let [sub] = sections(&intro.content)[..] else {
+        bail!("expected a subsection")
+    };
+    let Some(Block::Heading(heading)) = sub.content.first() else {
+        bail!("expected a heading")
+    };
+    assert_eq!(heading.level, 2);
+
+    Ok(())
+}
+
+#[test]
+fn back_matter_divisions_are_nested() -> Result<()> {
+    let (article, ..) = decode_article(&tei(
+        "",
+        "",
+        r#"<div><head n="A">Appendix</head><p>a</p></div>
+        <div><head n="A.1">Sub</head><p>b</p></div>
+        <div type="annex"><div><head n="B">Annex</head><div><head n="B.1">Sub</head><p>c</p></div></div></div>"#,
+    ))?;
+
+    let [Block::Section(appendix), Block::Section(annex)] = article.content.as_slice() else {
+        bail!("expected two sections: {:?}", article.content)
+    };
+    assert_eq!(sections(&appendix.content).len(), 1);
+
+    // Flattened headings are at the levels of their numbering
+    let levels = annex
+        .content
+        .iter()
+        .filter_map(|block| match block {
+            Block::Heading(heading) => Some(heading.level),
+            _ => None,
+        })
+        .collect::<Vec<_>>();
+    assert_eq!(levels, vec![1, 2]);
+
+    Ok(())
+}
+
+#[test]
+fn only_funding_organizations_are_grants() -> Result<()> {
+    let (article, losses) = decode_article(&tei(
+        "",
+        "",
+        r#"<listOrg type="infrastructure"><org xml:id="i1"><idno type="ROR">05a28rw58</idno></org></listOrg>"#,
+    ))?;
+
+    assert_eq!(article.options.funded_by, None);
+    assert!(labels(&losses).contains(&"//TEI/text/back/listOrg[@type='infrastructure']"));
+
     Ok(())
 }

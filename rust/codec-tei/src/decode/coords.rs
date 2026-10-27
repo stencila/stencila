@@ -52,6 +52,32 @@ pub(super) fn has_id(node: &dyn InspectNode, id: &str) -> bool {
     })
 }
 
+/// Collect the ids (the schema property, not node ids) of all the nodes
+/// within a node
+///
+/// Used to check that the targets of links and citations were kept.
+pub(super) fn ids(node: &dyn InspectNode, ids: &mut HashSet<String>) {
+    for property in node.properties() {
+        match property.value {
+            InspectValue::One(value) => {
+                if property.decl.property == NodeProperty::Id
+                    && let Some(ScalarRef::String(id)) = value.scalar()
+                {
+                    ids.insert(id.to_string());
+                } else {
+                    self::ids(value, ids)
+                }
+            }
+            InspectValue::Many(values) => {
+                for value in values {
+                    self::ids(value, ids)
+                }
+            }
+            InspectValue::Absent => {}
+        }
+    }
+}
+
 /// Collect the ids of all the structured nodes within a node
 ///
 /// Used to remove the page map entries of nodes that were decoded but then
