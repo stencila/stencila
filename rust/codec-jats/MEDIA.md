@@ -6,6 +6,10 @@ relative to the XML file. NIH manuscript figures in a trailing `floats-group`
 (or older `floats-wrap`) are retained too. Decoding a string does not assume
 that its hrefs refer to the current working directory.
 
+`JatsCodec::from_path` does not embed media or supplements unless
+`DecodeOptions::embed_media` or `DecodeOptions::embed_supplements` is set, so
+by default they remain references to the files.
+
 ## Reference and extraction policy
 
 CLI conversion of a file keeps media and supplements as file references, unless
@@ -73,34 +77,33 @@ document and are reported as decode losses rather than causing decode errors.
 
 ## MECA compatibility and callers
 
-The library default remains embedding both media and supplements, matching PMC
-and preserving existing callers. MECA now honors explicit `Some(false)` and
-`Some(true)` independently. The `convert` command explicitly selects references
-by default for file inputs when every output keeps references (see above); this
-is the intentional CLI behaviour change. For example, a MECA archive converted to
-Markdown now links to the original files (e.g. TIFF) rather than to resized PNGs
-extracted to `<output>.media`. Callers needing the previous CLI output can pass
-`--embed-media --embed-supplements`. Identifier inputs (e.g. PMC ids) and
+Unlike the JATS codec, the MECA and PMC codecs embed both media and supplements
+by default. MECA honors explicit `Some(false)` and `Some(true)` independently.
+The `convert` command explicitly selects references by default for file inputs
+when every output keeps references (see above). For example, a MECA archive
+converted to Markdown links to the original files (e.g. TIFF) rather than to
+resized PNGs extracted to `<output>.media`. Callers needing embedded media can
+pass `--embed-media --embed-supplements`. Identifier inputs (e.g. PMC ids) and
 bundling output formats keep the library defaults, because downloaded archives
 are temporary and bundling encoders do not use rebased references.
 Supplements already embedded during decoding are not embedded again by the
 CLI's `--embed-supplements` pass.
 
-The existing direct callers and relevant indirect consumers are:
+The direct callers and relevant indirect consumers are:
 
 - `codec-openrxiv/src/decode.rs`, `from_url`: forwards decode options to MECA;
-  default embedding is preserved, explicit false flags now take effect.
+  embedding is the default, and explicit false flags take effect.
 - `codecs/src/lib.rs`: registers `MecaCodec` for generic path/identifier decoding.
 - `codec-meca/tests/examples.rs`: decodes with only `reproducible: false`, so its
-  existing snapshots continue to exercise default embedding.
+  snapshots exercise default embedding.
 - `convert-server/src/lib.rs`, `convert_request`: uses the generic dispatcher
-  with default decode embedding options; its behaviour is preserved.
+  with default decode embedding options.
 - `convert-server/src/private.rs`, `convert_private_bundle`: extracts MECA itself,
   selects the manifest manuscript, and decodes JATS with embedding explicitly
   disabled. It does not call `MecaCodec`, and retains its own artifact policy.
   Its MECA API tests are in `convert-server/tests/api.rs`.
 - The generic `codecs` entry points also serve the CLI, documents, and bindings.
-  New tests in `cli/tests/convert_media.rs` and `codec-meca/tests/media.rs`
+  The tests in `cli/tests/convert_media.rs` and `codec-meca/tests/media.rs`
   distinguish CLI reference defaults from library embedding defaults.
 
 ## Commands and output
@@ -128,9 +131,9 @@ For example, with input and output in sibling directories:
 The extracted version references a byte-identical copy such as
 `../originals/41467_2017_2484_Fig1_HTML-bdf79530b420e5f7.jpg`.
 
-`--input-losses losses.json` already produces a machine-readable map of labels
-to counts, rather than an array. YAML is also supported. That format is retained.
-For the synthetic NIH fixture, one entry is:
+`--input-losses losses.json` produces a machine-readable map of labels to
+counts, rather than an array. YAML is also supported. For the synthetic NIH
+fixture, one entry is:
 
 ```json
 {
@@ -138,9 +141,11 @@ For the synthetic NIH fixture, one entry is:
 }
 ```
 
-The missing-media labels include indexed source XML paths and original hrefs.
-Other decode losses continue to use the existing labels. As before, a loss file
-is only written when losses are nonempty, and its parent directory must exist.
+The missing-media labels include indexed source XML paths and original hrefs,
+so that each missing resource can be identified; other decode losses use
+unindexed paths. `stencila_codec_jats::classify` ignores the indices and the
+note in parentheses. A loss file is only written when losses are nonempty, and
+its parent directory must exist.
 
 ## Real-layout checks
 
