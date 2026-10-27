@@ -58,12 +58,25 @@ impl JatsCodec for Table {
             context,
         );
 
-        // A table given only as an image has no rows to emit
+        // A table given only as an image has no rows to emit, and a table that
+        // has both is emitted with the images as alternatives to the rows
+        let images = self.options.images.iter().flatten();
         if self.rows.is_empty() {
-            for image in self.options.images.iter().flatten() {
+            for image in images {
                 image.to_jats(context);
             }
         } else {
+            let has_images = self
+                .options
+                .images
+                .as_ref()
+                .is_some_and(|images| !images.is_empty());
+            if has_images {
+                context.enter_elem("alternatives");
+                for image in images {
+                    image.to_jats(context);
+                }
+            }
             context.enter_elem("table");
             for (row_type, name) in [
                 (Some(TableRowType::HeaderRow), "thead"),
@@ -86,6 +99,9 @@ impl JatsCodec for Table {
                 context.exit_elem_omit_empty();
             }
             context.exit_elem();
+            if has_images {
+                context.exit_elem();
+            }
         }
 
         if let Some(notes) = &self.notes {

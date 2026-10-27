@@ -10,6 +10,12 @@ impl JatsCodec for Supplement {
         if let Some(id) = &self.id {
             context.push_attr("id", id);
         }
+        // The type of work is stated because it can not always be inferred
+        // again, e.g. from a label that was cleaned when decoded, or from a
+        // target that has no extension
+        if let Some(work_type) = &self.work_type {
+            context.push_attr("content-type", work_type);
+        }
 
         if let Some(label) = &self.label {
             context.enter_elem("label").push_text(label).exit_elem();
@@ -28,9 +34,6 @@ impl JatsCodec for Supplement {
                 .push_attr("xlink:href", target)
                 .exit_elem();
         }
-
-        // `workType` is not emitted: it is inferred again from the label,
-        // caption and target when this JATS is decoded
 
         context
             .exit_elem()

@@ -752,7 +752,7 @@ fn encode_subj_group(
 /// these is decoded.
 #[derive(Default)]
 struct ArticleExtra<'a> {
-    publication_dates: Vec<(Option<&'a str>, &'a str)>,
+    publication_dates: Vec<PubDate<'a>>,
     history_dates: Vec<(Option<&'a str>, &'a str)>,
     publication_history: Vec<PubHistoryEvent<'a>>,
     resources: Vec<(Option<&'a str>, Option<&'a str>, &'a str)>,
@@ -761,6 +761,16 @@ struct ArticleExtra<'a> {
     copyright_holder: Option<&'a str>,
     license_text: Option<&'a str>,
     author_notes: Vec<AuthorNote<'a>>,
+}
+
+/// A publication date of an article
+///
+/// A date with a `format` was stated in the JATS 1.1+ style, as a `date-type`
+/// with a `publication-format`. Otherwise `date_type` is a legacy `pub-type`.
+struct PubDate<'a> {
+    date_type: Option<&'a str>,
+    format: Option<&'a str>,
+    date: &'a str,
 }
 
 /// A note about the contributors of an article
@@ -808,7 +818,23 @@ fn article_extra<'a>(article: &'a Article, context: &mut JatsEncodeContext) -> A
 
     for (name, value) in article.options.extra.iter().flat_map(|extra| extra.iter()) {
         match name.as_str() {
-            "publicationDates" => extra.publication_dates = typed_dates(value),
+            "publicationDates" => {
+                if let Primitive::Array(values) = value {
+                    extra.publication_dates = values
+                        .iter()
+                        .filter_map(|value| {
+                            let Primitive::Object(object) = value else {
+                                return None;
+                            };
+                            Some(PubDate {
+                                date_type: object.get("type").and_then(string),
+                                format: object.get("format").and_then(string),
+                                date: object.get("date").and_then(string)?,
+                            })
+                        })
+                        .collect();
+                }
+            }
             "historyDates" => extra.history_dates = typed_dates(value),
             "publicationHistory" => {
                 if let Primitive::Array(values) = value {
@@ -865,6 +891,8 @@ fn article_extra<'a>(article: &'a Article, context: &mut JatsEncodeContext) -> A
             "copyrightYear" => extra.copyright_year = string(value),
             "copyrightHolder" => extra.copyright_holder = string(value),
             "licenseText" => extra.license_text = string(value),
+            // Emitted as the `xml:lang` of the `<article>`
+            "inLanguage" => {}
             _ => {
                 context.add_loss("Article.extra");
             }
@@ -894,15 +922,38 @@ fn encode_pub_dates(article: &Article, extra: &ArticleExtra, context: &mut JatsE
         return;
     }
 
-    for (pub_type, date) in &extra.publication_dates {
-        encode_article_date(
-            context,
-            "pub-date",
-            Some("pub-type"),
-            *pub_type,
-            &DateTime::new(date.to_string()),
-            "Article.datePublished",
-        );
+    for PubDate {
+        date_type,
+        format,
+        date,
+    } in &extra.publication_dates
+    {
+        let date = DateTime::new(date.to_string());
+        match format {
+            Some(format) => {
+                let Some(value) = date_value(&date) else {
+                    context.add_loss("Article.datePublished");
+                    continue;
+                };
+                context.enter_elem("pub-date");
+                if let Some(date_type) = date_type {
+                    context.push_attr("date-type", date_type);
+                }
+                context
+                    .push_attr("publication-format", format)
+                    .push_attr("iso-8601-date", value);
+                encode_date_parts(context, value);
+                context.exit_elem();
+            }
+            None => encode_article_date(
+                context,
+                "pub-date",
+                Some("pub-type"),
+                *date_type,
+                &date,
+                "Article.datePublished",
+            ),
+        }
     }
 }
 
@@ -1524,8 +1575,9 @@ fn has_abstract(article: &Article) -> bool {
         .is_some_and(|content| !content.is_empty())
 }
 
-/// The language of an abstract part, which makes it a translation
-fn abstract_language(article: &Article) -> Option<&str> {
+/// The language of an article, or of an abstract part, which makes it a
+/// translation
+fn article_language(article: &Article) -> Option<&str> {
     article
         .options
         .extra
@@ -1542,7 +1594,7 @@ fn abstract_language(article: &Article) -> Option<&str> {
 /// language nor a type when the article has no primary abstract, because as an
 /// `<abstract>` it would be decoded as the primary abstract.
 fn is_trans_abstract(article: &Article, has_primary: bool) -> bool {
-    abstract_language(article).is_some()
+    article_language(article).is_some()
         || (!has_primary && article.options.genre.iter().flatten().next().is_none())
 }
 
@@ -1582,7 +1634,7 @@ fn encode_extra_abstract(article: &Article, has_primary: bool, context: &mut Jat
         return;
     };
 
-    let language = abstract_language(article);
+    let language = article_language(article);
     if article.options.extra.as_ref().is_some_and(|extra| {
         extra
             .keys()
@@ -1614,13 +1666,23 @@ fn encode_extra_abstract(article: &Article, has_primary: bool, context: &mut Jat
 /// The nested work's own metadata goes in a `<front-stub>`, which is the
 /// article metadata of a sub-article.
 fn encode_sub_article(article: &Article, context: &mut JatsEncodeContext) {
-    context.merge_losses(lost_options_of!("Article", article.options, extra));
+    let language = article_language(article);
+    if article.options.extra.as_ref().is_some_and(|extra| {
+        extra
+            .keys()
+            .any(|key| key != "inLanguage" || language.is_none())
+    }) {
+        context.add_loss("Article.extra");
+    }
     context.enter_elem("sub-article");
     if let Some(id) = &article.id {
         context.push_attr("id", id);
     }
     if let Some(article_type) = article.options.genre.iter().flatten().next() {
         context.push_attr("article-type", article_type);
+    }
+    if let Some(language) = language {
+        context.push_attr("xml:lang", language);
     }
 
     context.enter_elem("front-stub");
@@ -1799,6 +1861,11 @@ impl Visitor for LinkTargets<'_> {
             Block::Admonition(admonition) => (&admonition.id, JatsRefType::BoxedText),
             Block::Claim(claim) => (&claim.id, JatsRefType::Statement),
             Block::List(list) => (&list.id, JatsRefType::List),
+            // JATS has no `ref-type` for these, but their ids are emitted so
+            // they can still be the target of a cross-reference
+            Block::Paragraph(paragraph) => (&paragraph.id, JatsRefType::Other),
+            Block::CodeBlock(code) => (&code.id, JatsRefType::Other),
+            Block::CodeChunk(code) => (&code.id, JatsRefType::Other),
             _ => return WalkControl::Continue,
         };
 
@@ -1897,6 +1964,12 @@ impl JatsCodec for Article {
         if let Some(id) = &self.id {
             context.push_attr("id", id);
         }
+        if let Some(article_type) = self.options.genre.iter().flatten().next() {
+            context.push_attr("article-type", article_type);
+        }
+        if let Some(language) = article_language(self) {
+            context.push_attr("xml:lang", language);
+        }
 
         context.enter_elem("front");
 
@@ -1904,7 +1977,7 @@ impl JatsCodec for Article {
         if let Some(work) = &self.options.is_part_of {
             collect_journal_metadata(work, &mut journal);
         }
-        add_article_losses(self, journal.encoded(), false, true, context);
+        add_article_losses(self, journal.encoded(), true, true, context);
 
         let parts = article_parts(self, context);
         register_link_targets(self, &parts, context);
