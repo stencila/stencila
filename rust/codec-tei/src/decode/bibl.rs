@@ -82,7 +82,7 @@ enum SourceLevel {
 /// | `imprint/publisher`, `pubPlace`        | container's `publisher`, else the reference's |
 /// | `idno[@type='DOI']`                    | `doi`                                  |
 /// | other `idno`s                          | `identifiers`, keyed by their type     |
-/// | `ptr/@target`                          | `url`                                  |
+/// | `ptr/@target`, `ref[@type='url']` (its target, else its text) | `url`, the first |
 /// | `note[@type='raw_reference']`          | `text`, only if there is no title      |
 pub(super) fn decode_bibl_struct(node: &Node, context: &mut Context) -> Reference {
     context.lost_attrs(node, &["id", "coords", "status", "type"]);
@@ -93,7 +93,10 @@ pub(super) fn decode_bibl_struct(node: &Node, context: &mut Context) -> Referenc
             "analytic" => decode_analytic(&child, &mut fields, context),
             "monogr" => decode_monogr(&child, &mut fields, context),
             "idno" => decode_idno(&child, &mut fields.doi, &mut fields.identifiers, context),
-            "ptr" => decode_ptr(&child, &mut fields.url, context),
+            "ptr" => decode_url(&child, &mut fields.url, context),
+            "ref" if child.attribute("type") == Some("url") => {
+                decode_url(&child, &mut fields.url, context)
+            }
             "note" if child.attribute("type") == Some("raw_reference") => {
                 fields.text = non_empty_text(&child);
             }
@@ -117,7 +120,10 @@ fn decode_analytic(node: &Node, fields: &mut BiblFields, context: &mut Context) 
             "author" => fields.authors.extend(decode_author(&child, context)),
             "editor" => fields.editors.extend(decode_editor(&child, context)),
             "idno" => decode_idno(&child, &mut fields.doi, &mut fields.identifiers, context),
-            "ptr" => decode_ptr(&child, &mut fields.url, context),
+            "ptr" => decode_url(&child, &mut fields.url, context),
+            "ref" if child.attribute("type") == Some("url") => {
+                decode_url(&child, &mut fields.url, context)
+            }
             _ => context.lost(&child),
         }
     }
@@ -146,7 +152,10 @@ fn decode_monogr(node: &Node, fields: &mut BiblFields, context: &mut Context) {
             "author" => fields.authors.extend(decode_author(&child, context)),
             "editor" => fields.editors.extend(decode_editor(&child, context)),
             "idno" => decode_idno(&child, &mut fields.doi, &mut fields.identifiers, context),
-            "ptr" => decode_ptr(&child, &mut fields.url, context),
+            "ptr" => decode_url(&child, &mut fields.url, context),
+            "ref" if child.attribute("type") == Some("url") => {
+                decode_url(&child, &mut fields.url, context)
+            }
             "meeting" => {
                 // The name and place of a meeting has nowhere to go other than
                 // the title of the proceedings, which GROBID gives separately
@@ -280,26 +289,55 @@ pub(super) fn decode_idno(
     push_identifier(identifiers, id_type.map(String::from), &value);
 }
 
-/// Decode a `<ptr>` as a URL, keeping the first
+/// Decode a `<ptr>` or `<ref type="url">` as a URL, keeping the first
+///
+/// Use the target when present, otherwise the text of a `<ref>`. A later,
+/// different URL, and the text of a `<ref>` that differs from its target,
+/// have nowhere to go, so are recorded as lost.
 ///
 /// A pointer to a part of the TEI itself (e.g. GROBID's `#string-range(...)`
 /// pointers from a reference to where a patent cites it) is not a URL of the
 /// work, so is recorded as lost.
-fn decode_ptr(node: &Node, url: &mut Option<String>, context: &mut Context) {
+fn decode_url(node: &Node, url: &mut Option<String>, context: &mut Context) {
+    let is_ref = node.has_tag_name("ref");
     let target = node
         .attribute("target")
         .map(str::trim)
         .filter(|target| !target.is_empty());
+    let text = if is_ref { non_empty_text(node) } else { None };
+    let value = target.map(String::from).or_else(|| text.clone());
 
-    if target.is_some_and(|target| target.starts_with('#')) {
+    if value.as_deref().is_some_and(|value| value.starts_with('#')) {
         context.lost(node);
         return;
     }
 
-    context.lost_attrs(node, &["target"]);
+    // Only the first URL is kept, so a different one is lost
+    if let (Some(kept), Some(value)) = (url.as_deref(), value.as_deref())
+        && kept != value
+    {
+        context.lost(node);
+        return;
+    }
+
+    context.lost_attrs(
+        node,
+        if is_ref {
+            &["target", "type"]
+        } else {
+            &["target"]
+        },
+    );
+
+    // The text of a `<ref>` with a target has nowhere to go, unless it is the target
+    if let (Some(target), Some(text)) = (target, text)
+        && target != text
+    {
+        context.lost_label([&path(node), "/text()"].concat());
+    }
 
     if url.is_none() {
-        *url = target.map(String::from);
+        *url = value;
     }
 }
 

@@ -961,6 +961,100 @@ fn back_matter_sections() -> Result<()> {
 }
 
 #[test]
+fn reference_urls() -> Result<()> {
+    let url = "https://grigoriefflab.umassmed.edu/diffmap";
+    for location in ["", "analytic", "monogr"] {
+        let parent = if location.is_empty() {
+            "//TEI/text/back/listBibl/biblStruct".to_string()
+        } else {
+            format!("//TEI/text/back/listBibl/biblStruct/{location}")
+        };
+        for (content, lost) in [
+            (format!(r#"<ref type="url"> {url} </ref>"#), &[][..]),
+            (
+                format!(r#"<ref type="url" target="{url}">{url}</ref>"#),
+                &[],
+            ),
+            (
+                format!(r#"<ref type="url" target=" {url} ">Website</ref>"#),
+                &["ref/text()"],
+            ),
+            (format!(r#"<ref type="url" target=" ">{url}</ref>"#), &[]),
+            (
+                format!(r#"<ref type="url" xml:id="u1" coords="1,2,3,4,5">{url}</ref>"#),
+                &["ref/@coords", "ref/@id"],
+            ),
+            (
+                format!(r#"<ptr target="{url}"/><ref type="url">https://example.org</ref>"#),
+                &["ref"],
+            ),
+            (
+                format!(r#"<ref type="url">{url}</ref><ptr target="https://example.org"/>"#),
+                &["ptr"],
+            ),
+            (
+                format!(r#"<ref type="url">{url}</ref><ptr target="{url}"/>"#),
+                &[],
+            ),
+        ] {
+            let content = if location.is_empty() {
+                content
+            } else {
+                format!("<{location}>{content}</{location}>")
+            };
+            let (article, losses) = decode_article(&tei(
+                "",
+                "",
+                &format!("<listBibl><biblStruct>{content}</biblStruct></listBibl>"),
+            ))?;
+            let Some([reference]) = article.references.as_deref() else {
+                bail!("expected one reference")
+            };
+            assert_eq!(reference.url.as_deref(), Some(url), "{content}");
+            assert_eq!(
+                losses
+                    .iter()
+                    .map(|(label, count)| (label.to_string(), count))
+                    .collect::<Vec<_>>(),
+                lost.iter()
+                    .map(|lost| (format!("{parent}/{lost}"), 1))
+                    .collect::<Vec<_>>(),
+                "{content}"
+            );
+        }
+    }
+
+    // Empty URLs and internal pointers must not prevent a later URL being kept.
+    let (article, losses) = decode_article(&tei(
+        "",
+        "",
+        &format!(
+            r##"<listBibl><biblStruct>
+                <ref type="url"> </ref>
+                <ref type="url" target="#b0">Internal link</ref>
+                <ref type="url">#b0</ref>
+                <ref type="bibr" target="#b0">A citation</ref>
+                <ptr target="#b0"/>
+                <ref type="url">{url}</ref>
+            </biblStruct></listBibl>"##
+        ),
+    ))?;
+    let Some([reference]) = article.references.as_deref() else {
+        bail!("expected one reference")
+    };
+    assert_eq!(reference.url.as_deref(), Some(url));
+    assert_eq!(
+        losses.iter().collect::<Vec<_>>(),
+        vec![
+            ("//TEI/text/back/listBibl/biblStruct/ptr", 1),
+            ("//TEI/text/back/listBibl/biblStruct/ref", 3),
+        ]
+    );
+
+    Ok(())
+}
+
+#[test]
 fn chapter_in_book() -> Result<()> {
     let (article, ..) = decode_article(&tei(
         "",
