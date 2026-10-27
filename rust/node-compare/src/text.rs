@@ -143,6 +143,12 @@ impl Grams {
     pub fn is_empty(&self) -> bool {
         self.grams.is_empty()
     }
+
+    /// Whether the text is long enough to form n-grams, and so for its
+    /// similarity to another to be judged rather than all or nothing
+    pub fn is_judgeable(&self) -> bool {
+        !self.short
+    }
 }
 
 /// The similarity of two n-gram multisets, as a cost between zero and one

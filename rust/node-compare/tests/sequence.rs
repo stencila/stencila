@@ -162,13 +162,14 @@ fn a_unique_id_anchors() -> Result<()> {
     ]);
     let right = art([
         identified("beta", "Zulu yankee xray whiskey"),
-        identified("alpha", "Completely different words entirely"),
+        identified("alpha", "Alpha beta gamma delta epsilon"),
     ]);
 
     let alignment = align(&left, &right)?;
 
-    // `alpha` pairs with `alpha` despite its content having been replaced, because a
-    // unique explicit id is a compulsory anchor
+    // `alpha` pairs with `alpha` despite its content having been edited and moved,
+    // because a unique explicit id that its text does not contradict is a compulsory
+    // anchor (`alignment.rs` has one whose text does contradict it)
     let alpha = alignment
         .pairs()
         .find(|(left, ..)| left.path == content(0))

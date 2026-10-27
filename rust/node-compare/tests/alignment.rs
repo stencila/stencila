@@ -417,3 +417,56 @@ fn occurrence_counts_match() -> Result<()> {
 
     Ok(())
 }
+
+/// Shared ids anchor items only when their text does not contradict them
+///
+/// Tools that parse documents number elements by position, so after a paragraph is
+/// inserted the same id names a different paragraph on each side. Anchoring on it
+/// would pair every later paragraph with the wrong one. But for items with too little
+/// text to judge, such as an emptied paragraph, the id is the only evidence.
+#[test]
+fn positional_ids_do_not_anchor_dissimilar_text() -> Result<()> {
+    let para = |id: &str, text: &str| {
+        stencila_schema::Block::Paragraph(Paragraph {
+            id: Some(id.to_string()),
+            ..Paragraph::new(if text.is_empty() {
+                Vec::new()
+            } else {
+                vec![t(text)]
+            })
+        })
+    };
+
+    let left = art([
+        para("p_0", "Alpha beta gamma delta"),
+        para("p_1", "Epsilon zeta eta theta"),
+        para("p_2", "Iota kappa lambda mu"),
+    ]);
+    let right = art([
+        para("p_0", "An inserted paragraph of text"),
+        para("p_1", "Alpha beta gamma delta"),
+        para("p_2", "Epsilon zeta eta theta"),
+        para("p_3", ""),
+    ]);
+    let alignment = align(&left, &right)?;
+
+    let content = |index| path([property(NodeProperty::Content), NodeSlot::Index(index)]);
+    for (left_index, right_index) in [(0, 1), (1, 2)] {
+        let Some(Correspondence::Paired { right, .. }) = by_left(&alignment, &content(left_index))
+        else {
+            bail!("Expected paragraph {left_index} to be paired")
+        };
+        assert_eq!(right.path, content(right_index), "paragraph {left_index}");
+    }
+
+    // Emptied, and so paired with the paragraph with the same id
+    let left = art([para("p_0", "Alpha beta gamma delta")]);
+    let right = art([para("p_0", "")]);
+    let alignment = align(&left, &right)?;
+    let Some(Correspondence::Paired { match_info, .. }) = by_left(&alignment, &content(0)) else {
+        bail!("Expected the emptied paragraph to be paired")
+    };
+    assert_eq!(match_info.rule, MatchRule::UniqueId);
+
+    Ok(())
+}

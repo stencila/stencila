@@ -134,19 +134,31 @@ pub fn compatible(
     }
 }
 
-/// Whether a shared explicit `id` is enough, on its own, to anchor two items
+/// Whether a shared explicit `id` is enough to anchor two items
 ///
-/// An ID is normally a deliberate identity. A reference's ID is different: tools
-/// commonly number references by position (`b0`, `b1`, …), so after one is dropped the
-/// same label names a different work on each side. Two references sharing an ID
-/// therefore anchor only when they are also more than half similar, the threshold at
-/// which the pair cost would pair them anyway; otherwise they are left to that cost.
+/// An ID is not necessarily a deliberate identity. Tools that parse documents
+/// commonly number elements by position (`b0`, `b1`, … for references, `p_0`, `p_1`,
+/// … for paragraphs), so after one is inserted or dropped the same label names
+/// different content on each side, and anchoring on it would pair every later item
+/// with the wrong counterpart.
+///
+/// Two references sharing an ID therefore anchor only when they are also more than
+/// half similar, the threshold at which the pair cost would pair them anyway;
+/// otherwise they are left to that cost. Other items sharing an ID anchor unless their
+/// text contradicts it: when both have enough text to judge, and it is not more than
+/// half similar. An ID is the only evidence that items with little or no text, such
+/// as a figure whose label was changed or a paragraph that was emptied, are the same.
 pub fn id_corroborated(left: CandidateKind<'_>, right: CandidateKind<'_>) -> bool {
     match (left, right) {
         (CandidateKind::Structured(left), CandidateKind::Structured(right))
             if left.node_type == NodeType::Reference || right.node_type == NodeType::Reference =>
         {
             corroborates(&left.grams, &right.grams)
+        }
+        (CandidateKind::Structured(left), CandidateKind::Structured(right)) => {
+            !left.grams.is_judgeable()
+                || !right.grams.is_judgeable()
+                || corroborates(&left.grams, &right.grams)
         }
         _ => true,
     }

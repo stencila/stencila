@@ -337,18 +337,24 @@ fn coverage_holds_after_reconciliation() -> Result<()> {
 /// unrecognised.
 #[test]
 fn a_cross_parent_pair_may_cross_type_within_a_union() -> Result<()> {
+    // Each section keeps most of its text, so that its id is not contradicted
+    let first = || p([t("The first section introduces the topic at some length")]);
+    let second = || p([t("The second section continues on with the discussion")]);
     let left = art([
-        identified_section("first", vec![identified("shared", "A sentence")]),
-        identified_section("second", vec![p([t("Something else entirely")])]),
+        identified_section("first", vec![identified("shared", "A sentence"), first()]),
+        identified_section("second", vec![p([t("Something else entirely")]), second()]),
     ]);
     let right = art([
-        identified_section("first", vec![p([t("Something else entirely")])]),
+        identified_section("first", vec![p([t("Something else entirely")]), first()]),
         identified_section(
             "second",
-            vec![Block::Section(Section {
-                id: Some("shared".to_string()),
-                ..Section::new(vec![p([t("A sentence")])])
-            })],
+            vec![
+                Block::Section(Section {
+                    id: Some("shared".to_string()),
+                    ..Section::new(vec![p([t("A sentence")])])
+                }),
+                second(),
+            ],
         ),
     ]);
 
