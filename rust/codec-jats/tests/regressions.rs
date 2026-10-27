@@ -63,6 +63,68 @@ fn reference_ore_credit_role() -> Result<()> {
 }
 
 #[test]
+fn reference_ore_orcid_uri() -> Result<()> {
+    for identifier in [
+        r#"<uri content-type="orcid"> https://orcid.org/0000-0002-1825-0097 </uri>"#,
+        r#"<uri content-type="orcid">http://orcid.org/0000-0002-1825-0097</uri>"#,
+        r#"<uri content-type="orcid">0000-0002-1825-0097</uri>"#,
+        r#"<contrib-id contrib-id-type="orcid">https://orcid.org/0000-0002-1825-0097</contrib-id>
+           <uri content-type="orcid">https://orcid.org/0000-0002-1825-0097</uri>"#,
+        r#"<uri content-type="orcid"> </uri>
+           <contrib-id contrib-id-type="orcid">0000-0002-1825-0097</contrib-id>"#,
+        r#"<uri content-type="orcid" xlink:href="https://orcid.org/0000-0002-1825-0097">ORCID</uri>"#,
+        r#"<uri content-type="orcid" xlink:href="https://orcid.org/0000-0002-1825-0097/"/>"#,
+        r#"<uri content-type="orcid">https://orcid.org/0000-0002-1825-0097/</uri>"#,
+        r#"<uri content-type="orcid">orcid.org/0000-0002-1825-0097</uri>"#,
+        r#"<object-id xlink:href="https://orcid.org/0000-0002-1825-0097"/>"#,
+    ] {
+        let (article, info) = article(&format!(
+            r#"<article xmlns:xlink="http://www.w3.org/1999/xlink"><front><article-meta><contrib-group>
+          <contrib contrib-type="author">
+            <name><surname>Doe</surname><given-names>Jane</given-names></name>
+            {identifier}
+          </contrib>
+        </contrib-group></article-meta></front></article>"#
+        ))?;
+        let authors = article.authors.as_ref().ok_or_eyre("missing author")?;
+        let Author::Person(person) = &authors[0] else {
+            bail!("expected a person")
+        };
+        assert_eq!(person.orcid.as_deref(), Some("0000-0002-1825-0097"));
+        assert!(
+            info.losses.is_empty(),
+            "{:?}",
+            info.losses.iter().collect::<Vec<_>>()
+        );
+        assert_roundtrip(&article)?;
+    }
+    Ok(())
+}
+
+#[test]
+fn reference_orcid_uri_without_id() -> Result<()> {
+    // A label is not an iD, so it must not be used to pair people
+    let (article, info) = article(
+        r#"<article><front><article-meta><contrib-group>
+      <contrib contrib-type="author">
+        <name><surname>Doe</surname><given-names>Jane</given-names></name>
+        <uri content-type="orcid">ORCID</uri>
+      </contrib>
+    </contrib-group></article-meta></front></article>"#,
+    )?;
+    let authors = article.authors.as_ref().ok_or_eyre("missing author")?;
+    let Author::Person(person) = &authors[0] else {
+        bail!("expected a person")
+    };
+    assert!(person.orcid.is_none());
+    assert_eq!(
+        info.losses.iter().collect::<Vec<_>>(),
+        [("//article/front/article-meta/contrib-group/contrib/uri", 1)]
+    );
+    Ok(())
+}
+
+#[test]
 fn reference_casrai_credit_role() -> Result<()> {
     for base in ["http://credit.casrai.org/", "https://credit.casrai.org"] {
         let (article, info) = article(&format!(

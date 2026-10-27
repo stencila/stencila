@@ -1839,15 +1839,11 @@ fn decode_contrib(
             }
         } else if tag == "collab" {
             name = non_empty_text_deep(&child);
-        } else if tag == "contrib-id" && matches!(child.attribute("contrib-id-type"), Some("orcid"))
+        } else if (tag == "contrib-id" && child.attribute("contrib-id-type") == Some("orcid"))
+            || (tag == "uri" && child.attribute("content-type") == Some("orcid"))
         {
             if orcid.is_none() {
-                orcid = child.text().map(|orcid| {
-                    orcid
-                        .trim_start_matches("https://orcid.org/")
-                        .trim_start_matches("http://orcid.org/")
-                        .to_string()
-                });
+                orcid = decode_orcid(path, &child, losses);
             }
         } else if tag == "contrib-id" {
             // A contributor identifier of any other kind, e.g. a Scopus id
@@ -1876,13 +1872,7 @@ fn decode_contrib(
         } else if tag == "address" {
             address = non_empty_text_deep(&child).map(PostalAddressOrString::String);
         } else if tag == "object-id" && orcid.is_none() {
-            if let Some(url) = child.attribute("xlink:href")
-                && let Some(id) = url
-                    .strip_prefix("https://orcid.org/")
-                    .or_else(|| url.strip_prefix("http://orcid.org/"))
-            {
-                orcid = Some(id.into())
-            };
+            orcid = child.attribute((XLINK, "href")).and_then(normalize_orcid);
         } else if tag == "email" {
             if let Some(value) = child.text() {
                 emails.push(value.into());
@@ -2035,6 +2025,49 @@ fn handled_credit_role_attrs(node: &Node) -> Vec<&'static str> {
     }
 
     handled
+}
+
+/// Decode the ORCID iD of a `<contrib-id>` or `<uri>` element
+///
+/// The iD is taken from the element's link if that holds one, and otherwise from
+/// its text, so that a link labelled "ORCID" is not mistaken for an iD. An empty
+/// element is ignored, but text that is not an iD is recorded as lost.
+fn decode_orcid(path: &str, node: &Node, losses: &mut DecodeContext) -> Option<String> {
+    if let Some(orcid) = node.attribute((XLINK, "href")).and_then(normalize_orcid) {
+        return Some(orcid);
+    }
+
+    let text = non_empty_text_deep(node)?;
+    let orcid = normalize_orcid(&text);
+    if orcid.is_none() {
+        record_node_lost(path, node, losses);
+    }
+    orcid
+}
+
+/// Normalize an ORCID iD, or an ORCID URL, to the bare iD
+///
+/// Returns `None` if the value is not an iD, e.g. a "0000-0002-1825-0097",
+/// optionally with an `orcid.org` prefix and a trailing slash.
+fn normalize_orcid(value: &str) -> Option<String> {
+    let value = value.trim().trim_end_matches('/');
+    let value = ["https://", "http://"]
+        .iter()
+        .find_map(|scheme| value.strip_prefix(scheme))
+        .unwrap_or(value);
+    let value = value.strip_prefix("www.").unwrap_or(value);
+    let id = value
+        .strip_prefix("orcid.org/")
+        .unwrap_or(value)
+        .to_ascii_uppercase();
+
+    let is_orcid = id.len() == 19
+        && id.bytes().enumerate().all(|(index, byte)| match index {
+            4 | 9 | 14 => byte == b'-',
+            18 => byte.is_ascii_digit() || byte == b'X',
+            _ => byte.is_ascii_digit(),
+        });
+    is_orcid.then_some(id)
 }
 
 /// Decode an `<aff>` element
