@@ -1,6 +1,7 @@
 mod losses;
 mod mapping;
 mod messages;
+mod page_map;
 mod poshmap;
 mod positions;
 mod shifter;
@@ -13,6 +14,7 @@ use serde_with::skip_serializing_none;
 pub use losses::*;
 pub use mapping::*;
 pub use messages::*;
+pub use page_map::*;
 pub use poshmap::*;
 pub use positions::*;
 pub use shifter::*;
@@ -30,6 +32,10 @@ pub struct DecodeInfo {
 
     /// The mapping between content locations and the decoded node and its children
     pub mapping: Mapping,
+
+    /// The mapping between the regions of pages of the source and the decoded node
+    /// and its children
+    pub page_map: PageMap,
 }
 
 impl DecodeInfo {
@@ -39,6 +45,7 @@ impl DecodeInfo {
             messages: Messages::none(),
             losses: Losses::none(),
             mapping: Mapping::none(),
+            page_map: PageMap::none(),
         }
     }
 }

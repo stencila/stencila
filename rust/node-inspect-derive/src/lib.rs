@@ -141,6 +141,7 @@ fn derive_struct(type_attr: TypeAttr) -> TokenStream {
     let mut decls = TokenStream::new();
     let mut props = TokenStream::new();
     let mut has_options_field = false;
+    let mut has_uid_field = false;
 
     type_attr.data.map_struct_fields(|field| {
         let Some(field_name) = field.ident else {
@@ -149,7 +150,11 @@ fn derive_struct(type_attr: TypeAttr) -> TokenStream {
 
         // Intrinsic implementation machinery, not schema properties. The type
         // discriminator is reported structurally as the `NodeType` instead.
-        if field_name == "r#type" || field_name == "uid" {
+        if field_name == "uid" {
+            has_uid_field = true;
+            return;
+        }
+        if field_name == "r#type" {
             return;
         }
 
@@ -245,6 +250,16 @@ fn derive_struct(type_attr: TypeAttr) -> TokenStream {
         )
     };
 
+    let node_id = if has_uid_field && !is_options {
+        quote! {
+            fn node_id(&self) -> Option<NodeId> {
+                Some(NodeId::new(&Self::NICK, &self.uid))
+            }
+        }
+    } else {
+        TokenStream::new()
+    };
+
     quote! {
         impl InspectType for #struct_name {
             const VALUE_KIND: ValueKind = #value_kind;
@@ -259,6 +274,8 @@ fn derive_struct(type_attr: TypeAttr) -> TokenStream {
 
         impl InspectNode for #struct_name {
             #node_type
+
+            #node_id
 
             fn properties(&self) -> Vec<InspectProperty<'_>> {
                 let mut props = Vec::new();
@@ -277,6 +294,7 @@ fn derive_enum(type_attr: TypeAttr, data: &DataEnum) -> TokenStream {
 
     let mut has_typed_variant = false;
     let mut node_type_arms = TokenStream::new();
+    let mut node_id_arms = TokenStream::new();
     let mut properties_arms = TokenStream::new();
     let mut scalar_arms = TokenStream::new();
 
@@ -288,6 +306,9 @@ fn derive_enum(type_attr: TypeAttr, data: &DataEnum) -> TokenStream {
                 node_type_arms.extend(quote! {
                     Self::#variant_name(variant) => InspectNode::node_type(variant),
                 });
+                node_id_arms.extend(quote! {
+                    Self::#variant_name(variant) => InspectNode::node_id(variant),
+                });
                 properties_arms.extend(quote! {
                     Self::#variant_name(variant) => InspectNode::properties(variant),
                 });
@@ -298,6 +319,9 @@ fn derive_enum(type_attr: TypeAttr, data: &DataEnum) -> TokenStream {
             Fields::Unit => {
                 let variant_string = variant_name.to_string();
                 node_type_arms.extend(quote! {
+                    Self::#variant_name => None,
+                });
+                node_id_arms.extend(quote! {
                     Self::#variant_name => None,
                 });
                 properties_arms.extend(quote! {
@@ -330,6 +354,12 @@ fn derive_enum(type_attr: TypeAttr, data: &DataEnum) -> TokenStream {
             fn node_type(&self) -> Option<NodeType> {
                 match self {
                     #node_type_arms
+                }
+            }
+
+            fn node_id(&self) -> Option<NodeId> {
+                match self {
+                    #node_id_arms
                 }
             }
 

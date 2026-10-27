@@ -1,0 +1,6 @@
+---
+source: rust/codec-tei/tests/examples.rs
+expression: page_map_counts(&info.page_map)
+---
+Figure: 3
+Figure/graphic: 2

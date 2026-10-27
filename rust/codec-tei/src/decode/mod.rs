@@ -1,21 +1,22 @@
-use std::collections::HashSet;
+use std::collections::{HashMap, HashSet};
 
 use itertools::Itertools;
 use roxmltree::{Document, NS_XML_URI, Node, NodeId, ParsingOptions};
 
 use stencila_codec::{
-    DecodeInfo, DecodeOptions, Losses,
+    DecodeInfo, DecodeOptions, Losses, PageMap,
     eyre::{OptionExt, Result, bail},
     stencila_schema::{
-        Article, Block, Node as SchemaNode, PersonOrOrganization, PropertyValueOrString, Reference,
+        Article, Block, InspectNode, Node as SchemaNode, NodeId as SchemaNodeId,
+        PersonOrOrganization, Reference,
     },
 };
 
 mod back;
 mod bibl;
+mod coords;
 mod floats;
 mod header;
-mod metadata;
 mod text;
 
 use back::decode_back;
@@ -59,8 +60,17 @@ pub fn decode(tei: &str, _options: Option<DecodeOptions>) -> Result<(SchemaNode,
     let mut context = Context::new(&root);
     let article = decode_tei(&root, &mut context);
 
+    // Only nodes that are in the article are mapped, not any that were decoded
+    // but then dropped
+    if !context.carriers.is_empty() {
+        let mut ids = HashSet::new();
+        coords::node_ids(&article, &mut ids);
+        context.drop_unkept(&ids);
+    }
+
     let info = DecodeInfo {
         losses: context.losses,
+        page_map: context.page_map,
         ..Default::default()
     };
 
@@ -141,11 +151,6 @@ fn decode_tei(root: &Node, context: &mut Context) -> Article {
         article.references = Some(references);
     }
 
-    metadata::append(
-        &mut article.options.identifiers,
-        std::mem::take(&mut context.coordinates),
-    );
-
     article
 }
 
@@ -181,11 +186,54 @@ pub(super) struct Context<'a, 'input> {
     /// such as for patents, has lists of references within the body.
     references: Vec<Reference>,
 
-    /// Coordinates of content nodes, keyed by their IDs in identifier names
-    coordinates: Option<Vec<PropertyValueOrString>>,
+    /// The boxes on the pages of the PDF, from the `coords` of elements, where
+    /// decoded nodes are
+    page_map: PageMap,
 
-    /// Serial for stable, collision-free IDs of elements with coordinates
-    coordinate_serial: usize,
+    /// The elements whose `id` or `coords` were given to decoded nodes
+    ///
+    /// Used to record the attributes as lost if those nodes are later dropped.
+    carriers: Vec<Carrier>,
+}
+
+/// An element whose `id` or `coords` were given to a decoded node
+struct Carrier {
+    /// The element
+    element: NodeId,
+
+    /// The path of the element, used as the label of any loss
+    path: String,
+
+    /// The id of the decoded node
+    node_id: SchemaNodeId,
+
+    /// Whether the node has the id of the element
+    ///
+    /// Not when the node is of only a part of the element, nor when it is one
+    /// of several decoded from the element and the id is on another.
+    id: bool,
+
+    /// Whether the node has the boxes of the element's coordinates
+    coords: bool,
+}
+
+/// Whether an attribute of an element was carried by any decoded node, and by
+/// any that was kept
+#[derive(Default)]
+struct Carried {
+    any: bool,
+    kept: bool,
+}
+
+impl Carried {
+    fn add(&mut self, carried: bool, kept: bool) {
+        self.any |= carried;
+        self.kept |= carried && kept;
+    }
+
+    fn is_lost(&self) -> bool {
+        self.any && !self.kept
+    }
 }
 
 impl<'a, 'input> Context<'a, 'input> {
@@ -213,8 +261,8 @@ impl<'a, 'input> Context<'a, 'input> {
             placed_footnotes: HashSet::new(),
             funders: Vec::new(),
             references: Vec::new(),
-            coordinates: None,
-            coordinate_serial: 0,
+            page_map: PageMap::none(),
+            carriers: Vec::new(),
         }
     }
 
@@ -223,31 +271,81 @@ impl<'a, 'input> Context<'a, 'input> {
         self.ids.contains(id)
     }
 
-    /// Preserve a content node's ID and index its coordinates on the article.
+    /// Record that a decoded node, or a part of it, is where an element is on
+    /// the pages of the PDF, as given by the element's `coords`
     ///
-    /// Nodes without IDs get deterministic IDs only when they have coordinates.
-    /// Callers splitting one element into several nodes pass its XML ID only for
-    /// the first node, so every resulting node remains uniquely addressable.
-    fn source_id(&mut self, node: &Node, id: Option<&str>) -> Option<String> {
-        let has_coords = node
-            .attribute("coords")
-            .is_some_and(|coords| !coords.trim().is_empty());
-        let id = match id {
-            Some(id) => id.to_string(),
-            None if has_coords => loop {
-                self.coordinate_serial += 1;
-                let id = format!("tei-{}-{}", node.tag_name().name(), self.coordinate_serial);
-                if self.ids.insert(id.clone()) {
-                    break id;
-                }
-            },
-            None => return None,
+    /// An element decoded to several nodes, such as a paragraph split around
+    /// a list within it, is recorded for each of them. Coordinates that are
+    /// malformed are recorded as lost.
+    fn locate(&mut self, element: &Node, node: &dyn InspectNode, part: Option<&str>) {
+        let id = xml_id(element).filter(|_| part.is_none());
+        let coords = element.attribute("coords");
+        if id.is_none() && coords.is_none() {
+            return;
+        }
+        let (Some(node_type), Some(node_id)) = (node.node_type(), node.node_id()) else {
+            return;
         };
-        metadata::append(
-            &mut self.coordinates,
-            metadata::coordinates(node, Some(&id)),
-        );
-        Some(id)
+
+        let boxes = coords.and_then(|coords| {
+            let boxes = coords::page_boxes(coords);
+            if boxes.is_none() {
+                self.lost_label([&path(element), "/@coords (malformed)"].concat());
+            }
+            boxes
+        });
+
+        self.carriers.push(Carrier {
+            element: element.id(),
+            path: path(element),
+            node_id: node_id.clone(),
+            id: id.is_some_and(|id| coords::has_id(node, id)),
+            coords: boxes.is_some(),
+        });
+
+        if let Some(boxes) = boxes {
+            self.page_map
+                .add(node_type, node_id, part.map(String::from), boxes)
+        }
+    }
+
+    /// Remove the page map entries of nodes that were decoded but then dropped,
+    /// such as empty footnotes, given the ids of the nodes that were kept
+    ///
+    /// The `id` and `coords` of an element are recorded as lost if no kept
+    /// node has them.
+    fn drop_unkept(&mut self, kept: &HashSet<SchemaNodeId>) {
+        // For each element, whether each of its attributes was carried by any
+        // node, and by any node that was kept
+        let mut elements = HashMap::<NodeId, (&str, Carried, Carried)>::new();
+        for carrier in &self.carriers {
+            let is_kept = kept.contains(&carrier.node_id);
+            let (_, id, coords) = elements.entry(carrier.element).or_insert((
+                &carrier.path,
+                Carried::default(),
+                Carried::default(),
+            ));
+            id.add(carrier.id, is_kept);
+            coords.add(carrier.coords, is_kept);
+        }
+
+        for (path, id, coords) in elements.into_values() {
+            if id.is_lost() {
+                self.losses.add([path, "/@id"].concat());
+            }
+            if coords.is_lost() {
+                self.losses.add([path, "/@coords"].concat());
+            }
+        }
+
+        self.page_map.retain(|entry| kept.contains(&entry.node_id));
+    }
+
+    /// Record that a decoded node is where an element is on the pages of the
+    /// PDF, and return the node
+    fn located<T: InspectNode>(&mut self, element: &Node, node: T) -> T {
+        self.locate(element, &node, None);
+        node
     }
 
     /// Get a footnote, by its id, to decode where it is referenced

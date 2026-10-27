@@ -25,9 +25,9 @@ use stencila_codec::stencila_schema::{
 pub use stencila_codec::{
     CitationStyle, Codec, CodecDirection, CredentialProfile, CredentialSigningMode,
     CredentialsOptions, DecodeInfo, DecodeOptions, EncodeInfo, EncodeOptions, EncodedAsset, Losses,
-    LossesResponse, Mapping, MappingEntry, Message, MessageLevel, Messages, NodeType, PageSelector,
-    PoshMap, Position8, Position16, Positions, PushDryRunFile, PushDryRunOptions, PushResult,
-    Range8, Range16, StructuringOperation, StructuringOptions,
+    LossesResponse, Mapping, MappingEntry, Message, MessageLevel, Messages, NodeType, PageBox,
+    PageMap, PageMapEntry, PageSelector, PoshMap, Position8, Position16, Positions, PushDryRunFile,
+    PushDryRunOptions, PushResult, Range8, Range16, StructuringOperation, StructuringOptions,
     eyre::{Context, OptionExt, Result, bail, eyre},
     stencila_format::Format,
     stencila_schema,

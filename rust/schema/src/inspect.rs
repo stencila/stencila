@@ -29,13 +29,15 @@
 //! object safe so that property values can be handed back as `&dyn InspectNode`.
 //!
 //! The intrinsic implementation machinery of the Rust representation is not reported:
-//! the `uid` field is omitted entirely, and the `type` discriminator is reported
+//! the `uid` field is not reported as a property, only as the [`InspectNode::node_id`]
+//! of an occurrence, and the `type` discriminator is reported
 //! structurally, as the [`NodeType`], rather than as a duplicate scalar property.
 //! Everything else the schema declares is reported, including explicit `id`,
 //! provenance, authorship, execution state and compilation messages. In particular,
 //! [`Cord`] is reported whole, as [`ScalarRef::Cord`]; deciding to compare only its
 //! string is a consumer's policy, not this seam's.
 
+use stencila_node_id::NodeId;
 use stencila_node_type::{NodeProperty, NodeType};
 
 use crate::{Array, Cord, Null, Object};
@@ -165,6 +167,15 @@ pub trait InspectNode {
         None
     }
 
+    /// The runtime identifier of this value, if it is a structured occurrence
+    ///
+    /// Not a schema property: it identifies this instance during a session, so
+    /// that information gathered elsewhere about the node, such as where it was
+    /// in its source, can be related to where it is in the node tree.
+    fn node_id(&self) -> Option<NodeId> {
+        None
+    }
+
     /// The declared properties of this value, with their borrowed values
     fn properties(&self) -> Vec<InspectProperty<'_>> {
         Vec::new()
@@ -262,6 +273,10 @@ where
 {
     fn node_type(&self) -> Option<NodeType> {
         self.as_ref().node_type()
+    }
+
+    fn node_id(&self) -> Option<NodeId> {
+        self.as_ref().node_id()
     }
 
     fn properties(&self) -> Vec<InspectProperty<'_>> {

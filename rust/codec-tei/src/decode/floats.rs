@@ -2,15 +2,12 @@ use quick_xml::escape::escape;
 use roxmltree::Node;
 
 use stencila_codec::stencila_schema::{
-    Block, Figure, FigureOptions, ImageObject, Inline, MathBlock, MathBlockOptions, MathInline,
-    MathInlineOptions, Table, TableCell, TableCellOptions, TableCellType, TableOptions, TableRow,
-    TableRowType, shortcuts::p,
+    Block, Figure, ImageObject, Inline, MathBlock, MathBlockOptions, MathInline, MathInlineOptions,
+    Table, TableCell, TableCellOptions, TableCellType, TableRow, TableRowType, shortcuts::p,
 };
 
 use super::{
-    Context, child, collapse_whitespace,
-    metadata::{append, coordinates},
-    non_empty_text, path,
+    Context, child, collapse_whitespace, non_empty_text, path,
     text::{decode_blocks, decode_inlines, decode_note, normalize},
     xml_id,
 };
@@ -26,8 +23,8 @@ pub(super) const FORMULA_LANGUAGE: &str = "text";
 ///
 /// GROBID gives no image files for figures, only the coordinates of the
 /// figure, and of its graphic, on the pages of the PDF. So each figure is
-/// decoded without content, its coordinates are kept in its `identifiers`, and
-/// its missing image is recorded as a loss (with the figure's id so that each
+/// decoded without content, its coordinates are kept in the page map, and its
+/// missing image is recorded as a loss (with the figure's id so that each
 /// is reported). A `<graphic>` that does have a `url` becomes the image.
 pub(super) fn decode_figure(node: &Node, context: &mut Context) -> Block {
     if node.attribute("type") == Some("table") {
@@ -39,14 +36,14 @@ pub(super) fn decode_figure(node: &Node, context: &mut Context) -> Block {
     let id = xml_id(node).map(String::from);
     let (label, caption) = decode_label_and_caption(node, LabelPrefix::Figure, context);
 
-    let mut identifiers = coordinates(node, None);
+    let mut graphics = Vec::new();
     let mut content = Vec::new();
     for child in node.children().filter(Node::is_element) {
         match child.tag_name().name() {
             "head" | "label" | "figDesc" => {}
             "graphic" => {
                 context.lost_attrs(&child, &["coords", "type", "url"]);
-                append(&mut identifiers, coordinates(&child, Some("graphic")));
+                graphics.push(child);
                 if let Some(url) = child.attribute("url") {
                     content.push(Block::ImageObject(ImageObject {
                         content_url: url.to_string(),
@@ -62,18 +59,22 @@ pub(super) fn decode_figure(node: &Node, context: &mut Context) -> Block {
         context.lost_label(missing(node, "no image"));
     }
 
-    Block::Figure(Figure {
-        id,
-        label_automatically: label.is_some().then_some(false),
-        label,
-        caption,
-        content,
-        options: Box::new(FigureOptions {
-            identifiers,
+    let figure = context.located(
+        node,
+        Figure {
+            id,
+            label_automatically: label.is_some().then_some(false),
+            label,
+            caption,
+            content,
             ..Default::default()
-        }),
-        ..Default::default()
-    })
+        },
+    );
+    for graphic in graphics {
+        context.locate(&graphic, &figure, Some("graphic"));
+    }
+
+    Block::Figure(figure)
 }
 
 /// Decode a `<figure type="table">` to a [`Table`]
@@ -88,7 +89,7 @@ fn decode_table(node: &Node, context: &mut Context) -> Block {
     let id = xml_id(node).map(String::from);
     let (label, caption) = decode_label_and_caption(node, LabelPrefix::Table, context);
 
-    let mut identifiers = coordinates(node, None);
+    let mut tables = Vec::new();
     let mut rows = Vec::new();
     let mut notes = Vec::new();
     for child in node.children().filter(Node::is_element) {
@@ -96,7 +97,7 @@ fn decode_table(node: &Node, context: &mut Context) -> Block {
             "head" | "label" | "figDesc" => {}
             "table" => {
                 context.lost_attrs(&child, &["coords"]);
-                append(&mut identifiers, coordinates(&child, Some("table")));
+                tables.push(child);
                 for grandchild in child.children() {
                     if grandchild.has_tag_name("row") {
                         rows.push(decode_row(&grandchild, context));
@@ -123,19 +124,23 @@ fn decode_table(node: &Node, context: &mut Context) -> Block {
         context.lost_label(missing(node, "no rows"));
     }
 
-    Block::Table(Table {
-        id,
-        label_automatically: label.is_some().then_some(false),
-        label,
-        caption,
-        rows,
-        notes: (!notes.is_empty()).then_some(notes),
-        options: Box::new(TableOptions {
-            identifiers,
+    let table = context.located(
+        node,
+        Table {
+            id,
+            label_automatically: label.is_some().then_some(false),
+            label,
+            caption,
+            rows,
+            notes: (!notes.is_empty()).then_some(notes),
             ..Default::default()
-        }),
-        ..Default::default()
-    })
+        },
+    );
+    for child in tables {
+        context.locate(&child, &table, Some("table"));
+    }
+
+    Block::Table(table)
 }
 
 /// Decode a `<row>` to a [`TableRow`]
@@ -163,12 +168,15 @@ fn decode_row(node: &Node, context: &mut Context) -> TableRow {
         })
         .collect();
 
-    TableRow {
-        id: context.source_id(node, xml_id(node)),
-        cells,
-        row_type,
-        ..Default::default()
-    }
+    context.located(
+        node,
+        TableRow {
+            id: xml_id(node).map(String::from),
+            cells,
+            row_type,
+            ..Default::default()
+        },
+    )
 }
 
 /// Decode a `<cell>` to a [`TableCell`]
@@ -196,24 +204,27 @@ fn decode_cell(node: &Node, context: &mut Context) -> TableCell {
         vec![p(inlines)]
     };
 
-    TableCell {
-        id: context.source_id(node, xml_id(node)),
-        cell_type,
-        content,
-        options: Box::new(TableCellOptions {
-            row_span,
-            column_span,
+    context.located(
+        node,
+        TableCell {
+            id: xml_id(node).map(String::from),
+            cell_type,
+            content,
+            options: Box::new(TableCellOptions {
+                row_span,
+                column_span,
+                ..Default::default()
+            }),
             ..Default::default()
-        }),
-        ..Default::default()
-    }
+        },
+    )
 }
 
 /// Decode a display `<formula>` to a [`MathBlock`]
 ///
 /// The text of the formula is its `code`, and its `<label>` its label. That
 /// the formula is text, not TeX or MathML, is recorded as a loss (counted
-/// rather than reported for each formula). Coordinates are indexed on the article.
+/// rather than reported for each formula).
 pub(super) fn decode_formula(node: &Node, context: &mut Context) -> Block {
     context.lost_attrs(node, &["id", "coords"]);
     context.lost_label(format!("{} (text, not TeX or MathML)", path(node)));
@@ -230,18 +241,21 @@ pub(super) fn decode_formula(node: &Node, context: &mut Context) -> Block {
     let code = formula_text(node, context);
     let mathml = formula_mathml(&code);
 
-    Block::MathBlock(MathBlock {
-        id: context.source_id(node, xml_id(node)),
-        code: code.into(),
-        math_language: Some(FORMULA_LANGUAGE.into()),
-        label_automatically: label.is_some().then_some(false),
-        label,
-        options: Box::new(MathBlockOptions {
-            mathml: Some(mathml),
+    Block::MathBlock(context.located(
+        node,
+        MathBlock {
+            id: xml_id(node).map(String::from),
+            code: code.into(),
+            math_language: Some(FORMULA_LANGUAGE.into()),
+            label_automatically: label.is_some().then_some(false),
+            label,
+            options: Box::new(MathBlockOptions {
+                mathml: Some(mathml),
+                ..Default::default()
+            }),
             ..Default::default()
-        }),
-        ..Default::default()
-    })
+        },
+    ))
 }
 
 /// Decode a `<formula>` within a paragraph to a [`MathInline`]
@@ -252,16 +266,19 @@ pub(super) fn decode_inline_formula(node: &Node, context: &mut Context) -> Inlin
     let code = formula_text(node, context);
     let mathml = formula_mathml(&code);
 
-    Inline::MathInline(MathInline {
-        id: context.source_id(node, xml_id(node)),
-        code: code.into(),
-        math_language: Some(FORMULA_LANGUAGE.into()),
-        options: Box::new(MathInlineOptions {
-            mathml: Some(mathml),
+    Inline::MathInline(context.located(
+        node,
+        MathInline {
+            id: xml_id(node).map(String::from),
+            code: code.into(),
+            math_language: Some(FORMULA_LANGUAGE.into()),
+            options: Box::new(MathInlineOptions {
+                mathml: Some(mathml),
+                ..Default::default()
+            }),
             ..Default::default()
-        }),
-        ..Default::default()
-    })
+        },
+    ))
 }
 
 /// Render extracted formula text without guessing its mathematical structure.

@@ -2,13 +2,13 @@
 //! comparison of the structure of each GROBID fixture with that of the JATS of
 //! the same article
 
-use std::{fs::read_to_string, path::PathBuf};
+use std::{collections::BTreeMap, fs::read_to_string, path::PathBuf};
 
 use glob::glob;
 use insta::{assert_json_snapshot, assert_yaml_snapshot};
 use serde_json::Value;
 
-use stencila_codec::{eyre::Result, stencila_schema::Node};
+use stencila_codec::{PageMap, eyre::Result, stencila_schema::Node};
 use stencila_codec_tei::decode;
 
 /// The directory of the fixtures
@@ -16,7 +16,7 @@ fn examples() -> PathBuf {
     PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("tests/examples")
 }
 
-/// Decode each TEI fixture and snapshot the decoded article and its losses,
+/// Decode each TEI fixture and snapshot the decoded article, its losses and page map,
 /// and a summary of its structure
 #[test]
 fn examples_snapshots() -> Result<()> {
@@ -36,12 +36,29 @@ fn examples_snapshots() -> Result<()> {
         assert_json_snapshot!(format!("{name}.json"), article);
         assert_yaml_snapshot!(format!("{name}.losses"), info.losses);
         assert_yaml_snapshot!(format!("{name}.summary"), Summary::of(&article)?);
+        assert_yaml_snapshot!(format!("{name}.page-map"), page_map_counts(&info.page_map));
 
         count += 1;
     }
     assert!(count >= 6, "expected at least six fixtures, found {count}");
 
     Ok(())
+}
+
+/// The number of entries in a page map for each type of node, and part of it
+///
+/// The entries themselves are not snapshotted because node ids differ on
+/// each decoding.
+fn page_map_counts(page_map: &PageMap) -> BTreeMap<String, usize> {
+    let mut counts = BTreeMap::new();
+    for entry in page_map.entries() {
+        let key = match &entry.part {
+            Some(part) => format!("{}/{part}", entry.node_type),
+            None => entry.node_type.to_string(),
+        };
+        *counts.entry(key).or_default() += 1;
+    }
+    counts
 }
 
 /// Compare the structure of each GROBID fixture with that of the JATS of the

@@ -2,24 +2,17 @@
 //!
 //! # Page coordinates
 //!
-//! Coordinates are preserved verbatim as `PropertyValue` identifiers with
-//! `propertyId: "coords"`. People, affiliations, references, figures and tables
-//! carry these in their own `identifiers`. An optional `name` identifies a part,
-//! such as `persName`, `orgName`, `graphic` or `table`.
+//! The `coords` of elements, their boxes on the pages of the PDF, are
+//! information about the source rather than the content, so they are not kept
+//! on the decoded nodes. They are returned in the [`PageMap`] of the
+//! [`DecodeInfo`], by the id of each node, with the part of the node that a box
+//! is of, such as `persName`, `orgName`, `graphic` or `table`, or `marker` for
+//! where a footnote is referenced. A TEI paragraph split around embedded blocks
+//! has each of the resulting paragraphs mapped to its boxes. The `xml:id` of an
+//! element is kept as the `id` of its node, but no ids are generated.
 //!
-//! Content nodes without an `identifiers` property (including headings and
-//! paragraphs) retain their `xml:id`, or receive a deterministic, collision-free
-//! ID when they have coordinates. Their coordinate identifiers are stored in the
-//! article's `identifiers`, with `name` set to the content node's ID. For example,
-//! a paragraph with `id: "p0"` points to the article identifier
-//! `{"type":"PropertyValue","propertyId":"coords","name":"p0","value":"1,10,20,30,40"}`.
-//! If a TEI paragraph is split around embedded blocks, each resulting paragraph
-//! gets its own ID and points to the original element's coordinates.
-//!
-//! Each coordinate string is a semicolon-separated list of `page,x,y,width,height`
-//! boxes in PDF points measured from the top left of the page. The node comparison
-//! crate ignores coordinate identifiers by default, so they do not affect alignment
-//! or create differences against formats without page coordinates.
+//! [`PageMap`]: stencila_codec::PageMap
+//! [`DecodeInfo`]: stencila_codec::DecodeInfo
 
 use std::io::Read;
 

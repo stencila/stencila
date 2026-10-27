@@ -11,6 +11,8 @@ Use `--normalize whitespace,typography,initials` to explicitly classify cosmetic
 
 Supply several output paths to write multiple formats from one comparison. Use `--compact` for JSON without indentation, and `--locations` to add readable labels under `report.locations.left` and `report.locations.right`, indexed by node path. These labels are display metadata; the comparison and its node references remain unchanged. HTML always shows readable labels alongside the precise paths.
 
+When a document has page coordinates, as TEI parsed from a PDF does, JSON and YAML outputs include `pages.left` and `pages.right`: the boxes on the pages of each document's source where its nodes are, indexed by node path.
+
 Exits with 0 when the documents are equal, 1 when they differ, and 2 on error.
 
 # Usage

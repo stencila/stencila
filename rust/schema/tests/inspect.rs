@@ -372,3 +372,13 @@ fn cord_is_reported_whole() -> Result<()> {
 
     Ok(())
 }
+
+/// A boxed node reports the node id of the node in the box, as it does its type
+#[test]
+fn boxed_nodes_report_their_node_id() {
+    let paragraph = Paragraph::new(vec![t("Hello")]);
+    let boxed = Box::new(paragraph.clone());
+
+    assert_eq!(boxed.node_type(), Some(NodeType::Paragraph));
+    assert_eq!(InspectNode::node_id(&boxed), Some(paragraph.node_id()));
+}

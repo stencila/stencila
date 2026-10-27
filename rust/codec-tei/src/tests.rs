@@ -3,11 +3,11 @@ use std::io::Write;
 use flate2::{Compression, write::GzEncoder};
 
 use stencila_codec::{
-    Losses,
-    eyre::{Result, bail},
+    Losses, PageMap,
+    eyre::{OptionExt, Result, bail},
     stencila_schema::{
         Article, Author, Block, CreativeWorkType, Figure, GrantOrMonetaryGrant, Inline,
-        IntegerOrString, MathBlock, Node, Note, Paragraph, Primitive, PropertyValueOrString,
+        InspectNode, IntegerOrString, MathBlock, Node, Note, Paragraph, PropertyValueOrString,
         Reference, Section, SectionType, Table,
     },
 };
@@ -33,6 +33,41 @@ fn decode_article(tei: &str) -> Result<(Article, Losses)> {
         bail!("expected an article")
     };
     Ok((article, info.losses))
+}
+
+/// Decode a TEI document to an article and its losses and page map
+///
+/// The page map is of the nodes of this article only: decoding again gives
+/// nodes with other ids.
+fn decode_article_with_page_map(tei: &str) -> Result<(Article, Losses, PageMap)> {
+    let (node, info) = decode(tei, None)?;
+    let Node::Article(article) = node else {
+        bail!("expected an article")
+    };
+    Ok((article, info.losses, info.page_map))
+}
+
+/// Get the boxes of a node in a page map, and the part of the node that each
+/// is of, with each box as `page,x,y,width,height`
+fn boxes(page_map: &PageMap, node: &dyn InspectNode) -> Result<Vec<(Option<String>, String)>> {
+    let node_id = node.node_id().ok_or_eyre("expected a node with an id")?;
+    Ok(page_map
+        .entries_for(&node_id)
+        .map(|entry| {
+            let boxes = entry
+                .boxes
+                .iter()
+                .map(|page_box| {
+                    format!(
+                        "{},{},{},{},{}",
+                        page_box.page, page_box.x, page_box.y, page_box.width, page_box.height
+                    )
+                })
+                .collect::<Vec<_>>()
+                .join(";");
+            (entry.part.clone(), boxes)
+        })
+        .collect())
 }
 
 /// Get the text of a node, without the trailing newline after blocks
@@ -219,12 +254,13 @@ fn citation_resolves_to_reference() -> Result<()> {
 
 #[test]
 fn figure_without_image_is_a_loss() -> Result<()> {
-    let (article, losses) = decode_article(&tei(
+    let xml = tei(
         "",
         r##"<div><head>Results</head><p>See Fig <ref type="figure" target="#fig_0">1B</ref>.</p></div>
         <figure xml:id="fig_0" coords="6,200.01,368.13,371.21,6.80"><head>Fig 1 .</head><label>1</label><figDesc>Fig 1. Dynamics of quorum sensing.</figDesc><graphic coords="6,72.00,78.01,504.00,209.03" type="bitmap" /></figure>"##,
         "",
-    ))?;
+    );
+    let (article, losses, page_map) = decode_article_with_page_map(&xml)?;
 
     let [Block::Section(section), Block::Figure(figure)] = article.content.as_slice() else {
         bail!("expected a section and a figure: {:?}", article.content)
@@ -235,7 +271,6 @@ fn figure_without_image_is_a_loss() -> Result<()> {
         label,
         caption,
         content,
-        options,
         ..
     } = figure;
     assert_eq!(id.as_deref(), Some("fig_0"));
@@ -247,31 +282,12 @@ fn figure_without_image_is_a_loss() -> Result<()> {
     );
     assert!(content.is_empty());
 
-    // The coordinates of the figure, and of its graphic, are kept
-    let coords = options
-        .identifiers
-        .iter()
-        .flatten()
-        .filter_map(|identifier| match identifier {
-            PropertyValueOrString::PropertyValue(value)
-                if value.property_id.as_deref() == Some("coords") =>
-            {
-                Some((value.options.name.clone(), value.value.clone()))
-            }
-            _ => None,
-        })
-        .collect::<Vec<_>>();
+    // The coordinates of the figure, and of its graphic, are in the page map
     assert_eq!(
-        coords,
+        boxes(&page_map, figure)?,
         vec![
-            (
-                None,
-                Primitive::String("6,200.01,368.13,371.21,6.80".into())
-            ),
-            (
-                Some("graphic".into()),
-                Primitive::String("6,72.00,78.01,504.00,209.03".into())
-            )
+            (None, "6,200.01,368.13,371.21,6.8".into()),
+            (Some("graphic".into()), "6,72,78.01,504,209.03".into())
         ]
     );
 
@@ -1143,30 +1159,9 @@ fn table_note_blocks_are_preserved() -> Result<()> {
     Ok(())
 }
 
-/// Coordinates are opaque strings, including their original spacing and precision.
-fn coordinate_values(
-    identifiers: &Option<Vec<PropertyValueOrString>>,
-) -> Vec<(Option<&str>, &str)> {
-    identifiers
-        .iter()
-        .flatten()
-        .filter_map(|identifier| match identifier {
-            PropertyValueOrString::PropertyValue(value)
-                if value.property_id.as_deref() == Some("coords") =>
-            {
-                let Primitive::String(coords) = &value.value else {
-                    return None;
-                };
-                Some((value.options.name.as_deref(), coords.as_str()))
-            }
-            _ => None,
-        })
-        .collect()
-}
-
 #[test]
 fn metadata_coordinates_and_xml_ids() -> Result<()> {
-    let (article, losses) = decode_article(&tei(
+    let (article, losses, page_map) = decode_article_with_page_map(&tei(
         r#"<fileDesc><sourceDesc><biblStruct><analytic>
         <author coords="1,10,20,30,40"><persName xml:id="person0" coords=" 1,1.00,2,3,4;2,5,6,7,8 "><forename>Jane</forename><surname>Doe</surname></persName>
             <affiliation xml:id="aff0" coords="1,10,11,12,13"><orgName coords="1,20,21,22,23">Institute</orgName><address coords="1,30,31,32,33"><country>NZ</country></address></affiliation>
@@ -1183,55 +1178,58 @@ fn metadata_coordinates_and_xml_ids() -> Result<()> {
     };
     assert_eq!(person.id.as_deref(), Some("person0"));
     assert_eq!(
-        coordinate_values(&person.options.identifiers),
+        boxes(&page_map, person)?,
         vec![
-            (None, "1,10,20,30,40"),
-            (Some("persName"), " 1,1.00,2,3,4;2,5,6,7,8 "),
+            (None, "1,10,20,30,40".into()),
+            (Some("persName".into()), "1,1,2,3,4;2,5,6,7,8".into()),
         ]
     );
+    // Coordinates are information about the source, not the person
+    assert_eq!(person.options.identifiers, None);
+
     let Some([affiliation]) = person.affiliations.as_deref() else {
         bail!("expected one affiliation")
     };
     assert_eq!(affiliation.id.as_deref(), Some("aff0"));
     assert_eq!(
-        coordinate_values(&affiliation.options.identifiers),
+        boxes(&page_map, affiliation)?,
         vec![
-            (None, "1,10,11,12,13"),
-            (Some("orgName"), "1,20,21,22,23"),
-            (Some("address"), "1,30,31,32,33"),
+            (None, "1,10,11,12,13".into()),
+            (Some("orgName".into()), "1,20,21,22,23".into()),
+            (Some("address".into()), "1,30,31,32,33".into()),
         ]
     );
     assert_eq!(organization.id.as_deref(), Some("consortium"));
     assert_eq!(
-        coordinate_values(&organization.options.identifiers),
-        vec![(None, "2,1,2,3,4"), (Some("orgName"), "2,5,6,7,8"),]
+        boxes(&page_map, organization)?,
+        vec![
+            (None, "2,1,2,3,4".into()),
+            (Some("orgName".into()), "2,5,6,7,8".into())
+        ]
     );
     let Some([reference]) = article.references.as_deref() else {
         bail!("expected one reference")
     };
     assert_eq!(reference.id.as_deref(), Some("b0"));
     assert_eq!(
-        coordinate_values(&reference.options.identifiers),
-        vec![(None, "3,1,2,3,4;4,5,6,7,8"),]
+        boxes(&page_map, reference)?,
+        vec![(None, "3,1,2,3,4;4,5,6,7,8".into())]
     );
     assert!(losses.is_empty(), "{:?}", labels(&losses));
     Ok(())
 }
 
 #[test]
-fn content_coordinates_are_indexed_by_unique_stable_ids() -> Result<()> {
-    let xml = tei(
+fn content_coordinates_are_in_the_page_map() -> Result<()> {
+    let (article, losses, page_map) = decode_article_with_page_map(&tei(
         "",
-        r#"<div><head xml:id="tei-p-1" coords="1,1,2,3,4">Heading</head>
+        r#"<div><head xml:id="h0" coords="1,1,2,3,4">Heading</head>
         <p xml:id="p0" coords=" 1,2,3,4,5;2,6,7,8,9 ">Before<list><item>Item</item></list>After</p>
         <p coords="1,3,4,5,6">Another</p><p>No coordinates</p><p coords=" ">Empty coordinates</p>
         <formula xml:id="eq0" coords="2,1,2,3,4">x</formula>
     </div>"#,
         "",
-    );
-    let (article, losses) = decode_article(&xml)?;
-    let (again, _) = decode_article(&xml)?;
-    assert_eq!(article, again);
+    ))?;
     let [Block::Section(section)] = article.content.as_slice() else {
         bail!("expected a section")
     };
@@ -1248,27 +1246,234 @@ fn content_coordinates_are_indexed_by_unique_stable_ids() -> Result<()> {
     else {
         bail!("unexpected section content: {:?}", section.content)
     };
-    assert_eq!(heading.id.as_deref(), Some("tei-p-1"));
+
+    // Only ids in the TEI are kept, none are generated
+    assert_eq!(heading.id.as_deref(), Some("h0"));
     assert_eq!(before.id.as_deref(), Some("p0"));
-    assert_eq!(after.id.as_deref(), Some("tei-p-2"));
-    assert_eq!(another.id.as_deref(), Some("tei-p-3"));
-    assert_eq!(unlocated.id, None);
-    assert_eq!(empty.id, None);
+    assert_eq!(after.id, None);
+    assert_eq!(another.id, None);
     assert_eq!(equation.id.as_deref(), Some("eq0"));
-    assert_eq!(
-        coordinate_values(&article.options.identifiers),
-        vec![
-            (Some("tei-p-1"), "1,1,2,3,4"),
-            (Some("p0"), " 1,2,3,4,5;2,6,7,8,9 "),
-            (Some("tei-p-2"), " 1,2,3,4,5;2,6,7,8,9 "),
-            (Some("tei-p-3"), "1,3,4,5,6"),
-            (Some("eq0"), "2,1,2,3,4"),
-        ]
-    );
+
+    let located = |boxes: &str| vec![(None, boxes.to_string())];
+    assert_eq!(boxes(&page_map, heading)?, located("1,1,2,3,4"));
+    // Both parts of a paragraph split around a list are where the paragraph is
+    assert_eq!(boxes(&page_map, before)?, located("1,2,3,4,5;2,6,7,8,9"));
+    assert_eq!(boxes(&page_map, after)?, located("1,2,3,4,5;2,6,7,8,9"));
+    assert_eq!(boxes(&page_map, another)?, located("1,3,4,5,6"));
+    assert_eq!(boxes(&page_map, unlocated)?, vec![]);
+    assert_eq!(boxes(&page_map, empty)?, vec![]);
+    assert_eq!(boxes(&page_map, equation)?, located("2,1,2,3,4"));
+    assert_eq!(page_map.entries().len(), 5);
+
+    assert_eq!(article.options.identifiers, None);
     assert_eq!(
         labels(&losses),
         vec!["//TEI/text/body/div/formula (text, not TeX or MathML)"]
     );
+    Ok(())
+}
+
+#[test]
+fn malformed_coordinates_are_a_loss() -> Result<()> {
+    let (_, losses, page_map) = decode_article_with_page_map(&tei(
+        "",
+        r#"<div><head>Heading</head><p coords="1,2,3">Text</p></div>"#,
+        "",
+    ))?;
+    assert!(page_map.is_empty());
+    assert_eq!(
+        labels(&losses),
+        vec!["//TEI/text/body/div/p/@coords (malformed)"]
+    );
+    Ok(())
+}
+
+#[test]
+fn coordinates_of_dropped_nodes_are_not_mapped() -> Result<()> {
+    let (_, _, page_map) = decode_article_with_page_map(&tei(
+        r#"<profileDesc><abstract><div><head coords="1,1,1,1,1">Abstract</head><p coords="1,2,2,2,2">Text</p></div></abstract></profileDesc>"#,
+        r#"<div><head coords="2,1,1,1,1">Heading</head></div><note place="foot" xml:id="foot_0" coords="3,1,1,1,1"> </note>"#,
+        "",
+    ))?;
+    // Not the abstract's heading, which is dropped, nor the empty footnote
+    let pages = page_map
+        .entries()
+        .iter()
+        .flat_map(|entry| entry.boxes.iter().map(|page_box| page_box.page))
+        .collect::<Vec<_>>();
+    assert_eq!(pages, vec![1, 2]);
+    Ok(())
+}
+
+#[test]
+fn ids_and_coordinates_of_dropped_nodes_are_a_loss() -> Result<()> {
+    let (_, losses, _) = decode_article_with_page_map(&tei(
+        r#"<profileDesc><abstract><div coords="1,9,9,9,9"><head xml:id="h0" coords="1,1,1,1,1">Abstract</head><p>Text</p></div></abstract></profileDesc>"#,
+        r#"<div><head>Heading</head></div><note place="foot" xml:id="foot_0" coords="3,1,1,1,1"> </note>"#,
+        "",
+    ))?;
+    let labels = labels(&losses);
+    for label in [
+        "//TEI/teiHeader/profileDesc/abstract/div/@coords",
+        "//TEI/teiHeader/profileDesc/abstract/div/head/@id",
+        "//TEI/teiHeader/profileDesc/abstract/div/head/@coords",
+        "//TEI/text/body/note/@id",
+        "//TEI/text/body/note/@coords",
+    ] {
+        assert!(labels.contains(&label), "{label} not in {labels:?}");
+    }
+    Ok(())
+}
+
+#[test]
+fn paragraphs_of_only_blocks_lose_their_id_and_coordinates() -> Result<()> {
+    let (article, losses, page_map) = decode_article_with_page_map(&tei(
+        "",
+        r#"<div><head>Heading</head><p xml:id="p0" coords="1,1,1,1,1"><figure xml:id="fig_0"><head>Figure</head></figure></p><p xml:id="p1" coords="2,1,1,1,1"> </p></div>"#,
+        "",
+    ))?;
+    let [Block::Section(section)] = article.content.as_slice() else {
+        bail!("expected a section: {:?}", article.content)
+    };
+    let [Block::Heading(..), Block::Figure(..)] = section.content.as_slice() else {
+        bail!("expected a heading and a figure: {:?}", section.content)
+    };
+    assert!(page_map.is_empty());
+
+    // Both paragraphs lose them
+    let counts = losses
+        .iter()
+        .filter(|(label, ..)| label.starts_with("//TEI/text/body/div/p/@"))
+        .collect::<Vec<_>>();
+    assert_eq!(
+        counts,
+        vec![
+            ("//TEI/text/body/div/p/@coords", 2),
+            ("//TEI/text/body/div/p/@id", 2)
+        ]
+    );
+    Ok(())
+}
+
+#[test]
+fn empty_person_names_lose_their_id_and_coordinates() -> Result<()> {
+    let (article, losses, page_map) = decode_article_with_page_map(&tei(
+        r#"<fileDesc><sourceDesc><biblStruct><analytic>
+        <author><persName xml:id="pn0" coords="1,1,1,1,1"/><orgName coords="1,2,2,2,2">Consortium</orgName></author>
+        </analytic></biblStruct></sourceDesc></fileDesc>"#,
+        "",
+        "",
+    ))?;
+    let Some([Author::Organization(organization)]) = article.authors.as_deref() else {
+        bail!("expected an organization: {:?}", article.authors)
+    };
+    assert_eq!(organization.id, None);
+    assert_eq!(
+        boxes(&page_map, organization)?,
+        vec![(Some("orgName".to_string()), "1,2,2,2,2".to_string())]
+    );
+
+    let labels = labels(&losses);
+    for label in [
+        "//TEI/teiHeader/fileDesc/sourceDesc/biblStruct/analytic/author/persName/@id",
+        "//TEI/teiHeader/fileDesc/sourceDesc/biblStruct/analytic/author/persName/@coords",
+    ] {
+        assert!(labels.contains(&label), "{label} not in {labels:?}");
+    }
+    Ok(())
+}
+
+#[test]
+fn coordinates_out_of_range_are_malformed() -> Result<()> {
+    for coords in [
+        "1,NaN,1,1,1",
+        "1,1,inf,1,1",
+        "0,1,1,1,1",
+        "1,1,1,-1,1",
+        "1,1,1,1,-1",
+    ] {
+        let (_, losses, page_map) = decode_article_with_page_map(&tei(
+            "",
+            &format!(r#"<div><head>Heading</head><p coords="{coords}">Text</p></div>"#),
+            "",
+        ))?;
+        assert!(page_map.is_empty(), "{coords}");
+        assert_eq!(
+            labels(&losses),
+            vec!["//TEI/text/body/div/p/@coords (malformed)"],
+            "{coords}"
+        );
+    }
+    Ok(())
+}
+
+#[test]
+fn coordinates_do_not_change_structure() -> Result<()> {
+    let decode = |coords: &str| {
+        decode_article(&tei(
+            &format!(
+                r#"<profileDesc><abstract><div{coords}><head>Abstract</head><p>Hello</p></div></abstract></profileDesc>"#
+            ),
+            "",
+            "",
+        ))
+    };
+    let (plain, ..) = decode("")?;
+    let (located, ..) = decode(r#" coords="1,1,1,1,1""#)?;
+    assert_eq!(plain, located);
+    let Some([Block::Paragraph(..)]) = located.r#abstract.as_deref() else {
+        bail!("expected a paragraph: {:?}", located.r#abstract)
+    };
+    Ok(())
+}
+
+#[test]
+fn footnote_marker_and_content_are_parts_of_the_note() -> Result<()> {
+    let (article, _, page_map) = decode_article_with_page_map(&tei(
+        "",
+        r##"<div><head>Heading</head><p>A claim<ref type="foot" target="#foot_0" coords="1,1,1,1,1">1</ref>.</p></div>
+        <note place="foot" xml:id="foot_0" coords="9,1,1,1,1"><p>The footnote.</p></note>"##,
+        "",
+    ))?;
+    let [Block::Section(section)] = article.content.as_slice() else {
+        bail!("expected a section")
+    };
+    let Some(Block::Paragraph(paragraph)) = section.content.get(1) else {
+        bail!("expected a paragraph")
+    };
+    let Some(Inline::Note(note)) = paragraph.content.get(1) else {
+        bail!("expected a note: {:?}", paragraph.content)
+    };
+    assert_eq!(
+        boxes(&page_map, note)?,
+        vec![
+            (None, "9,1,1,1,1".into()),
+            (Some("marker".into()), "1,1,1,1,1".into())
+        ]
+    );
+    Ok(())
+}
+
+#[test]
+fn coordinates_do_not_change_alignment() -> Result<()> {
+    let decode = |body: &str| -> Result<Node> { Ok(decode(&tei("", body, ""), None)?.0) };
+    let left =
+        decode(r#"<p coords="1,1,1,1,1">Alpha beta.</p><p coords="1,2,2,2,2">Gamma delta.</p>"#)?;
+    let right = decode(
+        r#"<p coords="1,1,1,1,1">Inserted text.</p><p coords="1,2,2,2,2">Alpha beta.</p><p coords="1,3,3,3,3">Gamma delta.</p>"#,
+    )?;
+    let comparison = stencila_node_compare::compare(&left, &right)?;
+    let pairs = comparison
+        .alignment()
+        .pairs()
+        .map(|(left, right, _)| (left.path.to_string(), right.path.to_string()))
+        .collect::<Vec<_>>();
+    for pair in [("content/0", "content/1"), ("content/1", "content/2")] {
+        assert!(
+            pairs.contains(&(pair.0.to_string(), pair.1.to_string())),
+            "{pair:?} not in {pairs:?}"
+        );
+    }
     Ok(())
 }
 
@@ -1325,7 +1530,7 @@ fn source_metadata_without_a_node_to_carry_it_is_a_loss() -> Result<()> {
 
 #[test]
 fn author_ids_are_from_the_author_or_its_name() -> Result<()> {
-    let (article, losses) = decode_article(&tei(
+    let (article, losses, page_map) = decode_article_with_page_map(&tei(
         r#"<fileDesc><sourceDesc><biblStruct><analytic>
         <author xml:id="a1"><persName xml:id="p1"><surname>Doe</surname></persName></author>
         <author><orgName xml:id="o1" coords="1,1,1,1,1">Institute</orgName><persName xml:id="p2"><surname>Roe</surname></persName></author>
@@ -1341,7 +1546,7 @@ fn author_ids_are_from_the_author_or_its_name() -> Result<()> {
 
     // The `orgName` of a person is lost, along with its id and coordinates
     assert_eq!(roe.id.as_deref(), Some("p2"));
-    assert_eq!(coordinate_values(&roe.options.identifiers), vec![]);
+    assert_eq!(boxes(&page_map, roe)?, vec![]);
 
     let labels = labels(&losses);
     for label in [

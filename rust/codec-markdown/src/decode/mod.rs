@@ -220,6 +220,7 @@ pub fn decode(content: &str, options: Option<DecodeOptions>) -> Result<(Node, De
         messages,
         losses: context.losses,
         mapping: context.mapping,
+        ..Default::default()
     };
 
     Ok((node, info))

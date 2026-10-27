@@ -19,11 +19,7 @@
 //! - a `Cord` projects to its string only, and its authorship is ignored entirely,
 //!   matching the custom `PartialEq` implementation for `Cord`;
 //! - dynamic object entries are canonically ordered by key, so insertion order affects
-//!   neither comparison nor serialization;
-//! - `identifiers` entries with `propertyId: "coords"` are source locations, so are
-//!   omitted. A list that is empty, or contains only coordinates, is treated as
-//!   absent. Remaining
-//!   entries retain their original paths and scalar indices.
+//!   neither comparison nor serialization.
 //!
 //! Everything else the schema declares is projected, including explicit `id` and
 //! cross-reference targets. Difference derivation ignores local ID changes and
@@ -37,7 +33,7 @@ use std::collections::HashMap;
 
 use stencila_node_path::{NodePath, NodeSlot};
 use stencila_node_type::{NodeProperty, NodeType};
-use stencila_schema::{InspectNode, InspectValue, PropertyDecl, ScalarRef};
+use stencila_schema::{InspectNode, InspectValue, NodeId, PropertyDecl, ScalarRef};
 
 use crate::{
     alignment::NodeRef,
@@ -87,7 +83,7 @@ pub(crate) fn property_union<'projection>(
 ///
 /// Recorded in artifacts so that a consumer can tell whether two artifacts were
 /// produced by the same representation rules.
-pub const PROJECTION_VERSION: &str = "2";
+pub const PROJECTION_VERSION: &str = "1";
 
 /// The greatest nesting depth the projection will represent
 ///
@@ -162,9 +158,6 @@ pub struct ProjectedProperty {
     /// exactly one item; a repeated property that is present has one item per
     /// element, of which there may be none.
     pub items: Vec<Item>,
-
-    /// Original sequence indices, before source-location identifiers were omitted
-    pub source_indices: Vec<usize>,
 }
 
 /// A structured occurrence: a concrete typed schema object at a [`NodePath`]
@@ -178,6 +171,10 @@ pub struct Occurrence {
 
     /// The path to this occurrence from the projected root
     pub path: NodePath,
+
+    /// The runtime identifier of the node, used only to relate this occurrence to
+    /// information about the node gathered elsewhere, never to compare it
+    pub node_id: Option<NodeId>,
 
     /// The occurrence that contains this one, if any
     pub parent: Option<OccurrenceId>,
@@ -352,6 +349,7 @@ impl Projection {
                 id,
                 node_type,
                 path: path.clone(),
+                node_id: node.node_id(),
                 parent,
                 parent_property,
                 properties: Vec::new(),
@@ -392,8 +390,8 @@ impl Projection {
         let mut property_path = path.clone();
         property_path.push_back(NodeSlot::Property(decl.property));
 
-        let (presence, items, source_indices) = match value {
-            InspectValue::Absent => (Presence::Absent, Vec::new(), Vec::new()),
+        let (presence, items) = match value {
+            InspectValue::Absent => (Presence::Absent, Vec::new()),
             InspectValue::One(node) => {
                 let item = self.project(
                     node,
@@ -402,19 +400,12 @@ impl Projection {
                     Some(decl.property),
                     depth + 1,
                 )?;
-                (Presence::Present, vec![item], vec![0])
+                (Presence::Present, vec![item])
             }
             InspectValue::Many(nodes) => {
-                let retained: Vec<_> = nodes
+                let items = nodes
                     .into_iter()
                     .enumerate()
-                    .filter(|(_, node)| {
-                        decl.property != NodeProperty::Identifiers || !is_coordinates(*node)
-                    })
-                    .collect();
-                let source_indices = retained.iter().map(|(index, _)| *index).collect();
-                let items = retained
-                    .into_iter()
                     .map(|(index, node)| {
                         let mut item_path = property_path.clone();
                         item_path.push_back(NodeSlot::Index(index));
@@ -427,14 +418,7 @@ impl Projection {
                         )
                     })
                     .collect::<CompareResult<Vec<_>>>()?;
-                // Without its coordinates, an `identifiers` list may be empty, so an
-                // empty list is treated as absent whether or not it held any
-                let presence = if decl.property == NodeProperty::Identifiers && items.is_empty() {
-                    Presence::Absent
-                } else {
-                    Presence::Present
-                };
-                (presence, items, source_indices)
+                (Presence::Present, items)
             }
         };
 
@@ -442,7 +426,6 @@ impl Projection {
             decl,
             presence,
             items,
-            source_indices,
         })
     }
 
@@ -612,16 +595,6 @@ impl Projection {
 
         Ok(true)
     }
-}
-
-/// Coordinate identifiers describe where content was found, rather than its value.
-fn is_coordinates(node: &dyn InspectNode) -> bool {
-    node.node_type() == Some(NodeType::PropertyValue)
-        && node.properties().into_iter().any(|property| {
-            property.decl.property == NodeProperty::PropertyId
-                && matches!(property.value, InspectValue::One(value)
-                    if matches!(value.scalar(), Some(ScalarRef::String("coords"))))
-        })
 }
 
 #[cfg(test)]

@@ -238,14 +238,7 @@ expression: article
           ]
         }
       ],
-      "content": [],
-      "identifiers": [
-        {
-          "type": "PropertyValue",
-          "propertyId": "coords",
-          "value": "1,42.52,354.15,235.87,8.49;1,42.52,376.89,212.73,8.49"
-        }
-      ]
+      "content": []
     },
     {
       "type": "Figure",
@@ -263,20 +256,7 @@ expression: article
           ]
         }
       ],
-      "content": [],
-      "identifiers": [
-        {
-          "type": "PropertyValue",
-          "propertyId": "coords",
-          "value": "2,49.32,489.42,59.35,6.50;2,70.03,87.65,481.48,377.92"
-        },
-        {
-          "type": "PropertyValue",
-          "propertyId": "coords",
-          "value": "2,70.03,87.65,481.48,377.92",
-          "name": "graphic"
-        }
-      ]
+      "content": []
     },
     {
       "type": "Figure",
@@ -296,20 +276,7 @@ expression: article
           ]
         }
       ],
-      "content": [],
-      "identifiers": [
-        {
-          "type": "PropertyValue",
-          "propertyId": "coords",
-          "value": "3,49.32,489.30,65.02,6.50;3,69.88,87.59,481.72,378.04"
-        },
-        {
-          "type": "PropertyValue",
-          "propertyId": "coords",
-          "value": "3,69.88,87.59,481.72,378.04",
-          "name": "graphic"
-        }
-      ]
+      "content": []
     },
     {
       "type": "Paragraph",

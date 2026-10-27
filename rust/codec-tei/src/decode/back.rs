@@ -67,15 +67,19 @@ fn decode_back_div(node: &Node, context: &mut Context) -> Vec<Block> {
 
     let content = decode_divisions(node.children(), 0, Divisions::Flattened, context);
     if content.is_empty() {
+        context.lost_attrs_named(node, &["id", "coords"]);
         return Vec::new();
     }
 
-    vec![Block::Section(Section {
-        id: context.source_id(node, xml_id(node)),
-        section_type,
-        content,
-        ..Default::default()
-    })]
+    vec![Block::Section(context.located(
+        node,
+        Section {
+            id: xml_id(node).map(String::from),
+            section_type,
+            content,
+            ..Default::default()
+        },
+    ))]
 }
 
 /// Decode the reference list

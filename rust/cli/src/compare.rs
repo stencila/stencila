@@ -11,6 +11,7 @@
 //! `stencila-node-compare-report`, so neither is duplicated for the terminal.
 
 use std::{
+    collections::BTreeMap,
     io::Write as _,
     path::{Path, PathBuf},
     time::{SystemTime, UNIX_EPOCH},
@@ -23,11 +24,11 @@ use tempfile::TempPath;
 use url::Url;
 
 use stencila_cli_utils::{color_print::cstr, message};
-use stencila_codecs::{DecodeOptions, EncodeOptions, LossesResponse};
+use stencila_codecs::{DecodeOptions, EncodeOptions, LossesResponse, PageBox, PageMap};
 use stencila_format::Format;
 use stencila_node_compare::{
     CompareOptions, Comparison, DifferenceFilter, Normalization, Selector, Side,
-    compare_with_options,
+    compare_with_options, node_paths,
 };
 use stencila_node_compare_report::{
     ReportMetadata, Snapshot, html_report_with_overlay, text_report,
@@ -50,6 +51,10 @@ use stencila_schema::Node;
 /// under `report.locations.left` and `report.locations.right`, indexed by node path.
 /// These labels are display metadata; the comparison and its node references remain
 /// unchanged. HTML always shows readable labels alongside the precise paths.
+///
+/// When a document has page coordinates, as TEI parsed from a PDF does, JSON and
+/// YAML outputs include `pages.left` and `pages.right`: the boxes on the pages of
+/// each document's source where its nodes are, indexed by node path.
 ///
 /// Exits with 0 when the documents are equal, 1 when they differ, and 2 on error.
 #[derive(Debug, Parser)]
@@ -322,8 +327,10 @@ impl Cli {
             destination.check_not_input(&left, &right)?;
         }
 
-        let left_node = decode(&left, left_from.as_deref(), Side::Left, input_losses).await?;
-        let right_node = decode(&right, right_from.as_deref(), Side::Right, input_losses).await?;
+        let (left_node, left_pages) =
+            decode(&left, left_from.as_deref(), Side::Left, input_losses).await?;
+        let (right_node, right_pages) =
+            decode(&right, right_from.as_deref(), Side::Right, input_losses).await?;
 
         let mut options = CompareOptions::default();
         if let Some(budget) = alignment_cell_budget {
@@ -375,8 +382,17 @@ impl Cli {
             report_unrepresentable(merged.report());
         }
 
+        // The page regions are only in the comparison artifact, so are only
+        // related to the nodes when it is serialized
+        let serialized = destinations.iter().any(|destination| {
+            matches!(destination.format, OutputFormat::Json | OutputFormat::Yaml)
+        });
         let artifact = ComparisonArtifact {
             comparison: &comparison,
+            pages: serialized
+                .then(|| PageRegions::new(&left_node, &left_pages, &right_node, &right_pages))
+                .transpose()?
+                .flatten(),
             report: locations
                 .then(|| ReportMetadata::new(&comparison, left_snapshot, right_snapshot))
                 .transpose()?,
@@ -476,7 +492,72 @@ struct ComparisonArtifact<'comparison> {
     #[serde(flatten)]
     comparison: &'comparison Comparison,
     #[serde(skip_serializing_if = "Option::is_none")]
+    pages: Option<PageRegions>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     report: Option<ReportMetadata>,
+}
+
+/// Where the occurrences of each side are on the pages of its source
+///
+/// Only for sources that have pages, such as TEI with coordinates from the PDF
+/// it was parsed from. Keyed by node path, as `report.locations` is, so that a
+/// box on a page can be related to the occurrences of the comparison.
+#[derive(Serialize)]
+struct PageRegions {
+    left: BTreeMap<String, Vec<PageRegion>>,
+    right: BTreeMap<String, Vec<PageRegion>>,
+}
+
+/// The boxes on pages of an occurrence, or of a part of it
+#[derive(Serialize)]
+struct PageRegion {
+    #[serde(skip_serializing_if = "Option::is_none")]
+    part: Option<String>,
+    boxes: Vec<PageBox>,
+}
+
+impl PageRegions {
+    /// Relate the page maps of each side to the paths of their nodes, unless
+    /// neither side has pages
+    fn new(
+        left: &Node,
+        left_pages: &PageMap,
+        right: &Node,
+        right_pages: &PageMap,
+    ) -> Result<Option<Self>> {
+        if left_pages.is_empty() && right_pages.is_empty() {
+            return Ok(None);
+        }
+
+        Ok(Some(Self {
+            left: Self::side(left, left_pages)?,
+            right: Self::side(right, right_pages)?,
+        }))
+    }
+
+    fn side(node: &Node, pages: &PageMap) -> Result<BTreeMap<String, Vec<PageRegion>>> {
+        let mut regions = BTreeMap::<String, Vec<PageRegion>>::new();
+        if pages.is_empty() {
+            return Ok(regions);
+        }
+
+        let paths = node_paths(node)?;
+        for entry in pages.entries() {
+            let Some(path) = paths.get(&entry.node_id) else {
+                continue;
+            };
+            let key = if path.is_empty() {
+                "$".to_string()
+            } else {
+                format!("$/{path}")
+            };
+            regions.entry(key).or_default().push(PageRegion {
+                part: entry.part.clone(),
+                boxes: entry.boxes.clone(),
+            });
+        }
+        Ok(regions)
+    }
 }
 
 /// Whether an extension names a format a document can be written in
@@ -601,7 +682,12 @@ fn check_input(path: &Path, side: Side) -> Result<()> {
 }
 
 /// Decode one side of the comparison
-async fn decode(path: &Path, from: Option<&str>, side: Side, losses: InputLosses) -> Result<Node> {
+async fn decode(
+    path: &Path,
+    from: Option<&str>,
+    side: Side,
+    losses: InputLosses,
+) -> Result<(Node, PageMap)> {
     let format = match from {
         Some(name) => Format::from_name(name),
         None => Format::from_path(path),
@@ -639,7 +725,7 @@ async fn decode(path: &Path, from: Option<&str>, side: Side, losses: InputLosses
         )?;
     }
 
-    Ok(node)
+    Ok((node, info.page_map))
 }
 
 /// Where, and in what format, to write the comparison

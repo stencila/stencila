@@ -62,7 +62,10 @@ pub use options::{CompareOptions, DEFAULT_ALIGNMENT_CELL_BUDGET};
 pub use projection::MAX_DEPTH as MAX_COMPARISON_DEPTH;
 pub use scalar::{CanonicalNumber, DuplicateObjectKeyError, ObjectEntries, ScalarValue};
 
-use stencila_schema::Node;
+use std::collections::HashMap;
+
+use stencila_node_path::NodePath;
+use stencila_schema::{Node, NodeId};
 
 use crate::{align::Aligner, features::FeatureSet, projection::Projection};
 
@@ -134,8 +137,6 @@ pub fn align_with_options(
 /// Local `id` changes are ignored; citation and internal link targets compare through
 /// the alignment when they resolve uniquely. Targets that are unresolved on both
 /// sides retain literal comparison.
-/// Source-location identifiers (`PropertyValue` entries in `identifiers` whose
-/// `propertyId` is `coords`) are ignored, including for alignment.
 pub fn compare(left: &Node, right: &Node) -> CompareResult<Comparison> {
     compare_with_options(left, right, &CompareOptions::default())
 }
@@ -175,6 +176,20 @@ pub fn compare_with_options(
         options.filter.clone(),
         options.normalize.clone(),
     )
+}
+
+/// The path of each structured node within a node, by its runtime identifier
+///
+/// The paths are those of the occurrences in a [`Comparison`] or [`Alignment`] of the
+/// node, so that information about nodes keyed by their identifiers, such as where
+/// they were in a decoded source, can be related to them.
+pub fn node_paths(node: &Node) -> CompareResult<HashMap<NodeId, NodePath>> {
+    let projection = Projection::new(node, Side::Left)?;
+    Ok(projection
+        .occurrences()
+        .iter()
+        .filter_map(|occurrence| Some((occurrence.node_id.clone()?, occurrence.path.clone())))
+        .collect())
 }
 
 /// Whether the canonical projections of two nodes are exactly equal

@@ -269,12 +269,12 @@ impl Differ<'_> {
         let (left_parent, left_ref, left_property) = left;
         let (right_parent, right_ref, right_property) = right;
 
-        let location = |left_index: Option<usize>, right_index: Option<usize>| ValueLocation {
+        let location = |left_index, right_index| ValueLocation {
             left: left_ref.clone(),
             right: right_ref.clone(),
             property: Some(left_property.decl.property),
-            left_index: left_index.map(|index| left_property.source_indices[index]),
-            right_index: right_index.map(|index| right_property.source_indices[index]),
+            left_index,
+            right_index,
         };
 
         if left_property.presence != right_property.presence {

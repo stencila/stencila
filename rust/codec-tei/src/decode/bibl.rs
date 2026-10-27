@@ -8,13 +8,7 @@ use stencila_codec::stencila_schema::{
 
 use stencila_codec_utils::{split_given_names, strip_doi_prefix, strip_ror_prefix};
 
-use super::{
-    Context,
-    metadata::{append, coordinates},
-    non_empty_text, path,
-    text::normalize,
-    xml_id,
-};
+use super::{Context, non_empty_text, path, text::normalize, xml_id};
 
 /// Decode a `<listBibl>` to a list of [`Reference`]s
 pub(super) fn decode_list_bibl(node: &Node, context: &mut Context) -> Vec<Reference> {
@@ -93,10 +87,7 @@ enum SourceLevel {
 pub(super) fn decode_bibl_struct(node: &Node, context: &mut Context) -> Reference {
     context.lost_attrs(node, &["id", "coords", "status", "type"]);
 
-    let mut fields = BiblFields {
-        identifiers: coordinates(node, None),
-        ..Default::default()
-    };
+    let mut fields = BiblFields::default();
     for child in node.children().filter(Node::is_element) {
         match child.tag_name().name() {
             "analytic" => decode_analytic(&child, &mut fields, context),
@@ -111,7 +102,8 @@ pub(super) fn decode_bibl_struct(node: &Node, context: &mut Context) -> Referenc
         }
     }
 
-    assemble_reference(xml_id(node).map(String::from), fields)
+    let reference = assemble_reference(xml_id(node).map(String::from), fields);
+    context.located(node, reference)
 }
 
 /// Decode the `<analytic>` of a `<biblStruct>`: the cited work when it is a
@@ -454,7 +446,7 @@ pub(super) fn decode_author(node: &Node, context: &mut Context) -> Option<Author
         id: xml_id(node).map(String::from),
         ..Default::default()
     };
-    person.options.identifiers = coordinates(node, None);
+    let mut pers_names = Vec::new();
     let mut org_name = None;
     for child in node.children() {
         if !child.is_element() {
@@ -462,7 +454,10 @@ pub(super) fn decode_author(node: &Node, context: &mut Context) -> Option<Author
             continue;
         }
         match child.tag_name().name() {
-            "persName" => decode_pers_name(&child, &mut person, context),
+            "persName" => {
+                decode_pers_name(&child, &mut person, context);
+                pers_names.push(child);
+            }
             "email" => {
                 context.lost_attrs(&child, &[]);
                 if let Some(email) = non_empty_text(&child) {
@@ -508,33 +503,64 @@ pub(super) fn decode_author(node: &Node, context: &mut Context) -> Option<Author
     // The `orgName` is the name of the author only when it has no personal
     // name, so its id and coordinates are only kept then
     if !has_name {
-        let Some((org_name, name)) =
-            org_name.and_then(|org_name| Some((org_name, non_empty_text(&org_name)?)))
+        // Any `persName`s are empty, so nothing has their ids or coordinates
+        for pers_name in &pers_names {
+            context.lost_attrs_named(pers_name, &["id", "coords"]);
+        }
+
+        let Some((org_name, name)) = org_name
+            .as_ref()
+            .and_then(|org_name| Some((org_name, non_empty_text(org_name)?)))
         else {
             // An author with no name of either kind is not decoded
+            if let Some(org_name) = &org_name {
+                context.lost_attrs_named(org_name, &["id", "coords"]);
+            }
             context.lost(node);
             return None;
         };
 
         if person.id.is_some() {
-            context.lost_attrs_named(&org_name, &["id"]);
+            context.lost_attrs_named(org_name, &["id"]);
         }
-        let mut identifiers = person.options.identifiers;
-        append(&mut identifiers, coordinates(&org_name, Some("orgName")));
 
-        return Some(Author::Organization(Organization {
-            id: person.id.or_else(|| xml_id(&org_name).map(String::from)),
-            name: Some(name),
-            options: Box::new(OrganizationOptions {
-                identifiers,
+        let organization = context.located(
+            node,
+            Organization {
+                id: person.id.or_else(|| xml_id(org_name).map(String::from)),
+                name: Some(name),
+                options: Box::new(OrganizationOptions {
+                    identifiers: person.options.identifiers,
+                    ..Default::default()
+                }),
                 ..Default::default()
-            }),
-            ..Default::default()
-        }));
+            },
+        );
+        context.locate(org_name, &organization, Some("orgName"));
+
+        return Some(Author::Organization(organization));
     }
 
     if org_name.is_some() {
         context.lost_label([&path(node), "/orgName"].concat());
+    }
+
+    // The author's own id takes precedence over that of the first `persName`
+    // with one
+    for pers_name in &pers_names {
+        if xml_id(pers_name).is_none() {
+            continue;
+        }
+        if person.id.is_none() {
+            person.id = xml_id(pers_name).map(String::from);
+        } else {
+            context.lost_attrs_named(pers_name, &["id"]);
+        }
+    }
+
+    let person = context.located(node, person);
+    for pers_name in pers_names {
+        context.locate(&pers_name, &person, Some("persName"));
     }
 
     Some(Author::Person(person))
@@ -554,17 +580,9 @@ fn decode_editor(node: &Node, context: &mut Context) -> Option<Person> {
 
 /// Decode a `<persName>` onto a [`Person`]
 fn decode_pers_name(node: &Node, person: &mut Person, context: &mut Context) {
+    // Its id is given to the person, and its coordinates are those of a part
+    // of the person, by `decode_author` once it knows the person has a name
     context.lost_attrs(node, &["id", "coords"]);
-    // The author's own id, or that of an earlier `persName`, takes precedence
-    if person.id.is_none() {
-        person.id = xml_id(node).map(String::from);
-    } else {
-        context.lost_attrs_named(node, &["id"]);
-    }
-    append(
-        &mut person.options.identifiers,
-        coordinates(node, Some("persName")),
-    );
 
     let mut given_names = Vec::new();
     let mut family_names = Vec::new();
@@ -619,20 +637,21 @@ pub(super) fn decode_affiliation(node: &Node, context: &mut Context) -> Organiza
     let mut name = Vec::new();
     let mut address = Vec::new();
     let mut ror = None;
-    let mut identifiers = coordinates(node, None);
+    let mut identifiers = None;
+    let mut parts = Vec::new();
     let mut raw = None;
     for child in node.children().filter(Node::is_element) {
         match child.tag_name().name() {
             "orgName" => {
                 context.lost_attrs(&child, &["coords", "type", "key"]);
-                append(&mut identifiers, coordinates(&child, Some("orgName")));
+                parts.push((child, "orgName"));
                 if let Some(text) = non_empty_text(&child) {
                     name.push(text.trim_matches(TRIM_CHARS).to_string());
                 }
             }
             "address" => {
                 context.lost_attrs(&child, &["coords"]);
-                append(&mut identifiers, coordinates(&child, Some("address")));
+                parts.push((child, "address"));
                 for part in child.children().filter(Node::is_element) {
                     // The `key` of a <country> is its ISO 3166 code, which
                     // is not kept because the address is a string
@@ -671,18 +690,26 @@ pub(super) fn decode_affiliation(node: &Node, context: &mut Context) -> Organiza
         Some(name.join(", "))
     };
 
-    Organization {
-        id: xml_id(node).map(String::from),
-        name,
-        ror,
-        options: Box::new(OrganizationOptions {
-            address: (!address.is_empty())
-                .then(|| PostalAddressOrString::String(address.join(", "))),
-            identifiers,
+    let organization = context.located(
+        node,
+        Organization {
+            id: xml_id(node).map(String::from),
+            name,
+            ror,
+            options: Box::new(OrganizationOptions {
+                address: (!address.is_empty())
+                    .then(|| PostalAddressOrString::String(address.join(", "))),
+                identifiers,
+                ..Default::default()
+            }),
             ..Default::default()
-        }),
-        ..Default::default()
+        },
+    );
+    for (part, name) in parts {
+        context.locate(&part, &organization, Some(name));
     }
+
+    organization
 }
 
 /// The loss label for a note, including its type, if any

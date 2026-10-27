@@ -9650,14 +9650,7 @@ expression: article
           ]
         }
       ],
-      "content": [],
-      "identifiers": [
-        {
-          "type": "PropertyValue",
-          "propertyId": "coords",
-          "value": "3,540.42,689.11,34.56,8.85;3,168.52,701.10,406.46,8.85;3,168.52,713.10,406.52,8.85"
-        }
-      ]
+      "content": []
     },
     {
       "type": "Figure",
@@ -9677,20 +9670,7 @@ expression: article
           ]
         }
       ],
-      "content": [],
-      "identifiers": [
-        {
-          "type": "PropertyValue",
-          "propertyId": "coords",
-          "value": "4,36.50,531.48,523.89,7.66;4,36.50,542.48,526.57,8.11;4,36.50,553.48,529.58,8.11;4,36.50,564.48,524.02,7.66;4,36.50,575.48,536.84,7.66;4,36.50,586.48,527.63,7.66;4,36.50,597.48,534.25,8.01;4,36.50,608.48,526.33,8.01;4,36.51,619.48,80.94,7.66;4,36.51,633.48,278.23,7.66;4,36.51,647.48,233.82,7.86;4,36.51,661.48,205.66,7.86;4,36.51,675.48,233.09,7.86;4,36.51,689.48,204.93,7.86;4,42.63,60.13,414.72,456.89"
-        },
-        {
-          "type": "PropertyValue",
-          "propertyId": "coords",
-          "value": "4,42.63,60.13,414.72,456.89",
-          "name": "graphic"
-        }
-      ]
+      "content": []
     },
     {
       "type": "Figure",
@@ -9710,20 +9690,7 @@ expression: article
           ]
         }
       ],
-      "content": [],
-      "identifiers": [
-        {
-          "type": "PropertyValue",
-          "propertyId": "coords",
-          "value": "6,36.50,490.54,521.70,8.11;6,36.51,501.54,511.32,7.88;6,36.51,512.54,521.48,7.66;6,36.51,523.54,525.35,8.11;6,36.50,534.54,522.94,8.01;6,36.50,545.54,535.80,8.01;6,36.51,556.54,203.90,7.88;6,36.51,570.54,368.36,7.66;6,36.51,584.54,234.27,7.86;6,36.51,598.54,206.11,7.86;6,36.51,612.54,233.53,7.86;6,36.51,626.54,205.37,7.86;6,36.51,640.54,233.82,7.86;6,36.51,654.54,205.66,7.86;6,36.51,668.54,234.41,7.86;6,36.51,682.54,206.26,7.86;6,42.63,60.13,428.09,415.95"
-        },
-        {
-          "type": "PropertyValue",
-          "propertyId": "coords",
-          "value": "6,42.63,60.13,428.09,415.95",
-          "name": "graphic"
-        }
-      ]
+      "content": []
     },
     {
       "type": "Figure",
@@ -9743,14 +9710,7 @@ expression: article
           ]
         }
       ],
-      "content": [],
-      "identifiers": [
-        {
-          "type": "PropertyValue",
-          "propertyId": "coords",
-          "value": "6,36.51,696.54,307.79,7.66"
-        }
-      ]
+      "content": []
     },
     {
       "type": "Figure",
@@ -9770,14 +9730,7 @@ expression: article
           ]
         }
       ],
-      "content": [],
-      "identifiers": [
-        {
-          "type": "PropertyValue",
-          "propertyId": "coords",
-          "value": "6,36.51,710.59,117.06,7.97"
-        }
-      ]
+      "content": []
     },
     {
       "type": "Figure",
@@ -9797,14 +9750,7 @@ expression: article
           ]
         }
       ],
-      "content": [],
-      "identifiers": [
-        {
-          "type": "PropertyValue",
-          "propertyId": "coords",
-          "value": "7,36.50,68.43,295.02,7.66"
-        }
-      ]
+      "content": []
     },
     {
       "type": "Figure",
@@ -9824,14 +9770,7 @@ expression: article
           ]
         }
       ],
-      "content": [],
-      "identifiers": [
-        {
-          "type": "PropertyValue",
-          "propertyId": "coords",
-          "value": "7,36.50,82.43,403.76,7.86"
-        }
-      ]
+      "content": []
     },
     {
       "type": "Figure",
@@ -9851,14 +9790,7 @@ expression: article
           ]
         }
       ],
-      "content": [],
-      "identifiers": [
-        {
-          "type": "PropertyValue",
-          "propertyId": "coords",
-          "value": "7,36.50,96.43,375.60,7.86"
-        }
-      ]
+      "content": []
     },
     {
       "type": "Figure",
@@ -9878,14 +9810,7 @@ expression: article
           ]
         }
       ],
-      "content": [],
-      "identifiers": [
-        {
-          "type": "PropertyValue",
-          "propertyId": "coords",
-          "value": "7,36.50,110.43,403.01,7.86"
-        }
-      ]
+      "content": []
     },
     {
       "type": "Figure",
@@ -9905,14 +9830,7 @@ expression: article
           ]
         }
       ],
-      "content": [],
-      "identifiers": [
-        {
-          "type": "PropertyValue",
-          "propertyId": "coords",
-          "value": "7,36.50,124.43,374.85,7.86"
-        }
-      ]
+      "content": []
     },
     {
       "type": "Figure",
@@ -9932,14 +9850,7 @@ expression: article
           ]
         }
       ],
-      "content": [],
-      "identifiers": [
-        {
-          "type": "PropertyValue",
-          "propertyId": "coords",
-          "value": "7,36.50,138.43,403.31,7.86"
-        }
-      ]
+      "content": []
     },
     {
       "type": "Figure",
@@ -9959,14 +9870,7 @@ expression: article
           ]
         }
       ],
-      "content": [],
-      "identifiers": [
-        {
-          "type": "PropertyValue",
-          "propertyId": "coords",
-          "value": "7,36.50,152.43,375.15,7.86"
-        }
-      ]
+      "content": []
     },
     {
       "type": "Figure",
@@ -9986,14 +9890,7 @@ expression: article
           ]
         }
       ],
-      "content": [],
-      "identifiers": [
-        {
-          "type": "PropertyValue",
-          "propertyId": "coords",
-          "value": "7,36.50,166.43,403.90,7.86"
-        }
-      ]
+      "content": []
     },
     {
       "type": "Figure",
@@ -10013,14 +9910,7 @@ expression: article
           ]
         }
       ],
-      "content": [],
-      "identifiers": [
-        {
-          "type": "PropertyValue",
-          "propertyId": "coords",
-          "value": "7,36.50,180.43,375.74,7.86"
-        }
-      ]
+      "content": []
     },
     {
       "type": "Figure",
@@ -10040,14 +9930,7 @@ expression: article
           ]
         }
       ],
-      "content": [],
-      "identifiers": [
-        {
-          "type": "PropertyValue",
-          "propertyId": "coords",
-          "value": "7,36.50,194.43,402.87,7.86"
-        }
-      ]
+      "content": []
     },
     {
       "type": "Figure",
@@ -10067,14 +9950,7 @@ expression: article
           ]
         }
       ],
-      "content": [],
-      "identifiers": [
-        {
-          "type": "PropertyValue",
-          "propertyId": "coords",
-          "value": "7,36.50,208.43,379.44,7.86"
-        }
-      ]
+      "content": []
     },
     {
       "type": "Figure",
@@ -10094,14 +9970,7 @@ expression: article
           ]
         }
       ],
-      "content": [],
-      "identifiers": [
-        {
-          "type": "PropertyValue",
-          "propertyId": "coords",
-          "value": "7,36.50,222.43,528.20,7.66"
-        }
-      ]
+      "content": []
     },
     {
       "type": "Figure",
@@ -10121,14 +9990,7 @@ expression: article
           ]
         }
       ],
-      "content": [],
-      "identifiers": [
-        {
-          "type": "PropertyValue",
-          "propertyId": "coords",
-          "value": "7,36.50,54.38,67.42,7.97"
-        }
-      ]
+      "content": []
     },
     {
       "type": "Figure",
@@ -10148,14 +10010,7 @@ expression: article
           ]
         }
       ],
-      "content": [],
-      "identifiers": [
-        {
-          "type": "PropertyValue",
-          "propertyId": "coords",
-          "value": "8,36.52,713.38,117.06,7.97"
-        }
-      ]
+      "content": []
     },
     {
       "type": "Figure",
@@ -10175,14 +10030,7 @@ expression: article
           ]
         }
       ],
-      "content": [],
-      "identifiers": [
-        {
-          "type": "PropertyValue",
-          "propertyId": "coords",
-          "value": "9,36.50,180.43,313.94,7.66"
-        }
-      ]
+      "content": []
     },
     {
       "type": "Figure",
@@ -10202,14 +10050,7 @@ expression: article
           ]
         }
       ],
-      "content": [],
-      "identifiers": [
-        {
-          "type": "PropertyValue",
-          "propertyId": "coords",
-          "value": "9,36.50,194.43,403.01,7.86"
-        }
-      ]
+      "content": []
     },
     {
       "type": "Figure",
@@ -10229,14 +10070,7 @@ expression: article
           ]
         }
       ],
-      "content": [],
-      "identifiers": [
-        {
-          "type": "PropertyValue",
-          "propertyId": "coords",
-          "value": "9,36.50,208.43,374.85,7.86"
-        }
-      ]
+      "content": []
     },
     {
       "type": "Figure",
@@ -10254,14 +10088,7 @@ expression: article
           ]
         }
       ],
-      "content": [],
-      "identifiers": [
-        {
-          "type": "PropertyValue",
-          "propertyId": "coords",
-          "value": "9,36.50,54.38,67.42,7.97"
-        }
-      ]
+      "content": []
     },
     {
       "type": "Figure",
@@ -10281,20 +10108,7 @@ expression: article
           ]
         }
       ],
-      "content": [],
-      "identifiers": [
-        {
-          "type": "PropertyValue",
-          "propertyId": "coords",
-          "value": "10,36.50,415.45,529.11,8.11;10,36.50,426.45,516.32,7.86;10,36.50,437.45,534.90,8.11;10,36.50,448.45,527.30,7.66;10,36.50,459.45,517.68,8.01;10,36.50,470.45,529.61,7.88;10,36.51,481.45,127.60,7.66;10,36.51,495.45,278.23,7.66;10,36.51,509.45,234.27,7.86;10,36.51,523.45,206.11,7.86;10,36.51,537.45,233.53,7.86;10,36.51,551.45,205.37,7.86;10,36.51,565.45,233.82,7.86;10,36.51,579.45,205.66,7.86;10,42.63,60.13,432.62,340.87"
-        },
-        {
-          "type": "PropertyValue",
-          "propertyId": "coords",
-          "value": "10,42.63,60.13,432.62,340.87",
-          "name": "graphic"
-        }
-      ]
+      "content": []
     },
     {
       "type": "Figure",
@@ -10314,20 +10128,7 @@ expression: article
           ]
         }
       ],
-      "content": [],
-      "identifiers": [
-        {
-          "type": "PropertyValue",
-          "propertyId": "coords",
-          "value": "11,36.50,619.32,497.66,8.11;11,36.51,630.32,505.70,8.01;11,36.51,641.32,513.18,8.01;11,36.52,652.32,512.28,7.88;11,36.52,663.32,530.30,8.11;11,36.50,674.32,518.48,8.01;11,36.50,685.32,504.89,8.01;11,36.50,696.32,530.75,8.11;11,36.51,710.37,117.06,7.97;11,42.63,60.13,429.74,544.73"
-        },
-        {
-          "type": "PropertyValue",
-          "propertyId": "coords",
-          "value": "11,42.63,60.13,429.74,544.73",
-          "name": "graphic"
-        }
-      ]
+      "content": []
     },
     {
       "type": "Figure",
@@ -10345,14 +10146,7 @@ expression: article
           ]
         }
       ],
-      "content": [],
-      "identifiers": [
-        {
-          "type": "PropertyValue",
-          "propertyId": "coords",
-          "value": "12,36.50,68.59,527.80,8.01;12,36.50,79.59,538.50,8.01;12,36.50,90.59,71.90,7.66;12,36.50,104.59,368.36,7.66;12,36.50,118.59,234.27,7.86;12,36.50,132.59,206.11,7.86;12,36.50,146.59,233.82,7.86;12,36.50,160.59,205.66,7.86;12,36.50,174.59,234.42,7.86;12,36.50,188.59,206.26,7.86;12,36.50,202.59,233.38,7.86;12,36.50,216.59,205.22,7.86"
-        }
-      ]
+      "content": []
     },
     {
       "type": "Figure",
@@ -10372,14 +10166,7 @@ expression: article
           ]
         }
       ],
-      "content": [],
-      "identifiers": [
-        {
-          "type": "PropertyValue",
-          "propertyId": "coords",
-          "value": "12,36.50,230.59,270.46,7.66"
-        }
-      ]
+      "content": []
     },
     {
       "type": "Figure",
@@ -10399,14 +10186,7 @@ expression: article
           ]
         }
       ],
-      "content": [],
-      "identifiers": [
-        {
-          "type": "PropertyValue",
-          "propertyId": "coords",
-          "value": "12,36.50,244.59,403.76,7.86"
-        }
-      ]
+      "content": []
     },
     {
       "type": "Figure",
@@ -10426,14 +10206,7 @@ expression: article
           ]
         }
       ],
-      "content": [],
-      "identifiers": [
-        {
-          "type": "PropertyValue",
-          "propertyId": "coords",
-          "value": "12,36.50,258.59,375.60,7.86"
-        }
-      ]
+      "content": []
     },
     {
       "type": "Figure",
@@ -10453,14 +10226,7 @@ expression: article
           ]
         }
       ],
-      "content": [],
-      "identifiers": [
-        {
-          "type": "PropertyValue",
-          "propertyId": "coords",
-          "value": "12,36.50,272.59,403.01,7.86"
-        }
-      ]
+      "content": []
     },
     {
       "type": "Figure",
@@ -10480,14 +10246,7 @@ expression: article
           ]
         }
       ],
-      "content": [],
-      "identifiers": [
-        {
-          "type": "PropertyValue",
-          "propertyId": "coords",
-          "value": "12,36.50,286.59,374.85,7.86"
-        }
-      ]
+      "content": []
     },
     {
       "type": "Figure",
@@ -10507,14 +10266,7 @@ expression: article
           ]
         }
       ],
-      "content": [],
-      "identifiers": [
-        {
-          "type": "PropertyValue",
-          "propertyId": "coords",
-          "value": "12,36.50,54.39,67.42,7.97"
-        }
-      ]
+      "content": []
     },
     {
       "type": "Figure",
@@ -10532,14 +10284,7 @@ expression: article
           ]
         }
       ],
-      "content": [],
-      "identifiers": [
-        {
-          "type": "PropertyValue",
-          "propertyId": "coords",
-          "value": "13,168.53,78.31,24.16,7.66;13,244.53,78.31,22.07,7.66"
-        }
-      ]
+      "content": []
     },
     {
       "type": "Figure",
@@ -10559,20 +10304,7 @@ expression: article
           ]
         }
       ],
-      "content": [],
-      "identifiers": [
-        {
-          "type": "PropertyValue",
-          "propertyId": "coords",
-          "value": "14,36.50,465.03,534.57,8.11;14,36.51,476.03,520.23,8.01;14,36.51,487.03,514.66,8.01;14,36.52,498.03,519.05,7.88;14,36.52,509.03,517.11,7.88;14,36.52,520.03,88.52,7.88;14,36.52,534.03,368.36,7.66;14,36.52,548.03,234.27,7.86;14,36.52,562.03,206.11,7.86;14,36.52,576.03,233.82,7.86;14,36.52,590.03,205.66,7.86;14,42.63,60.13,430.15,390.45"
-        },
-        {
-          "type": "PropertyValue",
-          "propertyId": "coords",
-          "value": "14,42.63,60.13,430.15,390.45",
-          "name": "graphic"
-        }
-      ]
+      "content": []
     },
     {
       "type": "Figure",
@@ -10592,14 +10324,7 @@ expression: article
           ]
         }
       ],
-      "content": [],
-      "identifiers": [
-        {
-          "type": "PropertyValue",
-          "propertyId": "coords",
-          "value": "14,36.52,604.03,279.97,7.66"
-        }
-      ]
+      "content": []
     },
     {
       "type": "Figure",
@@ -10619,14 +10344,7 @@ expression: article
           ]
         }
       ],
-      "content": [],
-      "identifiers": [
-        {
-          "type": "PropertyValue",
-          "propertyId": "coords",
-          "value": "14,36.52,618.03,323.72,7.66"
-        }
-      ]
+      "content": []
     },
     {
       "type": "Figure",
@@ -10646,14 +10364,7 @@ expression: article
           ]
         }
       ],
-      "content": [],
-      "identifiers": [
-        {
-          "type": "PropertyValue",
-          "propertyId": "coords",
-          "value": "14,36.52,632.03,403.01,7.86"
-        }
-      ]
+      "content": []
     },
     {
       "type": "Figure",
@@ -10673,14 +10384,7 @@ expression: article
           ]
         }
       ],
-      "content": [],
-      "identifiers": [
-        {
-          "type": "PropertyValue",
-          "propertyId": "coords",
-          "value": "14,36.52,646.03,374.85,7.86"
-        }
-      ]
+      "content": []
     },
     {
       "type": "Figure",
@@ -10700,14 +10404,7 @@ expression: article
           ]
         }
       ],
-      "content": [],
-      "identifiers": [
-        {
-          "type": "PropertyValue",
-          "propertyId": "coords",
-          "value": "14,36.52,660.03,403.31,7.86"
-        }
-      ]
+      "content": []
     },
     {
       "type": "Figure",
@@ -10727,14 +10424,7 @@ expression: article
           ]
         }
       ],
-      "content": [],
-      "identifiers": [
-        {
-          "type": "PropertyValue",
-          "propertyId": "coords",
-          "value": "14,36.52,674.03,375.15,7.86"
-        }
-      ]
+      "content": []
     },
     {
       "type": "Figure",
@@ -10754,14 +10444,7 @@ expression: article
           ]
         }
       ],
-      "content": [],
-      "identifiers": [
-        {
-          "type": "PropertyValue",
-          "propertyId": "coords",
-          "value": "14,36.52,688.03,356.47,7.66"
-        }
-      ]
+      "content": []
     },
     {
       "type": "Figure",
@@ -10781,14 +10464,7 @@ expression: article
           ]
         }
       ],
-      "content": [],
-      "identifiers": [
-        {
-          "type": "PropertyValue",
-          "propertyId": "coords",
-          "value": "14,36.52,702.08,117.06,7.97"
-        }
-      ]
+      "content": []
     },
     {
       "type": "Figure",
@@ -10808,14 +10484,7 @@ expression: article
           ]
         }
       ],
-      "content": [],
-      "identifiers": [
-        {
-          "type": "PropertyValue",
-          "propertyId": "coords",
-          "value": "15,36.50,68.43,403.76,7.86"
-        }
-      ]
+      "content": []
     },
     {
       "type": "Figure",
@@ -10835,14 +10504,7 @@ expression: article
           ]
         }
       ],
-      "content": [],
-      "identifiers": [
-        {
-          "type": "PropertyValue",
-          "propertyId": "coords",
-          "value": "15,36.50,82.43,375.60,7.86"
-        }
-      ]
+      "content": []
     },
     {
       "type": "Figure",
@@ -10862,14 +10524,7 @@ expression: article
           ]
         }
       ],
-      "content": [],
-      "identifiers": [
-        {
-          "type": "PropertyValue",
-          "propertyId": "coords",
-          "value": "15,36.50,54.38,67.42,7.97"
-        }
-      ]
+      "content": []
     },
     {
       "type": "Figure",
@@ -10889,20 +10544,7 @@ expression: article
           ]
         }
       ],
-      "content": [],
-      "identifiers": [
-        {
-          "type": "PropertyValue",
-          "propertyId": "coords",
-          "value": "16,36.50,452.07,525.39,8.11;16,36.51,463.07,514.88,8.01;16,36.51,474.07,536.62,8.01;16,36.52,485.07,516.08,7.88;16,36.52,496.07,536.41,7.88;16,36.52,507.07,61.24,7.88;16,36.52,521.07,368.36,7.66;16,36.52,535.07,234.27,7.86;16,36.52,549.07,206.11,7.86;16,36.52,563.07,233.82,7.86;16,36.52,577.07,205.66,7.86;16,42.63,60.13,430.15,377.49"
-        },
-        {
-          "type": "PropertyValue",
-          "propertyId": "coords",
-          "value": "16,42.63,60.13,430.15,377.49",
-          "name": "graphic"
-        }
-      ]
+      "content": []
     },
     {
       "type": "Figure",
@@ -10922,14 +10564,7 @@ expression: article
           ]
         }
       ],
-      "content": [],
-      "identifiers": [
-        {
-          "type": "PropertyValue",
-          "propertyId": "coords",
-          "value": "16,36.52,591.07,262.21,7.66"
-        }
-      ]
+      "content": []
     },
     {
       "type": "Figure",
@@ -10949,14 +10584,7 @@ expression: article
           ]
         }
       ],
-      "content": [],
-      "identifiers": [
-        {
-          "type": "PropertyValue",
-          "propertyId": "coords",
-          "value": "16,36.52,605.07,403.76,7.86"
-        }
-      ]
+      "content": []
     },
     {
       "type": "Figure",
@@ -10976,14 +10604,7 @@ expression: article
           ]
         }
       ],
-      "content": [],
-      "identifiers": [
-        {
-          "type": "PropertyValue",
-          "propertyId": "coords",
-          "value": "16,36.52,619.07,375.60,7.86"
-        }
-      ]
+      "content": []
     },
     {
       "type": "Figure",
@@ -11003,14 +10624,7 @@ expression: article
           ]
         }
       ],
-      "content": [],
-      "identifiers": [
-        {
-          "type": "PropertyValue",
-          "propertyId": "coords",
-          "value": "16,36.52,633.07,403.31,7.86"
-        }
-      ]
+      "content": []
     },
     {
       "type": "Figure",
@@ -11030,14 +10644,7 @@ expression: article
           ]
         }
       ],
-      "content": [],
-      "identifiers": [
-        {
-          "type": "PropertyValue",
-          "propertyId": "coords",
-          "value": "16,36.52,647.07,375.15,7.86"
-        }
-      ]
+      "content": []
     },
     {
       "type": "Figure",
@@ -11075,20 +10682,7 @@ expression: article
           ]
         }
       ],
-      "content": [],
-      "identifiers": [
-        {
-          "type": "PropertyValue",
-          "propertyId": "coords",
-          "value": "17,36.50,562.13,536.37,8.11;17,36.51,573.13,532.22,8.11;17,36.51,584.13,533.34,7.88;17,36.52,595.13,529.74,7.88;17,36.53,606.13,523.00,7.86;17,36.54,617.13,520.56,7.88;17,36.54,628.13,103.00,7.66;17,42.63,60.13,425.83,487.54"
-        },
-        {
-          "type": "PropertyValue",
-          "propertyId": "coords",
-          "value": "17,42.63,60.13,425.83,487.54",
-          "name": "graphic"
-        }
-      ]
+      "content": []
     },
     {
       "type": "Figure",
@@ -11108,38 +10702,12 @@ expression: article
           ]
         }
       ],
-      "content": [],
-      "identifiers": [
-        {
-          "type": "PropertyValue",
-          "propertyId": "coords",
-          "value": "18,36.50,243.48,521.20,7.66;18,36.50,254.48,534.98,8.11;18,36.50,265.48,179.16,7.66;18,42.63,60.12,453.60,168.89"
-        },
-        {
-          "type": "PropertyValue",
-          "propertyId": "coords",
-          "value": "18,42.63,60.12,453.60,168.89",
-          "name": "graphic"
-        }
-      ]
+      "content": []
     },
     {
       "type": "Figure",
       "id": "fig_53",
-      "content": [],
-      "identifiers": [
-        {
-          "type": "PropertyValue",
-          "propertyId": "coords",
-          "value": "19,42.63,60.13,453.60,369.67"
-        },
-        {
-          "type": "PropertyValue",
-          "propertyId": "coords",
-          "value": "19,42.63,60.13,453.60,369.67",
-          "name": "graphic"
-        }
-      ]
+      "content": []
     },
     {
       "type": "Paragraph",
