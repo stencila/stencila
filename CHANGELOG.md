@@ -1,3 +1,23 @@
+# [2.19.0](https://github.com/stencila/stencila/compare/v2.18.0...v2.19.0) (2026-10-28)
+
+
+### Bug Fixes
+
+* **JATS conversion:** Preserve more references, contributor names, affiliations, formulas, table alternatives, and article metadata when decoding, and report more unsupported content as conversion losses. Improve round-tripping of publication dates, article language and type, supplements, table images, and links to paragraphs and code.
+
+* **GROBID TEI decoding:** Preserve more inline text, notes, sections, figure and table captions, references, contributor details, and header metadata. Invalid non-UTF-8 input now produces a clear error.
+
+* **Document comparison:** Match author roles more accurately and avoid relying on shared identifiers when their text conflicts. Preserve page coordinates when citation groups are merged.
+
+
+### Features
+
+* **PDF page locations:** Preserve page coordinates from GROBID TEI as a page map. JSON and YAML output from `stencila compare` includes page regions indexed by node path when coordinates are available, making it possible to locate compared content in its source PDF.
+
+* **Scholarly article metadata:** Decode and round-trip translated JATS abstracts, recognize funding statements as funding sections, and support more ORCID and CRediT role forms. TEI decoding now retains all abstracts, figure notes, and more reference details.
+
+
+
 # [2.18.0](https://github.com/stencila/stencila/compare/v2.17.0...v2.18.0) (2026-10-26)
 
 ### Bug Fixes

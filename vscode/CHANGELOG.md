@@ -1,5 +1,10 @@
 # Change Log
 
+## 2.19.0 2026-10-28
+
+- Based on Stencila CLI [v2.19.0](https://github.com/stencila/stencila/releases/tag/v2.19.0), which preserves PDF page coordinates from GROBID TEI in JSON and YAML comparison output, improves matching of authors and content, and expands JATS and TEI conversion. This includes translated abstracts, funding statements, contributor and reference metadata, figures, tables, and clearer errors for non-UTF-8 TEI.
+
+
 ## 2.18.0 2026-10-26
 
 - Based on Stencila CLI [v2.18.0](https://github.com/stencila/stencila/releases/tag/v2.18.0), which adds a decoder for GROBID TEI, rebases media and supplement references when converting to JSON, YAML, Markdown, HTML, and LaTeX, and retains original media from MECA and PMC archives by reference. Also restores PubMed Central downloads following the retirement of NCBI's FTP datasets, improves JATS round-tripping of citations, tables, MathML, and back matter, and makes document comparison more accurate for reordered content.

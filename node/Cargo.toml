@@ -3,7 +3,7 @@ edition = "2024"
 license.workspace = true
 repository.workspace = true
 name = "stencila-node"
-version = "2.18.0"
+version = "2.19.0"
 
 [lib]
 crate-type = ["cdylib"]
