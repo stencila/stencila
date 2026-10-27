@@ -9,7 +9,7 @@ expression: "compare(&left, &right)?"
     "algorithm": {
       "name": "stencila-schema-native",
       "version": "3",
-      "projectionVersion": "1",
+      "projectionVersion": "2",
       "policy": "schema-native"
     },
     "correspondences": [
@@ -90,7 +90,7 @@ expression: "compare(&left, &right)?"
               "signal": "canonicalFingerprint",
               "value": {
                 "type": "string",
-                "value": "8052474cf053cf46"
+                "value": "1db56e6056ac6db5"
               },
               "contribution": 0
             }

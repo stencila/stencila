@@ -19,7 +19,15 @@
 //! - a `Cord` projects to its string only, and its authorship is ignored entirely,
 //!   matching the custom `PartialEq` implementation for `Cord`;
 //! - dynamic object entries are canonically ordered by key, so insertion order affects
-//!   neither comparison nor serialization.
+//!   neither comparison nor serialization;
+//! - in `authors`, consecutive roles with no format or timestamp, wrapping a person
+//!   or organization that is identical apart from IDs, project to that author once,
+//!   with a sorted set of `roleName` values. Plain authors have an absent `roleName`
+//!   comparison property. The representative keeps its original path; its
+//!   comparison parent is the owner of `authors`. Grouping ignores IDs, so only the
+//!   first author's IDs are projected: those of the wrappers and of later copies of
+//!   the author do not resolve as cross-reference targets. Roles with their own
+//!   formats or timestamps remain ordinary nodes.
 //!
 //! Everything else the schema declares is projected, including explicit `id` and
 //! cross-reference targets. Difference derivation ignores local ID changes and
@@ -41,6 +49,11 @@ use crate::{
     fingerprint::Identity,
     scalar::ScalarValue,
 };
+
+#[path = "projection/authors.rs"]
+mod authors;
+
+pub(crate) use authors::is_author_role_names;
 
 /// One member of the deterministic property union of two occurrences
 pub(crate) enum PropertyPair<'projection> {
@@ -83,7 +96,7 @@ pub(crate) fn property_union<'projection>(
 ///
 /// Recorded in artifacts so that a consumer can tell whether two artifacts were
 /// produced by the same representation rules.
-pub const PROJECTION_VERSION: &str = "1";
+pub const PROJECTION_VERSION: &str = "2";
 
 /// The greatest nesting depth the projection will represent
 ///
@@ -209,6 +222,13 @@ pub enum Root {
     Scalar(ScalarValue),
 }
 
+/// Whether author role wrappers are retained for source lookup or grouped for comparison
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+enum ProjectionMode {
+    Comparison,
+    Source,
+}
+
 /// A canonical projection of one input
 #[derive(Debug, Clone)]
 pub struct Projection {
@@ -223,15 +243,28 @@ pub struct Projection {
 
     /// The projected root
     root: Root,
+
+    /// Whether author roles are grouped into author units
+    mode: ProjectionMode,
 }
 
 impl Projection {
     /// Project a node
     pub fn new(node: &dyn InspectNode, side: Side) -> CompareResult<Self> {
+        Self::with_mode(node, side, ProjectionMode::Comparison)
+    }
+
+    /// Project every source occurrence, including author roles and repeated authors
+    pub fn source(node: &dyn InspectNode, side: Side) -> CompareResult<Self> {
+        Self::with_mode(node, side, ProjectionMode::Source)
+    }
+
+    fn with_mode(node: &dyn InspectNode, side: Side, mode: ProjectionMode) -> CompareResult<Self> {
         let mut projection = Self {
             side,
             occurrences: Vec::new(),
             root: Root::Scalar(ScalarValue::Null),
+            mode,
         };
 
         let root = match projection.project(node, NodePath::new(), None, None, 0)? {
@@ -403,6 +436,14 @@ impl Projection {
                 (Presence::Present, vec![item])
             }
             InspectValue::Many(nodes) => {
+                if self.mode == ProjectionMode::Comparison && decl.property == NodeProperty::Authors
+                {
+                    return Ok(ProjectedProperty {
+                        decl,
+                        presence: Presence::Present,
+                        items: self.project_authors(nodes, &property_path, parent, depth)?,
+                    });
+                }
                 let items = nodes
                     .into_iter()
                     .enumerate()
@@ -529,7 +570,7 @@ impl Projection {
         self.eq_occurrence_with(left, other, right, Identity::Included)
     }
 
-    /// Whether subtrees are equal apart from IDs and cross-reference targets
+    /// Whether subtrees are equal apart from IDs, cross-reference targets and author roles
     ///
     /// Identity-neutral equality is what makes an otherwise exact move recognisable
     /// even when local labels were renamed along the way.
@@ -562,16 +603,26 @@ impl Projection {
         let left = self.occurrence(left)?;
         let right = other.occurrence(right)?;
 
-        if left.node_type != right.node_type || left.properties.len() != right.properties.len() {
+        if left.node_type != right.node_type {
             return Ok(false);
         }
 
         let node_type = left.node_type;
-        for (left, right) in left.properties.iter().zip(right.properties.iter()) {
-            if identity.excludes(node_type, left) && identity.excludes(node_type, right) {
-                continue;
-            }
-
+        // An author unit has a comparison-only roleName property, while the same
+        // person in another property (e.g. editors) does not. Compare the retained
+        // declarations so excluded metadata cannot prevent an otherwise exact move.
+        let left_properties = left
+            .properties
+            .iter()
+            .filter(|property| !identity.excludes(node_type, property));
+        let right_properties = right
+            .properties
+            .iter()
+            .filter(|property| !identity.excludes(node_type, property));
+        if left_properties.clone().count() != right_properties.clone().count() {
+            return Ok(false);
+        }
+        for (left, right) in left_properties.zip(right_properties) {
             if left.decl != right.decl
                 || left.presence != right.presence
                 || left.items.len() != right.items.len()

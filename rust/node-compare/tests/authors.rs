@@ -3,7 +3,10 @@
 
 use eyre::{Result, ensure};
 use serde_json::{Value, json};
-use stencila_node_compare::{AlignmentSignal, Comparison, Difference, compare};
+use stencila_node_compare::{
+    AlignmentSignal, CompareOptions, Comparison, Difference, DifferenceFilter, ScalarValue,
+    ValueState, compare, compare_with_options,
+};
 use stencila_node_type::{NodeProperty, NodeType};
 use stencila_schema::Node;
 
@@ -16,6 +19,10 @@ fn article(authors: &[Value]) -> Result<Node> {
     Ok(serde_json::from_value(json!({
         "type": "Article", "content": [], "authors": authors
     }))?)
+}
+
+fn role(author: &Value, name: &str) -> Value {
+    json!({"type": "AuthorRole", "author": author, "roleName": name})
 }
 
 /// An affiliation list with one organization
@@ -303,12 +310,334 @@ fn author_roles_pair_by_their_people_despite_missing_affiliations() -> Result<()
         &[role(person(&names, Some(&affiliation(LONG_AFFILIATION))))],
         &[role(person(&names, None))],
     )?;
-    assert_eq!(pairs_of(&comparison, NodeType::AuthorRole), 1);
+    assert_eq!(pairs_of(&comparison, NodeType::AuthorRole), 0);
     assert_eq!(pairs, 1);
     assert!(comparison.differences().iter().any(|difference| matches!(
         difference,
         Difference::PropertyPresenceChanged { .. }
             if difference.property() == Some(NodeProperty::Affiliations)
     )));
+    Ok(())
+}
+
+/// The JATS decoder represents each CRediT role separately; TEI has plain people.
+#[test]
+fn credit_roles_pair_with_plain_people() -> Result<()> {
+    let people = [
+        json!({"type": "Person", "givenNames": ["Giorgio"], "familyNames": ["Dall'Olmo"]}),
+        json!({"type": "Person", "givenNames": ["Francesco"], "familyNames": ["Nencioli"]}),
+        json!({"type": "Person", "givenNames": ["Thomas"], "familyNames": ["Jackson"]}),
+    ];
+    let roles = [
+        vec!["Conceptualization", "Software", "WritingOriginalDraft"],
+        vec!["Software"],
+        vec!["Software", "Validation"],
+    ];
+    let authors: Vec<_> = people
+        .iter()
+        .zip(roles)
+        .flat_map(|(person, roles)| {
+            roles
+                .into_iter()
+                .map(move |role| json!({"type": "AuthorRole", "author": person, "roleName": role}))
+        })
+        .collect();
+    let (left, right) = (article(&authors)?, article(&people)?);
+    let comparison = compare(&left, &right)?;
+    assert_eq!(person_pairs(&comparison), 3);
+    assert!(!comparison.alignment().has_one_sided());
+    assert_eq!(comparison.differences().len(), 3);
+    assert!(comparison.differences().iter().all(|difference| matches!(
+        difference,
+        Difference::ValueChanged { location, .. }
+            if location.property == Some(NodeProperty::RoleName)
+    )));
+    assert_eq!(comparison, compare(&right, &left)?.invert());
+    comparison.alignment().validate(&left, &right)?;
+
+    let paths: Vec<_> = comparison
+        .alignment()
+        .pairs()
+        .filter(|(left, ..)| left.node_type == NodeType::Person)
+        .map(|(left, right, ..)| (left.path.to_string(), right.path.to_string()))
+        .collect();
+    assert_eq!(
+        paths,
+        [
+            ("authors/0/author".into(), "authors/0".into()),
+            ("authors/3/author".into(), "authors/1".into()),
+            ("authors/4/author".into(), "authors/2".into()),
+        ]
+    );
+    Ok(())
+}
+
+#[test]
+fn role_names_compare_once_as_a_set() -> Result<()> {
+    let person = json!({"type": "Person", "name": "Ada Lovelace"});
+    let left = article(&[role(&person, "Software"), role(&person, "Validation")])?;
+    let reordered = article(&[
+        role(&person, "Validation"),
+        role(&person, "Software"),
+        role(&person, "Software"),
+    ])?;
+    assert!(compare(&left, &reordered)?.is_equal());
+
+    let right = article(&[role(&person, "Software")])?;
+    let comparison = compare(&left, &right)?;
+    assert_eq!(comparison, compare(&right, &left)?.invert());
+    assert_eq!(person_pairs(&comparison), 1);
+    assert!(!comparison.alignment().has_one_sided());
+    let [
+        Difference::ValueChanged {
+            location,
+            left,
+            right,
+            ..
+        },
+    ] = comparison.differences()
+    else {
+        eyre::bail!("Expected exactly one role-name change");
+    };
+    assert_eq!(location.property, Some(NodeProperty::RoleName));
+    let value = |variant: &str| ScalarValue::Enum {
+        schema_type: "AuthorRoleName".into(),
+        variant: variant.into(),
+    };
+    assert_eq!(
+        left,
+        &ValueState::Many {
+            values: vec![value("Software"), value("Validation")]
+        }
+    );
+    assert_eq!(
+        right,
+        &ValueState::Many {
+            values: vec![value("Software")]
+        }
+    );
+    Ok(())
+}
+
+#[test]
+fn organizations_pair_through_roles_and_roles_can_be_filtered() -> Result<()> {
+    for author in [
+        json!({"type": "Person", "name": "Ada Lovelace"}),
+        json!({"type": "Organization", "name": "Analytical Engine Society"}),
+    ] {
+        let left = article(&[role(&author, "Software"), role(&author, "Validation")])?;
+        let right = article(std::slice::from_ref(&author))?;
+        let comparison = compare(&left, &right)?;
+        assert_eq!(comparison, compare(&right, &left)?.invert());
+        assert!(!comparison.alignment().has_one_sided());
+        assert_eq!(comparison.differences().len(), 1);
+        let selector = format!(
+            "{}.roleName",
+            author["type"]
+                .as_str()
+                .ok_or_else(|| eyre::eyre!("Missing type"))?
+        );
+        for selector in ["roleName", selector.as_str()] {
+            let options = CompareOptions {
+                filter: DifferenceFilter {
+                    exclude: vec![selector.parse()?],
+                    ..Default::default()
+                },
+                ..Default::default()
+            };
+            let filtered = compare_with_options(&left, &right, &options)?;
+            assert!(filtered.is_equal());
+            assert_eq!(filtered.alignment(), comparison.alignment());
+        }
+    }
+    Ok(())
+}
+
+#[test]
+fn grouping_does_not_hide_affiliation_changes() -> Result<()> {
+    let person = json!({"type": "Person", "name": "Ada Lovelace"});
+    let mut affiliated = person.clone();
+    affiliated["affiliations"] = affiliation("Analytical Engine Society");
+    let left = article(&[
+        role(&affiliated, "Software"),
+        role(&affiliated, "Validation"),
+    ])?;
+    let right = article(&[person])?;
+    let comparison = compare(&left, &right)?;
+    assert_eq!(person_pairs(&comparison), 1);
+    assert_eq!(comparison, compare(&right, &left)?.invert());
+    assert!(
+        comparison
+            .differences()
+            .iter()
+            .any(|diff| diff.property() == Some(NodeProperty::Affiliations))
+    );
+    assert!(
+        comparison
+            .differences()
+            .iter()
+            .any(|diff| diff.property() == Some(NodeProperty::RoleName))
+    );
+    assert_eq!(
+        comparison
+            .alignment()
+            .correspondences()
+            .iter()
+            .filter_map(|c| c.left())
+            .filter(|node| node.node_type == NodeType::Organization)
+            .count(),
+        1
+    );
+    Ok(())
+}
+
+#[test]
+fn grouping_requires_consecutive_roles_with_identical_authors() -> Result<()> {
+    let person = json!({"type": "Person", "name": "Ada Lovelace"});
+    let mut affiliated = person.clone();
+    affiliated["affiliations"] = affiliation("Analytical Engine Society");
+    for (authors, count) in [
+        (
+            vec![role(&person, "Software"), role(&affiliated, "Validation")],
+            2,
+        ),
+        (
+            vec![
+                role(&person, "Software"),
+                json!({"type": "Person", "name": "Charles Babbage"}),
+                role(&person, "Validation"),
+            ],
+            3,
+        ),
+        (vec![person.clone(), person.clone()], 2),
+        (vec![person.clone(), role(&person, "Software")], 2),
+    ] {
+        let node = article(&authors)?;
+        let comparison = compare(&node, &node)?;
+        assert!(comparison.is_equal());
+        assert_eq!(person_pairs(&comparison), count);
+        comparison.alignment().validate(&node, &node)?;
+    }
+    Ok(())
+}
+
+#[test]
+fn richer_roles_and_other_author_types_keep_their_metadata() -> Result<()> {
+    let person = json!({"type": "Person", "name": "Ada Lovelace"});
+    for (property, value) in [
+        ("format", json!("Python")),
+        (
+            "lastModified",
+            json!({"type": "Timestamp", "value": 1, "timeUnit": "Second"}),
+        ),
+    ] {
+        let mut richer = role(&person, "Software");
+        richer[property] = value;
+        let node = article(&[richer])?;
+        let comparison = compare(&node, &node)?;
+        assert!(comparison.is_equal());
+        assert_eq!(pairs_of(&comparison, NodeType::AuthorRole), 1);
+        comparison.alignment().validate(&node, &node)?;
+    }
+    let software = json!({"type": "SoftwareApplication", "name": "Assistant"});
+    let node = article(&[role(&software, "Software")])?;
+    let comparison = compare(&node, &node)?;
+    assert!(comparison.is_equal());
+    assert_eq!(pairs_of(&comparison, NodeType::AuthorRole), 1);
+    Ok(())
+}
+
+/// IDs are never compared, so an ID-only edit must neither unwrap nor split a unit
+#[test]
+fn ids_do_not_change_author_units() -> Result<()> {
+    let person = json!({"type": "Person", "name": "Ada Lovelace"});
+    let mut identified = person.clone();
+    identified["id"] = json!("ada");
+    let mut wrapper = role(&person, "Software");
+    wrapper["id"] = json!("role-1");
+    let roles = article(&[role(&person, "Software"), role(&person, "Validation")])?;
+    let plain = article(std::slice::from_ref(&person))?;
+
+    for (edited, original) in [
+        (article(&[wrapper])?, article(&[role(&person, "Software")])?),
+        (
+            article(&[role(&person, "Software"), role(&identified, "Validation")])?,
+            roles.clone(),
+        ),
+    ] {
+        let comparison = compare(&edited, &original)?;
+        assert!(comparison.is_equal());
+        assert_eq!(person_pairs(&comparison), 1);
+        comparison.alignment().validate(&edited, &original)?;
+
+        let comparison = compare(&edited, &plain)?;
+        assert_eq!(person_pairs(&comparison), 1);
+        assert_eq!(pairs_of(&comparison, NodeType::AuthorRole), 0);
+        assert!(!comparison.alignment().has_one_sided());
+        assert_eq!(
+            comparison.differences(),
+            compare(&original, &plain)?.differences()
+        );
+        assert_eq!(comparison, compare(&plain, &edited)?.invert());
+    }
+    Ok(())
+}
+
+#[test]
+fn grouping_preserves_missing_authors_and_relative_author_order() -> Result<()> {
+    let ada = json!({"type": "Person", "name": "Ada Lovelace", "orcid": ORCID});
+    let charles = json!({"type": "Person", "name": "Charles Babbage"});
+    let left = article(&[
+        role(&ada, "Software"),
+        role(&ada, "Validation"),
+        charles.clone(),
+    ])?;
+    let right = article(&[charles.clone(), ada])?;
+    let comparison = compare(&left, &right)?;
+    assert_eq!(person_pairs(&comparison), 2);
+    assert!(!comparison.alignment().has_one_sided());
+    assert_eq!(comparison, compare(&right, &left)?.invert());
+    assert_eq!(
+        comparison
+            .differences()
+            .iter()
+            .filter(|diff| matches!(diff, Difference::Reordered { .. }))
+            .count(),
+        1
+    );
+
+    let right = article(&[charles])?;
+    let comparison = compare(&left, &right)?;
+    assert_eq!(person_pairs(&comparison), 1);
+    assert!(comparison.alignment().has_one_sided());
+    assert_eq!(
+        comparison
+            .alignment()
+            .correspondences()
+            .iter()
+            .filter(|c| c.right().is_none())
+            .count(),
+        1
+    );
+    assert_eq!(comparison, compare(&right, &left)?.invert());
+    Ok(())
+}
+
+#[test]
+fn an_author_can_still_move_to_another_property() -> Result<()> {
+    let person = json!({"type": "Person", "name": "Ada Lovelace"});
+    let left = article(std::slice::from_ref(&person))?;
+    let right: Node =
+        serde_json::from_value(json!({"type": "Article", "content": [], "editors": [person]}))?;
+    let comparison = compare(&left, &right)?;
+    assert_eq!(person_pairs(&comparison), 1);
+    assert!(!comparison.alignment().has_one_sided());
+    assert_eq!(comparison, compare(&right, &left)?.invert());
+    assert!(
+        comparison
+            .differences()
+            .iter()
+            .any(|difference| matches!(difference, Difference::ParentChanged { .. }))
+    );
     Ok(())
 }

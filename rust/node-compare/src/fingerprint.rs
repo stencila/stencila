@@ -13,7 +13,9 @@ use stencila_schema::ValueKind;
 
 use crate::{
     error::{CompareError, CompareResult},
-    projection::{Item, OccurrenceId, Presence, ProjectedProperty, Projection},
+    projection::{
+        Item, OccurrenceId, Presence, ProjectedProperty, Projection, is_author_role_names,
+    },
     references::is_identity,
     scalar::ScalarValue,
 };
@@ -67,13 +69,18 @@ pub enum Identity {
 
     /// IDs and cross-reference targets are excluded, so that renaming local labels
     /// cannot hide an otherwise exact match
+    ///
+    /// Aggregated author roles are also excluded: a changed role does not make
+    /// an otherwise identical person or organization a different author.
     Neutral,
 }
 
 impl Identity {
     /// Whether a property is excluded under this identity
     pub(crate) fn excludes(self, node_type: NodeType, property: &ProjectedProperty) -> bool {
-        self == Self::Neutral && is_identity(node_type, property)
+        self == Self::Neutral
+            && (is_identity(node_type, property)
+                || is_author_role_names(node_type, property.decl.property))
     }
 }
 

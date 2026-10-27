@@ -24,6 +24,13 @@
 //! `all` is a synonym for `*`, for the sake of shells in which a bare `*` would be
 //! expanded to a list of file names before the command ever sees it.
 //!
+//! Consecutive roles of the same person or organization in `authors` compare as one
+//! author, with their role names as a `roleName` property of that person or
+//! organization. So `roleName`, `Person.roleName` or `Organization.roleName` hide
+//! differences in those roles, while `AuthorRole` and `AuthorRole.roleName` only
+//! match roles that are compared as ordinary nodes, such as those with a format or
+//! timestamp.
+//!
 //! Node types are PascalCase and properties are camelCase, which is what tells a bare
 //! `Figure` from a bare `label` without any ambiguity.
 //!
@@ -52,7 +59,7 @@ use serde::{Deserialize, Serialize};
 
 use stencila_node_type::{NodeProperty, NodeType};
 
-use crate::{alignment::NodeRef, comparison::Difference};
+use crate::{alignment::NodeRef, comparison::Difference, projection::is_author_role_names};
 
 /// What a filter selector matches
 ///
@@ -180,7 +187,11 @@ impl FromStr for Selector {
         if let Some((node_type, property)) = text.split_once('.') {
             let node_type = parse_type(node_type)?;
             let property = parse_property(property)?;
-            if !node_type.properties().contains(&property) {
+            // Author units expose the roles of their wrappers as a comparison
+            // property on the representative person or organization.
+            if !node_type.properties().contains(&property)
+                && !is_author_role_names(node_type, property)
+            {
                 return Err(SelectorError::UndeclaredProperty {
                     node_type,
                     property,

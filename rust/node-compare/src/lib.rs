@@ -21,6 +21,13 @@
 //! groups, and changes to the content retain ordinary alignment. Grouped paragraphs
 //! and their descendants are covered collectively; artifacts containing groups use
 //! format version 2, while ordinary artifacts retain format version 1.
+//!
+//! In author lists, consecutive roles wrapping a person or organization that is
+//! identical apart from IDs compare as one author. Role names compare as one
+//! set-valued `roleName` property on the representative person or organization,
+//! whose path remains its original source path. A wrapper's ID is ignored, as IDs are
+//! throughout comparison, while wrappers with formats or timestamps retain ordinary
+//! comparison.
 
 mod align;
 mod alignment;
@@ -180,16 +187,21 @@ pub fn compare_with_options(
 
 /// The path of each structured node within a node, by its runtime identifier
 ///
-/// The paths are those of the occurrences in a [`Comparison`] or [`Alignment`] of the
-/// node, so that information about nodes keyed by their identifiers, such as where
-/// they were in a decoded source, can be related to them.
+/// Paths resolve in the original node, including author role wrappers and repeated
+/// authors represented collectively in comparison. Comparison representatives keep
+/// these source paths, so information such as page coordinates can be related to them.
+/// When clones share a runtime identifier, its first source occurrence is used.
 pub fn node_paths(node: &Node) -> CompareResult<HashMap<NodeId, NodePath>> {
-    let projection = Projection::new(node, Side::Left)?;
-    Ok(projection
-        .occurrences()
-        .iter()
-        .filter_map(|occurrence| Some((occurrence.node_id.clone()?, occurrence.path.clone())))
-        .collect())
+    let projection = Projection::source(node, Side::Left)?;
+    let mut paths = HashMap::new();
+    for occurrence in projection.occurrences() {
+        if let Some(id) = &occurrence.node_id {
+            paths
+                .entry(id.clone())
+                .or_insert_with(|| occurrence.path.clone());
+        }
+    }
+    Ok(paths)
 }
 
 /// Whether the canonical projections of two nodes are exactly equal

@@ -630,8 +630,9 @@ impl Ord for Correspondence {
 /// A complete, symmetric correspondence between the structured occurrences of two
 /// nodes
 ///
-/// Every structured occurrence is covered exactly once: explicitly by a paired or
+/// Every canonical projected occurrence is covered exactly once: explicitly by a paired or
 /// one-sided record, or collectively by a paragraph group's complete subtrees.
+/// Consecutive simple author roles share a representative author in that projection.
 ///
 /// Deserialization restores canonical order and rejects duplicate paths. Call
 /// [`Alignment::validate`] with the original snapshots before trusting a deserialized
