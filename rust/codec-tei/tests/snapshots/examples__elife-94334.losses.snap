@@ -13,6 +13,7 @@ expression: info.losses
 "//TEI/text/body/div/note[@type='other']": 1
 "//TEI/text/body/div/p/ref[@type='figure'] (unresolved)": 5
 "//TEI/text/body/div/p/ref[@type='table'] (unresolved)": 4
+//TEI/text/body/figure/head: 1
 "//TEI/text/body/figure[@xml:id='fig_0'] (no image)": 1
 "//TEI/text/body/figure[@xml:id='fig_1'] (no image)": 1
 "//TEI/text/body/figure[@xml:id='fig_10'] (no image)": 1

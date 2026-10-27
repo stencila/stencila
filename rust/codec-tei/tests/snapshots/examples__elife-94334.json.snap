@@ -9724,7 +9724,7 @@ expression: article
             {
               "type": "Text",
               "value": {
-                "string": "Figure 2 continued on next page"
+                "string": "continued on next page"
               }
             }
           ]
@@ -10004,7 +10004,7 @@ expression: article
             {
               "type": "Text",
               "value": {
-                "string": "Figure 3 continued on next page"
+                "string": "continued on next page"
               }
             }
           ]
@@ -10260,7 +10260,7 @@ expression: article
             {
               "type": "Text",
               "value": {
-                "string": "Figure5 continued"
+                "string": "continued"
               }
             }
           ]
@@ -10458,7 +10458,7 @@ expression: article
             {
               "type": "Text",
               "value": {
-                "string": "Figure 6 continued on next page"
+                "string": "continued on next page"
               }
             }
           ]
@@ -10518,7 +10518,7 @@ expression: article
             {
               "type": "Text",
               "value": {
-                "string": "Figure6 continued"
+                "string": "continued"
               }
             }
           ]

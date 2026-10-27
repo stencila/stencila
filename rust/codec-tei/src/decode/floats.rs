@@ -3,13 +3,14 @@ use roxmltree::Node;
 
 use stencila_codec::stencila_schema::{
     Block, Figure, ImageObject, Inline, MathBlock, MathBlockOptions, MathInline, MathInlineOptions,
-    Table, TableCell, TableCellOptions, TableCellType, TableRow, TableRowType, shortcuts::p,
+    Table, TableCell, TableCellOptions, TableCellType, TableRow, TableRowType,
+    shortcuts::{p, t},
 };
 
 use super::{
     Context, child, collapse_whitespace, non_empty_text, path,
     text::{decode_blocks, decode_inlines, decode_note, normalize},
-    xml_id,
+    text_of, trim_xml_whitespace, xml_id,
 };
 
 /// The math language of formulas decoded from TEI
@@ -188,16 +189,29 @@ fn decode_row(node: &Node, context: &mut Context) -> TableRow {
 }
 
 /// Decode a `<cell>` to a [`TableCell`]
+///
+/// A cell's `role` overrides that of its row, so a `role="data"` cell in a
+/// header row is a data cell. A span (`rows` or `cols`) that is not a whole
+/// number within the range the schema allows is recorded as lost.
 fn decode_cell(node: &Node, context: &mut Context) -> TableCell {
-    let cell_type = (node.attribute("role") == Some("label")).then_some(TableCellType::HeaderCell);
-
-    let span = |name| {
-        node.attribute(name)
-            .and_then(|value| value.parse().ok())
-            .filter(|span| *span != 1)
+    let cell_type = match node.attribute("role") {
+        Some("label") => Some(TableCellType::HeaderCell),
+        Some("data") => Some(TableCellType::DataCell),
+        _ => None,
     };
-    let row_span = span("rows");
-    let column_span = span("cols");
+
+    let mut span = |name, max| {
+        let value = node.attribute(name)?;
+        match value.trim().parse() {
+            Ok(span) if (0..=max).contains(&span) => (span != 1).then_some(span),
+            _ => {
+                context.lost_attr(node, name);
+                None
+            }
+        }
+    };
+    let row_span = span("rows", 65534);
+    let column_span = span("cols", 1000);
 
     let mut decoded = vec!["id", "coords", "rows", "cols"];
     if cell_type.is_some() {
@@ -205,12 +219,9 @@ fn decode_cell(node: &Node, context: &mut Context) -> TableCell {
     }
     context.lost_attrs(node, &decoded);
 
-    let inlines = normalize(decode_inlines(node.children(), context));
-    let content = if inlines.is_empty() {
-        Vec::new()
-    } else {
-        vec![p(inlines)]
-    };
+    // Cells may have paragraphs, lists and other blocks, and a run of inline
+    // content becomes a paragraph
+    let content = decode_blocks(node.children(), 0, context);
 
     context.located(
         node,
@@ -267,9 +278,17 @@ pub(super) fn decode_formula(node: &Node, context: &mut Context) -> Block {
 }
 
 /// Decode a `<formula>` within a paragraph to a [`MathInline`]
+///
+/// An inline math node has no label, so any `<label>` is recorded as lost.
 pub(super) fn decode_inline_formula(node: &Node, context: &mut Context) -> Inline {
     context.lost_attrs(node, &["id", "coords"]);
     context.lost_label(format!("{} (text, not TeX or MathML)", path(node)));
+
+    if let Some(label) = child(node, "label")
+        && non_empty_text(&label).is_some()
+    {
+        context.lost(&label);
+    }
 
     let code = formula_text(node, context);
     let mathml = formula_mathml(&code);
@@ -321,7 +340,7 @@ fn formula_text(node: &Node, context: &mut Context) -> String {
             );
         }
     }
-    collapse_whitespace(&text).trim().to_string()
+    trim_xml_whitespace(&collapse_whitespace(&text)).to_string()
 }
 
 /// The word that GROBID's figure and table captions start with
@@ -346,65 +365,114 @@ impl LabelPrefix {
 /// The label is the `<label>`, which GROBID derives from the `<head>` (e.g.
 /// "Figure 1 ."). When there is no `<label>`, the label is taken from a
 /// `<head>` that starts with the word for the kind of float (e.g. "Figure 7"
-/// or "Table 2:"). A `<head>` that has text but gives no label is recorded as
-/// lost. The caption is the `<figDesc>`, from which GROBID does not remove the
-/// label, so a leading "Figure 1." or similar is removed so that the label is
-/// not rendered twice.
+/// or "Table 2:"). The caption is the `<figDesc>`s, from the first of which
+/// GROBID does not remove the label, so a leading "Figure 1." or similar is
+/// removed so that the label is not rendered twice.
+///
+/// The text of a `<head>` other than its label (e.g. the title in "Figure 1.
+/// Growth over time") is the caption if there is no `<figDesc>`. Otherwise it
+/// is recorded as lost, unless the caption has it too. Only the first
+/// `<label>` and `<head>` are decoded, and others are recorded as lost.
 fn decode_label_and_caption(
     node: &Node,
     prefix: LabelPrefix,
     context: &mut Context,
 ) -> (Option<String>, Option<Vec<Block>>) {
-    let mut label = child(node, "label").and_then(|label| {
-        context.lost_attrs(&label, &[]);
-        non_empty_text(&label)
-    });
-
-    if let Some(head) = child(node, "head") {
-        context.lost_attrs(&head, &[]);
-        if label.is_none()
-            && let Some(text) = non_empty_text(&head)
-        {
-            label = label_from_head(&text, prefix);
-            if label.is_none() {
-                context.lost(&head);
-            }
+    let first = |tag: &str, context: &mut Context| {
+        let mut elements = node.children().filter(|child| child.has_tag_name(tag));
+        let first = elements.next();
+        for other in elements {
+            context.lost(&other);
         }
+        if let Some(first) = &first {
+            context.lost_attrs(first, &[]);
+        }
+        first
+    };
+
+    let mut label = first("label", context).and_then(|label| non_empty_text(&label));
+
+    let mut head_text = None;
+    if let Some(head) = first("head", context)
+        && let Some(text) = non_empty_text(&head)
+    {
+        head_text = match split_head(&text, prefix) {
+            Some((head_label, rest)) => {
+                label.get_or_insert(head_label);
+                (!rest.is_empty()).then(|| rest.to_string())
+            }
+            None => Some(text),
+        }
+        .map(|text| (head, text));
     }
 
-    let caption = child(node, "figDesc").and_then(|desc| {
+    let mut caption = Vec::new();
+    for (index, desc) in node
+        .children()
+        .filter(|child| child.has_tag_name("figDesc"))
+        .enumerate()
+    {
         context.lost_attrs(&desc, &[]);
         let mut inlines = normalize(decode_inlines(desc.children(), context));
-        if let Some(label) = &label
+        if index == 0
+            && let Some(label) = &label
             && let Some(Inline::Text(text)) = inlines.first_mut()
             && let Some(rest) = strip_label(&text.value, prefix, label)
         {
             text.value = rest.to_string().into();
             inlines = normalize(inlines);
         }
-        (!inlines.is_empty()).then(|| vec![p(inlines)])
-    });
+        if !inlines.is_empty() {
+            caption.push(p(inlines));
+        }
+    }
 
-    (label, caption)
+    if let Some((head, text)) = head_text {
+        // GROBID's heading is often the start of the caption, with different
+        // spacing (e.g. "Figure supplement 1 ." and "Figure supplement 1.")
+        let words = |text: &str| {
+            text.chars()
+                .filter(|c| c.is_alphanumeric())
+                .flat_map(char::to_lowercase)
+                .collect::<String>()
+        };
+        if caption.is_empty() {
+            caption.push(p([t(text)]));
+        } else if !node
+            .children()
+            .filter(|child| child.has_tag_name("figDesc"))
+            .any(|desc| words(&text_of(&desc)).contains(&words(&text)))
+        {
+            context.lost(&head);
+        }
+    }
+
+    (label, (!caption.is_empty()).then_some(caption))
 }
 
-/// Get the label from a heading, such as "Figure 7" or "Table 2:"
+/// Split a heading, such as "Figure 7" or "Table 2: Results", into its label
+/// and the rest of it
 ///
 /// Returns `None` if the heading does not start with the word for the kind of
 /// float followed by something that looks like a label: one with a number
 /// (e.g. "7" or "S1") or in capitals (e.g. "A" or "IV"), rather than a word
 /// as in "Figure legends".
-fn label_from_head(head: &str, prefix: LabelPrefix) -> Option<String> {
+fn split_head(head: &str, prefix: LabelPrefix) -> Option<(String, &str)> {
     let rest = strip_prefix_word(head, prefix)?;
-    let label = rest
-        .split_whitespace()
-        .next()?
-        .trim_end_matches(['.', ':', '|']);
+    let word = rest.split_whitespace().next()?;
+    let label = word.trim_end_matches(['.', ':', '|']);
 
     let is_label = label.chars().any(|c| c.is_ascii_digit())
         || (!label.is_empty() && label.chars().all(|c| c.is_ascii_uppercase()));
+    if !is_label {
+        return None;
+    }
 
-    is_label.then(|| label.to_string())
+    let rest = rest.get(word.len()..)?.trim_start();
+    let rest = rest
+        .strip_prefix(['.', ':', '|'])
+        .map_or(rest, str::trim_start);
+    Some((label.to_string(), rest))
 }
 
 /// Strip the word for a kind of float, such as "Figure" or "Tab.", from the
@@ -427,15 +495,23 @@ fn strip_prefix_word(text: &str, prefix: LabelPrefix) -> Option<&str> {
     Some(rest.trim_start())
 }
 
-/// Strip a leading label, such as "Figure 1." or "Table 2:", from a caption
+/// Strip a leading label, such as "Figure 1.", "Table 2:" or "Fig. 3", from
+/// a caption
 ///
-/// Returns `None` if the caption does not start with the label.
+/// Returns `None` if the caption does not start with the whole label: one
+/// followed by whitespace, by punctuation that is not followed by more of a
+/// label (as in "Figure 1.1"), or by nothing.
 fn strip_label<'s>(caption: &'s str, prefix: LabelPrefix, label: &str) -> Option<&'s str> {
-    let rest = strip_prefix_word(caption, prefix)?;
-    let rest = rest.strip_prefix(label)?.trim_start();
-    let rest = rest.strip_prefix(['.', ':', '|'])?;
+    let rest = strip_prefix_word(caption, prefix)?.strip_prefix(label)?;
 
-    Some(rest)
+    let trimmed = rest.trim_start();
+    if let Some(after) = trimmed.strip_prefix(['.', ':', '|'])
+        && !after.starts_with(|c: char| c.is_ascii_digit())
+    {
+        return Some(after.trim_start());
+    }
+
+    (rest.is_empty() || rest.starts_with(char::is_whitespace)).then_some(trimmed)
 }
 
 /// Create a loss label for something missing from an element, with the

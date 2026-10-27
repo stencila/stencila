@@ -9,6 +9,7 @@ use stencila_codec::{
         Article, Author, Block, CreativeWorkType, CreativeWorkVariant, Figure,
         GrantOrMonetaryGrant, Inline, InspectNode, IntegerOrString, MathBlock, Node, Note,
         NoteType, Paragraph, PropertyValueOrString, Reference, Section, SectionType, Table,
+        TableCellType,
     },
 };
 use stencila_codec_text_trait::TextCodec;
@@ -2687,6 +2688,94 @@ fn only_funding_organizations_are_grants() -> Result<()> {
 
     assert_eq!(article.options.funded_by, None);
     assert!(labels(&losses).contains(&"//TEI/text/back/listOrg[@type='infrastructure']"));
+
+    Ok(())
+}
+
+/// Decode the first figure of a body
+fn figure(body: &str) -> Result<(Figure, Losses)> {
+    let (article, losses) = decode_article(&tei("", body, ""))?;
+    match article.content.into_iter().next() {
+        Some(Block::Figure(figure)) => Ok((figure, losses)),
+        block => bail!("expected a figure: {block:?}"),
+    }
+}
+
+#[test]
+fn caption_labels_are_stripped_only_whole() -> Result<()> {
+    for (desc, caption) in [
+        ("Fig. 1 Overview of the method.", "Overview of the method."),
+        ("Figure 1. Overview.", "Overview."),
+        ("Figure 1.1. Subfigure.", "Figure 1.1. Subfigure."),
+        ("Figure 10. Another.", "Figure 10. Another."),
+    ] {
+        let (figure, ..) = figure(&format!(
+            r#"<figure><label>1</label><figDesc>{desc}</figDesc><graphic url="a.png"/></figure>"#
+        ))?;
+        assert_eq!(
+            figure.caption.as_ref().map(to_text).as_deref(),
+            Some(caption),
+            "{desc}"
+        );
+    }
+
+    Ok(())
+}
+
+#[test]
+fn figure_heading_and_descriptions() -> Result<()> {
+    // The rest of a heading is the caption if there is no description
+    let (figure_one, ..) = figure(
+        r#"<figure><head>Figure 1. Growth over time</head><graphic url="a.png"/></figure>"#,
+    )?;
+    assert_eq!(figure_one.label.as_deref(), Some("1"));
+    assert_eq!(
+        figure_one.caption.as_ref().map(to_text).as_deref(),
+        Some("Growth over time")
+    );
+
+    // Every description is kept, and a heading that is not in them is lost
+    let (figure_two, losses) = figure(
+        r#"<figure><head>Figure 2. A title</head><graphic url="a.png"/><figDesc>First caption.</figDesc><figDesc>Second caption.</figDesc></figure>"#,
+    )?;
+    assert_eq!(figure_two.caption.as_ref().map(Vec::len), Some(2));
+    assert!(labels(&losses).contains(&"//TEI/text/body/figure/head"));
+
+    Ok(())
+}
+
+#[test]
+fn table_cells_with_blocks_spans_and_roles() -> Result<()> {
+    let (article, losses) = decode_article(&tei(
+        "",
+        r#"<figure type="table"><table>
+            <row role="label"><cell>Heading</cell><cell role="data">42</cell></row>
+            <row><cell rows="-1" cols="abc"><p>First</p><p>Second</p></cell><cell rows="0">Z</cell></row>
+        </table></figure>"#,
+        "",
+    ))?;
+
+    let Some(Block::Table(table)) = article.content.first() else {
+        bail!("expected a table")
+    };
+    let [header, row] = table.rows.as_slice() else {
+        bail!("expected two rows")
+    };
+    assert_eq!(header.cells[1].cell_type, Some(TableCellType::DataCell));
+
+    let cell = &row.cells[0];
+    assert_eq!(cell.content.len(), 2);
+    assert_eq!(cell.options.row_span, None);
+    assert_eq!(cell.options.column_span, None);
+    assert_eq!(row.cells[1].options.row_span, Some(0));
+
+    let labels = labels(&losses);
+    for label in [
+        "//TEI/text/body/figure/table/row/cell/@rows",
+        "//TEI/text/body/figure/table/row/cell/@cols",
+    ] {
+        assert!(labels.contains(&label), "{label} not in {labels:?}");
+    }
 
     Ok(())
 }
