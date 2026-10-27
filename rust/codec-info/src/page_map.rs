@@ -103,6 +103,21 @@ impl PageMap {
         self.entries.retain(predicate)
     }
 
+    /// Move the entries of nodes that were merged into others to those nodes
+    ///
+    /// Takes pairs of the id of a merged node and of the node it was merged
+    /// into, in the order they were merged, so that a node merged into one that
+    /// was itself later merged ends up with the last.
+    pub fn merged(&mut self, merged: &[(NodeId, NodeId)]) {
+        for (from, into) in merged {
+            for entry in &mut self.entries {
+                if &entry.node_id == from {
+                    entry.node_id = into.clone();
+                }
+            }
+        }
+    }
+
     /// Get the entries for a node
     pub fn entries_for<'map>(
         &'map self,

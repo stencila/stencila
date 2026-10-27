@@ -4,7 +4,7 @@ use stencila_codec_links::decode_inlines as text_with_links;
 use stencila_codec_text_trait::to_text;
 use stencila_schema::{
     Article, Block, Citation, CitationGroup, CitationMode, CitationOptions, Emphasis, Heading,
-    Inline, InlinesBlock, Link, Node, Paragraph, Sentence, Strikeout, Strong, StyledInline,
+    Inline, InlinesBlock, Link, Node, NodeId, Paragraph, Sentence, Strikeout, Strong, StyledInline,
     Subscript, Superscript, Text, Underline, VisitorMut, WalkControl,
 };
 
@@ -20,6 +20,10 @@ pub(super) struct SecondWalk {
 
     /// The first structuring walk
     first_walk: FirstWalk,
+
+    /// The nodes merged into others, as pairs of the id of the merged node and
+    /// of the node it was merged into, in the order they were merged
+    pub merged: Vec<(NodeId, NodeId)>,
 }
 
 impl VisitorMut for SecondWalk {
@@ -74,6 +78,7 @@ impl SecondWalk {
         Self {
             options,
             first_walk,
+            merged: Vec::new(),
         }
     }
 
@@ -159,7 +164,8 @@ impl SecondWalk {
             // Normalize citation formatting and grouping. Two passes are made over the inlines so that in
             // the first pass any citations in superscripts can be "extracted" and then in the second pass
             // adjacent citations (that were originally superscripted) can be merged is necessary.
-            *inlines = normalize_citations(normalize_citations(std::mem::take(inlines)));
+            let inlines_once = normalize_citations(std::mem::take(inlines), &mut self.merged);
+            *inlines = normalize_citations(inlines_once, &mut self.merged);
         }
 
         if self.options.should_perform(RemoveEmptyText) || self.options.should_perform(TextToLinks)
@@ -574,8 +580,13 @@ fn append_citation_group_range(citation_group: &mut CitationGroup, mut end: Cita
 ///
 /// Does not attempt to extend numeric ranges of citations, simply concatenated
 /// the two sets of citations. Because of how this function is used it mutates
-/// the second group.
-fn merge_citation_groups(first: CitationGroup, second: &mut CitationGroup) {
+/// the second group, and records that the first was merged into it.
+fn merge_citation_groups(
+    first: CitationGroup,
+    second: &mut CitationGroup,
+    merged: &mut Vec<(NodeId, NodeId)>,
+) {
+    merged.push((first.node_id(), second.node_id()));
     second.items.splice(0..0, first.items);
 }
 
@@ -587,7 +598,7 @@ fn merge_citation_groups(first: CitationGroup, second: &mut CitationGroup) {
 /// - handles simple citation ranges (e.g., dash between two numeric citations),
 /// - extracts citations from superscripts,
 /// - sets appropriate citation modes
-fn normalize_citations(input: Vec<Inline>) -> Vec<Inline> {
+fn normalize_citations(input: Vec<Inline>, merged: &mut Vec<(NodeId, NodeId)>) -> Vec<Inline> {
     let mut output = Vec::with_capacity(input.len());
     for mut inline in input.into_iter() {
         if let Inline::Citation(current) = &mut inline {
@@ -737,7 +748,7 @@ fn normalize_citations(input: Vec<Inline>) -> Vec<Inline> {
                 output.pop(); // Remove separator Text
                 output.pop(); // Remove first CitationGroup
 
-                merge_citation_groups(first_group, citation_group);
+                merge_citation_groups(first_group, citation_group, merged);
             }
             // Citation followed by CitationGroup (no separator)
             else if let Some(Inline::Citation(citation)) = output.last() {
@@ -755,7 +766,7 @@ fn normalize_citations(input: Vec<Inline>) -> Vec<Inline> {
                 // Pop off the first CitationGroup and merge with the current one
                 output.pop(); // Remove first CitationGroup
 
-                merge_citation_groups(first_group, citation_group);
+                merge_citation_groups(first_group, citation_group, merged);
             }
             // Do NOT `continue` here because the current Citation Group
             // needs to be pushed onto the output still
@@ -893,5 +904,34 @@ mod tests {
             split_text_into_sentences("Just text"),
             vec![("Just text".to_string(), false)]
         );
+    }
+
+    #[test]
+    fn test_merged_citation_groups_are_recorded() -> eyre::Result<()> {
+        let group = |targets: [&str; 2]| {
+            CitationGroup::new(targets.map(|target| Citation::new(target.into())).into())
+        };
+        let first = group(["b0", "b1"]);
+        let second = group(["b2", "b3"]);
+        let (first_id, second_id) = (first.node_id(), second.node_id());
+
+        let mut merged = Vec::new();
+        let inlines = normalize_citations(
+            vec![
+                Inline::CitationGroup(first),
+                Inline::Text(Text::from(", ")),
+                Inline::CitationGroup(second),
+            ],
+            &mut merged,
+        );
+
+        let [Inline::CitationGroup(group)] = inlines.as_slice() else {
+            eyre::bail!("expected one citation group: {inlines:?}")
+        };
+        assert_eq!(group.node_id(), second_id);
+        assert_eq!(group.items.len(), 4);
+        assert_eq!(merged, vec![(first_id, second_id)]);
+
+        Ok(())
     }
 }

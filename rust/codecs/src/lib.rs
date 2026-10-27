@@ -513,7 +513,7 @@ pub async fn from_path_with_info(
 
     let codec = get(codec, Some(&format), Some(CodecDirection::Decode))?;
 
-    let (mut node, other, info) = codec
+    let (mut node, other, mut info) = codec
         .from_path(
             path,
             Some(DecodeOptions {
@@ -531,9 +531,11 @@ pub async fn from_path_with_info(
         .unwrap_or_default();
     structuring_options.merge(codec.structuring_options(&format));
 
-    // Perform any structuring
+    // Perform any structuring, keeping the page regions of any nodes that it
+    // merges into others
     if structuring_options.should_perform_any() {
-        structuring(&mut node, structuring_options).await?;
+        let merged = structuring(&mut node, structuring_options).await?;
+        info.page_map.merged(&merged);
     }
 
     Ok((node, other, info))

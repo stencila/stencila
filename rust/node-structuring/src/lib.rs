@@ -1,8 +1,8 @@
 use stencila_codec::StructuringOperation::Heading1ToTitleSingle;
 use stencila_codec::StructuringOptions;
 use stencila_schema::{
-    Block, CodeInline, Heading, Inline, RawBlock, Visitor, VisitorAsync, VisitorMut, WalkControl,
-    WalkNode,
+    Block, CodeInline, Heading, Inline, NodeId, RawBlock, Visitor, VisitorAsync, VisitorMut,
+    WalkControl, WalkNode,
 };
 
 use crate::{first::FirstWalk, second::SecondWalk, third::ThirdWalk};
@@ -52,11 +52,16 @@ impl Visitor for HeadingCounter {
 }
 
 /// Add structure to a document
+///
+/// Returns the nodes that were merged into others, as pairs of the id of the
+/// merged node and of the node it was merged into, in the order they were
+/// merged, so that information about the merged nodes, such as where they are
+/// on the pages of the source, can be moved to the nodes they were merged into.
 #[tracing::instrument(skip(node))]
 pub async fn structuring<T: WalkNode>(
     node: &mut T,
     options: StructuringOptions,
-) -> eyre::Result<()> {
+) -> eyre::Result<Vec<(NodeId, NodeId)>> {
     tracing::trace!("Structuring node");
 
     // Pre-scan to count headings if Heading1ToTitleSingle is enabled
@@ -78,7 +83,7 @@ pub async fn structuring<T: WalkNode>(
     let mut third = ThirdWalk::new(options);
     third.walk(node);
 
-    Ok(())
+    Ok(second.merged)
 }
 
 const REMOVE_MARKER: &str = "<remove>";
