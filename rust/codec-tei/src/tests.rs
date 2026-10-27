@@ -1055,6 +1055,52 @@ fn reference_urls() -> Result<()> {
 }
 
 #[test]
+fn reference_published_date() -> Result<()> {
+    for (dates, expected) in [
+        (
+            r#"<date type="published" when="2015"/><date when="2023"/>"#,
+            "2015",
+        ),
+        (
+            r#"<date when="2023"/><date type="published" when="2015"/>"#,
+            "2015",
+        ),
+        (
+            r#"<date type="published">2015</date><date type="accessed" when="2023"/>"#,
+            "2015",
+        ),
+        (r#"<date when="2015"/><date when="2023"/>"#, "2023"),
+        (
+            r#"<date when="2023"/><date type="published" when=" "/>"#,
+            "2023",
+        ),
+        (
+            r#"<date type="published" when="2015"/><date type="published" when=" "/>"#,
+            "2015",
+        ),
+    ] {
+        let (article, losses) = decode_article(&tei(
+            "",
+            "",
+            &format!(
+                "<listBibl><biblStruct><monogr><imprint>{dates}</imprint></monogr></biblStruct></listBibl>"
+            ),
+        ))?;
+        let Some([reference]) = article.references.as_deref() else {
+            bail!("expected one reference")
+        };
+        assert_eq!(
+            reference.date.as_ref().map(|date| date.value.as_str()),
+            Some(expected),
+            "{dates}"
+        );
+        assert!(labels(&losses).is_empty(), "{:?}", labels(&losses));
+    }
+
+    Ok(())
+}
+
+#[test]
 fn chapter_in_book() -> Result<()> {
     let (article, ..) = decode_article(&tei(
         "",

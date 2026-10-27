@@ -78,7 +78,7 @@ enum SourceLevel {
 /// | `editor`                               | `editors`, of the container for a book |
 /// | `biblScope[@unit='volume' or 'issue']` | container's, else the reference's      |
 /// | `biblScope[@unit='page']`              | `pageStart`, `pageEnd`                 |
-/// | `imprint/date`                         | `date`                                 |
+/// | `imprint/date`, preferring `type='published'` | `date`                           |
 /// | `imprint/publisher`, `pubPlace`        | container's `publisher`, else the reference's |
 /// | `idno[@type='DOI']`                    | `doi`                                  |
 /// | other `idno`s                          | `identifiers`, keyed by their type     |
@@ -169,15 +169,25 @@ fn decode_monogr(node: &Node, fields: &mut BiblFields, context: &mut Context) {
 }
 
 /// Decode the `<imprint>` of a `<monogr>`
+///
+/// Prefer a publication date to other dates, retaining the last non-empty
+/// date when there is more than one with the same priority.
 fn decode_imprint(node: &Node, fields: &mut BiblFields, context: &mut Context) {
     context.lost_attrs(node, &[]);
 
+    let mut published_date = None;
+    let mut fallback_date = None;
     for child in node.children().filter(Node::is_element) {
         match child.tag_name().name() {
             "biblScope" => decode_bibl_scope(&child, &mut fields.scope, context),
             "date" => {
                 if let Some(date) = decode_date(&child, context) {
-                    fields.date = Some(Date::new(date));
+                    let target = if child.attribute("type") == Some("published") {
+                        &mut published_date
+                    } else {
+                        &mut fallback_date
+                    };
+                    *target = Some(Date::new(date));
                 }
             }
             "publisher" => {
@@ -190,6 +200,10 @@ fn decode_imprint(node: &Node, fields: &mut BiblFields, context: &mut Context) {
             }
             _ => context.lost(&child),
         }
+    }
+
+    if let Some(date) = published_date.or(fallback_date) {
+        fields.date = Some(date);
     }
 }
 
