@@ -131,6 +131,7 @@ const CONTENT: &[&str] = &[
 /// `//article/front/article-meta/@specific-use` and schema property encode
 /// labels such as `Article.identifiers`.
 pub fn classify(label: &str) -> LossCategory {
+    let label = strip_note(label);
     let name = leaf_name(label);
     let is_attribute = label
         .rsplit(['/', '.'])
@@ -156,13 +157,36 @@ pub fn classify(label: &str) -> LossCategory {
     }
 }
 
+/// Remove a note that follows a loss label, such as the
+/// ` (unresolved: figure.png)` of an unresolved media link
+fn strip_note(label: &str) -> &str {
+    label.split_once(" (").map_or(label, |(label, ..)| label)
+}
+
 /// Extract the name that a loss label is ultimately about
 ///
-/// Drops any predicate (e.g. `[@pub-id-type='pmid']`), takes the final path or
-/// property segment, and removes any attribute marker.
+/// Takes the final path or property segment, drops any predicate of it (e.g.
+/// `[@pub-id-type='pmid']` or the index `[1]`), and removes any attribute
+/// marker.
 fn leaf_name(label: &str) -> &str {
-    let label = label.split('[').next().unwrap_or(label);
-    let segment = label.rsplit(['/', '.']).next().unwrap_or(label);
+    // A predicate may itself have a `/` or `.` in it, so they are removed from
+    // each segment before the final segment is taken
+    let mut depth = 0;
+    let end = label
+        .char_indices()
+        .filter_map(|(index, char)| {
+            match char {
+                '[' => depth += 1,
+                ']' => depth -= 1,
+                '/' | '.' if depth == 0 => return Some(index + 1),
+                _ => {}
+            }
+            None
+        })
+        .last()
+        .unwrap_or(0);
+    let segment = &label[end..];
+    let segment = segment.split('[').next().unwrap_or(segment);
     segment.trim_start_matches('@')
 }
 
@@ -194,6 +218,20 @@ mod tests {
         );
         assert_eq!(
             classify("//article/back/ref-list/ref/@id"),
+            LossCategory::LinkOrIdentifier
+        );
+    }
+
+    #[test]
+    fn classifies_unresolved_media() {
+        assert_eq!(
+            classify(
+                "//article[1]/body[1]/fig[1]/graphic[1]/@xlink:href (unresolved: missing.png)"
+            ),
+            LossCategory::LinkOrIdentifier
+        );
+        assert_eq!(
+            classify("//article[1]/body[1]/fig[1]/graphic[1]/@xlink:href (unresolved: a/b.v2.png)"),
             LossCategory::LinkOrIdentifier
         );
     }
