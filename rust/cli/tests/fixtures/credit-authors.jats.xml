@@ -1,0 +1,13 @@
+<!-- ref.jats.xml -->
+<article><front><article-meta><title-group><article-title>Test</article-title></title-group>
+<contrib-group>
+<contrib contrib-type="author"><name><surname>Dall'Olmo</surname><given-names>Giorgio</given-names></name>
+<role vocab="credit" vocab-term="Conceptualization" vocab-term-identifier="https://credit.niso.org/contributor-roles/conceptualization/">Conceptualization</role>
+<role vocab="credit" vocab-term="Software" vocab-term-identifier="https://credit.niso.org/contributor-roles/software/">Software</role>
+<role vocab="credit" vocab-term="Writing – Original Draft Preparation" vocab-term-identifier="https://credit.niso.org/contributor-roles/writing-original-draft/">Writing – Original Draft Preparation</role></contrib>
+<contrib contrib-type="author"><name><surname>Nencioli</surname><given-names>Francesco</given-names></name>
+<role vocab="credit" vocab-term="Software" vocab-term-identifier="https://credit.niso.org/contributor-roles/software/">Software</role></contrib>
+<contrib contrib-type="author"><name><surname>Jackson</surname><given-names>Thomas</given-names></name>
+<role vocab="credit" vocab-term="Software" vocab-term-identifier="https://credit.niso.org/contributor-roles/software/">Software</role>
+<role vocab="credit" vocab-term="Validation" vocab-term-identifier="https://credit.niso.org/contributor-roles/validation/">Validation</role></contrib>
+</contrib-group></article-meta></front><body><p>Text.</p></body></article>

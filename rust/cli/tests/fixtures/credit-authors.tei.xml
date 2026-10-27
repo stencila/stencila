@@ -1,0 +1,7 @@
+<!-- parse.tei.xml -->
+<TEI xmlns="http://www.tei-c.org/ns/1.0"><teiHeader><fileDesc><titleStmt><title level="a" type="main">Test</title></titleStmt>
+<sourceDesc><biblStruct><analytic>
+<author><persName><forename type="first">Giorgio</forename><surname>Dall'Olmo</surname></persName></author>
+<author><persName><forename type="first">Francesco</forename><surname>Nencioli</surname></persName></author>
+<author><persName><forename type="first">Thomas</forename><surname>Jackson</surname></persName></author>
+</analytic></biblStruct></sourceDesc></fileDesc></teiHeader><text><body><div><p>Text.</p></div></body></text></TEI>

@@ -11,6 +11,8 @@ use std::{
 };
 
 use eyre::{Result, bail};
+use stencila_node_compare::{Comparison, Difference};
+use stencila_schema::{NodeProperty, NodeType};
 use tempfile::TempDir;
 
 /// Run `stencila compare` with the given arguments
@@ -50,6 +52,75 @@ fn workspace() -> Result<TempDir> {
     write(dir.path().join("after.smd"), "# Method\n\nOne two three.\n")?;
     write(dir.path().join("copy.smd"), "# Methods\n\nOne two three.\n")?;
     Ok(dir)
+}
+
+#[test]
+fn credit_authors_pair_between_jats_and_tei() -> Result<()> {
+    let dir = tempfile::tempdir()?;
+    write(
+        dir.path().join("reference.jats.xml"),
+        include_str!("fixtures/credit-authors.jats.xml"),
+    )?;
+    write(
+        dir.path().join("parse.tei.xml"),
+        include_str!("fixtures/credit-authors.tei.xml"),
+    )?;
+    let mut comparisons = Vec::new();
+    for (left, right) in [
+        ("reference.jats.xml", "parse.tei.xml"),
+        ("parse.tei.xml", "reference.jats.xml"),
+    ] {
+        let output = compare(
+            dir.path(),
+            [left, right, "--to", "json", "--input-losses", "ignore"],
+        );
+        assert_eq!(
+            code(&output)?,
+            1,
+            "{}",
+            String::from_utf8_lossy(&output.stderr)
+        );
+        let comparison: Comparison = serde_json::from_slice(&output.stdout)?;
+        assert!(!comparison.alignment().has_one_sided());
+        assert_eq!(
+            comparison
+                .alignment()
+                .pairs()
+                .filter(|(left, right, ..)| {
+                    left.node_type == NodeType::Person && right.node_type == NodeType::Person
+                })
+                .count(),
+            3
+        );
+        assert_eq!(comparison.differences().len(), 3);
+        assert!(comparison.differences().iter().all(|difference| matches!(difference,
+            Difference::ValueChanged { location, .. } if location.property == Some(NodeProperty::RoleName)
+        )));
+        comparisons.push(comparison);
+
+        let output = compare(
+            dir.path(),
+            [
+                left,
+                right,
+                "--exclude",
+                "roleName",
+                "--input-losses",
+                "ignore",
+            ],
+        );
+        assert_eq!(
+            code(&output)?,
+            0,
+            "{}",
+            String::from_utf8_lossy(&output.stderr)
+        );
+    }
+    let [forward, reverse] = comparisons.as_slice() else {
+        bail!("Expected both comparison directions");
+    };
+    assert_eq!(forward, &reverse.clone().invert());
+    Ok(())
 }
 
 #[test]
