@@ -8,7 +8,7 @@ use stencila_codec::stencila_schema::{
 
 use stencila_codec_utils::{split_given_names, strip_doi_prefix, strip_ror_prefix};
 
-use super::{Context, non_empty_text, path, text::normalize, xml_id};
+use super::{Context, collapse_whitespace, non_empty_text, path, text::normalize, text_of, xml_id};
 
 /// Decode a `<listBibl>` to a list of [`Reference`]s
 pub(super) fn decode_list_bibl(node: &Node, context: &mut Context) -> Vec<Reference> {
@@ -729,6 +729,12 @@ pub(super) fn decode_affiliation(node: &Node, context: &mut Context) -> Organiza
 
     const TRIM_CHARS: &[char] = &[',', '.', ';', ' '];
 
+    let trim_part = |text: &str| {
+        collapse_whitespace(text)
+            .trim_matches(TRIM_CHARS)
+            .to_string()
+    };
+
     let mut name = Vec::new();
     let mut address = Vec::new();
     let mut ror = None;
@@ -747,14 +753,22 @@ pub(super) fn decode_affiliation(node: &Node, context: &mut Context) -> Organiza
             "address" => {
                 context.lost_attrs(&child, &["coords"]);
                 parts.push((child, "address"));
-                for part in child.children().filter(Node::is_element) {
-                    // The `key` of a <country> is its ISO 3166 code, which
-                    // is not kept because the address is a string
-                    context.lost_attrs(&part, &["key"]);
-                    if let Some(text) = non_empty_text(&part) {
-                        address.push(text.trim_matches(TRIM_CHARS).to_string());
+                // Addresses can mix text with structured parts, or consist
+                // entirely of text. Text split only by comments, or processing
+                // instructions, is one part.
+                let mut text = String::new();
+                for part in child.children() {
+                    if part.is_text() {
+                        text.push_str(part.text().unwrap_or_default());
+                    } else if part.is_element() {
+                        address.push(trim_part(&std::mem::take(&mut text)));
+                        // The `key` of a <country> is its ISO 3166 code, which
+                        // is not kept because the address is a string
+                        context.lost_attrs(&part, &["key"]);
+                        address.push(trim_part(&text_of(&part)));
                     }
                 }
+                address.push(trim_part(&text));
             }
             "idno" => {
                 context.lost_attrs(&child, &["type"]);
@@ -778,6 +792,16 @@ pub(super) fn decode_affiliation(node: &Node, context: &mut Context) -> Organiza
     }
     name.retain(|name| !name.is_empty());
     address.retain(|part| !part.is_empty());
+
+    if name.is_empty() && address.is_empty() && raw.is_none() {
+        // An affiliation written as plain text
+        let text = node
+            .children()
+            .filter(Node::is_text)
+            .filter_map(|child| child.text())
+            .collect::<String>();
+        raw = Some(trim_part(&text)).filter(|text| !text.is_empty());
+    }
 
     let name = if name.is_empty() {
         raw.or_else(|| (!address.is_empty()).then(|| std::mem::take(&mut address).join(", ")))
