@@ -399,13 +399,19 @@ impl<'a, 'input> Context<'a, 'input> {
         }
     }
 
+    /// Record that an attribute of an element, named by its local name, was
+    /// lost
+    fn lost_attr(&mut self, node: &Node, name: &str) {
+        self.losses.add([&path(node), "/@", name].concat());
+    }
+
     /// Record that the attributes of an element, other than those that are
     /// decoded (named by their local names), were lost
     fn lost_attrs(&mut self, node: &Node, decoded: &[&str]) {
         for attribute in node.attributes() {
             let name = attribute.name();
             if !decoded.contains(&name) {
-                self.losses.add([&path(node), "/@", name].concat());
+                self.lost_attr(node, name);
             }
         }
     }
@@ -419,7 +425,7 @@ impl<'a, 'input> Context<'a, 'input> {
         for attribute in node.attributes() {
             let name = attribute.name();
             if names.contains(&name) {
-                self.losses.add([&path(node), "/@", name].concat());
+                self.lost_attr(node, name);
             }
         }
     }

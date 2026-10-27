@@ -6,9 +6,9 @@ use stencila_codec::{
     Losses, PageMap,
     eyre::{OptionExt, Result, bail},
     stencila_schema::{
-        Article, Author, Block, CreativeWorkType, Figure, GrantOrMonetaryGrant, Inline,
-        InspectNode, IntegerOrString, MathBlock, Node, Note, Paragraph, PropertyValueOrString,
-        Reference, Section, SectionType, Table,
+        Article, Author, Block, CreativeWorkType, CreativeWorkVariant, Figure,
+        GrantOrMonetaryGrant, Inline, InspectNode, IntegerOrString, MathBlock, Node, Note,
+        Paragraph, PropertyValueOrString, Reference, Section, SectionType, Table,
     },
 };
 use stencila_codec_text_trait::TextCodec;
@@ -915,6 +915,333 @@ fn footnote_referenced_before_it_is_decoded_once() -> Result<()> {
         .filter(|inline| matches!(inline, Inline::Note(..)))
         .count();
     assert_eq!(notes, 1, "{content:?}");
+
+    Ok(())
+}
+
+/// Get the language, and the text of each block of the abstract, of each part
+/// of an article
+fn abstract_parts(article: &Article) -> Result<Vec<(Option<String>, Vec<String>)>> {
+    article
+        .options
+        .parts
+        .iter()
+        .flatten()
+        .map(|part| {
+            let CreativeWorkVariant::Article(part) = part else {
+                bail!("expected an article part")
+            };
+            let language = serde_json::to_value(part)?["inLanguage"]
+                .as_str()
+                .map(String::from);
+            let content = part.r#abstract.iter().flatten().map(to_text).collect();
+            Ok((language, content))
+        })
+        .collect()
+}
+
+#[test]
+fn consecutive_abstracts_in_same_language_are_joined() -> Result<()> {
+    // The language of the abstract is lost, but only on the abstracts where
+    // they do not inherit it (as from GROBID's `teiHeader`)
+    for (profile_language, language, expected_losses) in [
+        ("", "", vec![]),
+        (
+            r#" xml:lang="en""#,
+            r#" xml:lang="en""#,
+            vec![("//TEI/teiHeader/profileDesc/@lang", 1)],
+        ),
+        (
+            "",
+            r#" xml:lang="en""#,
+            vec![("//TEI/teiHeader/profileDesc/abstract/@lang", 2)],
+        ),
+    ] {
+        let (article, losses) = decode_article(&tei(
+            &format!(
+                r#"<profileDesc{profile_language}>
+                    <abstract{language}><p>The database provides</p></abstract>
+                    <abstract{language}><p>a systematic view of neurodevelopmental disorders.</p></abstract>
+                </profileDesc>"#
+            ),
+            "",
+            "",
+        ))?;
+
+        let Some([Block::Paragraph(first), Block::Paragraph(second)]) =
+            article.r#abstract.as_deref()
+        else {
+            bail!(
+                "expected both abstract paragraphs: {:?}",
+                article.r#abstract
+            )
+        };
+        assert_eq!(to_text(first), "The database provides");
+        assert_eq!(
+            to_text(second),
+            "a systematic view of neurodevelopmental disorders."
+        );
+        assert!(article.options.parts.is_none());
+        assert_eq!(losses.iter().collect::<Vec<_>>(), expected_losses);
+    }
+
+    Ok(())
+}
+
+#[test]
+fn abstract_language_groups_become_parts_with_coordinates() -> Result<()> {
+    let (article, losses, page_map) = decode_article_with_page_map(&tei(
+        r#"<profileDesc>
+            <abstract xml:lang="en"><p coords="1,1,2,3,4">First</p></abstract>
+            <!-- A comment does not interrupt a continuation. -->
+            <abstract xml:lang="EN"><div><head>Abstract</head><p coords="1,2,2,3,4">Second</p></div></abstract>
+            <abstract xml:lang="fr"><p coords="1,3,2,3,4">Troisième</p></abstract>
+            <abstract xml:lang="fr"><div><head>Abstract</head><p coords="1,4,2,3,4">Quatrième</p></div></abstract>
+            <abstract xml:lang="en"><p coords="1,5,2,3,4">Fifth</p></abstract>
+            <abstract><p coords="1,6,2,3,4">Sixth</p></abstract>
+        </profileDesc>"#,
+        "",
+        "",
+    ))?;
+
+    let primary = article
+        .r#abstract
+        .as_ref()
+        .ok_or_eyre("expected an abstract")?;
+    assert_eq!(
+        primary.iter().map(to_text).collect::<Vec<_>>(),
+        ["First", "Second"]
+    );
+
+    let expected: [(Option<String>, Vec<String>); 3] = [
+        (
+            Some("fr".into()),
+            vec!["Troisième".into(), "Quatrième".into()],
+        ),
+        (Some("en".into()), vec!["Fifth".into()]),
+        (None, vec!["Sixth".into()]),
+    ];
+    assert_eq!(abstract_parts(&article)?, expected);
+
+    let parts = article
+        .options
+        .parts
+        .as_ref()
+        .ok_or_eyre("expected parts")?;
+    let mut paragraphs = primary.iter().collect::<Vec<_>>();
+    for part in parts {
+        let CreativeWorkVariant::Article(part) = part else {
+            bail!("expected an article part")
+        };
+        assert!(part.content.is_empty());
+        paragraphs.extend(part.r#abstract.iter().flatten());
+    }
+    for (index, paragraph) in paragraphs.into_iter().enumerate() {
+        assert!(matches!(paragraph, Block::Paragraph(..)));
+        assert_eq!(
+            boxes(&page_map, paragraph)?,
+            vec![(None, format!("1,{},2,3,4", index + 1))]
+        );
+    }
+    assert_eq!(page_map.entries().len(), 6);
+    assert_eq!(
+        losses.iter().collect::<Vec<_>>(),
+        [("//TEI/teiHeader/profileDesc/abstract/@lang", 2)]
+    );
+
+    Ok(())
+}
+
+#[test]
+fn abstract_languages_are_inherited_and_can_be_reset() -> Result<()> {
+    let (article, losses) = decode_article(&tei(
+        r#"<profileDesc xml:lang="en">
+            <abstract><p>Inherited English</p></abstract>
+            <abstract xml:lang="en"><p>Explicit English</p></abstract>
+            <abstract xml:lang="fr"><p>French</p></abstract>
+            <abstract><p>English again</p></abstract>
+            <abstract xml:lang=""><p>Unspecified language</p></abstract>
+        </profileDesc>"#,
+        "",
+        "",
+    ))?;
+
+    let primary = article
+        .r#abstract
+        .as_ref()
+        .ok_or_eyre("expected an abstract")?;
+    assert_eq!(
+        primary.iter().map(to_text).collect::<Vec<_>>(),
+        ["Inherited English", "Explicit English"]
+    );
+    let expected: [(Option<String>, Vec<String>); 3] = [
+        (Some("fr".into()), vec!["French".into()]),
+        (Some("en".into()), vec!["English again".into()]),
+        (None, vec!["Unspecified language".into()]),
+    ];
+    assert_eq!(abstract_parts(&article)?, expected);
+    // The language of the profile as a whole, which is also that of the main
+    // abstract, is unsupported, but the parts are decoded using it
+    assert_eq!(labels(&losses), ["//TEI/teiHeader/profileDesc/@lang"]);
+
+    Ok(())
+}
+
+#[test]
+fn main_abstract_language_is_lost_where_not_inherited() -> Result<()> {
+    for language in ["de", ""] {
+        let (article, losses) = decode_article(&tei(
+            &format!(
+                r#"<profileDesc xml:lang="en">
+                    <abstract xml:lang="{language}"><p>Main</p></abstract>
+                    <abstract><p>English</p></abstract>
+                </profileDesc>"#
+            ),
+            "",
+            "",
+        ))?;
+
+        assert_eq!(
+            article.r#abstract.as_ref().map(to_text).as_deref(),
+            Some("Main")
+        );
+        let expected: [(Option<String>, Vec<String>); 1] =
+            [(Some("en".into()), vec!["English".into()])];
+        assert_eq!(abstract_parts(&article)?, expected);
+        assert_eq!(
+            losses.iter().collect::<Vec<_>>(),
+            [
+                ("//TEI/teiHeader/profileDesc/@lang", 1),
+                ("//TEI/teiHeader/profileDesc/abstract/@lang", 1)
+            ]
+        );
+    }
+
+    Ok(())
+}
+
+#[test]
+fn abstract_attributes_other_than_xml_lang_are_lost() -> Result<()> {
+    let (article, losses) = decode_article(&tei(
+        r#"<profileDesc xml:lang="en" xmlns:custom="https://example.org/custom">
+            <abstract xml:id="abs" type="main" coords="1,1,2,3,4" xml:lang="en" lang="fr" custom:lang="de"><p>Content</p></abstract>
+        </profileDesc>"#,
+        "",
+        "",
+    ))?;
+
+    assert_eq!(
+        article.r#abstract.as_ref().map(to_text).as_deref(),
+        Some("Content")
+    );
+    assert!(article.options.parts.is_none());
+    // The `xml:lang` is the same as the inherited language, so the two
+    // `lang` losses are of the other attributes with that local name
+    assert_eq!(
+        losses.iter().collect::<Vec<_>>(),
+        [
+            ("//TEI/teiHeader/profileDesc/@lang", 1),
+            ("//TEI/teiHeader/profileDesc/abstract/@coords", 1),
+            ("//TEI/teiHeader/profileDesc/abstract/@id", 1),
+            ("//TEI/teiHeader/profileDesc/abstract/@lang", 2),
+            ("//TEI/teiHeader/profileDesc/abstract/@type", 1),
+        ]
+    );
+
+    Ok(())
+}
+
+#[test]
+fn empty_abstract_groups_do_not_create_parts() -> Result<()> {
+    let (article, losses) = decode_article(&tei(
+        r#"<profileDesc>
+            <abstract xml:lang="fr"/>
+            <abstract xml:lang="en"><p>First</p></abstract>
+            <abstract xml:lang="en"/>
+            <abstract xml:lang="en"><p>Second</p></abstract>
+            <abstract xml:lang="fr"><head>Abstract</head></abstract>
+        </profileDesc>"#,
+        "",
+        "",
+    ))?;
+
+    let primary = article
+        .r#abstract
+        .as_ref()
+        .ok_or_eyre("expected an abstract")?;
+    assert_eq!(
+        primary.iter().map(to_text).collect::<Vec<_>>(),
+        ["First", "Second"]
+    );
+    assert!(article.options.parts.is_none());
+    assert_eq!(
+        losses.iter().collect::<Vec<_>>(),
+        [("//TEI/teiHeader/profileDesc/abstract/@lang", 3)]
+    );
+
+    Ok(())
+}
+
+#[test]
+fn abstract_runs_are_interrupted_by_text_and_other_languages() -> Result<()> {
+    for (separator, interruption_losses) in [
+        (
+            "Stray text",
+            vec![("//TEI/teiHeader/profileDesc/text()", 1)],
+        ),
+        // Even an empty abstract, which is otherwise ignored
+        (r#"<abstract xml:lang="fr"/>"#, vec![]),
+    ] {
+        let (article, losses) = decode_article(&tei(
+            &format!(
+                r#"<profileDesc xml:lang="en">
+                    <abstract><p>First</p></abstract>
+                    {separator}
+                    <abstract><p>Second</p></abstract>
+                </profileDesc>"#
+            ),
+            "",
+            "",
+        ))?;
+
+        assert_eq!(
+            article.r#abstract.as_ref().map(to_text).as_deref(),
+            Some("First")
+        );
+        let expected: [(Option<String>, Vec<String>); 1] =
+            [(Some("en".into()), vec!["Second".into()])];
+        assert_eq!(abstract_parts(&article)?, expected);
+        let mut expected_losses = vec![("//TEI/teiHeader/profileDesc/@lang", 1)];
+        expected_losses.extend(interruption_losses);
+        assert_eq!(losses.iter().collect::<Vec<_>>(), expected_losses);
+    }
+
+    Ok(())
+}
+
+#[test]
+fn nonconsecutive_abstracts_in_same_language_stay_separate() -> Result<()> {
+    let (article, losses) = decode_article(&tei(
+        r#"<profileDesc>
+            <abstract xml:lang="en"><p>First</p></abstract>
+            <textClass><keywords><term>Example</term></keywords></textClass>
+            <abstract xml:lang="en"><p>Second</p></abstract>
+        </profileDesc>"#,
+        "",
+        "",
+    ))?;
+
+    assert_eq!(
+        article.r#abstract.as_ref().map(to_text).as_deref(),
+        Some("First")
+    );
+    let expected: [(Option<String>, Vec<String>); 1] = [(Some("en".into()), vec!["Second".into()])];
+    assert_eq!(abstract_parts(&article)?, expected);
+    assert_eq!(article.options.keywords, Some(vec!["Example".into()]));
+    assert_eq!(
+        losses.iter().collect::<Vec<_>>(),
+        [("//TEI/teiHeader/profileDesc/abstract/@lang", 1)]
+    );
 
     Ok(())
 }

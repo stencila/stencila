@@ -1,9 +1,9 @@
-use roxmltree::Node;
+use roxmltree::{NS_XML_URI, Node};
 
 use stencila_codec::stencila_schema::{
-    Article, Block, CreativeWorkVariant, CreativeWorkVariantOrString, DateTime, Heading,
-    Organization, OrganizationOptions, Periodical, PersonOrOrganization, PublicationIssue,
-    PublicationVolume,
+    Article, ArticleOptions, Block, CreativeWorkVariant, CreativeWorkVariantOrString, DateTime,
+    Heading, Object, Organization, OrganizationOptions, Periodical, PersonOrOrganization,
+    Primitive, PublicationIssue, PublicationVolume,
 };
 use stencila_codec_text_trait::to_text;
 
@@ -383,13 +383,70 @@ fn decode_source_monogr(node: &Node, article: &mut Article, context: &mut Contex
     }
 }
 
-/// Decode a `<profileDesc>`: the abstract and keywords
+/// Decode a `<profileDesc>`: the abstracts and keywords
+///
+/// Consecutive abstracts with the same language are joined in source order.
+/// The first nonempty group becomes the article's abstract. Subsequent groups
+/// become article parts, as for additional JATS abstracts, with their language
+/// in `inLanguage` metadata (there is no dedicated schema property for it).
+///
+/// An article has no property for the language of its abstract either, so the
+/// language of the first group is lost. Where it is inherited, it is recorded
+/// as lost on the ancestor that sets it, otherwise on each of the abstracts.
 fn decode_profile_desc(node: &Node, article: &mut Article, context: &mut Context) {
     context.lost_attrs(node, &[]);
 
-    for child in node.children() {
+    // Indentation and comments do not break a run of consecutive abstracts.
+    let mut children = node
+        .children()
+        .filter(|child| {
+            child.is_element()
+                || (child.is_text() && child.text().is_some_and(|text| !text.trim().is_empty()))
+        })
+        .peekable();
+    while let Some(child) = children.next() {
         match child.tag_name().name() {
-            "abstract" => decode_abstract(&child, article, context),
+            "abstract" => {
+                let language = effective_language(&child);
+                let mut group = vec![child];
+                while let Some(next) = children.next_if(|next| {
+                    next.has_tag_name("abstract") && effective_language(next) == language
+                }) {
+                    group.push(next);
+                }
+
+                let content = group
+                    .iter()
+                    .flat_map(|element| decode_abstract(element, context))
+                    .collect::<Vec<_>>();
+                if content.is_empty() {
+                    continue;
+                }
+
+                if article.r#abstract.is_none() {
+                    // A language that differs from the inherited one can only
+                    // come from each abstract's own `xml:lang`
+                    if language != effective_language(node) {
+                        for element in &group {
+                            context.lost_attr(element, "lang");
+                        }
+                    }
+                    article.r#abstract = Some(content);
+                } else {
+                    article.options.parts.get_or_insert_default().push(
+                        CreativeWorkVariant::Article(Article {
+                            r#abstract: Some(content),
+                            options: Box::new(ArticleOptions {
+                                extra: language.map(|language| {
+                                    Object::from([("inLanguage", Primitive::String(language))])
+                                }),
+                                ..Default::default()
+                            }),
+                            ..Default::default()
+                        }),
+                    );
+                }
+            }
             "textClass" => {
                 context.lost_attrs(&child, &[]);
                 for grandchild in child.children() {
@@ -405,28 +462,40 @@ fn decode_profile_desc(node: &Node, article: &mut Article, context: &mut Context
     }
 }
 
+/// The effective language of an element, including an inherited `xml:lang`.
+///
+/// An empty `xml:lang` value resets the inherited language. Language tags are
+/// compared without regard to case; an unspecified language stays distinct
+/// from a specified one.
+fn effective_language(node: &Node) -> Option<String> {
+    node.ancestors()
+        .find_map(|ancestor| ancestor.attribute((NS_XML_URI, "lang")))
+        .filter(|language| !language.is_empty())
+        .map(str::to_ascii_lowercase)
+}
+
 /// Decode an `<abstract>`
 ///
 /// The content is decoded with the headings of any sections at level 2, as
 /// when decoding a JATS abstract, and a heading that is just "Abstract" is
 /// dropped. GROBID puts such a heading in a `<div>`, so a section headed
 /// "Abstract" is replaced by the rest of its content, unless it has an id, in
-/// which case only the heading is dropped. Only the first abstract is
-/// decoded; any others are recorded as lost.
-fn decode_abstract(node: &Node, article: &mut Article, context: &mut Context) {
-    if article.r#abstract.is_some() {
-        context.lost(node);
-        return;
+/// which case only the heading is dropped.
+fn decode_abstract(node: &Node, context: &mut Context) -> Vec<Block> {
+    // Only `xml:lang` is decoded (by the caller), not other attributes with
+    // the same local name, so this does not use `lost_attrs`
+    for attribute in node.attributes() {
+        if !(attribute.namespace() == Some(NS_XML_URI) && attribute.name() == "lang") {
+            context.lost_attr(node, attribute.name());
+        }
     }
-
-    context.lost_attrs(node, &[]);
 
     let is_abstract_heading = |block: &Block| {
         matches!(block, Block::Heading(Heading { content, .. })
             if to_text(content).trim().to_lowercase() == "abstract")
     };
 
-    let content = decode_divisions(node.children(), 1, Divisions::Sections, context)
+    decode_divisions(node.children(), 1, Divisions::Sections, context)
         .into_iter()
         .flat_map(|block| match block {
             Block::Section(mut section)
@@ -442,11 +511,7 @@ fn decode_abstract(node: &Node, article: &mut Article, context: &mut Context) {
             block if is_abstract_heading(&block) => Vec::new(),
             block => vec![block],
         })
-        .collect::<Vec<_>>();
-
-    if !content.is_empty() {
-        article.r#abstract = Some(content);
-    }
+        .collect()
 }
 
 /// Decode a `<keywords>`
