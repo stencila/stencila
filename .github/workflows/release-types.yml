@@ -1,0 +1,90 @@
+# Publish @stencila/types from a release tag.
+# Configure npm trusted publishing for stencila/stencila, release-types.yml,
+# with no environment: https://docs.npmjs.com/trusted-publishers/
+
+name: Release TypeScript types
+
+on:
+  # Triggered by version.yml, or manually to publish an existing release tag.
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: The tag to publish e.g. v2.19.0
+        type: string
+        required: true
+
+concurrency:
+  group: release-types-${{ inputs.tag }}
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - name: Checkout release tag
+        uses: actions/checkout@v4
+        with:
+          ref: refs/tags/${{ inputs.tag }}
+
+      - name: Setup Node.js and NPM
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          registry-url: "https://registry.npmjs.org"
+
+      - name: Install NPM with trusted publishing support
+        # OIDC authentication requires npm >= 11.5.1.
+        run: npm install --global npm@11
+
+      - name: Check release version
+        id: version
+        env:
+          RELEASE_TAG: ${{ inputs.tag }}
+        run: |
+          node --input-type=module <<'JS'
+          import assert from 'node:assert/strict';
+          import { appendFileSync, readFileSync } from 'node:fs';
+
+          const { name, version } = JSON.parse(readFileSync('ts/package.json', 'utf8'));
+          assert.equal(name, '@stencila/types');
+          assert.match(process.env.RELEASE_TAG, /^v(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)$/);
+          assert.equal(process.env.RELEASE_TAG, `v${version}`, 'Release tag must match ts/package.json');
+
+          const response = await fetch(`https://registry.npmjs.org/@stencila%2ftypes/${version}`);
+          if (!response.ok && response.status !== 404) {
+            throw new Error(`Unable to check published version: HTTP ${response.status}`);
+          }
+          const published = response.ok;
+          appendFileSync(process.env.GITHUB_OUTPUT, `version=${version}\npublished=${published}\n`);
+          console.log(published ? `${name}@${version} is already published` : `Publishing ${name}@${version}`);
+          JS
+
+      - name: Lint, test, build, and check package
+        if: steps.version.outputs.published != 'true'
+        run: make -C ts lint test pubcheck
+
+      - name: Publish @stencila/types
+        if: steps.version.outputs.published != 'true'
+        run: npm publish --workspace=ts --access public --provenance --tag latest
+
+      - name: Verify published package
+        env:
+          PACKAGE_VERSION: ${{ steps.version.outputs.version }}
+        run: |
+          cd "$(mktemp -d)"
+          npm init --yes
+          # Registry metadata can take a little time to reflect a new publication.
+          for attempt in {1..10}; do
+            if npm install --ignore-scripts --no-audit --no-fund --prefer-online "@stencila/types@$PACKAGE_VERSION"; then
+              break
+            fi
+            if [ "$attempt" -eq 10 ]; then
+              exit 1
+            fi
+            sleep 15
+          done
+          node --input-type=module -e 'import { Article } from "@stencila/types"; import assert from "node:assert/strict"; assert.equal(new Article([]).type, "Article")'
+          node --input-type=commonjs -e 'const { Article } = require("@stencila/types"); const assert = require("node:assert/strict"); assert.equal(new Article([]).type, "Article")'

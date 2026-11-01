@@ -1,10 +1,9 @@
-# Workflow for creating releases of NPM packages
+# Workflow for creating releases of @stencila/node.
 #
-# This workflow is triggered by the `version.yml` workflow when a version
-# tag is created (one starting with `v`).
+# @stencila/types is published separately by release-types.yml during normal releases.
 #
-# It also has inputs to allow all, or some jobs, to be triggered manually via
-# https://github.com/stencila/stencila/actions/workflows/release.yml.
+# Inputs allow all, or some jobs, to be triggered manually via
+# https://github.com/stencila/stencila/actions/workflows/release-npm.yml.
 # This is useful for fixing parts of the release without creating a new tag, or
 # moving an existing tag.
 
@@ -15,10 +14,6 @@ on:
     inputs:
       create-release:
         description: Create release
-        type: boolean
-        default: true
-      publish-types:
-        description: Publish @stencila/types
         type: boolean
         default: true
       publish-plugin:
@@ -47,25 +42,6 @@ env:
   NODE_VERSION: "22"
 
 jobs:
-  # Build and publish @stencila/types package
-  publish-types:
-    if: ${{ inputs.publish-types }}
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      - name: Setup Node.js and NPM
-        uses: actions/setup-node@v4
-        with:
-          node-version: ${{ env.NODE_VERSION }}
-          registry-url: "https://registry.npmjs.org"
-
-      - name: Publish @stencila/types
-        run: make -C ts -B install publish
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
-
   # Create a release for @stencila/node binary addons to be uploaded to
   create-release:
     runs-on: ubuntu-latest
@@ -161,7 +137,7 @@ jobs:
   # Trigger the install test workflow
   trigger-install:
     if: ${{ inputs.trigger-install }}
-    needs: [publish-types, publish-node]
+    needs: [publish-node]
     runs-on: ubuntu-latest
     permissions:
         actions: write
