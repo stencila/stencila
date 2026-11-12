@@ -461,7 +461,9 @@ pub fn is_provider_available(provider: &str, overrides: &AuthOverrides) -> bool 
         "mistral" => get_secret("MISTRAL_API_KEY").is_some(),
         "deepseek" => get_secret("DEEPSEEK_API_KEY").is_some(),
         "ollama" => {
-            std::env::var("OLLAMA_BASE_URL").is_ok() || std::env::var("OLLAMA_HOST").is_ok()
+            std::env::var("OLLAMA_BASE_URL").is_ok()
+                || std::env::var("OLLAMA_HOST").is_ok()
+                || crate::providers::OllamaAdapter::is_available("localhost:11434")
         }
         _ => false,
     }
@@ -551,6 +553,31 @@ pub struct RefreshResult {
     /// Per-provider errors encountered during listing.
     /// Each entry is `(provider_name, error)`.
     pub provider_errors: Vec<(String, SdkError)>,
+}
+
+/// Merge Ollama models into the catalog.
+///
+/// This is used for auto-refreshing Ollama models without `--live`,
+/// since Ollama runs locally and the query is fast. Existing catalog
+/// entries are preserved; only new models are appended.
+///
+/// # Errors
+///
+/// Returns `SdkError::Configuration` if the catalog lock is poisoned.
+pub fn merge_ollama_models(models: Vec<ModelInfo>) -> SdkResult<Vec<ModelInfo>> {
+    let ollama_models: Vec<ModelInfo> = models
+        .into_iter()
+        .map(|mut m| {
+            m.provider = "ollama".into();
+            m
+        })
+        .collect();
+
+    if ollama_models.is_empty() {
+        return Ok(Vec::new());
+    }
+
+    append_discovered_models(ollama_models)
 }
 
 /// Refresh the catalog by querying each provider in the client for its
