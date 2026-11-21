@@ -791,6 +791,132 @@ async fn session_turn_limit() -> AgentResult<()> {
     Ok(())
 }
 
+/// A tool-call response priced on a real model with the given usage.
+fn priced_tool_call_response(
+    provider: &str,
+    model: &str,
+    usage: Usage,
+) -> Result<Response, SdkError> {
+    let mut response = tool_call_response("", vec![echo_call("r")])?;
+    response.provider = provider.into();
+    response.model = model.into();
+    response.usage = usage;
+    Ok(response)
+}
+
+fn turn_limit_types(events: &[stencila_agents::types::SessionEvent]) -> Vec<String> {
+    events
+        .iter()
+        .filter(|e| e.kind == EventKind::TurnLimit)
+        .filter_map(|e| e.data.get("limit_type").and_then(|v| v.as_str()))
+        .map(String::from)
+        .collect()
+}
+
+#[tokio::test]
+async fn session_cost_limit_stops_before_next_call() -> AgentResult<()> {
+    // Each response bills 200k input + 10k output tokens on gpt-4o
+    // ($0.50 + $0.10 = $0.60). A $1.00 cap admits two calls, then stops,
+    // well before max_turns (unlimited here) would.
+    let usage = Usage {
+        input_tokens: 200_000,
+        output_tokens: 10_000,
+        total_tokens: 210_000,
+        ..Usage::default()
+    };
+    let config = SessionConfig {
+        max_cost_usd: Some(1.0),
+        ..SessionConfig::default()
+    };
+
+    let (mut session, mut rx, client) = test_session_with_config(
+        vec![
+            priced_tool_call_response("openai", "gpt-4o", usage.clone()),
+            priced_tool_call_response("openai", "gpt-4o", usage.clone()),
+            priced_tool_call_response("openai", "gpt-4o", usage),
+            text_response("never reached"),
+        ],
+        config,
+    )?;
+
+    session.submit("Go").await?;
+    assert_eq!(session.state(), SessionState::Idle);
+    assert_eq!(session.total_turns(), 2, "third call must not be made");
+    assert_eq!(client.take_requests()?.len(), 2);
+
+    let events = drain_events(&mut rx).await;
+    let limit = events
+        .iter()
+        .find(|e| {
+            e.kind == EventKind::TurnLimit
+                && e.data.get("limit_type").and_then(|v| v.as_str()) == Some("max_cost_usd")
+        })
+        .expect("Expected TURN_LIMIT event for max_cost_usd");
+    let spent = limit
+        .data
+        .get("spent_usd")
+        .and_then(serde_json::Value::as_f64)
+        .unwrap_or_default();
+    assert!((spent - 1.2).abs() < 1e-6, "spent {spent}");
+
+    Ok(())
+}
+
+#[tokio::test]
+async fn session_cost_limit_counts_anthropic_cache_tokens() -> AgentResult<()> {
+    // Anthropic reports input_tokens without the cached prompt; a long cached
+    // context must still be billed against the cap.
+    let usage = Usage {
+        input_tokens: 10,
+        output_tokens: 10,
+        total_tokens: 20,
+        cache_write_tokens: Some(400_000),
+        ..Usage::default()
+    };
+    let config = SessionConfig {
+        max_cost_usd: Some(1.0),
+        ..SessionConfig::default()
+    };
+
+    let (mut session, mut rx, client) = test_session_with_config(
+        vec![
+            priced_tool_call_response("anthropic", "claude-sonnet-4-5", usage),
+            text_response("never reached"),
+        ],
+        config,
+    )?;
+
+    session.submit("Go").await?;
+    assert_eq!(client.take_requests()?.len(), 1);
+    let events = drain_events(&mut rx).await;
+    assert_eq!(turn_limit_types(&events), vec!["max_cost_usd".to_string()]);
+
+    Ok(())
+}
+
+#[tokio::test]
+async fn session_cost_limit_fails_closed_on_unpriced_model() -> AgentResult<()> {
+    let config = SessionConfig {
+        max_cost_usd: Some(100.0),
+        ..SessionConfig::default()
+    };
+
+    let (mut session, mut rx, client) = test_session_with_config(
+        vec![
+            tool_call_response("", vec![echo_call("r1")]),
+            text_response("never reached"),
+        ],
+        config,
+    )?;
+
+    session.submit("Go").await?;
+    assert_eq!(client.take_requests()?.len(), 1);
+    let events = drain_events(&mut rx).await;
+    assert_eq!(turn_limit_types(&events), vec!["max_cost_usd".to_string()]);
+
+    Ok(())
+}
+
 #[tokio::test]
 async fn abort_stops_loop() -> AgentResult<()> {
     let controller = AbortController::new();

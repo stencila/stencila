@@ -25,6 +25,7 @@ ignore = { workspace = true }
 image = { workspace = true }
 indexmap = { workspace = true }
 jsonschema = { workspace = true }
+llm-budget = { version = "0.10.0", default-features = false }
 regex = { workspace = true }
 reqwest = { workspace = true }
 rust-embed = { workspace = true }
