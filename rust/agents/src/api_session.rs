@@ -267,6 +267,13 @@ pub struct ApiSession {
     /// it provides more useful limiting behavior: a single tool-using turn
     /// counts as 1 turn regardless of how many tool results are generated.
     total_turns: u32,
+
+    /// Dollar budget enforcing [`SessionConfig::max_cost_usd`], if set.
+    cost_budget: Option<llm_budget::AgentBudget>,
+
+    /// Set when a response could not be priced under `max_cost_usd`.
+    cost_stop_reason: Option<String>,
+
     truncation_config: TruncationConfig,
 
     /// Bounded sliding window of tool-call signatures for loop detection.
@@ -449,6 +456,8 @@ impl ApiSession {
         #[cfg(not(any(feature = "mcp", feature = "codemode")))]
         let _ = mcp_context;
 
+        let cost_budget = build_cost_budget(&config);
+
         let session = Self {
             config,
             state: SessionState::Idle,
@@ -462,6 +471,8 @@ impl ApiSession {
             system_prompt,
             abort_signal: None,
             total_turns: 0,
+            cost_budget,
+            cost_stop_reason: None,
             truncation_config,
             tool_call_signatures: VecDeque::new(),
             subagent_manager,
@@ -822,6 +833,12 @@ impl ApiSession {
                 break;
             }
 
+            // 2d. Check session cost limit
+            if self.cost_limit_reached() {
+                self.emit_cost_limit();
+                break;
+            }
+
             // 3. Drain steering queue (after limit checks so messages are not
             //    consumed without a subsequent LLM call to deliver them)
             self.drain_steering();
@@ -1096,6 +1113,7 @@ impl ApiSession {
                 .collect();
             let usage = response.usage.clone();
             let response_id = response.id.clone();
+            self.record_cost(&response.provider, &response.model, &usage);
 
             self.events
                 .emit_assistant_text_end(&text, reasoning.clone());
@@ -2210,12 +2228,94 @@ impl ApiSession {
         self.abort_kind() != AbortKind::Active
     }
 
+    /// Book the cost of one response against the session's dollar budget.
+    ///
+    /// A model with no known price stops the session at the next limit
+    /// check: a dollar cap that cannot be priced must not run open.
+    fn record_cost(
+        &mut self,
+        provider: &str,
+        model: &str,
+        usage: &stencila_models3::types::usage::Usage,
+    ) {
+        let Some(budget) = &self.cost_budget else {
+            return;
+        };
+        if let Err(error) = budget.record(model, &to_budget_usage(provider, usage)) {
+            tracing::warn!("Stopping session: cannot price `{model}` for max_cost_usd: {error}");
+            self.cost_stop_reason = Some(error.to_string());
+        }
+    }
+
+    /// Whether the dollar cap has been reached (or could not be enforced).
+    fn cost_limit_reached(&self) -> bool {
+        self.cost_budget
+            .as_ref()
+            .is_some_and(|budget| budget.is_exhausted() || self.cost_stop_reason.is_some())
+    }
+
+    /// Emit a TURN_LIMIT event for the dollar cap.
+    fn emit_cost_limit(&self) {
+        let Some(budget) = &self.cost_budget else {
+            return;
+        };
+        let mut data = serde_json::Map::new();
+        data.insert("limit_type".into(), Value::String("max_cost_usd".into()));
+        data.insert("count".into(), Value::Number(self.total_turns.into()));
+        if let Some(n) = serde_json::Number::from_f64(budget.spent_usd()) {
+            data.insert("spent_usd".into(), Value::Number(n));
+        }
+        if let Some(n) = serde_json::Number::from_f64(budget.limit_usd()) {
+            data.insert("limit_usd".into(), Value::Number(n));
+        }
+        if let Some(reason) = &self.cost_stop_reason {
+            data.insert("reason".into(), Value::String(reason.clone()));
+        }
+        self.events.emit_turn_limit(data);
+    }
+
     /// Emit a TURN_LIMIT event with limit details.
     fn emit_turn_limit(&self, limit_type: &str, count: u32) {
         let mut data = serde_json::Map::new();
         data.insert("limit_type".into(), Value::String(limit_type.into()));
         data.insert("count".into(), Value::Number(count.into()));
         self.events.emit_turn_limit(data);
+    }
+}
+
+/// Build the dollar budget for [`SessionConfig::max_cost_usd`], if one is set.
+fn build_cost_budget(config: &SessionConfig) -> Option<llm_budget::AgentBudget> {
+    let limit = config.max_cost_usd.filter(|limit| *limit > 0.0)?;
+    match llm_budget::AgentBudget::builder("agent-session", limit).build() {
+        Ok(budget) => Some(budget),
+        Err(error) => {
+            tracing::warn!("Ignoring invalid max_cost_usd {limit}: {error}");
+            None
+        }
+    }
+}
+
+/// Convert provider-reported usage into `llm-budget` usage.
+///
+/// Anthropic reports `input_tokens` excluding cache reads and writes; the
+/// other providers include cached tokens in `input_tokens`.
+fn to_budget_usage(
+    provider: &str,
+    usage: &stencila_models3::types::usage::Usage,
+) -> llm_budget::Usage {
+    let cache_read = usage.cache_read_tokens.unwrap_or(0);
+    let cache_write = usage.cache_write_tokens.unwrap_or(0);
+    if provider == "anthropic" {
+        llm_budget::Usage::from_parts(
+            usage.input_tokens,
+            cache_read,
+            cache_write,
+            usage.output_tokens,
+        )
+    } else {
+        llm_budget::Usage::new(usage.input_tokens, usage.output_tokens)
+            .with_cache_read(cache_read)
+            .with_cache_write(cache_write)
     }
 }
 

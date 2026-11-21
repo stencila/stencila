@@ -118,6 +118,17 @@ pub struct SessionConfig {
     /// Maximum tool rounds per user input.
     pub max_tool_rounds_per_input: u32,
 
+    /// Maximum spend for the session in US dollars (`None` = unlimited).
+    ///
+    /// Every assistant response is priced from the token usage the provider
+    /// reports (including prompt-cache reads and writes) with `llm-budget`.
+    /// Once the cap is reached the loop stops with a `TURN_LIMIT` event whose
+    /// `limit_type` is `max_cost_usd`. The cap fails closed: if the model has
+    /// no known price, the session stops after that response rather than
+    /// running uncapped.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub max_cost_usd: Option<f64>,
+
     /// Default command timeout in milliseconds (10 seconds).
     #[default(10_000)]
     pub default_command_timeout_ms: u64,
